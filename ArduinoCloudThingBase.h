@@ -27,9 +27,9 @@
 #define TEMPERATURE_F "fahrenheit"
 
 /// Distance
-#define LENGHT_M "meters"
-#define LENGHT_C "centimeters"
-#define LENGHT_I "inches"
+#define LENGTH_M "meters"
+#define LENGTH_C "centimeters"
+#define LENGTH_I "inches"
 
 /// MIX
 #define PERCENTAGE "percentage"
