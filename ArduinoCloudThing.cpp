@@ -19,10 +19,10 @@ boolean ArduinoCloudThing::connect() {
 
     char statusTopic[strlen(username) + strlen(name) + strlen(STATUS_TOPIC) + 3]; // 2 extra bytes for /'s, 1 for null terminator
     sprintf(statusTopic, "%s/%s/%s", username, name, STATUS_TOPIC);
-     if (cloud_debug) {
-         CLOUD_DEBUG_STREAM.print("Will Topic: ");
-         CLOUD_DEBUG_STREAM.println(statusTopic);
-     }
+    //  if (cloud_debug) {
+    //      CLOUD_DEBUG_STREAM.print("Will Topic: ");
+    //      CLOUD_DEBUG_STREAM.println(statusTopic);
+    //  }
     options.clientID.cstring = (char*)name;
     options.username.cstring = (char*)id;
     options.password.cstring = (char*)password;
@@ -32,10 +32,10 @@ boolean ArduinoCloudThing::connect() {
     options.will.message.cstring = (char*)OFFLINE_STATUS_PAYLOAD;
     options.will.retained = 0x1;
 
-    // if (client->connect(options) == 0) {
-    //     publish(statusTopic, (char*)ONLINE_STATUS_PAYLOAD, strlen(ONLINE_STATUS_PAYLOAD), true);
-    //     return true;
-    // }
+    if (client->connect(options) == 0) {
+        publish(statusTopic, (char*)ONLINE_STATUS_PAYLOAD, strlen(ONLINE_STATUS_PAYLOAD), true);
+        return true;
+    }
 
     return false;
 }
