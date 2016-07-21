@@ -31,14 +31,12 @@ boolean ArduinoCloudThing::connect() {
     options.will.topicName.cstring = (char*)statusTopic;
     options.will.message.cstring = (char*)OFFLINE_STATUS_PAYLOAD;
     options.will.retained = 0x1;
-    Serial.println("connected");
 
-    if (client->connect(options) == 0) {
-        publish(statusTopic, (char*)ONLINE_STATUS_PAYLOAD, strlen(ONLINE_STATUS_PAYLOAD), true);
-        return true;
-    }
+    // if (client->connect(options) == 0) {
+    //     publish(statusTopic, (char*)ONLINE_STATUS_PAYLOAD, strlen(ONLINE_STATUS_PAYLOAD), true);
+    //     return true;
+    // }
 
-    Serial.println("connection failed");
     return false;
 }
 

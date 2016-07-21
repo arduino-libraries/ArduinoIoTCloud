@@ -21,7 +21,6 @@ int Network::read(unsigned char* buffer, int len, int timeout) {
   this->client->setTimeout(timeout);
   return this->client->readBytes(buffer, len);
 }
-    
 int Network::write(unsigned char* buffer, int len, int timeout) {
   if(!client->connected()) {
     return -1; // return an error
@@ -34,7 +33,6 @@ int Network::write(unsigned char* buffer, int len, int timeout) {
 boolean Network::connected() {
   return client->connected();
 }
-    
 int Network::disconnect() {
   client->stop();
   return 0;
