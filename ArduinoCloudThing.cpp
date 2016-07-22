@@ -61,7 +61,7 @@ void ArduinoCloudThing::poll() {
             CLOUD_DEBUG_STREAM.println("Connecting to mqtt broker...");
         }
         if (!connect()){
-            delay(1000);
+            return;
         }
         if (cloud_debug) {
             CLOUD_DEBUG_STREAM.println("Connected");
