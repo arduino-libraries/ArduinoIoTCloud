@@ -30,7 +30,7 @@ int Network::write(unsigned char* buffer, int len, int timeout) {
   return client->write((uint8_t*)buffer, len);
 }
 
-boolean Network::connected() {
+bool Network::connected() {
   return client->connected();
 }
 int Network::disconnect() {
