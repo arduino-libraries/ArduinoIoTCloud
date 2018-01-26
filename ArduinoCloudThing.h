@@ -3,10 +3,10 @@
 
 #include <Client.h>
 #include <Stream.h>
-#include <MQTTClient.h>
-#include <LinkedList.h>
-#include <CborDecoder.h>
-#include <CborEncoder.h>
+#include "lib/MQTT/src/MQTTClient.h"
+#include "lib/LinkedList/LinkedList.h"
+#include "lib/CBOR/CborDecoder.h"
+#include "lib/CBOR/CborEncoder.h"
 
 #ifndef MQTT_BUFFER_SIZE
 #define MQTT_BUFFER_SIZE 256
@@ -90,7 +90,7 @@ public:
     void appendValue(CborWriter &cbor);
 
     void append(CborWriter &cbor) {
-        writer.writeArray(4);
+        cbor.writeArray(4);
         cbor.writeTag(tag);
         cbor.writeString(name);
         appendValue(cbor);
