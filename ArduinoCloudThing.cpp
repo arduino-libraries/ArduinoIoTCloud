@@ -84,17 +84,20 @@ bool ArduinoCloudThing::connect() {
     return false;
 }
 
-void ArduinoCloudThing::publish(CborDynamicOutput& output) {
+void ArduinoCloudThing::publish(CborObject& object) {
 
     bool retained = false;
 
-    unsigned char *buf = output.getData();
+    uint8_t data[1024];
+    size_t size = object.encode(data, sizeof(data));
 
 #ifdef TESTING_PROTOCOL
-    decode(buf, output.getSize());
+    decode(data, size);
 #endif
 
-    client->publish(GENERAL_TOPIC, (const char*)buf, output.getSize());
+#ifndef TESTING_PROTOCOL
+    client->publish(GENERAL_TOPIC, (const char*)data, size);
+#endif
 
     for (int i = 0; i < list.size(); i++) {
         ArduinoCloudPropertyGeneric *p = list.get(i);
@@ -115,11 +118,13 @@ int ArduinoCloudThing::poll() {
 
     // check if backing storage and cloud has diverged
     int diff = 0;
-    CborDynamicOutput output;
-    diff = checkNewData(output);
+
+    diff = checkNewData();
     if (diff > 0) {
-        compress(output, diff);
-        publish(output);
+        CborBuffer buffer(1024);
+        CborObject object = CborObject(buffer);
+        compress(object, buffer);
+        publish(object);
     }
 
 #ifdef DEBUG_MEMORY
@@ -129,21 +134,23 @@ int ArduinoCloudThing::poll() {
     return diff;
 }
 
-void ArduinoCloudThing::compress(CborDynamicOutput& output, int howMany) {
+void ArduinoCloudThing::compress(CborObject& object, CborBuffer& buffer) {
 
-    CborWriter writer(output);
-
-    writer.writeArray(howMany);
+    CborArray array = CborArray(buffer);
 
     for (int i = 0; i < list.size(); i++) {
         ArduinoCloudPropertyGeneric *p = list.get(i);
         if (p->newData()) {
-            p->append(writer);
+            CborObject child = CborObject(buffer);
+            p->append(child);
+            CborVariant variant = CborVariant(buffer, child);
+            array.add(variant);
         }
     }
+    object.set("a", array);
 }
 
-int ArduinoCloudThing::checkNewData(CborDynamicOutput& output) {
+int ArduinoCloudThing::checkNewData() {
     int counter = 0;
     for (int i = 0; i < list.size(); i++) {
         ArduinoCloudPropertyGeneric *p = list.get(i);
@@ -193,13 +200,22 @@ void ArduinoCloudThing::callback(MQTTClient *client, char topic[], char bytes[],
 }
 
 void ArduinoCloudThing::decode(uint8_t * payload, size_t length) {
-    CborInput input(payload, length);
+    /*
+    CborBuffer buffer(200);
+    CborVariant variant = buffer.decode(payload, length);
+    CborArray array = variant.asArray();
 
-    CborReader reader(input);
-    CborPropertyListener listener(&list);
-    reader.SetListener(listener);
-    reader.Run();
+    CborVariant obj = array.get(0);
+    if (!obj.isValid()) {
+        return;
+    }
+    if (obj.isString()) {
+
+    }
+    */
 }
+
+/*
 
 void CborPropertyListener::OnInteger(int32_t value) {
     if (currentListIndex < 0) {
@@ -268,3 +284,5 @@ void CborPropertyListener::OnSpecial(uint32_t code) {
 
 void CborPropertyListener::OnError(const char *error) {
 }
+
+*/

@@ -5,8 +5,7 @@
 #include <Stream.h>
 #include "lib/MQTT/src/MQTTClient.h"
 #include "lib/LinkedList/LinkedList.h"
-#include "lib/CBOR/CborDecoder.h"
-#include "lib/CBOR/CborEncoder.h"
+#include "lib/ArduinoCbor/src/ArduinoCbor.h"
 
 #ifndef MQTT_BUFFER_SIZE
 #define MQTT_BUFFER_SIZE 256
@@ -33,7 +32,7 @@ enum boolStatus {
 class ArduinoCloudPropertyGeneric
 {
 public:
-    virtual void append(CborWriter &cbor) = 0;
+    virtual void append(CborObject& object) = 0;
     virtual String& getName() = 0;
     virtual void setName(String _name) = 0;
     virtual void setPermission(permissionType _permission) = 0;
@@ -87,14 +86,12 @@ public:
         return permission;
     }
 
-    void appendValue(CborWriter &cbor);
+    void appendValue(CborObject &cbor);
 
-    void append(CborWriter &cbor) {
-        cbor.writeArray(4);
-        cbor.writeTag(tag);
-        cbor.writeString(name);
+    void append(CborObject &cbor) {
+        cbor.set("n", name.c_str());
         appendValue(cbor);
-        cbor.writeSpecial(permission);
+        cbor.set("p", permission);
     }
 
     bool newData() {
@@ -115,29 +112,28 @@ protected:
 };
 
 template <>
-inline void ArduinoCloudProperty<int>::appendValue(CborWriter &cbor) {
-    cbor.writeInt(property);
+inline void ArduinoCloudProperty<int>::appendValue(CborObject &cbor) {
+    cbor.set("i", property);
 };
 
 template <>
-inline void ArduinoCloudProperty<bool>::appendValue(CborWriter &cbor) {
-    //cbor.writeBoolean(property);
-    cbor.writeInt((int)property);
+inline void ArduinoCloudProperty<bool>::appendValue(CborObject &cbor) {
+    cbor.set("b", property);
 };
 
 template <>
-inline void ArduinoCloudProperty<float>::appendValue(CborWriter &cbor) {
-    //cbor.writeFloat(property);
+inline void ArduinoCloudProperty<float>::appendValue(CborObject &cbor) {
+    cbor.set("f", property);
 };
 
 template <>
-inline void ArduinoCloudProperty<String>::appendValue(CborWriter &cbor) {
-    cbor.writeString(property);
+inline void ArduinoCloudProperty<String>::appendValue(CborObject &cbor) {
+    cbor.set("s", property.c_str());
 };
 
 template <>
-inline void ArduinoCloudProperty<char*>::appendValue(CborWriter &cbor) {
-    cbor.writeString(property);
+inline void ArduinoCloudProperty<char*>::appendValue(CborObject &cbor) {
+    cbor.set("s", property);
 };
 
 #ifndef addProperty
@@ -159,11 +155,11 @@ public:
 private:
     static void callback(MQTTClient *client, char topic[], char bytes[], int length);
     bool connect();
-    void publish(CborDynamicOutput& output);
+    void publish(CborObject& object);
 
     void update();
-    int checkNewData(CborDynamicOutput& output);
-    void compress(CborDynamicOutput& output, int howMany);
+    int checkNewData();
+    void compress(CborObject& object, CborBuffer& buffer);
     void decode(uint8_t * payload, size_t length);
 
     bool exists(String &name);
@@ -174,24 +170,6 @@ private:
     LinkedList<ArduinoCloudPropertyGeneric*> list;
 
     MQTTClient* client;
-};
-
-class CborPropertyListener : public CborListener {
-  public:
-    CborPropertyListener(LinkedList<ArduinoCloudPropertyGeneric*> *_list) : list(_list) {}
-    void OnInteger(int32_t value);
-    void OnBytes(unsigned char *data, unsigned int size);
-    void OnString(String &str);
-    void OnArray(unsigned int size);
-    void OnMap(unsigned int size) ;
-    void OnTag(uint32_t tag);
-    void OnSpecial(uint32_t code);
-    void OnError(const char *error);
-    LinkedList<ArduinoCloudPropertyGeneric*> *list;
-    int currentListIndex;
-    bool justStarted = true;
-    int list_size = 0;
-    bool newElement = false;
 };
 
 #endif

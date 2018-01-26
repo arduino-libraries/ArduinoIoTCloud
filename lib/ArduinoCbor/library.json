@@ -1,0 +1,10 @@
+{
+  "name": "ArduinoCbor",
+  "keywords": "cbor",
+  "description": "CBOR library for Arduino",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bergos/ArduinoCbor.git"
+  },
+  "frameworks": "arduino"
+}
