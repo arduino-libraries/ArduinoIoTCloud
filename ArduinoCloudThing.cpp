@@ -1,8 +1,51 @@
 #include <Arduino.h>
 #include <ArduinoCloudThing.h>
 
-ArduinoCloudThing::ArduinoCloudThing() {
+#ifdef DEBUG_MEMORY
+extern "C" char *sbrk(int i);
+void PrintFreeRam (void)
+{
+    char stack_dummy = 0;
+    Serial.print("Free RAM: "); Serial.println(&stack_dummy - sbrk(0));
+}
+#endif
 
+#ifdef ARDUINO_ARCH_SAMD
+static void utox8(uint32_t val, char* s) {
+    for (int i = 0; i < 8; i++) {
+        int d = val & 0XF;
+        val = (val >> 4);
+
+        s[7 - i] = d > 9 ? 'A' + d - 10 : '0' + d;
+    }
+}
+#endif
+
+#ifdef USE_ARDUINO_CLOUD
+
+char MQTT_SERVER[] = "10.130.22.94";
+int MQTT_PORT = 1883;
+char GENERAL_TOPIC[] = "/main";
+char MQTT_USER[] = "";
+char MQTT_PASSWORD[] = "";
+char LWT_TOPIC[] = "";
+char LWT_MESSAGE[] = "";
+
+#endif
+
+ArduinoCloudThing::ArduinoCloudThing() {
+#ifdef ARDUINO_ARCH_SAMD
+    #define SERIAL_NUMBER_WORD_0    *(volatile uint32_t*)(0x0080A00C)
+    #define SERIAL_NUMBER_WORD_1    *(volatile uint32_t*)(0x0080A040)
+    #define SERIAL_NUMBER_WORD_2    *(volatile uint32_t*)(0x0080A044)
+    #define SERIAL_NUMBER_WORD_3    *(volatile uint32_t*)(0x0080A048)
+
+    utox8(SERIAL_NUMBER_WORD_0, &uuid[0]);
+    utox8(SERIAL_NUMBER_WORD_1, &uuid[8]);
+    utox8(SERIAL_NUMBER_WORD_2, &uuid[16]);
+    utox8(SERIAL_NUMBER_WORD_3, &uuid[24]);
+    uuid[32] = '\0';
+#endif
 }
 
 /*
@@ -10,13 +53,11 @@ ArduinoCloudThing::ArduinoCloudThing() {
  * connect 
  */
 
-static constexpr char* PLACEHOLDER = "placeholder";
-
 void ArduinoCloudThing::begin(Client &client) {
-    this->client = new MQTT::Client<ArduinoCloudThing, Network, Timer, MQTT_BUFFER_SIZE, 0>(network);
-    this->network.setClient(&client);
-    this->options = MQTTPacket_connectData_initializer;
-    this->client->defaultMessageHandler.attach<ArduinoCloudThing>(this, &ArduinoCloudThing::callback);
+    this->client = new MQTTClient();
+    this->client->onMessageAdvanced(ArduinoCloudThing::callback);
+    this->client->begin(MQTT_SERVER, MQTT_PORT, client);
+    this->client->setParent((void*)this);
 
     // using WiFi client and ECC508 connect to server
     while (!connect()) {
@@ -27,136 +68,144 @@ void ArduinoCloudThing::begin(Client &client) {
 
 bool ArduinoCloudThing::connect() {
 
-#ifdef TESTING
+#ifdef TESTING_PROTOCOL
     return true;
 #endif
 
-    if(!network.connect(PLACEHOLDER, 0xDEADBEEF)) {
-        return false;
-    }
-
-    options.clientID.cstring = PLACEHOLDER;
-    options.username.cstring = PLACEHOLDER;
-    options.password.cstring = PLACEHOLDER;
-    options.keepAliveInterval = 10;
-    options.willFlag = 0x1;
-    options.will.topicName.cstring = PLACEHOLDER;
-    options.will.message.cstring = PLACEHOLDER;
-    options.will.retained = 0x1;
-
-    if (client->connect(options) != 0) {
+    if (client->connect(uuid, MQTT_USER, MQTT_PASSWORD) != 0) {
         // set status to ON
         status = ON;
-        addProperty(status, WRITE);
-        // execute first poll() to syncronize the "manifest"
-        poll();
+        addProperty(status, READ);
         // subscribe to "general" topic
-        client->subscribe("placeholder", MQTT::QOS0, NULL);
+        client->subscribe(GENERAL_TOPIC);
         return true;
     }
 
     return false;
 }
 
-void ArduinoCloudThing::publish() {
+void ArduinoCloudThing::publish(CborDynamicOutput& output) {
 
     bool retained = false;
 
-    CborDynamicOutput output;
-    CborWriter writer(output);
+    unsigned char *buf = output.getData();
 
-    writer.writeTag(1);
+#ifdef TESTING_PROTOCOL
+    decode(buf, output.getSize());
+#endif
+
+    client->publish(GENERAL_TOPIC, (const char*)buf, output.getSize());
 
     for (int i = 0; i < list.size(); i++) {
         ArduinoCloudPropertyGeneric *p = list.get(i);
-        p->append(writer);
+        p->updateShadow();
     }
-
-    unsigned char *buf = output.getData();
-
-    decodeCBORData(buf, output.getSize());
-
-    MQTT::Message message;
-    message.qos = MQTT::QOS0;
-    message.retained = retained;
-    message.dup = false;
-    message.payload = (void*)buf;
-    message.payloadlen = output.getSize();
-    client->publish(topic, message);
 }
 
 // Reconnect to the mqtt broker
 int ArduinoCloudThing::poll() {
 
-#ifndef TESTING
-    if (!client->isConnected()){
+#ifndef TESTING_PROTOCOL
+    if (!client->connected()){
         if (!connect()){
             return 0;
         }
     }
-    if(!network.connected() && client->isConnected()) {
-      client->disconnect();
-    }
 #endif
 
     // check if backing storage and cloud has diverged
-    int diff_in = 0;
-    int diff_out = 1;
-    checkNewData(&diff_in , &diff_out);
-    if (diff_out > 0) {
-        publish();
+    int diff = 0;
+    CborDynamicOutput output;
+    diff = checkNewData(output);
+    if (diff > 0) {
+        compress(output, diff);
+        publish(output);
     }
-    if (diff_in > 0) {
-        update();
-    }
-    client->yield();
-    return diff_in;
+
+#ifdef DEBUG_MEMORY
+    PrintFreeRam();
+#endif
+
+    return diff;
 }
 
-void ArduinoCloudThing::checkNewData(int* new_data_in, int* new_data_out) {
+void ArduinoCloudThing::compress(CborDynamicOutput& output, int howMany) {
 
+    CborWriter writer(output);
+
+    writer.writeArray(howMany);
+
+    for (int i = 0; i < list.size(); i++) {
+        ArduinoCloudPropertyGeneric *p = list.get(i);
+        if (p->newData()) {
+            p->append(writer);
+        }
+    }
+}
+
+int ArduinoCloudThing::checkNewData(CborDynamicOutput& output) {
+    int counter = 0;
+    for (int i = 0; i < list.size(); i++) {
+        ArduinoCloudPropertyGeneric *p = list.get(i);
+        if (p->newData()) {
+            counter++;
+        }
+    }
+    return counter;
+}
+
+bool ArduinoCloudThing::exists(String &name) {
+    for (int i = 0; i < list.size(); i++) {
+        ArduinoCloudPropertyGeneric *p = list.get(i);
+        if (p->getName() == name) {
+            return true;
+        }
+    }
+    return false;
 }
 
 void ArduinoCloudThing::addPropertyReal(int& property, String name, permissionType permission) {
+    if (exists(name)) {
+        return;
+    }
     ArduinoCloudProperty<int> *thing = new ArduinoCloudProperty<int>(property, name, permission);
     list.add(thing);
 }
 
 void ArduinoCloudThing::addPropertyReal(bool& property, String name, permissionType permission) {
+    if (exists(name)) {
+        return;
+    }
     ArduinoCloudProperty<bool> *thing = new ArduinoCloudProperty<bool>(property, name, permission);
     list.add(thing);
 }
 
 void ArduinoCloudThing::addPropertyReal(float& property, String name, permissionType permission) {
+    if (exists(name)) {
+        return;
+    }
     ArduinoCloudProperty<float> *thing = new ArduinoCloudProperty<float>(property, name, permission);
     list.add(thing);
 }
 
-
-ArduinoCloudThing ArduinoCloudThing::callback(MQTT::MessageData& messageData) {
-    MQTT::Message &message = messageData.message;
-    // null terminate topic to create String object
-
-    // unwrap message into a structure
-    uint8_t * payload = (uint8_t*)message.payload;
-    decodeCBORData(payload, message.payloadlen);
-
-    return *this;
+void ArduinoCloudThing::callback(MQTTClient *client, char topic[], char bytes[], int length) {
+    reinterpret_cast<ArduinoCloudThing*>(client->getParent())->decode((uint8_t *)bytes, length);
 }
 
-void ArduinoCloudThing::decodeCBORData(uint8_t * payload, size_t length) {
-    list_shadow.clear();
-
+void ArduinoCloudThing::decode(uint8_t * payload, size_t length) {
     CborInput input(payload, length);
 
     CborReader reader(input);
-    CborPropertyListener listener(list_shadow);
+    CborPropertyListener listener(&list);
     reader.SetListener(listener);
     reader.Run();
 }
 
 void CborPropertyListener::OnInteger(int32_t value) {
-    printf("integer: %d\n", value);
+    if (currentListIndex < 0) {
+        return;
+    }
+    reinterpret_cast<ArduinoCloudProperty<int>*>(list->get(currentListIndex))->write(value);
 }
 
 void CborPropertyListener::OnBytes(unsigned char *data, unsigned int size) {
@@ -164,25 +213,58 @@ void CborPropertyListener::OnBytes(unsigned char *data, unsigned int size) {
 }
 
 void CborPropertyListener::OnString(String &str) {
-    printf("string: '%.*s'\n", (int)str.length(), str.c_str());
+    // if tag arrived, search a string with the same name in the list
+    if (newElement == true) {
+        newElement = false;
+        for (int i = 0; i < list->size(); i++) {
+            ArduinoCloudPropertyGeneric *p = list->get(i);
+            if (p->getName() == str) {
+                currentListIndex = i;
+                break;
+            }
+            if (i == list->size()) {
+                Serial.println("Property not found, skipping");
+                currentListIndex = -1;
+            }
+        }
+    } else {
+        if (currentListIndex < 0) {
+            return;
+        }
+        reinterpret_cast<ArduinoCloudProperty<String>*>(list->get(currentListIndex))->write(str);
+    }
 }
 
 void CborPropertyListener::OnArray(unsigned int size) {
-    printf("array: %d\n", size);
+
+    // prepare for new properties to arrive
+    if (justStarted == true) {
+        list_size = size;
+        justStarted = false;
+    }
 }
 
 void CborPropertyListener::OnMap(unsigned int size) {
-    printf("map: %d\n", size);
 }
 
-void CborPropertyListener::OnTag(unsigned int tag) {
-    printf("tag: %d\n", tag);
+void CborPropertyListener::OnTag(uint32_t tag) {
+     newElement = true;
+     list_size--;
+     if (list_size < 0) {
+        Serial.println("problem, we got more properties than advertised");
+     }
 }
 
-void CborPropertyListener::OnSpecial(unsigned int code) {
-    printf("special: %d\n", code);
+void CborPropertyListener::OnSpecial(uint32_t code) {
+
+    if (currentListIndex < 0) {
+        return;
+    }
+    if (list->get(currentListIndex)->getPermission() != code) {
+        Serial.println("permission changed, updating");
+        list->get(currentListIndex)->setPermission((permissionType)code);
+    }
 }
 
 void CborPropertyListener::OnError(const char *error) {
-    printf("error: %s\n", error);
 }
