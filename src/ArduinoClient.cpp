@@ -64,6 +64,11 @@ int ArduinoCloudClass::connect()
   return 1;
 }
 
+void ArduinoCloudClass::poll()
+{
+  _mqttClient.loop();
+}
+
 void ArduinoCloudClass::onGetTime(unsigned long(*callback)(void))
 {
   ArduinoBearSSL.onGetTime(callback);

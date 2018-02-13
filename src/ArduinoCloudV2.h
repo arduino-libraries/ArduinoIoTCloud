@@ -14,6 +14,8 @@ public:
 
   int connect();
 
+  void poll();
+
   void onGetTime(unsigned long(*)(void));
 
 private:

@@ -63,6 +63,6 @@ void setup() {
 }
 
 void loop() {
-
+  ArduinoCloud.poll();
 }
 
