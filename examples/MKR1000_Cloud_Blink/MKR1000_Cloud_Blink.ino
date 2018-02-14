@@ -1,9 +1,6 @@
 #include <WiFi101.h>
 #include <ArduinoCloudV2.h>
 
-#include <ArduinoBearSSL.h>
-#include <utility/ECC508.h>
-
 #include "arduino_secrets.h"
 ///////please enter your sensitive data in the Secret tab/arduino_secrets.h
 char ssid[] = SECRET_SSID;        // your network SSID (name)

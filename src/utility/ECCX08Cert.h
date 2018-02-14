@@ -1,13 +1,13 @@
-#ifndef _ECC508_CERT_H_
-#define _ECC508_CERT_H_
+#ifndef _ECCX08_CERT_H_
+#define _ECCC08_CERT_H_
 
 #include <Arduino.h>
 
-class ECC508CertClass {
+class ECCX08CertClass {
 
 public:
-  ECC508CertClass();
-  virtual ~ECC508CertClass();
+  ECCX08CertClass();
+  virtual ~ECCX08CertClass();
 
   int beginCSR(int keySlot, bool newPrivateKey = true);
   String endCSR();
@@ -108,6 +108,6 @@ private:
   int _length;
 };
 
-extern ECC508CertClass ECC508Cert;
+extern ECCX08CertClass ECCX08Cert;
 
 #endif

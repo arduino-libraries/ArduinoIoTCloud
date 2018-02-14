@@ -1,9 +1,9 @@
 #include <ArduinoCloudV2.h>
-#include <utility/ECC508Cert.h>
-#include <utility/ECC508TLSConfig.h>
+#include <utility/ECCX08Cert.h>
+#include <utility/ECCX08TLSConfig.h>
 
 #include <ArduinoBearSSL.h>
-#include <utility/ECC508.h>
+#include <utility/ECCX08.h>
 
 const int keySlot            = 0;
 const int compressedCertSlot = 10;
@@ -13,36 +13,36 @@ void setup() {
   Serial.begin(9600);
   while (!Serial);
 
-  if (!ECC508.begin()) {
-    Serial.println("No ECC508 present!");
+  if (!ECCX08.begin()) {
+    Serial.println("No ECCX08 present!");
     while (1);
   }
 
-  if (!ECC508.locked()) {
-    Serial.println("ECC508 is unlocked, locking ...");
+  if (!ECCX08.locked()) {
+    Serial.println("ECCX08 is unlocked, locking ...");
 
-    if (!ECC508.writeConfiguration(DEFAULT_ECC508_TLS_CONFIG)) {
-      Serial.println("Writing ECC508 configuration failed!");
+    if (!ECCX08.writeConfiguration(DEFAULT_ECCX08_TLS_CONFIG)) {
+      Serial.println("Writing ECCX08 configuration failed!");
       while (1);
     }
 
-    if (!ECC508.lock()) {
-      Serial.println("Locking ECC508 configuration failed!");
+    if (!ECCX08.lock()) {
+      Serial.println("Locking ECCX08 configuration failed!");
       while (1);
     }
 
-    Serial.println("ECC508 locked successfully");
+    Serial.println("ECCX08 locked successfully");
     Serial.println();
   }
 
-  if (!ECC508Cert.beginCSR(keySlot, true)) {
+  if (!ECCX08Cert.beginCSR(keySlot, true)) {
     Serial.println("Error starting CSR generation!");
     while (1);
   }
 
-  ECC508Cert.setSubjectCommonName(ECC508.serialNumber());
+  ECCX08Cert.setSubjectCommonName(ECCX08.serialNumber());
 
-  String csr = ECC508Cert.endCSR();
+  String csr = ECCX08Cert.endCSR();
 
   if (!csr) {
     Serial.println("Error generating CSR!");
@@ -70,43 +70,43 @@ void setup() {
   hexStringToBytes(serialNumber, serialNumberBytes, sizeof(serialNumberBytes));
   hexStringToBytes(signature, signatureBytes, 64);
 
-  if (!ECC508Cert.beginStorage(compressedCertSlot, serialNumberSlot)) {
-    Serial.println("Error starting ECC508 storage!");
+  if (!ECCX08Cert.beginStorage(compressedCertSlot, serialNumberSlot)) {
+    Serial.println("Error starting ECCX08 storage!");
     while (1);
   }
 
-  ECC508Cert.setSignature(signatureBytes);
-  ECC508Cert.setSerialNumber(serialNumberBytes);
-  ECC508Cert.setIssueYear(issueYear.toInt());
-  ECC508Cert.setIssueMonth(issueMonth.toInt());
-  ECC508Cert.setIssueDay(issueDay.toInt());
-  ECC508Cert.setIssueHour(issueHour.toInt());
-  ECC508Cert.setExpireYears(expireYears.toInt());
+  ECCX08Cert.setSignature(signatureBytes);
+  ECCX08Cert.setSerialNumber(serialNumberBytes);
+  ECCX08Cert.setIssueYear(issueYear.toInt());
+  ECCX08Cert.setIssueMonth(issueMonth.toInt());
+  ECCX08Cert.setIssueDay(issueDay.toInt());
+  ECCX08Cert.setIssueHour(issueHour.toInt());
+  ECCX08Cert.setExpireYears(expireYears.toInt());
 
-  if (!ECC508Cert.endStorage()) {
-    Serial.println("Error storing ECC508 compressed cert!");
+  if (!ECCX08Cert.endStorage()) {
+    Serial.println("Error storing ECCX08 compressed cert!");
     while (1);
   }
 
-  if (!ECC508Cert.beginReconstruction(keySlot, compressedCertSlot, serialNumberSlot)) {
-    Serial.println("Error starting ECC508 cert reconstruction!");
+  if (!ECCX08Cert.beginReconstruction(keySlot, compressedCertSlot, serialNumberSlot)) {
+    Serial.println("Error starting ECCX08 cert reconstruction!");
     while (1);
   }
 
-  ECC508Cert.setIssuerCountryName("US");
-  ECC508Cert.setIssuerOrganizationName("Arduino LLC US");
-  ECC508Cert.setIssuerOrganizationalUnitName("IT");
-  ECC508Cert.setIssuerCommonName("Arduino");
+  ECCX08Cert.setIssuerCountryName("US");
+  ECCX08Cert.setIssuerOrganizationName("Arduino LLC US");
+  ECCX08Cert.setIssuerOrganizationalUnitName("IT");
+  ECCX08Cert.setIssuerCommonName("Arduino");
 
-  if (!ECC508Cert.endReconstruction()) {
-    Serial.println("Error reconstructing ECC508 compressed cert!");
+  if (!ECCX08Cert.endReconstruction()) {
+    Serial.println("Error reconstructing ECCX08 compressed cert!");
     while (1);
   }
 
   Serial.println("Compressed cert = ");
 
-  const byte* certData = ECC508Cert.bytes();
-  int certLength = ECC508Cert.length();
+  const byte* certData = ECCX08Cert.bytes();
+  int certLength = ECCX08Cert.length();
 
   for (int i = 0; i < certLength; i++) {
     byte b = certData[i];

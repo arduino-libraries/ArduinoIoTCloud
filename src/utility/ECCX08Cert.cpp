@@ -1,8 +1,8 @@
 #include <ArduinoBearSSL.h>
 #include <bearssl/bearssl_hash.h>
-#include <utility/ECC508.h>
+#include <utility/ECCX08.h>
 
-#include "ECC508Cert.h"
+#include "ECCX08Cert.h"
 
 #define ASN1_INTEGER           0x02
 #define ASN1_BIT_STRING        0x03
@@ -67,7 +67,7 @@ static String base64Encode(const byte in[], unsigned int length, const char* pre
   return out;
 }
 
-ECC508CertClass::ECC508CertClass() :
+ECCX08CertClass::ECCX08CertClass() :
   _keySlot(-1),
   _compressedCertSlot(-1),
   _serialNumberSlot(-1),
@@ -76,7 +76,7 @@ ECC508CertClass::ECC508CertClass() :
 {
 }
 
-ECC508CertClass::~ECC508CertClass()
+ECCX08CertClass::~ECCX08CertClass()
 {
   if (_bytes) {
     free(_bytes);
@@ -84,7 +84,7 @@ ECC508CertClass::~ECC508CertClass()
   }
 }
 
-int ECC508CertClass::beginCSR(int keySlot, bool newPrivateKey)
+int ECCX08CertClass::beginCSR(int keySlot, bool newPrivateKey)
 {
   if (keySlot < 0 || keySlot > 8) {
     return 0;
@@ -93,11 +93,11 @@ int ECC508CertClass::beginCSR(int keySlot, bool newPrivateKey)
   _keySlot = keySlot;
 
   if (newPrivateKey) {
-    if (!ECC508.generatePrivateKey(_keySlot, _temp)) {
+    if (!ECCX08.generatePrivateKey(_keySlot, _temp)) {
       return 0;
     }
   } else {
-    if (!ECC508.generatePublicKey(_keySlot, _temp)) {
+    if (!ECCX08.generatePublicKey(_keySlot, _temp)) {
       return 0;
     }
   }
@@ -105,7 +105,7 @@ int ECC508CertClass::beginCSR(int keySlot, bool newPrivateKey)
   return 1;
 }
 
-String ECC508CertClass::endCSR()
+String ECCX08CertClass::endCSR()
 {
   int versionLen = versionLength();
   int subjectLen = issuerOrSubjectLength(_subjectCountryName,
@@ -157,7 +157,7 @@ String ECC508CertClass::endCSR()
   br_sha256_update(&sha256Context, csrInfo, csrInfoHeaderLen + csrInfoLen);
   br_sha256_out(&sha256Context, csrInfoSha256);
 
-  if (!ECC508.ecSign(_keySlot, csrInfoSha256, signature)) {
+  if (!ECCX08.ecSign(_keySlot, csrInfoSha256, signature)) {
     return "";
   }
 
@@ -182,7 +182,7 @@ String ECC508CertClass::endCSR()
   return base64Encode(csr, csrLen + csrHeaderLen, "-----BEGIN CERTIFICATE REQUEST-----\n", "\n-----END CERTIFICATE REQUEST-----\n");
 }
 
-int ECC508CertClass::beginStorage(int compressedCertSlot, int serialNumberSlot)
+int ECCX08CertClass::beginStorage(int compressedCertSlot, int serialNumberSlot)
 {
   if (compressedCertSlot < 8 || compressedCertSlot > 15) {
     return 0;
@@ -200,14 +200,14 @@ int ECC508CertClass::beginStorage(int compressedCertSlot, int serialNumberSlot)
   return 1;
 }
 
-void ECC508CertClass::setSignature(byte signature[])
+void ECCX08CertClass::setSignature(byte signature[])
 {
   struct CompressedCert* compressedCert = (struct CompressedCert*)_temp;
 
   memcpy(compressedCert->signature, signature, 64);
 }
 
-void ECC508CertClass::setIssueYear(int issueYear)
+void ECCX08CertClass::setIssueYear(int issueYear)
 {
   struct CompressedCert* compressedCert = (struct CompressedCert*)_temp;
 
@@ -215,7 +215,7 @@ void ECC508CertClass::setIssueYear(int issueYear)
   compressedCert->dates[0] |= (issueYear - 2000) << 3;
 }
 
-void ECC508CertClass::setIssueMonth(int issueMonth)
+void ECCX08CertClass::setIssueMonth(int issueMonth)
 {
   struct CompressedCert* compressedCert = (struct CompressedCert*)_temp;
 
@@ -226,7 +226,7 @@ void ECC508CertClass::setIssueMonth(int issueMonth)
   compressedCert->dates[1] |= issueMonth << 7;
 }
 
-void ECC508CertClass::setIssueDay(int issueDay)
+void ECCX08CertClass::setIssueDay(int issueDay)
 {
   struct CompressedCert* compressedCert = (struct CompressedCert*)_temp;
 
@@ -234,7 +234,7 @@ void ECC508CertClass::setIssueDay(int issueDay)
   compressedCert->dates[1] |= issueDay << 2;
 }
 
-void ECC508CertClass::setIssueHour(int issueHour)
+void ECCX08CertClass::setIssueHour(int issueHour)
 {
   struct CompressedCert* compressedCert = (struct CompressedCert*)_temp;
 
@@ -245,7 +245,7 @@ void ECC508CertClass::setIssueHour(int issueHour)
   compressedCert->dates[1] |= issueHour >> 3;
 }
 
-void ECC508CertClass::setExpireYears(int expireYears)
+void ECCX08CertClass::setExpireYears(int expireYears)
 {
   struct CompressedCert* compressedCert = (struct CompressedCert*)_temp;
 
@@ -253,25 +253,25 @@ void ECC508CertClass::setExpireYears(int expireYears)
   compressedCert->dates[2] |= expireYears;
 }
 
-void ECC508CertClass::setSerialNumber(byte serialNumber[])
+void ECCX08CertClass::setSerialNumber(byte serialNumber[])
 {
   memcpy(&_temp[72], serialNumber, 72);
 }
 
-int ECC508CertClass::endStorage()
+int ECCX08CertClass::endStorage()
 {
-  if (!ECC508.writeSlot(_compressedCertSlot, &_temp[0], 72)) {
+  if (!ECCX08.writeSlot(_compressedCertSlot, &_temp[0], 72)) {
     return 0;
   }
 
-  if (!ECC508.writeSlot(_serialNumberSlot, &_temp[72], 72)) {
+  if (!ECCX08.writeSlot(_serialNumberSlot, &_temp[72], 72)) {
     return 0;
   }
 
   return 1;
 }
 
-int ECC508CertClass::beginReconstruction(int keySlot, int compressedCertSlot, int serialNumberSlot)
+int ECCX08CertClass::beginReconstruction(int keySlot, int compressedCertSlot, int serialNumberSlot)
 {
   if (keySlot < 0 || keySlot > 8) {
     return 0;
@@ -292,21 +292,21 @@ int ECC508CertClass::beginReconstruction(int keySlot, int compressedCertSlot, in
   return 1;
 }
 
-int ECC508CertClass::endReconstruction()
+int ECCX08CertClass::endReconstruction()
 {
   byte publicKey[64];
   struct CompressedCert compressedCert;
   byte serialNumber[72];
 
-  if (!ECC508.generatePublicKey(_keySlot, publicKey)) {
+  if (!ECCX08.generatePublicKey(_keySlot, publicKey)) {
     return 0;
   }
 
-  if (!ECC508.readSlot(_compressedCertSlot, (byte*)&compressedCert, sizeof(compressedCert))) {
+  if (!ECCX08.readSlot(_compressedCertSlot, (byte*)&compressedCert, sizeof(compressedCert))) {
     return 0;
   }
 
-  if (!ECC508.readSlot(_serialNumberSlot, serialNumber, sizeof(serialNumber))) {
+  if (!ECCX08.readSlot(_serialNumberSlot, serialNumber, sizeof(serialNumber))) {
     return 0;
   }
 
@@ -422,83 +422,82 @@ int ECC508CertClass::endReconstruction()
   return 1;
 }
 
-byte* ECC508CertClass::bytes()
+byte* ECCX08CertClass::bytes()
 {
   return _bytes;
 }
 
-int ECC508CertClass::length()
+int ECCX08CertClass::length()
 {
   return _length;
 }
 
-
-void ECC508CertClass::setIssuerCountryName(const String& countryName)
+void ECCX08CertClass::setIssuerCountryName(const String& countryName)
 {
   _issuerCountryName = countryName;
 }
 
-void ECC508CertClass::setIssuerStateProvinceName(const String& stateProvinceName)
+void ECCX08CertClass::setIssuerStateProvinceName(const String& stateProvinceName)
 {
   _issuerStateProvinceName = stateProvinceName;
 }
 
-void ECC508CertClass::setIssuerLocalityName(const String& localityName)
+void ECCX08CertClass::setIssuerLocalityName(const String& localityName)
 {
   _issuerLocalityName = localityName;
 }
 
-void ECC508CertClass::setIssuerOrganizationName(const String& organizationName)
+void ECCX08CertClass::setIssuerOrganizationName(const String& organizationName)
 {
   _issuerOrganizationName = organizationName;
 }
 
-void ECC508CertClass::setIssuerOrganizationalUnitName(const String& organizationalUnitName)
+void ECCX08CertClass::setIssuerOrganizationalUnitName(const String& organizationalUnitName)
 {
   _issuerOrganizationalUnitName = organizationalUnitName;
 }
 
-void ECC508CertClass::setIssuerCommonName(const String& commonName)
+void ECCX08CertClass::setIssuerCommonName(const String& commonName)
 {
   _issuerCommonName = commonName;
 }
 
-void ECC508CertClass::setSubjectCountryName(const String& countryName)
+void ECCX08CertClass::setSubjectCountryName(const String& countryName)
 {
   _subjectCountryName = countryName;
 }
 
-void ECC508CertClass::setSubjectStateProvinceName(const String& stateProvinceName)
+void ECCX08CertClass::setSubjectStateProvinceName(const String& stateProvinceName)
 {
   _subjectStateProvinceName = stateProvinceName;
 }
 
-void ECC508CertClass::setSubjectLocalityName(const String& localityName)
+void ECCX08CertClass::setSubjectLocalityName(const String& localityName)
 {
   _subjectLocalityName = localityName;
 }
 
-void ECC508CertClass::setSubjectOrganizationName(const String& organizationName)
+void ECCX08CertClass::setSubjectOrganizationName(const String& organizationName)
 {
   _subjectOrganizationName = organizationName;
 }
 
-void ECC508CertClass::setSubjectOrganizationalUnitName(const String& organizationalUnitName)
+void ECCX08CertClass::setSubjectOrganizationalUnitName(const String& organizationalUnitName)
 {
   _subjectOrganizationName = organizationalUnitName;
 }
 
-void ECC508CertClass::setSubjectCommonName(const String& commonName)
+void ECCX08CertClass::setSubjectCommonName(const String& commonName)
 {
   _subjectCommonName = commonName;
 }
 
-int ECC508CertClass::versionLength()
+int ECCX08CertClass::versionLength()
 {
   return 3;
 }
 
-int ECC508CertClass::issuerOrSubjectLength(const String& countryName,
+int ECCX08CertClass::issuerOrSubjectLength(const String& countryName,
                                             const String& stateProvinceName,
                                             const String& localityName,
                                             const String& organizationName,
@@ -540,12 +539,12 @@ int ECC508CertClass::issuerOrSubjectLength(const String& countryName,
   return length;
 }
 
-int ECC508CertClass::publicKeyLength()
+int ECCX08CertClass::publicKeyLength()
 {
   return (2 + 2 + 9 + 10 + 4 + 64);
 }
 
-int ECC508CertClass::signatureLength(const byte signature[])
+int ECCX08CertClass::signatureLength(const byte signature[])
 {
   const byte* r = &signature[0];
   const byte* s = &signature[32];
@@ -574,7 +573,7 @@ int ECC508CertClass::signatureLength(const byte signature[])
   return (21 + rLength + sLength);
 }
 
-int ECC508CertClass::serialNumberLength(const byte serialNumber[])
+int ECCX08CertClass::serialNumberLength(const byte serialNumber[])
 {
   int length = 72;
 
@@ -590,7 +589,7 @@ int ECC508CertClass::serialNumberLength(const byte serialNumber[])
   return (2 + length);
 }
 
-int ECC508CertClass::sequenceHeaderLength(int length)
+int ECCX08CertClass::sequenceHeaderLength(int length)
 {
   if (length > 255) {
     return 4;
@@ -601,14 +600,14 @@ int ECC508CertClass::sequenceHeaderLength(int length)
   }
 }
 
-void ECC508CertClass::appendVersion(int version, byte out[])
+void ECCX08CertClass::appendVersion(int version, byte out[])
 {
   out[0] = ASN1_INTEGER;
   out[1] = 0x01;
   out[2] = version;
 }
 
-void ECC508CertClass::appendIssuerOrSubject(const String& countryName,
+void ECCX08CertClass::appendIssuerOrSubject(const String& countryName,
                                             const String& stateProvinceName,
                                             const String& localityName,
                                             const String& organizationName,
@@ -641,7 +640,7 @@ void ECC508CertClass::appendIssuerOrSubject(const String& countryName,
   }
 }
 
-void ECC508CertClass::appendPublicKey(const byte publicKey[], byte out[])
+void ECCX08CertClass::appendPublicKey(const byte publicKey[], byte out[])
 {
   int subjectPublicKeyDataLength = 2 + 9 + 10 + 4 + 64;
 
@@ -683,7 +682,7 @@ void ECC508CertClass::appendPublicKey(const byte publicKey[], byte out[])
   memcpy(out, publicKey, 64);
 }
 
-void ECC508CertClass::appendSignature(const byte signature[], byte out[])
+void ECCX08CertClass::appendSignature(const byte signature[], byte out[])
 {
   // signature algorithm
   *out++ = ASN1_SEQUENCE;
@@ -751,7 +750,7 @@ void ECC508CertClass::appendSignature(const byte signature[], byte out[])
   out += rLength;
 }
 
-void ECC508CertClass::appendSerialNumber(const byte serialNumber[], byte out[])
+void ECCX08CertClass::appendSerialNumber(const byte serialNumber[], byte out[])
 {
   int length = 72;
 
@@ -775,7 +774,7 @@ void ECC508CertClass::appendSerialNumber(const byte serialNumber[], byte out[])
   memcpy(out, serialNumber, length);
 }
 
-int ECC508CertClass::appendName(const String& name, int type, byte out[])
+int ECCX08CertClass::appendName(const String& name, int type, byte out[])
 {
   int nameLength = name.length();
 
@@ -798,7 +797,7 @@ int ECC508CertClass::appendName(const String& name, int type, byte out[])
   return (nameLength + 11);
 }
 
-void ECC508CertClass::appendSequenceHeader(int length, byte out[])
+void ECCX08CertClass::appendSequenceHeader(int length, byte out[])
 {
   *out++ = ASN1_SEQUENCE;
   if (length > 255) {
@@ -810,7 +809,7 @@ void ECC508CertClass::appendSequenceHeader(int length, byte out[])
   *out++ = (length) & 0xff;
 }
 
-int ECC508CertClass::appendDate(int year, int month, int day, int hour, int minute, int second, byte out[])
+int ECCX08CertClass::appendDate(int year, int month, int day, int hour, int minute, int second, byte out[])
 {
   year -= 2000;
 
@@ -833,7 +832,7 @@ int ECC508CertClass::appendDate(int year, int month, int day, int hour, int minu
   return 15;
 }
 
-int ECC508CertClass::appendEcdsaWithSHA256(byte out[])
+int ECCX08CertClass::appendEcdsaWithSHA256(byte out[])
 {
   *out++ = ASN1_SEQUENCE;
   *out++ = 0x0A;
@@ -851,4 +850,4 @@ int ECC508CertClass::appendEcdsaWithSHA256(byte out[])
   return 12;
 }
 
-ECC508CertClass ECC508Cert;
+ECCX08CertClass ECCX08Cert;

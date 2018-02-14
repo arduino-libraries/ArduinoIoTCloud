@@ -1,7 +1,7 @@
-#ifndef _ECC508_TLS_CONFIG_H_
-#define _ECC508_TLS_CONFIG_H_
+#ifndef _ECCX08_TLS_CONFIG_H_
+#define _ECCX08_TLS_CONFIG_H_
 
-const byte DEFAULT_ECC508_TLS_CONFIG[128] = {
+const byte DEFAULT_ECCX08_TLS_CONFIG[128] = {
 // Read only - start
   // SN[0:3]
   0x01, 0x23, 0x00, 0x00,

@@ -1,7 +1,7 @@
 #include "ArduinoCloudV2.h"
 
-#include <utility/ECC508.h>
-#include <utility/ECC508Cert.h>
+#include <utility/ECCX08.h>
+#include <utility/ECCX08Cert.h>
 
 const static char server[] = "a19g5nbe27wn47.iot.eu-west-1.amazonaws.com"; //"xxxxxxxxxxxxxx.iot.xx-xxxx-x.amazonaws.com";
 
@@ -24,21 +24,21 @@ ArduinoCloudClass::~ArduinoCloudClass()
 
 int ArduinoCloudClass::begin(Client& net, const String& id)
 {
-  if (!ECC508.begin()) {
+  if (!ECCX08.begin()) {
     return 0;
   }
 
-  if (!ECC508Cert.beginReconstruction(keySlot, compressedCertSlot, serialNumberSlot)) {
+  if (!ECCX08Cert.beginReconstruction(keySlot, compressedCertSlot, serialNumberSlot)) {
     return 0;
   }
 
-  ECC508Cert.setSubjectCommonName(ECC508.serialNumber());
-  ECC508Cert.setIssuerCountryName("US");
-  ECC508Cert.setIssuerOrganizationName("Arduino LLC US");
-  ECC508Cert.setIssuerOrganizationalUnitName("IT");
-  ECC508Cert.setIssuerCommonName("Arduino");
+  ECCX08Cert.setSubjectCommonName(ECCX08.serialNumber());
+  ECCX08Cert.setIssuerCountryName("US");
+  ECCX08Cert.setIssuerOrganizationName("Arduino LLC US");
+  ECCX08Cert.setIssuerOrganizationalUnitName("IT");
+  ECCX08Cert.setIssuerCommonName("Arduino");
 
-  if (!ECC508Cert.endReconstruction()) {
+  if (!ECCX08Cert.endReconstruction()) {
     return 0;
   }
 
@@ -46,7 +46,7 @@ int ArduinoCloudClass::begin(Client& net, const String& id)
     delete _bearSslClient;
   }
   _bearSslClient = new BearSSLClient(net);
-  _bearSslClient->setEccSlot(keySlot, ECC508Cert.bytes(), ECC508Cert.length());
+  _bearSslClient->setEccSlot(keySlot, ECCX08Cert.bytes(), ECCX08Cert.length());
 
   _mqttClient.begin(server, 8883, *_bearSslClient);
 
