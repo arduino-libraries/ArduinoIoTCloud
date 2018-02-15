@@ -5,6 +5,9 @@
 
 #include <RingBuffer.h>
 
+#define CLOUD_SERIAL_TX_BUFFER_SIZE 64
+#define CLOUD_SERIAL_RX_BUFFER_SIZE 512
+
 class ArduinoCloudClass;
 
 class CloudSerialClass : public Stream
@@ -21,7 +24,6 @@ public:
   int read();
   void flush();
   size_t write(const uint8_t data);
-  size_t write(const uint8_t *buffer, size_t size);
   using Print::write; // pull in write(str) and write(buf, size) from Print
 
   operator bool();
@@ -32,7 +34,8 @@ protected:
   void appendStdin(const uint8_t *buffer, size_t size);
 
 private:
-  RingBufferN<512> _rxBuffer;
+  RingBufferN<CLOUD_SERIAL_TX_BUFFER_SIZE> _txBuffer;
+  RingBufferN<CLOUD_SERIAL_RX_BUFFER_SIZE> _rxBuffer;
 };
 
 extern CloudSerialClass CloudSerial;

@@ -12,6 +12,7 @@ CloudSerialClass::~CloudSerialClass()
 
 void CloudSerialClass::begin(int /*baud*/)
 {
+  _txBuffer.clear();
   _rxBuffer.clear();
 }
 
@@ -30,7 +31,7 @@ int CloudSerialClass::availableForWrite()
 {
   ArduinoCloud.poll();
 
-  return 1;
+  return _txBuffer.availableForStore();
 }
 
 int CloudSerialClass::peek()
@@ -50,22 +51,26 @@ int CloudSerialClass::read()
 void CloudSerialClass::flush()
 {
   ArduinoCloud.poll();
+
+  byte out[CLOUD_SERIAL_TX_BUFFER_SIZE];
+  int length = 0;
+
+  while (_txBuffer.available()) {
+    out[length++] = _txBuffer.read_char();
+  }
+
+  ArduinoCloud.writeStdout(out, length);
 }
 
 size_t CloudSerialClass::write(const uint8_t data)
 {
-  return write(&data, sizeof(data));
-}
+  _txBuffer.store_char(data);
 
-size_t CloudSerialClass::write(const uint8_t *buffer, size_t size)
-{
-  ArduinoCloud.poll();
-Serial.write(buffer, size);
-  if (!ArduinoCloud.writeStdout(buffer, size)) {
-    return 0;
+  if (_txBuffer.isFull() || data == '\n') {
+    flush();
   }
 
-  return size;
+  return 1;
 }
 
 CloudSerialClass::operator bool()
