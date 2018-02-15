@@ -54,6 +54,7 @@ void setup() {
   ArduinoCloud.onGetTime(getTime);
   if (!ArduinoCloud.connect()) {
     Serial.println("Failed to connect to Arduino Cloud!");
+    while (1);
   }
 
   Serial.println("Successfully connected to Arduino Cloud :)");
