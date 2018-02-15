@@ -57,9 +57,19 @@ void setup() {
   }
 
   Serial.println("Successfully connected to Arduino Cloud :)");
+
+  CloudSerial.begin(9600);
 }
 
 void loop() {
   ArduinoCloud.poll();
+
+  if (CloudSerial.available()) {
+    Serial.write(CloudSerial.read());
+  }
+
+  if (Serial.available()) {
+    CloudSerial.write(Serial.read());
+  }
 }
 

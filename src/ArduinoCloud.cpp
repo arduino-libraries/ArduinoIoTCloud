@@ -3,6 +3,8 @@
 #include <utility/ECCX08.h>
 #include <utility/ECCX08Cert.h>
 
+#include "CloudSerial.h"
+
 const static char server[] = "a19g5nbe27wn47.iot.eu-west-1.amazonaws.com"; //"xxxxxxxxxxxxxx.iot.xx-xxxx-x.amazonaws.com";
 
 const static int keySlot            = 0;
@@ -48,9 +50,13 @@ int ArduinoCloudClass::begin(Client& net, const String& id)
   _bearSslClient = new BearSSLClient(net);
   _bearSslClient->setEccSlot(keySlot, ECCX08Cert.bytes(), ECCX08Cert.length());
 
+  _mqttClient.onMessageAdvanced(ArduinoCloudClass::onMessage);
   _mqttClient.begin(server, 8883, *_bearSslClient);
 
   _id = id;
+
+  _stdoutTopic = "$aws/things/" + _id + "/stdout";
+  _stdinTopic = "$aws/things/" + _id + "/stdin";
 
   return 1;
 }
@@ -60,6 +66,8 @@ int ArduinoCloudClass::connect()
   if (!_mqttClient.connect(_id.c_str())) {
     return 0;
   }
+
+  _mqttClient.subscribe(_stdinTopic);
 
   return 1;
 }
@@ -72,6 +80,28 @@ void ArduinoCloudClass::poll()
 void ArduinoCloudClass::onGetTime(unsigned long(*callback)(void))
 {
   ArduinoBearSSL.onGetTime(callback);
+}
+
+int ArduinoCloudClass::connected()
+{
+  return _mqttClient.connected();
+}
+
+int ArduinoCloudClass::writeStdout(const byte data[], int length)
+{
+  return _mqttClient.publish(_stdoutTopic.c_str(), (const char*)data, length);
+}
+
+void ArduinoCloudClass::onMessage(MQTTClient* /*client*/, char topic[], char bytes[], int length)
+{
+  ArduinoCloud.handleMessage(topic, bytes, length);
+}
+
+void ArduinoCloudClass::handleMessage(char topic[], char bytes[], int length)
+{
+  if (_stdinTopic == topic) {
+    CloudSerial.appendStdin((uint8_t*)bytes, length);
+  }
 }
 
 ArduinoCloudClass ArduinoCloud;
