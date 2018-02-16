@@ -198,11 +198,11 @@ public:
 private:
     static void callback(MQTTClient *client, char topic[], char bytes[], int length);
     bool connect();
-    void publish(CborObject& object);
+    void publish(CborArray& object);
 
     void update();
     int checkNewData();
-    void compress(CborObject& object, CborBuffer& buffer);
+    void compress(CborArray& object, CborBuffer& buffer);
     void decode(uint8_t * payload, size_t length);
 
     bool exists(String &name);

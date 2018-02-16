@@ -15,6 +15,8 @@ class CborArray {
   void add(const char* value);
   void add(CBOR_INT_T value);
 
+  size_t encode(uint8_t* data, size_t size);
+
  protected:
   CborBuffer& buffer;
   cn_cbor* raw;

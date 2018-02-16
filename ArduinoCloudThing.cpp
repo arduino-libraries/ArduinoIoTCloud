@@ -22,7 +22,6 @@ static void utox8(uint32_t val, char* s) {
 #endif
 
 #ifdef USE_ARDUINO_CLOUD
-
 char MQTT_SERVER[] = "10.130.22.94";
 int MQTT_PORT = 1883;
 char GENERAL_TOPIC[] = "/main";
@@ -30,7 +29,10 @@ char MQTT_USER[] = "";
 char MQTT_PASSWORD[] = "";
 char LWT_TOPIC[] = "";
 char LWT_MESSAGE[] = "";
+#endif
 
+#ifdef ARDUINO_ARCH_MRAA
+#define Serial DebugSerial
 #endif
 
 ArduinoCloudThing::ArduinoCloudThing() {
@@ -84,7 +86,7 @@ bool ArduinoCloudThing::connect() {
     return false;
 }
 
-void ArduinoCloudThing::publish(CborObject& object) {
+void ArduinoCloudThing::publish(CborArray& object) {
 
     bool retained = false;
 
@@ -122,7 +124,7 @@ int ArduinoCloudThing::poll() {
     diff = checkNewData();
     if (diff > 0) {
         CborBuffer buffer(1024);
-        CborObject object = CborObject(buffer);
+        CborArray object = CborArray(buffer);
         compress(object, buffer);
         publish(object);
     }
@@ -134,9 +136,7 @@ int ArduinoCloudThing::poll() {
     return diff;
 }
 
-void ArduinoCloudThing::compress(CborObject& object, CborBuffer& buffer) {
-
-    CborArray array = CborArray(buffer);
+void ArduinoCloudThing::compress(CborArray& object, CborBuffer& buffer) {
 
     for (int i = 0; i < list.size(); i++) {
         ArduinoCloudPropertyGeneric *p = list.get(i);
@@ -144,10 +144,9 @@ void ArduinoCloudThing::compress(CborObject& object, CborBuffer& buffer) {
             CborObject child = CborObject(buffer);
             p->append(child);
             CborVariant variant = CborVariant(buffer, child);
-            array.add(variant);
+            object.add(variant);
         }
     }
-    object.set("a", array);
 }
 
 int ArduinoCloudThing::checkNewData() {
@@ -205,6 +204,7 @@ void ArduinoCloudThing::callback(MQTTClient *client, char topic[], char bytes[],
 void ArduinoCloudThing::decode(uint8_t * payload, size_t length) {
     CborBuffer buffer(200);
     CborVariant total = buffer.decode(payload, length);
+
     CborArray array = total.asArray();
 
     for (int i=0; ;i++) {
@@ -213,6 +213,7 @@ void ArduinoCloudThing::decode(uint8_t * payload, size_t length) {
         if (!variant.isValid()) {
             break;
         }
+
 
         CborObject object = variant.asObject();
 
@@ -227,7 +228,6 @@ void ArduinoCloudThing::decode(uint8_t * payload, size_t length) {
                     break;
                 }
                 if (idx == list.size()) {
-                    Serial.println("Property not found, skipping");
                     currentListIndex = -1;
                 }
             }
@@ -235,7 +235,6 @@ void ArduinoCloudThing::decode(uint8_t * payload, size_t length) {
 
         if (object.get("t").isValid()) {
             int tag = object.get("t").asInteger();
-
             if (name != "") {
                 list.get(currentListIndex)->setTag(tag);
             } else {
@@ -281,79 +280,9 @@ void ArduinoCloudThing::decode(uint8_t * payload, size_t length) {
 
         if (list.get(currentListIndex)->newData()) {
             // call onUpdate()
-            list.get(currentListIndex)->callback();
-        }
-    }
-}
-
-/*
-
-void CborPropertyListener::OnInteger(int32_t value) {
-    if (currentListIndex < 0) {
-        return;
-    }
-    reinterpret_cast<ArduinoCloudProperty<int>*>(list->get(currentListIndex))->write(value);
-}
-
-void CborPropertyListener::OnBytes(unsigned char *data, unsigned int size) {
-    printf("bytes with size: %d", size);
-}
-
-void CborPropertyListener::OnString(String &str) {
-    // if tag arrived, search a string with the same name in the list
-    if (newElement == true) {
-        newElement = false;
-        for (int i = 0; i < list->size(); i++) {
-            ArduinoCloudPropertyGeneric *p = list->get(i);
-            if (p->getName() == str) {
-                currentListIndex = i;
-                break;
-            }
-            if (i == list->size()) {
-                Serial.println("Property not found, skipping");
-                currentListIndex = -1;
+            if (list.get(currentListIndex)->callback != NULL) {
+                list.get(currentListIndex)->callback();
             }
         }
-    } else {
-        if (currentListIndex < 0) {
-            return;
-        }
-        reinterpret_cast<ArduinoCloudProperty<String>*>(list->get(currentListIndex))->write(str);
     }
 }
-
-void CborPropertyListener::OnArray(unsigned int size) {
-
-    // prepare for new properties to arrive
-    if (justStarted == true) {
-        list_size = size;
-        justStarted = false;
-    }
-}
-
-void CborPropertyListener::OnMap(unsigned int size) {
-}
-
-void CborPropertyListener::OnTag(uint32_t tag) {
-     newElement = true;
-     list_size--;
-     if (list_size < 0) {
-        Serial.println("problem, we got more properties than advertised");
-     }
-}
-
-void CborPropertyListener::OnSpecial(uint32_t code) {
-
-    if (currentListIndex < 0) {
-        return;
-    }
-    if (list->get(currentListIndex)->getPermission() != code) {
-        Serial.println("permission changed, updating");
-        list->get(currentListIndex)->setPermission((permissionType)code);
-    }
-}
-
-void CborPropertyListener::OnError(const char *error) {
-}
-
-*/

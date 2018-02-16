@@ -30,3 +30,7 @@ void CborArray::add(const char* value) {
 void CborArray::add(CBOR_INT_T value) {
   add(CborVariant(buffer, value));
 }
+
+size_t CborArray::encode(uint8_t* data, size_t size) {
+  return cn_cbor_encoder_write(data, 0, size, raw);
+}
