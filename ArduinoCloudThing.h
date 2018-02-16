@@ -29,16 +29,31 @@ enum boolStatus {
     OFF,
 };
 
+#define ON_CHANGE   -1
+
+enum times {
+    SECONDS = 1,
+    MINUTES = 60,
+    HOURS = 3600,
+    DAYS = 86400,
+};
+
 class ArduinoCloudPropertyGeneric
 {
 public:
     virtual void append(CborObject& object) = 0;
     virtual String& getName() = 0;
     virtual void setName(String _name) = 0;
+    virtual void setTag(int _tag) = 0;
+    virtual int getTag() = 0;
     virtual void setPermission(permissionType _permission) = 0;
     virtual permissionType getPermission() = 0;
     virtual bool newData() = 0;
+    virtual bool shouldBeUpdated() = 0;
     virtual void updateShadow() = 0;
+    virtual ArduinoCloudPropertyGeneric& onUpdate(void(*fn)(void)) = 0;
+    virtual ArduinoCloudPropertyGeneric& publishEvery(long seconds) = 0;
+    void(*callback)(void) = NULL;
 };
 
 template <typename T>
@@ -78,6 +93,10 @@ public:
         tag = _tag;
     }
 
+    int getTag() {
+        return tag;
+    }
+
     void setPermission(permissionType _permission) {
         permission = _permission;
     }
@@ -86,16 +105,38 @@ public:
         return permission;
     }
 
+    ArduinoCloudPropertyGeneric& onUpdate(void(*fn)(void)) {
+        callback = fn;
+        return *(reinterpret_cast<ArduinoCloudPropertyGeneric*>(this));
+    }
+
     void appendValue(CborObject &cbor);
 
     void append(CborObject &cbor) {
-        cbor.set("n", name.c_str());
+        if (tag != -1) {
+            cbor.set("t", tag);
+        } else {
+            cbor.set("n", name.c_str());
+        }
         appendValue(cbor);
         cbor.set("p", permission);
+        lastUpdated = millis();
+    }
+
+    ArduinoCloudPropertyGeneric& publishEvery(long seconds) {
+        updatePolicy = seconds;
+        return *(reinterpret_cast<ArduinoCloudPropertyGeneric*>(this));
     }
 
     bool newData() {
         return (property != shadow_property);
+    }
+
+    bool shouldBeUpdated() {
+        if (updatePolicy == ON_CHANGE) {
+            return newData();
+        }
+        return (millis() - lastUpdated > updatePolicy * 1000) ;
     }
 
     inline bool operator==(const ArduinoCloudProperty& rhs){
@@ -106,7 +147,9 @@ protected:
     T& property;
     T shadow_property;
     String name;
-    int tag;
+    int tag = -1;
+    long lastUpdated = 0;
+    long updatePolicy = ON_CHANGE;
     permissionType permission;
     static int tagIndex;
 };
@@ -144,11 +187,11 @@ class ArduinoCloudThing {
 public:
     ArduinoCloudThing();
     void begin(Client &client);
-    void addPropertyReal(int& property, String name, permissionType permission);
-    void addPropertyReal(bool& property, String name, permissionType permission);
-    void addPropertyReal(float& property, String name, permissionType permission);
-    void addPropertyReal(void* property, String name, permissionType permission);
-    void addPropertyReal(String property, String name, permissionType permission);
+    ArduinoCloudPropertyGeneric& addPropertyReal(int& property, String name, permissionType permission);
+    ArduinoCloudPropertyGeneric& addPropertyReal(bool& property, String name, permissionType permission);
+    ArduinoCloudPropertyGeneric& addPropertyReal(float& property, String name, permissionType permission);
+    ArduinoCloudPropertyGeneric& addPropertyReal(void* property, String name, permissionType permission);
+    ArduinoCloudPropertyGeneric& addPropertyReal(String property, String name, permissionType permission);
     // poll should return > 0 if something has changed
     int poll();
 
@@ -168,6 +211,7 @@ private:
     char uuid[33];
 
     LinkedList<ArduinoCloudPropertyGeneric*> list;
+    int currentListIndex = -1;
 
     MQTTClient* client;
 };

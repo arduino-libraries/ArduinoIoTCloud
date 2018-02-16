@@ -1,7 +1,7 @@
 #include <Arduino.h>
 #include <ArduinoCloudThing.h>
 
-#ifdef DEBUG_MEMORY
+#if defined(DEBUG_MEMORY) && defined(ARDUINO_ARCH_SAMD)
 extern "C" char *sbrk(int i);
 void PrintFreeRam (void)
 {
@@ -127,7 +127,7 @@ int ArduinoCloudThing::poll() {
         publish(object);
     }
 
-#ifdef DEBUG_MEMORY
+#if defined(DEBUG_MEMORY) && defined(ARDUINO_ARCH_SAMD)
     PrintFreeRam();
 #endif
 
@@ -140,7 +140,7 @@ void ArduinoCloudThing::compress(CborObject& object, CborBuffer& buffer) {
 
     for (int i = 0; i < list.size(); i++) {
         ArduinoCloudPropertyGeneric *p = list.get(i);
-        if (p->newData()) {
+        if (p->shouldBeUpdated()) {
             CborObject child = CborObject(buffer);
             p->append(child);
             CborVariant variant = CborVariant(buffer, child);
@@ -154,7 +154,7 @@ int ArduinoCloudThing::checkNewData() {
     int counter = 0;
     for (int i = 0; i < list.size(); i++) {
         ArduinoCloudPropertyGeneric *p = list.get(i);
-        if (p->newData()) {
+        if (p->shouldBeUpdated()) {
             counter++;
         }
     }
@@ -171,28 +171,31 @@ bool ArduinoCloudThing::exists(String &name) {
     return false;
 }
 
-void ArduinoCloudThing::addPropertyReal(int& property, String name, permissionType permission) {
+ArduinoCloudPropertyGeneric& ArduinoCloudThing::addPropertyReal(int& property, String name, permissionType permission) {
     if (exists(name)) {
-        return;
+        return *(reinterpret_cast<ArduinoCloudPropertyGeneric*>(NULL));
     }
     ArduinoCloudProperty<int> *thing = new ArduinoCloudProperty<int>(property, name, permission);
     list.add(thing);
+    return *(reinterpret_cast<ArduinoCloudPropertyGeneric*>(thing));
 }
 
-void ArduinoCloudThing::addPropertyReal(bool& property, String name, permissionType permission) {
+ArduinoCloudPropertyGeneric& ArduinoCloudThing::addPropertyReal(bool& property, String name, permissionType permission) {
     if (exists(name)) {
-        return;
+        return *(reinterpret_cast<ArduinoCloudPropertyGeneric*>(NULL));
     }
     ArduinoCloudProperty<bool> *thing = new ArduinoCloudProperty<bool>(property, name, permission);
     list.add(thing);
+    return *(reinterpret_cast<ArduinoCloudPropertyGeneric*>(thing));
 }
 
-void ArduinoCloudThing::addPropertyReal(float& property, String name, permissionType permission) {
+ArduinoCloudPropertyGeneric& ArduinoCloudThing::addPropertyReal(float& property, String name, permissionType permission) {
     if (exists(name)) {
-        return;
+        return *(reinterpret_cast<ArduinoCloudPropertyGeneric*>(NULL));
     }
     ArduinoCloudProperty<float> *thing = new ArduinoCloudProperty<float>(property, name, permission);
     list.add(thing);
+    return *(reinterpret_cast<ArduinoCloudPropertyGeneric*>(thing));
 }
 
 void ArduinoCloudThing::callback(MQTTClient *client, char topic[], char bytes[], int length) {
@@ -200,19 +203,87 @@ void ArduinoCloudThing::callback(MQTTClient *client, char topic[], char bytes[],
 }
 
 void ArduinoCloudThing::decode(uint8_t * payload, size_t length) {
-    /*
     CborBuffer buffer(200);
-    CborVariant variant = buffer.decode(payload, length);
-    CborArray array = variant.asArray();
+    CborVariant total = buffer.decode(payload, length);
+    CborArray array = total.asArray();
 
-    CborVariant obj = array.get(0);
-    if (!obj.isValid()) {
-        return;
-    }
-    if (obj.isString()) {
+    for (int i=0; ;i++) {
+    CborVariant variant = array.get(i);
 
+        if (!variant.isValid()) {
+            break;
+        }
+
+        CborObject object = variant.asObject();
+
+        String name = "";
+        if (object.get("n").isValid()) {
+            name = object.get("n").asString();
+            // search for the property with the same name
+            for (int idx = 0; idx < list.size(); idx++) {
+                ArduinoCloudPropertyGeneric *p = list.get(idx);
+                if (p->getName() == name) {
+                    currentListIndex = idx;
+                    break;
+                }
+                if (idx == list.size()) {
+                    Serial.println("Property not found, skipping");
+                    currentListIndex = -1;
+                }
+            }
+        }
+
+        if (object.get("t").isValid()) {
+            int tag = object.get("t").asInteger();
+
+            if (name != "") {
+                list.get(currentListIndex)->setTag(tag);
+            } else {
+                for (int idx = 0; idx < list.size(); idx++) {
+                    ArduinoCloudPropertyGeneric *p = list.get(idx);
+                    if (p->getTag() == tag) {
+                        // if name == "" associate name and tag, otherwise set current list index
+                        currentListIndex = idx;
+                        break;
+                    }
+                    if (idx == list.size()) {
+                        Serial.println("Property not found, skipping");
+                        currentListIndex = -1;
+                    }
+                }
+            }
+        }
+
+        if (object.get("i").isValid()) {
+            int value_i = object.get("i").asInteger();
+            reinterpret_cast<ArduinoCloudProperty<int>*>(list.get(currentListIndex))->write(value_i);
+        }
+
+        if (object.get("b").isValid()) {
+            bool value_b = object.get("b").asInteger();
+            reinterpret_cast<ArduinoCloudProperty<bool>*>(list.get(currentListIndex))->write(value_b);
+        }
+/*
+        if (object.get("f").isValid()) {
+            float value_f = object.get("f").asFloat();
+            reinterpret_cast<ArduinoCloudProperty<bool>*>(list.get(currentListIndex))->write(value_f);
+        }
+*/
+        if (object.get("s").isValid()) {
+            String value_s = object.get("s").asString();
+            reinterpret_cast<ArduinoCloudProperty<String>*>(list.get(currentListIndex))->write(value_s);
+        }
+
+        if (object.get("p").isValid()) {
+            permissionType value_p = (permissionType)object.get("p").asInteger();
+            list.get(currentListIndex)->setPermission(value_p);
+        }
+
+        if (list.get(currentListIndex)->newData()) {
+            // call onUpdate()
+            list.get(currentListIndex)->callback();
+        }
     }
-    */
 }
 
 /*
