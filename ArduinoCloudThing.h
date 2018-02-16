@@ -186,6 +186,7 @@ public:
     ArduinoCloudPropertyGeneric& addPropertyReal(String property, String name, permissionType permission);
     // poll should return > 0 if something has changed
     int poll(uint8_t* data);
+    void decode(uint8_t * payload, size_t length);
 
 private:
     int publish(CborArray& object, uint8_t* data);
@@ -193,7 +194,6 @@ private:
     void update();
     int checkNewData();
     void compress(CborArray& object, CborBuffer& buffer);
-    void decode(uint8_t * payload, size_t length);
 
     bool exists(String &name);
 
