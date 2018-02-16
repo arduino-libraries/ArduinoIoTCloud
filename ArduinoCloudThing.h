@@ -185,10 +185,10 @@ public:
     ArduinoCloudPropertyGeneric& addPropertyReal(void* property, String name, permissionType permission);
     ArduinoCloudPropertyGeneric& addPropertyReal(String property, String name, permissionType permission);
     // poll should return > 0 if something has changed
-    int poll();
+    int poll(uint8_t* data);
 
 private:
-    void publish(CborArray& object);
+    int publish(CborArray& object, uint8_t* data);
 
     void update();
     int checkNewData();
