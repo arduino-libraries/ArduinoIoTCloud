@@ -15,6 +15,13 @@ unsigned long getTime() {
   return WiFi.getTime();
 }
 
+int position;
+
+void onPositionUpdate() {
+  Serial.print("New position value: ");
+  Serial.println(position);
+}
+
 void setup() {
   //Initialize serial and wait for port to open:
   Serial.begin(9600);
@@ -58,6 +65,8 @@ void setup() {
   }
 
   Serial.println("Successfully connected to Arduino Cloud :)");
+
+  ArduinoCloud.Thing.addProperty(position, READ).publishEvery(10*SECONDS).onUpdate(onPositionUpdate);
 
   CloudSerial.begin(9600);
 }
