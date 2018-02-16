@@ -3,20 +3,12 @@
 
 #include <Client.h>
 #include <Stream.h>
-#include "lib/MQTT/src/MQTTClient.h"
 #include "lib/LinkedList/LinkedList.h"
 #include "lib/ArduinoCbor/src/ArduinoCbor.h"
-
-#ifndef MQTT_BUFFER_SIZE
-#define MQTT_BUFFER_SIZE 256
-#endif
 
 //#define TESTING_PROTOCOL
 #define DEBUG_MEMORY
 #define USE_ARDUINO_CLOUD
-
-//#define MQTTCLIENT_QOS1 0
-//#define MQTTCLIENT_QOS2 0
 
 enum permissionType {
     READ    = 0b01,
@@ -186,7 +178,7 @@ inline void ArduinoCloudProperty<char*>::appendValue(CborObject &cbor) {
 class ArduinoCloudThing {
 public:
     ArduinoCloudThing();
-    void begin(Client &client);
+    void begin();
     ArduinoCloudPropertyGeneric& addPropertyReal(int& property, String name, permissionType permission);
     ArduinoCloudPropertyGeneric& addPropertyReal(bool& property, String name, permissionType permission);
     ArduinoCloudPropertyGeneric& addPropertyReal(float& property, String name, permissionType permission);
@@ -196,8 +188,6 @@ public:
     int poll();
 
 private:
-    static void callback(MQTTClient *client, char topic[], char bytes[], int length);
-    bool connect();
     void publish(CborArray& object);
 
     void update();
@@ -212,8 +202,6 @@ private:
 
     LinkedList<ArduinoCloudPropertyGeneric*> list;
     int currentListIndex = -1;
-
-    MQTTClient* client;
 };
 
 #endif

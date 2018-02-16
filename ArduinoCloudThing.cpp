@@ -21,16 +21,6 @@ static void utox8(uint32_t val, char* s) {
 }
 #endif
 
-#ifdef USE_ARDUINO_CLOUD
-char MQTT_SERVER[] = "10.130.22.94";
-int MQTT_PORT = 1883;
-char GENERAL_TOPIC[] = "/main";
-char MQTT_USER[] = "";
-char MQTT_PASSWORD[] = "";
-char LWT_TOPIC[] = "";
-char LWT_MESSAGE[] = "";
-#endif
-
 #ifdef ARDUINO_ARCH_MRAA
 #define Serial DebugSerial
 #endif
@@ -50,45 +40,18 @@ ArduinoCloudThing::ArduinoCloudThing() {
 #endif
 }
 
-/*
- * begin() should prepare the environment
- * connect 
- */
 
-void ArduinoCloudThing::begin(Client &client) {
-    this->client = new MQTTClient();
-    this->client->onMessageAdvanced(ArduinoCloudThing::callback);
-    this->client->begin(MQTT_SERVER, MQTT_PORT, client);
-    this->client->setParent((void*)this);
-
-    // using WiFi client and ECC508 connect to server
-    while (!connect()) {
-        Serial.println("Not connected");
-        delay(500);
-    }
-}
-
-bool ArduinoCloudThing::connect() {
+bool ArduinoCloudThing::begin() {
 
 #ifdef TESTING_PROTOCOL
     return true;
 #endif
 
-    if (client->connect(uuid, MQTT_USER, MQTT_PASSWORD) != 0) {
-        // set status to ON
-        status = ON;
-        addProperty(status, READ);
-        // subscribe to "general" topic
-        client->subscribe(GENERAL_TOPIC);
-        return true;
-    }
-
-    return false;
+    status = ON;
+    addProperty(status, READ);
 }
 
 void ArduinoCloudThing::publish(CborArray& object) {
-
-    bool retained = false;
 
     uint8_t data[1024];
     size_t size = object.encode(data, sizeof(data));
@@ -97,26 +60,13 @@ void ArduinoCloudThing::publish(CborArray& object) {
     decode(data, size);
 #endif
 
-#ifndef TESTING_PROTOCOL
-    client->publish(GENERAL_TOPIC, (const char*)data, size);
-#endif
-
     for (int i = 0; i < list.size(); i++) {
         ArduinoCloudPropertyGeneric *p = list.get(i);
         p->updateShadow();
     }
 }
 
-// Reconnect to the mqtt broker
 int ArduinoCloudThing::poll() {
-
-#ifndef TESTING_PROTOCOL
-    if (!client->connected()){
-        if (!connect()){
-            return 0;
-        }
-    }
-#endif
 
     // check if backing storage and cloud has diverged
     int diff = 0;
@@ -195,10 +145,6 @@ ArduinoCloudPropertyGeneric& ArduinoCloudThing::addPropertyReal(float& property,
     ArduinoCloudProperty<float> *thing = new ArduinoCloudProperty<float>(property, name, permission);
     list.add(thing);
     return *(reinterpret_cast<ArduinoCloudPropertyGeneric*>(thing));
-}
-
-void ArduinoCloudThing::callback(MQTTClient *client, char topic[], char bytes[], int length) {
-    reinterpret_cast<ArduinoCloudThing*>(client->getParent())->decode((uint8_t *)bytes, length);
 }
 
 void ArduinoCloudThing::decode(uint8_t * payload, size_t length) {
