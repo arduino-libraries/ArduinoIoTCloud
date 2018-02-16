@@ -3,6 +3,7 @@
 
 #include <MQTTClient.h>
 #include <ArduinoBearSSL.h>
+#include <ArduinoCloudThing.h>
 
 #include "CloudSerial.h"
 
@@ -22,9 +23,12 @@ public:
 
   int connected();
 
+  ArduinoCloudThing Thing;
+
 protected:
   friend class CloudSerialClass;
   int writeStdout(const byte data[], int length);
+  int writeProperties(const byte data[], int length);
 
 private:
   static void onMessage(MQTTClient *client, char topic[], char bytes[], int length);
@@ -38,6 +42,7 @@ private:
 
   String _stdinTopic;
   String _stdoutTopic;
+  String _dataTopic;
 };
 
 

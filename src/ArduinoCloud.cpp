@@ -61,8 +61,13 @@ int ArduinoCloudClass::begin(Client& net)
   _mqttClient.onMessageAdvanced(ArduinoCloudClass::onMessage);
   _mqttClient.begin(server, 8883, *_bearSslClient);
 
+  _id = id;
+
+  Thing.begin();
+
   _stdoutTopic = "$aws/things/" + _id + "/stdout";
   _stdinTopic = "$aws/things/" + _id + "/stdin";
+  _dataTopic = "$aws/things/" + _id + "/data";
 
   return 1;
 }
@@ -81,6 +86,11 @@ int ArduinoCloudClass::connect()
 void ArduinoCloudClass::poll()
 {
   _mqttClient.loop();
+  uint8_t data[1024];
+  int length = Thing.poll(data);
+  if (length) {
+     writeProperties(data, length);
+  }
 }
 
 void ArduinoCloudClass::onGetTime(unsigned long(*callback)(void))
@@ -91,6 +101,11 @@ void ArduinoCloudClass::onGetTime(unsigned long(*callback)(void))
 int ArduinoCloudClass::connected()
 {
   return _mqttClient.connected();
+}
+
+int ArduinoCloudClass::writeProperties(const byte data[], int length)
+{
+  return _mqttClient.publish(_dataTopic.c_str(), (const char*)data, length);
 }
 
 int ArduinoCloudClass::writeStdout(const byte data[], int length)
@@ -107,6 +122,9 @@ void ArduinoCloudClass::handleMessage(char topic[], char bytes[], int length)
 {
   if (_stdinTopic == topic) {
     CloudSerial.appendStdin((uint8_t*)bytes, length);
+  }
+  if (_dataTopic == topic) {
+    Thing.decode((uint8_t*)bytes, length);
   }
 }
 
