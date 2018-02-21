@@ -5,7 +5,7 @@
 
 #include "CloudSerial.h"
 
-const static char server[] = "a19g5nbe27wn47.iot.eu-west-1.amazonaws.com"; //"xxxxxxxxxxxxxx.iot.xx-xxxx-x.amazonaws.com";
+const static char server[] = "a19g5nbe27wn47.iot.us-east-1.amazonaws.com"; //"xxxxxxxxxxxxxx.iot.xx-xxxx-x.amazonaws.com";
 
 const static int keySlot            = 0;
 const static int compressedCertSlot = 10;
