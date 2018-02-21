@@ -103,7 +103,7 @@ private:
   String _subjectOrganizationalUnitName;
   String _subjectCommonName;
 
-  byte _temp[144];
+  byte _temp[88];
   byte* _bytes;
   int _length;
 };

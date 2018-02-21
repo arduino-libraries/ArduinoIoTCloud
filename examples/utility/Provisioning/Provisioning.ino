@@ -8,6 +8,7 @@
 const int keySlot            = 0;
 const int compressedCertSlot = 10;
 const int serialNumberSlot   = 11;
+const int thingIdSlot        = 12;
 
 void setup() {
   Serial.begin(9600);
@@ -53,6 +54,7 @@ void setup() {
   Serial.println();
   Serial.println(csr);
 
+  String thingId      = promptAndReadLine("Please enter the thing id: ");
   String issueYear    = promptAndReadLine("Please enter the issue year of the certificate (2000 - 2031): ");
   String issueMonth   = promptAndReadLine("Please enter the issue month of the certificate (1 - 12): ");
   String issueDay     = promptAndReadLine("Please enter the issue day of the certificate (1 - 31): ");
@@ -64,11 +66,18 @@ void setup() {
   serialNumber.toUpperCase();
   signature.toUpperCase();
 
-  byte serialNumberBytes[72];
+  byte thingIdBytes[72];
+  byte serialNumberBytes[16];
   byte signatureBytes[64];
 
+  thingId.getBytes(thingIdBytes, sizeof(thingIdBytes));
   hexStringToBytes(serialNumber, serialNumberBytes, sizeof(serialNumberBytes));
   hexStringToBytes(signature, signatureBytes, 64);
+
+  if (!ECCX08.writeSlot(thingIdSlot, thingIdBytes, sizeof(thingIdBytes))) {
+    Serial.println("Error storing thing id!");
+    while (1);
+  }
 
   if (!ECCX08Cert.beginStorage(compressedCertSlot, serialNumberSlot)) {
     Serial.println("Error starting ECCX08 storage!");
