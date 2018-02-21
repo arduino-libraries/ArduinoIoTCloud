@@ -44,7 +44,7 @@ ArduinoCloudThing::ArduinoCloudThing() {
 void ArduinoCloudThing::begin() {
 
     status = ON;
-    addProperty(status, READ);
+    addProperty(status).readOnly();
 }
 
 int ArduinoCloudThing::publish(CborArray& object, uint8_t* data) {
@@ -107,39 +107,39 @@ int ArduinoCloudThing::checkNewData() {
     return counter;
 }
 
-bool ArduinoCloudThing::exists(String &name) {
+ArduinoCloudPropertyGeneric* ArduinoCloudThing::exists(String &name) {
     for (int i = 0; i < list.size(); i++) {
         ArduinoCloudPropertyGeneric *p = list.get(i);
         if (p->getName() == name) {
-            return true;
+            return p;
         }
     }
-    return false;
+    return NULL;
 }
 
-ArduinoCloudPropertyGeneric& ArduinoCloudThing::addPropertyReal(int& property, String name, permissionType permission) {
-    if (exists(name)) {
-        return *(reinterpret_cast<ArduinoCloudPropertyGeneric*>(NULL));
+ArduinoCloudPropertyGeneric& ArduinoCloudThing::addPropertyReal(int& property, String name) {
+    if (ArduinoCloudPropertyGeneric* p = exists(name)) {
+        return *p;
     }
-    ArduinoCloudProperty<int> *thing = new ArduinoCloudProperty<int>(property, name, permission);
+    ArduinoCloudProperty<int> *thing = new ArduinoCloudProperty<int>(property, name);
     list.add(thing);
     return *(reinterpret_cast<ArduinoCloudPropertyGeneric*>(thing));
 }
 
-ArduinoCloudPropertyGeneric& ArduinoCloudThing::addPropertyReal(bool& property, String name, permissionType permission) {
-    if (exists(name)) {
-        return *(reinterpret_cast<ArduinoCloudPropertyGeneric*>(NULL));
+ArduinoCloudPropertyGeneric& ArduinoCloudThing::addPropertyReal(bool& property, String name) {
+    if (ArduinoCloudPropertyGeneric* p = exists(name)) {
+        return *p;
     }
-    ArduinoCloudProperty<bool> *thing = new ArduinoCloudProperty<bool>(property, name, permission);
+    ArduinoCloudProperty<bool> *thing = new ArduinoCloudProperty<bool>(property, name);
     list.add(thing);
     return *(reinterpret_cast<ArduinoCloudPropertyGeneric*>(thing));
 }
 
-ArduinoCloudPropertyGeneric& ArduinoCloudThing::addPropertyReal(float& property, String name, permissionType permission) {
-    if (exists(name)) {
-        return *(reinterpret_cast<ArduinoCloudPropertyGeneric*>(NULL));
+ArduinoCloudPropertyGeneric& ArduinoCloudThing::addPropertyReal(float& property, String name) {
+    if (ArduinoCloudPropertyGeneric* p = exists(name)) {
+        return *p;
     }
-    ArduinoCloudProperty<float> *thing = new ArduinoCloudProperty<float>(property, name, permission);
+    ArduinoCloudProperty<float> *thing = new ArduinoCloudProperty<float>(property, name);
     list.add(thing);
     return *(reinterpret_cast<ArduinoCloudPropertyGeneric*>(thing));
 }

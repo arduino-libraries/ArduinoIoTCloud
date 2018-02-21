@@ -36,7 +36,9 @@ public:
     virtual void append(CborObject& object) = 0;
     virtual String& getName() = 0;
     virtual void setName(String _name) = 0;
-    virtual void setTag(int _tag) = 0;
+    virtual ArduinoCloudPropertyGeneric& setTag(int _tag) = 0;
+    virtual ArduinoCloudPropertyGeneric& readOnly() = 0;
+    virtual ArduinoCloudPropertyGeneric& writeOnly() = 0;
     virtual int getTag() = 0;
     virtual void setPermission(permissionType _permission) = 0;
     virtual permissionType getPermission() = 0;
@@ -52,8 +54,8 @@ template <typename T>
 class ArduinoCloudProperty : public ArduinoCloudPropertyGeneric
 {
 public:
-    ArduinoCloudProperty(T& _property, String _name, permissionType _permission) :
-        property(_property), name(_name), permission(_permission) {}
+    ArduinoCloudProperty(T& _property, String _name) :
+        property(_property), name(_name) {}
 
     bool write(T value) {
         if (permission != READ) {
@@ -81,8 +83,9 @@ public:
         name = _name;
     }
 
-    void setTag(int _tag) {
+    ArduinoCloudPropertyGeneric& setTag(int _tag) {
         tag = _tag;
+        return *(reinterpret_cast<ArduinoCloudPropertyGeneric*>(this));
     }
 
     int getTag() {
@@ -91,6 +94,16 @@ public:
 
     void setPermission(permissionType _permission) {
         permission = _permission;
+    }
+
+    ArduinoCloudPropertyGeneric& readOnly() {
+        permission = READ;
+        return *(reinterpret_cast<ArduinoCloudPropertyGeneric*>(this));
+    }
+
+    ArduinoCloudPropertyGeneric& writeOnly() {
+        permission = WRITE;
+        return *(reinterpret_cast<ArduinoCloudPropertyGeneric*>(this));
     }
 
     permissionType getPermission() {
@@ -142,7 +155,7 @@ protected:
     int tag = -1;
     long lastUpdated = 0;
     long updatePolicy = ON_CHANGE;
-    permissionType permission;
+    permissionType permission = READWRITE;
     static int tagIndex;
 };
 
@@ -172,18 +185,18 @@ inline void ArduinoCloudProperty<char*>::appendValue(CborObject &cbor) {
 };
 
 #ifndef addProperty
-#define addProperty(prop, permission) addPropertyReal(prop, #prop, permission)
+#define addProperty(prop) addPropertyReal(prop, #prop)
 #endif
 
 class ArduinoCloudThing {
 public:
     ArduinoCloudThing();
     void begin();
-    ArduinoCloudPropertyGeneric& addPropertyReal(int& property, String name, permissionType permission);
-    ArduinoCloudPropertyGeneric& addPropertyReal(bool& property, String name, permissionType permission);
-    ArduinoCloudPropertyGeneric& addPropertyReal(float& property, String name, permissionType permission);
-    ArduinoCloudPropertyGeneric& addPropertyReal(void* property, String name, permissionType permission);
-    ArduinoCloudPropertyGeneric& addPropertyReal(String property, String name, permissionType permission);
+    ArduinoCloudPropertyGeneric& addPropertyReal(int& property, String name);
+    ArduinoCloudPropertyGeneric& addPropertyReal(bool& property, String name);
+    ArduinoCloudPropertyGeneric& addPropertyReal(float& property, String name);
+    ArduinoCloudPropertyGeneric& addPropertyReal(void* property, String name);
+    ArduinoCloudPropertyGeneric& addPropertyReal(String property, String name);
     // poll should return > 0 if something has changed
     int poll(uint8_t* data);
     void decode(uint8_t * payload, size_t length);
@@ -195,7 +208,7 @@ private:
     int checkNewData();
     void compress(CborArray& object, CborBuffer& buffer);
 
-    bool exists(String &name);
+    ArduinoCloudPropertyGeneric* exists(String &name);
 
     bool status = OFF;
     char uuid[33];
