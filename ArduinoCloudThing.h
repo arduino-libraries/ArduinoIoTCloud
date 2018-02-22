@@ -45,6 +45,7 @@ public:
     virtual bool newData() = 0;
     virtual bool shouldBeUpdated() = 0;
     virtual void updateShadow() = 0;
+    virtual bool canRead();
     virtual ArduinoCloudPropertyGeneric& onUpdate(void(*fn)(void)) = 0;
     virtual ArduinoCloudPropertyGeneric& publishEvery(long seconds) = 0;
     void(*callback)(void) = NULL;
@@ -58,7 +59,8 @@ public:
         property(_property), name(_name) {}
 
     bool write(T value) {
-        if (permission != READ) {
+        /* permissions are intended as seen from cloud */
+        if (permission & WRITE) {
             property = value;
             return true;
         }
@@ -70,9 +72,14 @@ public:
     }
 
     T read() {
-        if (permission != WRITE) {
+        /* permissions are intended as seen from cloud */
+        if (permission & READ) {
             return property;
         }
+    }
+
+    bool canRead() {
+        return (permission & READ);
     }
 
     String& getName() {
@@ -118,6 +125,9 @@ public:
     void appendValue(CborObject &cbor);
 
     void append(CborObject &cbor) {
+        if (!canRead()) {
+            return;
+        }
         if (tag != -1) {
             cbor.set("t", tag);
         } else {

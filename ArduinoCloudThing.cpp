@@ -87,7 +87,7 @@ void ArduinoCloudThing::compress(CborArray& object, CborBuffer& buffer) {
 
     for (int i = 0; i < list.size(); i++) {
         ArduinoCloudPropertyGeneric *p = list.get(i);
-        if (p->shouldBeUpdated()) {
+        if (p->shouldBeUpdated() && p->canRead()) {
             CborObject child = CborObject(buffer);
             p->append(child);
             CborVariant variant = CborVariant(buffer, child);
