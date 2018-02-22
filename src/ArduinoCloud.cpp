@@ -71,6 +71,7 @@ int ArduinoCloudClass::connect()
   }
 
   _mqttClient.subscribe(_stdinTopic);
+  _mqttClient.subscribe(_dataTopic);
 
   return 1;
 }
