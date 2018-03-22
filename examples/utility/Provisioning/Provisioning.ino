@@ -20,7 +20,13 @@ void setup() {
   }
 
   if (!ECCX08.locked()) {
-    Serial.println("ECCX08 is unlocked, locking ...");
+    String lockConfirm = promptAndReadLine("Your ECCX08 is unlocked, would you like to lock it (y/N): ");
+    lockConfirm.toLowerCase();
+
+    if (lockConfirm != "y") {
+      Serial.println("That's all folks");
+      while (1);
+    }
 
     if (!ECCX08.writeConfiguration(DEFAULT_ECCX08_TLS_CONFIG)) {
       Serial.println("Writing ECCX08 configuration failed!");
@@ -34,6 +40,14 @@ void setup() {
 
     Serial.println("ECCX08 locked successfully");
     Serial.println();
+  }
+
+  String csrConfirm = promptAndReadLine("Would you like to generate a new private key and CSR (y/N): ");
+  csrConfirm.toLowerCase();
+
+  if (csrConfirm != "y") {
+    Serial.println("That's all folks");
+    while (1);
   }
 
   if (!ECCX08Cert.beginCSR(keySlot, true)) {
