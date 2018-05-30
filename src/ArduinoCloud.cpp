@@ -2,6 +2,8 @@
 
 #include "utility/ECCX08Cert.h"
 #include "CloudSerial.h"
+#include "SerialFlashStorage.h"
+//#include "SFU.h"
 
 #include "ArduinoCloudV2.h"
 
@@ -14,6 +16,7 @@ const static int thingIdSlot                               = 12;
 
 ArduinoCloudClass::ArduinoCloudClass() :
   _bearSslClient(NULL),
+  _otaClient(NULL),
   _mqttClient(256)
 {
 }
@@ -22,6 +25,9 @@ ArduinoCloudClass::~ArduinoCloudClass()
 {
   if (_bearSslClient) {
     delete _bearSslClient;
+  }
+  if (_otaClient) {
+    delete _otaClient;
   }
 }
 
@@ -65,9 +71,12 @@ int ArduinoCloudClass::begin(Client& net)
 
   Thing.begin();
 
+  _otaClient = new HttpClient(net, server, 80);
+
   _stdoutTopic = "$aws/things/" + _id + "/stdout";
   _stdinTopic = "$aws/things/" + _id + "/stdin";
   _dataTopic = "$aws/things/" + _id + "/data";
+  _otaTopic = "$aws/things/" + _id + "/upload";
 
   return 1;
 }
@@ -80,6 +89,7 @@ int ArduinoCloudClass::connect()
 
   _mqttClient.subscribe(_stdinTopic);
   _mqttClient.subscribe(_dataTopic);
+  _mqttClient.subscribe(_otaTopic);
 
   return 1;
 }
@@ -126,6 +136,22 @@ void ArduinoCloudClass::handleMessage(char topic[], char bytes[], int length)
   }
   if (_dataTopic == topic) {
     Thing.decode((uint8_t*)bytes, length);
+  }
+  if (_otaTopic == topic) {
+
+    String url = String(bytes);
+
+    _otaClient->get(url);
+
+    SerialFlashStorage.open(_otaClient->contentLength());
+    uint8_t buf[1024];
+    while (_otaClient->available()) {
+      int size = _otaClient->available() >= 1024 ? 1024 : _otaClient->available();
+      _otaClient->read(buf, size);
+      SerialFlashStorage.write((uint8_t*)buf, size);
+    }
+    SerialFlashStorage.close();
+    SerialFlashStorage.apply();
   }
 }
 
