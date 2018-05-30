@@ -23,7 +23,12 @@ public:
 
   int connected();
 
-  ArduinoCloudThing Thing;
+  #define addPropertyMacro(prop) addPropertyReal(prop, #prop)
+  #undef addProperty
+
+  template<typename T> void addProperty(T property, permissionType _permission = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL) {
+    Thing.addPropertyMacro(property).publishEvery(seconds).setPermission(_permission).onUpdate(fn);
+  }
 
 protected:
   friend class CloudSerialClass;
@@ -37,6 +42,7 @@ private:
 
 private:
   String _id;
+  ArduinoCloudThing Thing;
   BearSSLClient* _bearSslClient;
   MQTTClient _mqttClient;
 
