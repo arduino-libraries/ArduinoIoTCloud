@@ -67,8 +67,6 @@ int ArduinoCloudClass::begin(Client& net)
   _mqttClient.onMessageAdvanced(ArduinoCloudClass::onMessage);
   _mqttClient.begin(server, 8883, *_bearSslClient);
 
-  _id = id;
-
   Thing.begin();
 
   _otaClient = new HttpClient(net, server, 80);
