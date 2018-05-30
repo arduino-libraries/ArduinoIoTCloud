@@ -14,7 +14,7 @@ public:
   ArduinoCloudClass();
   ~ArduinoCloudClass();
 
-  int begin(Client& net, const String& id);
+  int begin(Client& net);
 
   int connect();
 

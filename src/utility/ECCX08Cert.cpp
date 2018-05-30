@@ -18,6 +18,8 @@ struct __attribute__((__packed__)) CompressedCert {
   byte unused[5];
 };
 
+#define SERIAL_NUMBER_LENGTH 16
+
 static String base64Encode(const byte in[], unsigned int length, const char* prefix, const char* suffix)
 {
   static const char* CODES = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
@@ -255,7 +257,7 @@ void ECCX08CertClass::setExpireYears(int expireYears)
 
 void ECCX08CertClass::setSerialNumber(byte serialNumber[])
 {
-  memcpy(&_temp[72], serialNumber, 72);
+  memcpy(&_temp[72], serialNumber, SERIAL_NUMBER_LENGTH);
 }
 
 int ECCX08CertClass::endStorage()
@@ -264,7 +266,7 @@ int ECCX08CertClass::endStorage()
     return 0;
   }
 
-  if (!ECCX08.writeSlot(_serialNumberSlot, &_temp[72], 72)) {
+  if (!ECCX08.writeSlot(_serialNumberSlot, &_temp[72], SERIAL_NUMBER_LENGTH)) {
     return 0;
   }
 
@@ -296,7 +298,7 @@ int ECCX08CertClass::endReconstruction()
 {
   byte publicKey[64];
   struct CompressedCert compressedCert;
-  byte serialNumber[72];
+  byte serialNumber[SERIAL_NUMBER_LENGTH];
 
   if (!ECCX08.generatePublicKey(_keySlot, publicKey)) {
     return 0;
@@ -575,7 +577,7 @@ int ECCX08CertClass::signatureLength(const byte signature[])
 
 int ECCX08CertClass::serialNumberLength(const byte serialNumber[])
 {
-  int length = 72;
+  int length = SERIAL_NUMBER_LENGTH;
 
   while (*serialNumber == 0 && length) {
     serialNumber++;
@@ -752,7 +754,7 @@ void ECCX08CertClass::appendSignature(const byte signature[], byte out[])
 
 void ECCX08CertClass::appendSerialNumber(const byte serialNumber[], byte out[])
 {
-  int length = 72;
+  int length = SERIAL_NUMBER_LENGTH;
 
   while (*serialNumber == 0 && length) {
     serialNumber++;

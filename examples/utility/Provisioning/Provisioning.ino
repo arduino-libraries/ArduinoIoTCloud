@@ -8,6 +8,7 @@
 const int keySlot            = 0;
 const int compressedCertSlot = 10;
 const int serialNumberSlot   = 11;
+const int thingIdSlot        = 12;
 
 void setup() {
   Serial.begin(9600);
@@ -19,7 +20,13 @@ void setup() {
   }
 
   if (!ECCX08.locked()) {
-    Serial.println("ECCX08 is unlocked, locking ...");
+    String lockConfirm = promptAndReadLine("Your ECCX08 is unlocked, would you like to lock it (y/N): ");
+    lockConfirm.toLowerCase();
+
+    if (lockConfirm != "y") {
+      Serial.println("That's all folks");
+      while (1);
+    }
 
     if (!ECCX08.writeConfiguration(DEFAULT_ECCX08_TLS_CONFIG)) {
       Serial.println("Writing ECCX08 configuration failed!");
@@ -33,6 +40,14 @@ void setup() {
 
     Serial.println("ECCX08 locked successfully");
     Serial.println();
+  }
+
+  String csrConfirm = promptAndReadLine("Would you like to generate a new private key and CSR (y/N): ");
+  csrConfirm.toLowerCase();
+
+  if (csrConfirm != "y") {
+    Serial.println("That's all folks");
+    while (1);
   }
 
   if (!ECCX08Cert.beginCSR(keySlot, true)) {
@@ -53,6 +68,7 @@ void setup() {
   Serial.println();
   Serial.println(csr);
 
+  String thingId      = promptAndReadLine("Please enter the thing id: ");
   String issueYear    = promptAndReadLine("Please enter the issue year of the certificate (2000 - 2031): ");
   String issueMonth   = promptAndReadLine("Please enter the issue month of the certificate (1 - 12): ");
   String issueDay     = promptAndReadLine("Please enter the issue day of the certificate (1 - 31): ");
@@ -64,11 +80,18 @@ void setup() {
   serialNumber.toUpperCase();
   signature.toUpperCase();
 
-  byte serialNumberBytes[72];
+  byte thingIdBytes[72];
+  byte serialNumberBytes[16];
   byte signatureBytes[64];
 
+  thingId.getBytes(thingIdBytes, sizeof(thingIdBytes));
   hexStringToBytes(serialNumber, serialNumberBytes, sizeof(serialNumberBytes));
   hexStringToBytes(signature, signatureBytes, 64);
+
+  if (!ECCX08.writeSlot(thingIdSlot, thingIdBytes, sizeof(thingIdBytes))) {
+    Serial.println("Error storing thing id!");
+    while (1);
+  }
 
   if (!ECCX08Cert.beginStorage(compressedCertSlot, serialNumberSlot)) {
     Serial.println("Error starting ECCX08 storage!");

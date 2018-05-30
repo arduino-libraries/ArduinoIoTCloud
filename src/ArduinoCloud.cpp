@@ -7,11 +7,12 @@
 #include "SerialFlashStorage.h"
 //#include "SFU.h"
 
-const static char server[] = "a19g5nbe27wn47.iot.eu-west-1.amazonaws.com"; //"xxxxxxxxxxxxxx.iot.xx-xxxx-x.amazonaws.com";
+const static char server[] = "a19g5nbe27wn47.iot.us-east-1.amazonaws.com"; //"xxxxxxxxxxxxxx.iot.xx-xxxx-x.amazonaws.com";
 
 const static int keySlot            = 0;
 const static int compressedCertSlot = 10;
 const static int serialNumberSlot   = 11;
+const static int thingIdSlot        = 12;
 
 ArduinoCloudClass::ArduinoCloudClass() :
   _bearSslClient(NULL),
@@ -30,11 +31,18 @@ ArduinoCloudClass::~ArduinoCloudClass()
   }
 }
 
-int ArduinoCloudClass::begin(Client& net, const String& id)
+int ArduinoCloudClass::begin(Client& net)
 {
+  byte thingIdBytes[72];
+
   if (!ECCX08.begin()) {
     return 0;
   }
+
+  if (!ECCX08.readSlot(thingIdSlot, thingIdBytes, sizeof(thingIdBytes))) {
+    return 0;
+  }
+  _id = (char*)thingIdBytes;
 
   if (!ECCX08Cert.beginReconstruction(keySlot, compressedCertSlot, serialNumberSlot)) {
     return 0;

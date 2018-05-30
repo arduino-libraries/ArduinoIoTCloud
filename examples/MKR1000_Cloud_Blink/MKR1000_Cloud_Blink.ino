@@ -9,8 +9,6 @@ int status = WL_IDLE_STATUS;     // the WiFi radio's status
 
 WiFiClient wifiClient;
 
-const char thingId[] = "blah";
-
 unsigned long getTime() {
   return WiFi.getTime();
 }
@@ -36,7 +34,7 @@ void setup() {
     while (true);
   }
 
-  if (!ArduinoCloud.begin(wifiClient, thingId)) {
+  if (!ArduinoCloud.begin(wifiClient)) {
     Serial.println("Starting Arduino Cloud failed!");
     while (true);
   }
