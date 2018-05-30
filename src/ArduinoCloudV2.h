@@ -4,6 +4,7 @@
 #include <MQTTClient.h>
 #include <ArduinoBearSSL.h>
 #include <ArduinoCloudThing.h>
+#include <ArduinoHttpClient.h>
 
 #include "CloudSerial.h"
 
@@ -45,10 +46,12 @@ private:
   ArduinoCloudThing Thing;
   BearSSLClient* _bearSslClient;
   MQTTClient _mqttClient;
+  HttpClient* _otaClient;
 
   String _stdinTopic;
   String _stdoutTopic;
   String _dataTopic;
+  String _otaTopic;
 };
 
 
