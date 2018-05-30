@@ -40,7 +40,7 @@ public:
     virtual ArduinoCloudPropertyGeneric& readOnly() = 0;
     virtual ArduinoCloudPropertyGeneric& writeOnly() = 0;
     virtual int getTag() = 0;
-    virtual void setPermission(permissionType _permission) = 0;
+    virtual ArduinoCloudPropertyGeneric& setPermission(permissionType _permission) = 0;
     virtual permissionType getPermission() = 0;
     virtual bool newData() = 0;
     virtual bool shouldBeUpdated() = 0;
@@ -99,8 +99,9 @@ public:
         return tag;
     }
 
-    void setPermission(permissionType _permission) {
+    ArduinoCloudPropertyGeneric& setPermission(permissionType _permission) {
         permission = _permission;
+        return *(reinterpret_cast<ArduinoCloudPropertyGeneric*>(this));
     }
 
     ArduinoCloudPropertyGeneric& readOnly() {
