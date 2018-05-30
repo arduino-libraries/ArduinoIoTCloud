@@ -64,7 +64,7 @@ void setup() {
 
   Serial.println("Successfully connected to Arduino Cloud :)");
 
-  ArduinoCloud.Thing.addProperty(position).publishEvery(10*SECONDS).onUpdate(onPositionUpdate).readOnly();
+  ArduinoCloud.addProperty(position, READ, 10*SECONDS, onPositionUpdate);
 
   CloudSerial.begin(9600);
 }
