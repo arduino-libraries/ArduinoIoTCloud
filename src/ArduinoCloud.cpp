@@ -5,7 +5,7 @@
 
 #include "CloudSerial.h"
 #include "SerialFlashStorage.h"
-//#include "SFU.h"
+#include "SFU.h"
 
 const static char server[] = "a19g5nbe27wn47.iot.us-east-1.amazonaws.com"; //"xxxxxxxxxxxxxx.iot.xx-xxxx-x.amazonaws.com";
 
