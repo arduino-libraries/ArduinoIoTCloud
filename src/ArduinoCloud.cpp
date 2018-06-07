@@ -3,7 +3,7 @@
 #include "utility/ECCX08Cert.h"
 #include "CloudSerial.h"
 #include "SerialFlashStorage.h"
-//#include "SFU.h"
+#include "SFU.h"
 
 #include "ArduinoCloudV2.h"
 
