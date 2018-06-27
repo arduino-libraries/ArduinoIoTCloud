@@ -96,7 +96,7 @@ void ArduinoCloudClass::poll()
 {
   _mqttClient.loop();
   uint8_t data[1024];
-  int length = Thing.poll(data);
+  int length = Thing.poll(data, sizeof(data));
   if (length > 0) {
     writeProperties(data, length);
   }
