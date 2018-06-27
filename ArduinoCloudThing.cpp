@@ -49,7 +49,7 @@ void ArduinoCloudThing::begin() {
 
 int ArduinoCloudThing::publish(CborArray& object, uint8_t* data) {
 
-    size_t size = object.encode(data, sizeof(data));
+    ssize_t size = object.encode(data, sizeof(data));
 
 #ifdef TESTING_PROTOCOL
     decode(data, size);

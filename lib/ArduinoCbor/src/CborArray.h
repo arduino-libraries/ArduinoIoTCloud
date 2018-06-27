@@ -8,6 +8,7 @@ class CborArray {
 
  public:
   CborArray(CborBuffer& buffer, cn_cbor* raw=0);
+  ~CborArray();
 
   CborVariant get(int index);
 
@@ -15,7 +16,7 @@ class CborArray {
   void add(const char* value);
   void add(CBOR_INT_T value);
 
-  size_t encode(uint8_t* data, size_t size);
+  ssize_t encode(uint8_t* data, size_t size);
 
  protected:
   CborBuffer& buffer;
