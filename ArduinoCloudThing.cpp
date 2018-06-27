@@ -44,7 +44,7 @@ ArduinoCloudThing::ArduinoCloudThing() {
 void ArduinoCloudThing::begin() {
 
     status = ON;
-    addProperty(status).readOnly();
+    addPropertyReal(status, "status").readOnly();
 }
 
 int ArduinoCloudThing::publish(CborArray& object, uint8_t* data) {

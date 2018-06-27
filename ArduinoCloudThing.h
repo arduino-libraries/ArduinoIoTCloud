@@ -195,15 +195,10 @@ inline void ArduinoCloudProperty<char*>::appendValue(CborObject &cbor) {
     cbor.set("s", property);
 };
 
-#define NAME_OF( v ) #v
-
 class ArduinoCloudThing {
 public:
     ArduinoCloudThing();
     void begin();
-    template <typename T> ArduinoCloudPropertyGeneric& addProperty(T property) {
-        return addPropertyReal(property, NAME_OF(property));
-    };
     ArduinoCloudPropertyGeneric& addPropertyReal(int& property, String name);
     ArduinoCloudPropertyGeneric& addPropertyReal(bool& property, String name);
     ArduinoCloudPropertyGeneric& addPropertyReal(float& property, String name);
