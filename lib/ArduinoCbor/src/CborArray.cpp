@@ -13,6 +13,14 @@ CborArray::CborArray(CborBuffer& buffer, cn_cbor* raw) : buffer(buffer) {
   }
 }
 
+CborArray::~CborArray() {
+  //Fixed memory leak
+   if (!raw->parent) {
+    cn_cbor_free(this->raw, &buffer.context);
+  }
+  
+}
+
 CborVariant CborArray::get(int index) {
   return CborVariant(buffer, cn_cbor_index(raw, index));
 }
@@ -31,6 +39,6 @@ void CborArray::add(CBOR_INT_T value) {
   add(CborVariant(buffer, value));
 }
 
-size_t CborArray::encode(uint8_t* data, size_t size) {
+ssize_t CborArray::encode(uint8_t* data, size_t size) {
   return cn_cbor_encoder_write(data, 0, size, raw);
 }

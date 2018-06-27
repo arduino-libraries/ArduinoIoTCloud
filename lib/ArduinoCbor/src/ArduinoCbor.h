@@ -6,7 +6,7 @@
 #include "cn-cbor/cn-cbor.h"
 
 #ifndef CBOR_INT_T
-#define CBOR_INT_T long
+#define CBOR_INT_T int
 #endif
 
 class CborArray;
