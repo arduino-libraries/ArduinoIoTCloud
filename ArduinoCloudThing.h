@@ -45,7 +45,8 @@ public:
     virtual bool newData() = 0;
     virtual bool shouldBeUpdated() = 0;
     virtual void updateShadow() = 0;
-    virtual bool canRead();
+    virtual bool canRead() = 0;
+    virtual void printinfo() = 0;
     virtual ArduinoCloudPropertyGeneric& onUpdate(void(*fn)(void)) = 0;
     virtual ArduinoCloudPropertyGeneric& publishEvery(long seconds) = 0;
     void(*callback)(void) = NULL;
@@ -65,6 +66,10 @@ public:
             return true;
         }
         return false;
+    }
+
+    void printinfo() {
+        Serial.println("name: " + name + " value: " + String(property) + " shadow: " + String(shadow_property) + " permission: " + String(permission));
     }
 
     void updateShadow() {
