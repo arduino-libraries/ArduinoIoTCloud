@@ -210,11 +210,11 @@ public:
     ArduinoCloudPropertyGeneric& addPropertyReal(void* property, String name);
     ArduinoCloudPropertyGeneric& addPropertyReal(String property, String name);
     // poll should return > 0 if something has changed
-    int poll(uint8_t* data);
+    int poll(uint8_t* data, size_t size);
     void decode(uint8_t * payload, size_t length);
 
 private:
-    int publish(CborArray& object, uint8_t* data);
+    int publish(CborArray& object, uint8_t* data, size_t size);
 
     void update();
     int checkNewData();

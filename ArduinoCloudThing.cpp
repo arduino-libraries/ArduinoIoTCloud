@@ -47,12 +47,12 @@ void ArduinoCloudThing::begin() {
     addPropertyReal(status, "status").readOnly();
 }
 
-int ArduinoCloudThing::publish(CborArray& object, uint8_t* data) {
+int ArduinoCloudThing::publish(CborArray& object, uint8_t* data, size_t size) {
 
-    ssize_t size = object.encode(data, sizeof(data));
+    ssize_t len = object.encode(data, size);
 
 #ifdef TESTING_PROTOCOL
-    decode(data, size);
+    decode(data, len);
 #endif
 
     for (int i = 0; i < list.size(); i++) {
@@ -60,10 +60,10 @@ int ArduinoCloudThing::publish(CborArray& object, uint8_t* data) {
         p->updateShadow();
     }
 
-    return size;
+    return len;
 }
 
-int ArduinoCloudThing::poll(uint8_t* data) {
+int ArduinoCloudThing::poll(uint8_t* data, size_t size) {
 
     // check if backing storage and cloud has diverged
     int diff = 0;
@@ -73,7 +73,7 @@ int ArduinoCloudThing::poll(uint8_t* data) {
         CborBuffer buffer(1024);
         CborArray object = CborArray(buffer);
         compress(object, buffer);
-        diff = publish(object, data);
+        diff = publish(object, data, size);
     }
 
 #if defined(DEBUG_MEMORY) && defined(ARDUINO_ARCH_SAMD)
