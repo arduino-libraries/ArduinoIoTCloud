@@ -26,7 +26,7 @@ public:
 
   #define addProperty( v, ...) addPropertyReal(v, #v, __VA_ARGS__)
 
-  template<typename T> void addPropertyReal(T property, String name, permissionType _permission = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL) {
+  template<typename T> void addPropertyReal(T& property, String name, permissionType _permission = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL) {
     Thing.addPropertyReal(property, name).publishEvery(seconds).setPermission(_permission).onUpdate(fn);
   }
 
