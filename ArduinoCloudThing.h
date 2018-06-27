@@ -7,7 +7,7 @@
 #include "lib/ArduinoCbor/src/ArduinoCbor.h"
 
 //#define TESTING_PROTOCOL
-#define DEBUG_MEMORY
+//#define DEBUG_MEMORY
 #define USE_ARDUINO_CLOUD
 
 enum permissionType {
