@@ -39,6 +39,7 @@ public:
     virtual ArduinoCloudPropertyGeneric& setTag(int _tag) = 0;
     virtual ArduinoCloudPropertyGeneric& readOnly() = 0;
     virtual ArduinoCloudPropertyGeneric& writeOnly() = 0;
+    virtual ArduinoCloudPropertyGeneric& minimumDelta(void* delta) = 0;
     virtual int getTag() = 0;
     virtual ArduinoCloudPropertyGeneric& setPermission(permissionType _permission) = 0;
     virtual permissionType getPermission() = 0;
@@ -119,6 +120,11 @@ public:
         return *(reinterpret_cast<ArduinoCloudPropertyGeneric*>(this));
     }
 
+    ArduinoCloudPropertyGeneric& minimumDelta(void* delta) {
+        minDelta = *(T*)delta;
+        return *(reinterpret_cast<ArduinoCloudPropertyGeneric*>(this));
+    }
+
     permissionType getPermission() {
         return permission;
     }
@@ -150,7 +156,7 @@ public:
     }
 
     bool newData() {
-        return (property != shadow_property);
+        return (property != shadow_property && abs(property - shadow_property) > minDelta );
     }
 
     bool shouldBeUpdated() {
@@ -171,6 +177,7 @@ protected:
     int tag = -1;
     long lastUpdated = 0;
     long updatePolicy = ON_CHANGE;
+    T minDelta = 0;
     permissionType permission = READWRITE;
     static int tagIndex;
 };
