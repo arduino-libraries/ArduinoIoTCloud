@@ -3,6 +3,8 @@
 
 #include <MQTTClient.h>
 #include <ArduinoBearSSL.h>
+#include <ArduinoCloudThing.h>
+#include <ArduinoHttpClient.h>
 
 #include "CloudSerial.h"
 
@@ -22,9 +24,24 @@ public:
 
   int connected();
 
+  #define addProperty( v, ...) addPropertyReal(v, #v, __VA_ARGS__)
+
+  template<typename T> void addPropertyReal(T& property, String name, permissionType _permission = READWRITE, long seconds = ON_CHANGE, T minDelta = 0, void(*fn)(void) = NULL) {
+    Thing.addPropertyReal(property, name).publishEvery(seconds).setPermission(_permission).onUpdate(fn).minimumDelta(&minDelta);
+  }
+
+  template<typename T> void addPropertyReal(T& property, String name, permissionType _permission = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, T minDelta = 0) {
+    Thing.addPropertyReal(property, name).publishEvery(seconds).setPermission(_permission).onUpdate(fn).minimumDelta(&minDelta);
+  }
+
+  template<typename T> void addPropertyReal(T& property, String name, permissionType _permission = READWRITE, void(*fn)(void) = NULL, long seconds = ON_CHANGE, T minDelta = 0) {
+    Thing.addPropertyReal(property, name).publishEvery(seconds).setPermission(_permission).onUpdate(fn).minimumDelta(&minDelta);
+  }
+
 protected:
   friend class CloudSerialClass;
   int writeStdout(const byte data[], int length);
+  int writeProperties(const byte data[], int length);
 
 private:
   static void onMessage(MQTTClient *client, char topic[], char bytes[], int length);
@@ -33,11 +50,15 @@ private:
 
 private:
   String _id;
+  ArduinoCloudThing Thing;
   BearSSLClient* _bearSslClient;
+  HttpClient* _otaClient;
   MQTTClient _mqttClient;
 
   String _stdinTopic;
   String _stdoutTopic;
+  String _dataTopic;
+  String _otaTopic;
 };
 
 
