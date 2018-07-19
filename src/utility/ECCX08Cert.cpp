@@ -1,6 +1,6 @@
 #include <ArduinoBearSSL.h>
 #include <bearssl/bearssl_hash.h>
-#include <utility/ECCX08.h>
+#include <ArduinoECCX08.h>
 
 #include "ECCX08Cert.h"
 

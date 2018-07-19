@@ -1,9 +1,9 @@
-#include "ArduinoCloudV2.h"
+#include <ArduinoECCX08.h>
 
-#include <utility/ECCX08.h>
-#include <utility/ECCX08Cert.h>
-
+#include "utility/ECCX08Cert.h"
 #include "CloudSerial.h"
+
+#include "ArduinoCloudV2.h"
 
 const static char server[] = "a19g5nbe27wn47.iot.us-east-1.amazonaws.com"; //"xxxxxxxxxxxxxx.iot.xx-xxxx-x.amazonaws.com";
 
