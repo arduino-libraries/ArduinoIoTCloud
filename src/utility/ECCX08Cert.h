@@ -42,6 +42,8 @@ public:
   void setSubjectOrganizationalUnitName(const String& organizationalUnitName);
   void setSubjectCommonName(const String& commonName);
 
+  void setAuthorityKeyIdentifier(const byte authorityKeyIdentifier[]);
+
 private:
   int versionLength();
 
@@ -53,6 +55,8 @@ private:
                             const String& commonName);
 
   int publicKeyLength();
+
+  int authorityKeyIdentifierLength(const byte authorityKeyIdentifier[]);
 
   int signatureLength(const byte signature[]);
 
@@ -71,6 +75,8 @@ private:
                              byte out[]);
 
   void appendPublicKey(const byte publicKey[], byte out[]);
+
+  void appendAuthorityKeyIdentifier(const byte authorityKeyIdentifier[], byte out[]);
 
   void appendSignature(const byte signature[], byte out[]);
 
@@ -102,6 +108,8 @@ private:
   String _subjectOrganizationName;
   String _subjectOrganizationalUnitName;
   String _subjectCommonName;
+
+  const byte* _authorityKeyIdentifier;
 
   byte _temp[88];
   byte* _bytes;
