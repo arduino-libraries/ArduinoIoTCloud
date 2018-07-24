@@ -73,6 +73,7 @@ ECCX08CertClass::ECCX08CertClass() :
   _keySlot(-1),
   _compressedCertSlot(-1),
   _serialNumberSlot(-1),
+  _authorityKeyIdentifier(NULL),
   _bytes(NULL),
   _length(0)
 {
@@ -334,10 +335,19 @@ int ECCX08CertClass::endReconstruction()
 
   int publicKeyLen = publicKeyLength();
 
+  int authorityKeyIdentifierLen = authorityKeyIdentifierLength(_authorityKeyIdentifier);
+
   int signatureLen = signatureLength(compressedCert.signature);
 
   int certInfoLen = 5 + serialNumberLen + 12 + issuerHeaderLen + issuerLen + 32 + 
-                    subjectHeaderLen + subjectLen + publicKeyLen + 4;
+                    subjectHeaderLen + subjectLen + publicKeyLen;
+
+  if (authorityKeyIdentifierLen) {
+    certInfoLen += authorityKeyIdentifierLen;
+  } else {
+    certInfoLen += 4;
+  }
+
   int certInfoHeaderLen = sequenceHeaderLength(certInfoLen);
 
   int certDataLen = certInfoLen + certInfoHeaderLen + signatureLen;
@@ -411,11 +421,16 @@ int ECCX08CertClass::endReconstruction()
   appendPublicKey(publicKey, out);
   out += publicKeyLen;
 
-  // null sequence
-  *out++ = 0xA3;
-  *out++ = 0x02;
-  *out++ = 0x30;
-  *out++ = 0x00;
+  if (authorityKeyIdentifierLen) {
+    appendAuthorityKeyIdentifier(_authorityKeyIdentifier, out);
+    out += authorityKeyIdentifierLen;
+  } else {
+    // null sequence
+    *out++ = 0xA3;
+    *out++ = 0x02;
+    *out++ = 0x30;
+    *out++ = 0x00;
+  }
 
   // signature
   appendSignature(compressedCert.signature, out);
@@ -494,6 +509,11 @@ void ECCX08CertClass::setSubjectCommonName(const String& commonName)
   _subjectCommonName = commonName;
 }
 
+void ECCX08CertClass::setAuthorityKeyIdentifier(const byte authorityKeyIdentifier[])
+{
+  _authorityKeyIdentifier = authorityKeyIdentifier;
+}
+
 int ECCX08CertClass::versionLength()
 {
   return 3;
@@ -544,6 +564,11 @@ int ECCX08CertClass::issuerOrSubjectLength(const String& countryName,
 int ECCX08CertClass::publicKeyLength()
 {
   return (2 + 2 + 9 + 10 + 4 + 64);
+}
+
+int ECCX08CertClass::authorityKeyIdentifierLength(const byte authorityKeyIdentifier[])
+{
+  return (authorityKeyIdentifier == NULL) ? 0 : 37;
 }
 
 int ECCX08CertClass::signatureLength(const byte signature[])
@@ -682,6 +707,41 @@ void ECCX08CertClass::appendPublicKey(const byte publicKey[], byte out[])
   *out++ = 0x04;
 
   memcpy(out, publicKey, 64);
+}
+
+void ECCX08CertClass::appendAuthorityKeyIdentifier(const byte authorityKeyIdentifier[], byte out[])
+{
+  // [3]
+  *out++ = 0xa3;
+  *out++ = 0x23;
+
+  // sequence
+  *out++ = ASN1_SEQUENCE;
+  *out++ = 0x21;
+
+  // sequence
+  *out++ = ASN1_SEQUENCE;
+  *out++ = 0x1f;
+
+  // 2.5.29.35 authorityKeyIdentifier(X.509 extension)
+  *out++ = 0x06;
+  *out++ = 0x03;
+  *out++ = 0x55;
+  *out++ = 0x1d;
+  *out++ = 0x23;
+
+  // octet string
+  *out++ = 0x04;
+  *out++ = 0x18;
+
+  // sequence
+  *out++ = ASN1_SEQUENCE;
+  *out++ = 0x16;
+
+  *out++ = 0x80;
+  *out++ = 0x14;
+
+  memcpy(out, authorityKeyIdentifier, 20);
 }
 
 void ECCX08CertClass::appendSignature(const byte signature[], byte out[])
