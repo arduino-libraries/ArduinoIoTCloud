@@ -48,6 +48,12 @@ int ArduinoCloudClass::begin(Client& net)
   ECCX08Cert.setIssuerOrganizationalUnitName("IT");
   ECCX08Cert.setIssuerCommonName("Arduino");
 
+  const byte authorityKeyIdentifier[20] = {
+    0xb2, 0xed, 0xef, 0xed, 0x3b, 0xbf, 0xc7, 0x71, 0x75, 0x24, 0x33, 0xd1, 0xae, 0x8b, 0x54, 0xed, 0x97, 0x14, 0x7a, 0x1d
+  };
+
+  ECCX08Cert.setAuthorityKeyIdentifier(authorityKeyIdentifier);
+
   if (!ECCX08Cert.endReconstruction()) {
     return 0;
   }
