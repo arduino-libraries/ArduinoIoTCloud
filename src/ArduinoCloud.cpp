@@ -7,10 +7,11 @@
 
 const static char server[] = "a19g5nbe27wn47.iot.us-east-1.amazonaws.com"; //"xxxxxxxxxxxxxx.iot.xx-xxxx-x.amazonaws.com";
 
-const static int keySlot            = 0;
-const static int compressedCertSlot = 10;
-const static int serialNumberSlot   = 11;
-const static int thingIdSlot        = 12;
+const static int keySlot                    = 0;
+const static int compressedCertSlot         = 10;
+const static int serialNumberSlot           = 11;
+const static int authorityKeyIdentifierSlot = 12;
+const static int thingIdSlot                = 13;
 
 ArduinoCloudClass::ArduinoCloudClass() :
   _bearSslClient(NULL),
@@ -38,7 +39,7 @@ int ArduinoCloudClass::begin(Client& net)
   }
   _id = (char*)thingIdBytes;
 
-  if (!ECCX08Cert.beginReconstruction(keySlot, compressedCertSlot, serialNumberSlot)) {
+  if (!ECCX08Cert.beginReconstruction(keySlot, compressedCertSlot, serialNumberSlot, authorityKeyIdentifierSlot)) {
     return 0;
   }
 
@@ -47,12 +48,6 @@ int ArduinoCloudClass::begin(Client& net)
   ECCX08Cert.setIssuerOrganizationName("Arduino LLC US");
   ECCX08Cert.setIssuerOrganizationalUnitName("IT");
   ECCX08Cert.setIssuerCommonName("Arduino");
-
-  const byte authorityKeyIdentifier[20] = {
-    0xb2, 0xed, 0xef, 0xed, 0x3b, 0xbf, 0xc7, 0x71, 0x75, 0x24, 0x33, 0xd1, 0xae, 0x8b, 0x54, 0xed, 0x97, 0x14, 0x7a, 0x1d
-  };
-
-  ECCX08Cert.setAuthorityKeyIdentifier(authorityKeyIdentifier);
 
   if (!ECCX08Cert.endReconstruction()) {
     return 0;

@@ -18,7 +18,8 @@ struct __attribute__((__packed__)) CompressedCert {
   byte unused[5];
 };
 
-#define SERIAL_NUMBER_LENGTH 16
+#define SERIAL_NUMBER_LENGTH            16
+#define AUTHORITY_KEY_IDENTIFIER_LENGTH 20
 
 static String base64Encode(const byte in[], unsigned int length, const char* prefix, const char* suffix)
 {
@@ -73,7 +74,7 @@ ECCX08CertClass::ECCX08CertClass() :
   _keySlot(-1),
   _compressedCertSlot(-1),
   _serialNumberSlot(-1),
-  _authorityKeyIdentifier(NULL),
+  _authorityKeyIdentifierSlot(-1),
   _bytes(NULL),
   _length(0)
 {
@@ -185,7 +186,7 @@ String ECCX08CertClass::endCSR()
   return base64Encode(csr, csrLen + csrHeaderLen, "-----BEGIN CERTIFICATE REQUEST-----\n", "\n-----END CERTIFICATE REQUEST-----\n");
 }
 
-int ECCX08CertClass::beginStorage(int compressedCertSlot, int serialNumberSlot)
+int ECCX08CertClass::beginStorage(int compressedCertSlot, int serialNumberSlot, int authorityKeyIdentifierSlot)
 {
   if (compressedCertSlot < 8 || compressedCertSlot > 15) {
     return 0;
@@ -195,8 +196,15 @@ int ECCX08CertClass::beginStorage(int compressedCertSlot, int serialNumberSlot)
     return 0;
   }
 
+  if (authorityKeyIdentifierSlot > -1) {
+    if (authorityKeyIdentifierSlot < 8 || authorityKeyIdentifierSlot > 15) {
+      return 0;
+    }
+  }
+
   _compressedCertSlot = compressedCertSlot;
   _serialNumberSlot = serialNumberSlot;
+  _authorityKeyIdentifierSlot = authorityKeyIdentifierSlot;
 
   memset(_temp, 0x00, sizeof(_temp));
 
@@ -256,9 +264,14 @@ void ECCX08CertClass::setExpireYears(int expireYears)
   compressedCert->dates[2] |= expireYears;
 }
 
-void ECCX08CertClass::setSerialNumber(byte serialNumber[])
+void ECCX08CertClass::setSerialNumber(const byte serialNumber[])
 {
   memcpy(&_temp[72], serialNumber, SERIAL_NUMBER_LENGTH);
+}
+
+void ECCX08CertClass::setAuthorityKeyIdentifier(const byte authorityKeyIdentifier[])
+{
+  memcpy(&_temp[88], authorityKeyIdentifier, AUTHORITY_KEY_IDENTIFIER_LENGTH);
 }
 
 int ECCX08CertClass::endStorage()
@@ -271,10 +284,14 @@ int ECCX08CertClass::endStorage()
     return 0;
   }
 
+  if (!ECCX08.writeSlot(_authorityKeyIdentifierSlot, &_temp[88], AUTHORITY_KEY_IDENTIFIER_LENGTH)) {
+    return 0;
+  }
+
   return 1;
 }
 
-int ECCX08CertClass::beginReconstruction(int keySlot, int compressedCertSlot, int serialNumberSlot)
+int ECCX08CertClass::beginReconstruction(int keySlot, int compressedCertSlot, int serialNumberSlot, int authorityKeyIdentifierSlot)
 {
   if (keySlot < 0 || keySlot > 8) {
     return 0;
@@ -288,9 +305,16 @@ int ECCX08CertClass::beginReconstruction(int keySlot, int compressedCertSlot, in
     return 0;
   }
 
+  if (authorityKeyIdentifierSlot > -1) {
+    if (authorityKeyIdentifierSlot < 8 || authorityKeyIdentifierSlot > 15) {
+      return 0;
+    }
+  }
+
   _keySlot = keySlot;
   _compressedCertSlot = compressedCertSlot;
   _serialNumberSlot = serialNumberSlot;
+  _authorityKeyIdentifierSlot = authorityKeyIdentifierSlot;
 
   return 1;
 }
@@ -300,6 +324,7 @@ int ECCX08CertClass::endReconstruction()
   byte publicKey[64];
   struct CompressedCert compressedCert;
   byte serialNumber[SERIAL_NUMBER_LENGTH];
+  byte authorityKeyIdentifier[AUTHORITY_KEY_IDENTIFIER_LENGTH];
 
   if (!ECCX08.generatePublicKey(_keySlot, publicKey)) {
     return 0;
@@ -310,6 +335,11 @@ int ECCX08CertClass::endReconstruction()
   }
 
   if (!ECCX08.readSlot(_serialNumberSlot, serialNumber, sizeof(serialNumber))) {
+    return 0;
+  }
+
+  if (_authorityKeyIdentifierSlot > -1 &&
+      !ECCX08.readSlot(_authorityKeyIdentifierSlot, authorityKeyIdentifier, sizeof(authorityKeyIdentifier))) {
     return 0;
   }
 
@@ -335,7 +365,11 @@ int ECCX08CertClass::endReconstruction()
 
   int publicKeyLen = publicKeyLength();
 
-  int authorityKeyIdentifierLen = authorityKeyIdentifierLength(_authorityKeyIdentifier);
+  int authorityKeyIdentifierLen = 0;
+
+  if (_authorityKeyIdentifierSlot > -1) {
+    authorityKeyIdentifierLen = authorityKeyIdentifierLength();
+  }
 
   int signatureLen = signatureLength(compressedCert.signature);
 
@@ -422,7 +456,7 @@ int ECCX08CertClass::endReconstruction()
   out += publicKeyLen;
 
   if (authorityKeyIdentifierLen) {
-    appendAuthorityKeyIdentifier(_authorityKeyIdentifier, out);
+    appendAuthorityKeyIdentifier(authorityKeyIdentifier, out);
     out += authorityKeyIdentifierLen;
   } else {
     // null sequence
@@ -509,11 +543,6 @@ void ECCX08CertClass::setSubjectCommonName(const String& commonName)
   _subjectCommonName = commonName;
 }
 
-void ECCX08CertClass::setAuthorityKeyIdentifier(const byte authorityKeyIdentifier[])
-{
-  _authorityKeyIdentifier = authorityKeyIdentifier;
-}
-
 int ECCX08CertClass::versionLength()
 {
   return 3;
@@ -566,9 +595,9 @@ int ECCX08CertClass::publicKeyLength()
   return (2 + 2 + 9 + 10 + 4 + 64);
 }
 
-int ECCX08CertClass::authorityKeyIdentifierLength(const byte authorityKeyIdentifier[])
+int ECCX08CertClass::authorityKeyIdentifierLength()
 {
-  return (authorityKeyIdentifier == NULL) ? 0 : 37;
+  return 37;
 }
 
 int ECCX08CertClass::signatureLength(const byte signature[])
