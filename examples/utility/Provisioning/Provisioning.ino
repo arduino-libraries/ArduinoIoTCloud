@@ -5,11 +5,10 @@
 #include <ArduinoBearSSL.h>
 #include <ArduinoECCX08.h>
 
-const int keySlot                    = 0;
-const int compressedCertSlot         = 10;
-const int serialNumberSlot           = 11;
-const int authorityKeyIdentifierSlot = 12;
-const int thingIdSlot                = 13;
+const int keySlot                                   = 0;
+const int compressedCertSlot                        = 10;
+const int serialNumberAndAuthorityKeyIdentifierSlot = 11;
+const int thingIdSlot                               = 12;
 
 void setup() {
   Serial.begin(9600);
@@ -97,7 +96,7 @@ void setup() {
     while (1);
   }
 
-  if (!ECCX08Cert.beginStorage(compressedCertSlot, serialNumberSlot, authorityKeyIdentifierSlot)) {
+  if (!ECCX08Cert.beginStorage(compressedCertSlot, serialNumberAndAuthorityKeyIdentifierSlot)) {
     Serial.println("Error starting ECCX08 storage!");
     while (1);
   }
@@ -116,7 +115,7 @@ void setup() {
     while (1);
   }
 
-  if (!ECCX08Cert.beginReconstruction(keySlot, compressedCertSlot, serialNumberSlot, authorityKeyIdentifierSlot)) {
+  if (!ECCX08Cert.beginReconstruction(keySlot, compressedCertSlot, serialNumberAndAuthorityKeyIdentifierSlot)) {
     Serial.println("Error starting ECCX08 cert reconstruction!");
     while (1);
   }

@@ -12,7 +12,7 @@ public:
   int beginCSR(int keySlot, bool newPrivateKey = true);
   String endCSR();
 
-  int beginStorage(int compressedCertSlot, int serialNumberSlot, int authorityKeyIdentifierSlot);
+  int beginStorage(int compressedCertSlot, int serialNumberAndAuthorityKeyIdentifierSlot);
   void setSignature(byte signature[]);
   void setIssueYear(int issueYear);
   void setIssueMonth(int issueMonth);
@@ -23,7 +23,7 @@ public:
   void setAuthorityKeyIdentifier(const byte authorityKeyIdentifier[]);
   int endStorage();
 
-  int beginReconstruction(int keySlot, int compressedCertSlot, int serialNumberSlot, int authorityKeyIdentifierSlot);
+  int beginReconstruction(int keySlot, int compressedCertSlot, int serialNumberAndAuthorityKeyIdentifierSlot);
   int endReconstruction();
 
   byte* bytes();
@@ -55,7 +55,7 @@ private:
 
   int publicKeyLength();
 
-  int authorityKeyIdentifierLength();
+  int authorityKeyIdentifierLength(const byte authorityKeyIdentifier[]);
 
   int signatureLength(const byte signature[]);
 
@@ -92,8 +92,7 @@ private:
 private:
   int _keySlot;
   int _compressedCertSlot;
-  int _serialNumberSlot;
-  int _authorityKeyIdentifierSlot;
+  int _serialNumberAndAuthorityKeyIdentifierSlot;
 
   String _issuerCountryName;
   String _issuerStateProvinceName;
