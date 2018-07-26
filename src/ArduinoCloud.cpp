@@ -7,11 +7,10 @@
 
 const static char server[] = "a19g5nbe27wn47.iot.us-east-1.amazonaws.com"; //"xxxxxxxxxxxxxx.iot.xx-xxxx-x.amazonaws.com";
 
-const static int keySlot                    = 0;
-const static int compressedCertSlot         = 10;
-const static int serialNumberSlot           = 11;
-const static int authorityKeyIdentifierSlot = 12;
-const static int thingIdSlot                = 13;
+const static int keySlot                                   = 0;
+const static int compressedCertSlot                        = 10;
+const static int serialNumberAndAuthorityKeyIdentifierSlot = 11;
+const static int thingIdSlot                               = 12;
 
 ArduinoCloudClass::ArduinoCloudClass() :
   _bearSslClient(NULL),
@@ -39,7 +38,7 @@ int ArduinoCloudClass::begin(Client& net)
   }
   _id = (char*)thingIdBytes;
 
-  if (!ECCX08Cert.beginReconstruction(keySlot, compressedCertSlot, serialNumberSlot, authorityKeyIdentifierSlot)) {
+  if (!ECCX08Cert.beginReconstruction(keySlot, compressedCertSlot, serialNumberAndAuthorityKeyIdentifierSlot)) {
     return 0;
   }
 

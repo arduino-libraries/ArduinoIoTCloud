@@ -21,6 +21,11 @@ struct __attribute__((__packed__)) CompressedCert {
 #define SERIAL_NUMBER_LENGTH            16
 #define AUTHORITY_KEY_IDENTIFIER_LENGTH 20
 
+struct __attribute__((__packed__)) SerialNumberAndAuthorityKeyIdentifier {
+  byte serialNumber[SERIAL_NUMBER_LENGTH];
+  byte authorityKeyIdentifier[AUTHORITY_KEY_IDENTIFIER_LENGTH];
+};
+
 static String base64Encode(const byte in[], unsigned int length, const char* prefix, const char* suffix)
 {
   static const char* CODES = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
@@ -73,8 +78,7 @@ static String base64Encode(const byte in[], unsigned int length, const char* pre
 ECCX08CertClass::ECCX08CertClass() :
   _keySlot(-1),
   _compressedCertSlot(-1),
-  _serialNumberSlot(-1),
-  _authorityKeyIdentifierSlot(-1),
+  _serialNumberAndAuthorityKeyIdentifierSlot(-1),
   _bytes(NULL),
   _length(0)
 {
@@ -186,25 +190,18 @@ String ECCX08CertClass::endCSR()
   return base64Encode(csr, csrLen + csrHeaderLen, "-----BEGIN CERTIFICATE REQUEST-----\n", "\n-----END CERTIFICATE REQUEST-----\n");
 }
 
-int ECCX08CertClass::beginStorage(int compressedCertSlot, int serialNumberSlot, int authorityKeyIdentifierSlot)
+int ECCX08CertClass::beginStorage(int compressedCertSlot, int serialNumberAndAuthorityKeyIdentifierSlot)
 {
   if (compressedCertSlot < 8 || compressedCertSlot > 15) {
     return 0;
   }
 
-  if (serialNumberSlot < 8 || serialNumberSlot > 15) {
+  if (serialNumberAndAuthorityKeyIdentifierSlot < 8 || serialNumberAndAuthorityKeyIdentifierSlot > 15) {
     return 0;
   }
 
-  if (authorityKeyIdentifierSlot > -1) {
-    if (authorityKeyIdentifierSlot < 8 || authorityKeyIdentifierSlot > 15) {
-      return 0;
-    }
-  }
-
   _compressedCertSlot = compressedCertSlot;
-  _serialNumberSlot = serialNumberSlot;
-  _authorityKeyIdentifierSlot = authorityKeyIdentifierSlot;
+  _serialNumberAndAuthorityKeyIdentifierSlot = serialNumberAndAuthorityKeyIdentifierSlot;
 
   memset(_temp, 0x00, sizeof(_temp));
 
@@ -280,18 +277,14 @@ int ECCX08CertClass::endStorage()
     return 0;
   }
 
-  if (!ECCX08.writeSlot(_serialNumberSlot, &_temp[72], SERIAL_NUMBER_LENGTH)) {
-    return 0;
-  }
-
-  if (!ECCX08.writeSlot(_authorityKeyIdentifierSlot, &_temp[88], AUTHORITY_KEY_IDENTIFIER_LENGTH)) {
+  if (!ECCX08.writeSlot(_serialNumberAndAuthorityKeyIdentifierSlot, &_temp[72], SERIAL_NUMBER_LENGTH + AUTHORITY_KEY_IDENTIFIER_LENGTH)) {
     return 0;
   }
 
   return 1;
 }
 
-int ECCX08CertClass::beginReconstruction(int keySlot, int compressedCertSlot, int serialNumberSlot, int authorityKeyIdentifierSlot)
+int ECCX08CertClass::beginReconstruction(int keySlot, int compressedCertSlot, int serialNumberAndAuthorityKeyIdentifierSlot)
 {
   if (keySlot < 0 || keySlot > 8) {
     return 0;
@@ -301,20 +294,13 @@ int ECCX08CertClass::beginReconstruction(int keySlot, int compressedCertSlot, in
     return 0;
   }
 
-  if (serialNumberSlot < 8 || serialNumberSlot > 15) {
+  if (serialNumberAndAuthorityKeyIdentifierSlot < 8 || serialNumberAndAuthorityKeyIdentifierSlot > 15) {
     return 0;
-  }
-
-  if (authorityKeyIdentifierSlot > -1) {
-    if (authorityKeyIdentifierSlot < 8 || authorityKeyIdentifierSlot > 15) {
-      return 0;
-    }
   }
 
   _keySlot = keySlot;
   _compressedCertSlot = compressedCertSlot;
-  _serialNumberSlot = serialNumberSlot;
-  _authorityKeyIdentifierSlot = authorityKeyIdentifierSlot;
+  _serialNumberAndAuthorityKeyIdentifierSlot = serialNumberAndAuthorityKeyIdentifierSlot;
 
   return 1;
 }
@@ -323,8 +309,7 @@ int ECCX08CertClass::endReconstruction()
 {
   byte publicKey[64];
   struct CompressedCert compressedCert;
-  byte serialNumber[SERIAL_NUMBER_LENGTH];
-  byte authorityKeyIdentifier[AUTHORITY_KEY_IDENTIFIER_LENGTH];
+  struct SerialNumberAndAuthorityKeyIdentifier serialNumberAndAuthorityKeyIdentifier;
 
   if (!ECCX08.generatePublicKey(_keySlot, publicKey)) {
     return 0;
@@ -334,16 +319,11 @@ int ECCX08CertClass::endReconstruction()
     return 0;
   }
 
-  if (!ECCX08.readSlot(_serialNumberSlot, serialNumber, sizeof(serialNumber))) {
+  if (!ECCX08.readSlot(_serialNumberAndAuthorityKeyIdentifierSlot, (byte*)&serialNumberAndAuthorityKeyIdentifier, sizeof(serialNumberAndAuthorityKeyIdentifier))) {
     return 0;
   }
 
-  if (_authorityKeyIdentifierSlot > -1 &&
-      !ECCX08.readSlot(_authorityKeyIdentifierSlot, authorityKeyIdentifier, sizeof(authorityKeyIdentifier))) {
-    return 0;
-  }
-
-  int serialNumberLen = serialNumberLength(serialNumber);
+  int serialNumberLen = serialNumberLength(serialNumberAndAuthorityKeyIdentifier.serialNumber);
 
   int issuerLen = issuerOrSubjectLength(_issuerCountryName,
                                         _issuerStateProvinceName,
@@ -365,12 +345,8 @@ int ECCX08CertClass::endReconstruction()
 
   int publicKeyLen = publicKeyLength();
 
-  int authorityKeyIdentifierLen = 0;
-
-  if (_authorityKeyIdentifierSlot > -1) {
-    authorityKeyIdentifierLen = authorityKeyIdentifierLength();
-  }
-
+  int authorityKeyIdentifierLen = authorityKeyIdentifierLength(serialNumberAndAuthorityKeyIdentifier.authorityKeyIdentifier);
+  
   int signatureLen = signatureLength(compressedCert.signature);
 
   int certInfoLen = 5 + serialNumberLen + 12 + issuerHeaderLen + issuerLen + 32 + 
@@ -411,7 +387,7 @@ int ECCX08CertClass::endReconstruction()
   *out++ = 0x02;
 
   // serial number
-  appendSerialNumber(serialNumber, out);
+  appendSerialNumber(serialNumberAndAuthorityKeyIdentifier.serialNumber, out);
   out += serialNumberLen;
 
   // ecdsaWithSHA256
@@ -456,7 +432,7 @@ int ECCX08CertClass::endReconstruction()
   out += publicKeyLen;
 
   if (authorityKeyIdentifierLen) {
-    appendAuthorityKeyIdentifier(authorityKeyIdentifier, out);
+    appendAuthorityKeyIdentifier(serialNumberAndAuthorityKeyIdentifier.authorityKeyIdentifier, out);
     out += authorityKeyIdentifierLen;
   } else {
     // null sequence
@@ -595,9 +571,19 @@ int ECCX08CertClass::publicKeyLength()
   return (2 + 2 + 9 + 10 + 4 + 64);
 }
 
-int ECCX08CertClass::authorityKeyIdentifierLength()
+int ECCX08CertClass::authorityKeyIdentifierLength(const byte authorityKeyIdentifier[])
 {
-  return 37;
+  bool set = false;
+
+  // check if the authority key identifier is non-zero
+  for (int i = 0; i < AUTHORITY_KEY_IDENTIFIER_LENGTH; i++) {
+    if (authorityKeyIdentifier[i] != 0) {
+      set = true;
+      break;
+    }
+  }
+
+  return (set ? 37 : 0);
 }
 
 int ECCX08CertClass::signatureLength(const byte signature[])
