@@ -13,11 +13,33 @@ unsigned long getTime() {
   return WiFi.getTime();
 }
 
+// Thing properties
 int position;
+bool valid = true;
+float ratio = 2.47;
+String welcome = "ciao";
+
+// Last time when the WiFi connection was checked
+unsigned long lastMillis = 0;
 
 void onPositionUpdate() {
   Serial.print("New position value: ");
   Serial.println(position);
+}
+
+void onWelcomeUpdate() {
+  Serial.print("New state value: ");
+  Serial.println(welcome);
+}
+
+void onValidUpdate() {
+  Serial.print("New valid value: ");
+  Serial.println(valid);
+}
+
+void onRatioUpdate() {
+  Serial.print("New ratio value: ");
+  Serial.println(ratio);
 }
 
 void setup() {
@@ -47,7 +69,7 @@ void setup() {
     status = WiFi.begin(ssid, pass);
 
     // wait 10 seconds for connection:
-    delay(10000);
+    delay(5000);
   }
 
   // you're connected now, so print out the data:
@@ -63,21 +85,45 @@ void setup() {
   }
 
   Serial.println("Successfully connected to Arduino Cloud :)");
-
-  ArduinoCloud.addProperty(position, READ, 10*SECONDS, onPositionUpdate);
+  ArduinoCloud.addProperty(welcome, READWRITE, ON_CHANGE, onWelcomeUpdate);
+  ArduinoCloud.addProperty(position, READWRITE, ON_CHANGE, onPositionUpdate);
+  ArduinoCloud.addProperty(valid, READWRITE, ON_CHANGE, onValidUpdate);
+  ArduinoCloud.addProperty(ratio, READWRITE, ON_CHANGE, onRatioUpdate);
 
   CloudSerial.begin(9600);
+  lastMillis = millis();
 }
 
 void loop() {
   ArduinoCloud.poll();
-
-  if (CloudSerial.available()) {
-    Serial.write(CloudSerial.read());
+  Serial.println("loop updated");
+ /* 
+  Serial.println(".");
+  welcome += "!";
+  ratio += 0.4355;
+  valid = !valid;
+  position += 1;
+*/
+  if (millis() - lastMillis > 20000) {
+    Serial.println("..Check WiFi status..");
+    bool error = false;
+    // Check Wifi status
+    while (WiFi.status() != WL_CONNECTED) {
+      error = true;
+      Serial.print("..Reconnection to connect to WPA SSID: ");
+      Serial.println(ssid);
+      status = WiFi.begin(ssid, pass);
+      // wait 10 seconds for connection:
+      delay(2000);
+    }
+    if(error) {
+      Serial.println("..Reconnected to the Nework!");
+     // Call the reconnect method to clean up the ArduinoCloud connection
+     ArduinoCloud.reconnect(wifiClient);
+    }
+    delay(500);
+    lastMillis = millis();
   }
 
-  if (Serial.available()) {
-    CloudSerial.write(Serial.read());
-  }
+  delay(2000);
 }
-
