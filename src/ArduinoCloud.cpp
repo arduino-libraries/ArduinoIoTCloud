@@ -1,6 +1,6 @@
 
 #include "ArduinoCloudV2.h"
-#include <ECCX08.h>
+#include <ArduinoECCX08.h>
 #include <utility/ECCX08Cert.h>
 #include "CloudSerial.h"
 
@@ -14,7 +14,7 @@ const static int thingIdSlot                               = 12;
 ArduinoCloudClass::ArduinoCloudClass() :
   _bearSslClient(NULL),
   // Size of the receive buffer
-  _mqttClient(256)
+  _mqttClient(MQTT_BUFFER_SIZE)
 {
 }
 
@@ -28,8 +28,7 @@ ArduinoCloudClass::~ArduinoCloudClass()
 int ArduinoCloudClass::begin(Client& net)
 {
   byte thingIdBytes[72];
-  
-  /*
+/*
   if (!ECCX08.begin()) {
     return 0;
   }
@@ -61,7 +60,17 @@ int ArduinoCloudClass::begin(Client& net)
 */
   //END of TLS communication part. The result of that part is *_bearSslClient [Network Client]
   
-  
+  // Begin function for the MQTTClient
+  mqttClientBegin(net);
+  // Thing initialization
+  Thing.begin();
+
+  return 1;
+}
+
+// private class method used to initialize mqttClient class member. (called in the begin class method)
+void ArduinoCloudClass::mqttClientBegin(Client& net)
+{
   // MQTT topics definition
   _id = "XXX";
 
@@ -77,13 +86,8 @@ int ArduinoCloudClass::begin(Client& net)
   // Set will for MQTT client: {topic, qos, retain message}
   const char lastMessage[] = "abcb";
   _mqttClient.setWill(_dataTopicOut.c_str(), lastMessage, false, 1);
-  // Set MQTT broker connection options
-  _mqttClient.setOptions(120, false, 1000);
-
-  // Thing initialization
-  Thing.begin();
-
-  return 1;
+  // Set MQTT connection options
+  _mqttClient.setOptions(mqttOpt.keepAlive, mqttOpt.cleanSession, mqttOpt.timeout);
 }
 
 int ArduinoCloudClass::connect()
@@ -94,7 +98,6 @@ int ArduinoCloudClass::connect()
   if (!_mqttClient.connect(_id.c_str(), "try", "try")) {
     return 0;
   }
-
   _mqttClient.subscribe(_stdinTopic);
   _mqttClient.subscribe(_dataTopicIn);
 
@@ -103,12 +106,68 @@ int ArduinoCloudClass::connect()
 
 void ArduinoCloudClass::poll()
 {
-  _mqttClient.loop();
-  uint8_t data[1024];
-  int length = Thing.poll(data, sizeof(data));
-  if (length > 0) {
-    writeProperties(data, length);
+  // If user call poll() without parameters use the default ones
+  poll(MAX_RETRIES, RECONNECTION_TIMEOUT);
+}
+
+bool ArduinoCloudClass::mqttReconnect(int maxRetries, int timeout)
+{
+  // Counter for reconnection retries
+  int retries = 0;
+
+  // Check for MQTT broker connection, of if maxReties limit is reached
+  // if MQTTClient is connected , simply do nothing and retun true
+  while(!_mqttClient.connected() && retries++ < maxRetries) {
+
+    // Get last MTTQClient error, (a common error may be a buffer overflow)
+    lwmqtt_err_t err = _mqttClient.lastError();
+ 
+    // try establish the MQTT broker connection 
+    connect();
+    // delay eventually used for the nex re-connection try
+    delay(timeout);                   
   }
+
+  // It was impossible to establish a connection, return
+  if (retries == maxRetries) 
+    return false;
+  
+  return true;
+}
+
+void ArduinoCloudClass::poll(int reconnectionMaxRetries, int reconnectionTimeoutMs)
+{
+  // Method's argument controls
+  int maxRetries = (reconnectionMaxRetries > 0) ? reconnectionMaxRetries : MAX_RETRIES;
+  int timeout = (reconnectionTimeoutMs > 0) ? reconnectionTimeoutMs : RECONNECTION_TIMEOUT;
+
+  // If something has to be read from the network (prop with Write permission), perform reconnection now
+  if(!Thing.hasAllReadProperties()) {
+    // If the reconnect() culd not establish the connection, return the control to the user sketch
+    if (!mqttReconnect(maxRetries, timeout))
+      return;
+  }
+
+  // MTTQClient connected!, poll() used to retrieve data from MQTT broker
+  _mqttClient.loop();
+  
+  uint8_t data[MQTT_BUFFER_SIZE];
+  int length = Thing.poll(data, sizeof(data));
+  // Are there some read properties that must be sent to the cloud ??
+  if (length > 0) {
+    // Check the connection is ok! if not reconnect
+    // If a thing has all read properties only try to reconnect when the have to be sent(based on their update policy)
+    if(mqttReconnect(maxRetries, timeout)) {
+      writeProperties(data, length);
+    }
+  }
+}
+
+void ArduinoCloudClass::reconnect(Client& net)
+{
+  // Initialize again the MQTTClient, otherwise it would not be able to receive messages through its callback
+  mqttClientBegin(net);
+  connect();
 }
 
 void ArduinoCloudClass::onGetTime(unsigned long(*callback)(void))
