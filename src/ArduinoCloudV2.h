@@ -29,6 +29,7 @@ public:
 
     int begin(Client& net);
     int connect();
+    bool disconnect();
     void poll();
     // defined for users who want to specify max reconnections reties and timeout between them
     void poll(int reconnectionMaxRetries, int reconnectionTimeoutMs);

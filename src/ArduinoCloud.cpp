@@ -104,6 +104,11 @@ int ArduinoCloudClass::connect()
   return 1;
 }
 
+bool ArduinoCloudClass::disconnect()
+{
+    return _mqttClient.disconnect();
+}
+
 void ArduinoCloudClass::poll()
 {
   // If user call poll() without parameters use the default ones
