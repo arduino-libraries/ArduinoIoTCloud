@@ -4,7 +4,7 @@
 #include <utility/ECCX08Cert.h>
 #include "CloudSerial.h"
 
-const static char server[] = "broker.shiftr.io"; //"a19g5nbe27wn47.iot.us-east-1.amazonaws.com"; //"xxxxxxxxxxxxxx.iot.xx-xxxx-x.amazonaws.com";
+const static char server[] = "a19g5nbe27wn47.iot.us-east-1.amazonaws.com"; //"xxxxxxxxxxxxxx.iot.xx-xxxx-x.amazonaws.com";
 
 const static int keySlot                                   = 0;
 const static int compressedCertSlot                        = 10;
@@ -28,7 +28,7 @@ ArduinoCloudClass::~ArduinoCloudClass()
 int ArduinoCloudClass::begin(Client& net)
 {
   byte thingIdBytes[72];
-/*
+  
   if (!ECCX08.begin()) {
     return 0;
   }
@@ -57,11 +57,9 @@ int ArduinoCloudClass::begin(Client& net)
   }
   _bearSslClient = new BearSSLClient(net);
   _bearSslClient->setEccSlot(keySlot, ECCX08Cert.bytes(), ECCX08Cert.length());
-*/
-  //END of TLS communication part. The result of that part is *_bearSslClient [Network Client]
   
   // Begin function for the MQTTClient
-  mqttClientBegin(net);
+  mqttClientBegin(*_bearSslClient);
   // Thing initialization
   Thing.begin();
 
@@ -72,22 +70,19 @@ int ArduinoCloudClass::begin(Client& net)
 void ArduinoCloudClass::mqttClientBegin(Client& net)
 {
   // MQTT topics definition
-  _id = "XXX";
-
-  _stdoutTopic = "/a/d/" + _id + "/s/o";
-  _stdinTopic = "/a/d/" + _id + "/s/i";
-  _dataTopicIn = "/a/d/" + _id + "/e/i";
-  _dataTopicOut = "/a/d/" + _id + "/e/o";
+  _stdoutTopic = "$aws/things/" + _id + "/stdout";
+  _stdinTopic = "$aws/things/" + _id + "/stdin";
+  _dataTopicIn = "$aws/things/" + _id + "/datain";
+  _dataTopicOut = "$aws/things/" + _id + "/dataout";
 
   // use onMessage as callback for received mqtt messages
   _mqttClient.onMessageAdvanced(ArduinoCloudClass::onMessage);
-  //_mqttClient.begin(server, 8883, *_bearSslClient);
-  _mqttClient.begin(server, 1883, net);
+  _mqttClient.begin(server, 8883, net);
   // Set will for MQTT client: {topic, qos, retain message}
-  const char lastMessage[] = "abcb";
-  _mqttClient.setWill(_dataTopicOut.c_str(), lastMessage, false, 1);
-  // Set MQTT connection options
-  _mqttClient.setOptions(mqttOpt.keepAlive, mqttOpt.cleanSession, mqttOpt.timeout);
+  // const char lastMessage[] = "abcb";
+  // _mqttClient.setWill(_dataTopicOut.c_str(), lastMessage, false, 1);
+  // // Set MQTT connection options
+  // _mqttClient.setOptions(mqttOpt.keepAlive, mqttOpt.cleanSession, mqttOpt.timeout);
 }
 
 int ArduinoCloudClass::connect()
@@ -95,7 +90,7 @@ int ArduinoCloudClass::connect()
   //TODO MQTT brocker connection
   // Username: device id
   // Password: empty
-  if (!_mqttClient.connect(_id.c_str(), "try", "try")) {
+  if (!_mqttClient.connect(_id.c_str())) {
     return 0;
   }
   _mqttClient.subscribe(_stdinTopic);
