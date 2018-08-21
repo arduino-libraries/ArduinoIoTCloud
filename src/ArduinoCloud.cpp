@@ -4,7 +4,7 @@
 #include <utility/ECCX08Cert.h>
 #include "CloudSerial.h"
 
-const static char server[] = "a19g5nbe27wn47.iot.us-east-1.amazonaws.com"; //"xxxxxxxxxxxxxx.iot.xx-xxxx-x.amazonaws.com";
+const static char server[] = "mqtts-sa.iot.oniudra.cc";
 
 const static int keySlot                                   = 0;
 const static int compressedCertSlot                        = 10;
@@ -42,7 +42,7 @@ int ArduinoCloudClass::begin(Client& net)
     return 0;
   }
 
-  ECCX08Cert.setSubjectCommonName(ECCX08.serialNumber());
+  ECCX08Cert.setSubjectCommonName(_id);
   ECCX08Cert.setIssuerCountryName("US");
   ECCX08Cert.setIssuerOrganizationName("Arduino LLC US");
   ECCX08Cert.setIssuerOrganizationalUnitName("IT");
@@ -51,6 +51,21 @@ int ArduinoCloudClass::begin(Client& net)
   if (!ECCX08Cert.endReconstruction()) {
     return 0;
   }
+
+  Serial.println("Compressed cert = ");
+
+  const byte* certData = ECCX08Cert.bytes();
+  int certLength = ECCX08Cert.length();
+
+  for (int i = 0; i < certLength; i++) {
+    byte b = certData[i];
+
+    if (b < 16) {
+      Serial.print('0');
+    }
+    Serial.print(b, HEX);
+  }
+  Serial.println();
 
   if (_bearSslClient) {
     delete _bearSslClient;
@@ -70,19 +85,19 @@ int ArduinoCloudClass::begin(Client& net)
 void ArduinoCloudClass::mqttClientBegin(Client& net)
 {
   // MQTT topics definition
-  _stdoutTopic = "$aws/things/" + _id + "/stdout";
-  _stdinTopic = "$aws/things/" + _id + "/stdin";
-  _dataTopicIn = "$aws/things/" + _id + "/datain";
-  _dataTopicOut = "$aws/things/" + _id + "/dataout";
+  _stdoutTopic = "/a/d/" + _id + "/s/o";
+  _stdinTopic = "/a/d/" + _id + "/s/i";
+  _dataTopicIn = "/a/d/" + _id + "/e/i";
+  _dataTopicOut = "/a/d/" + _id + "/e/o";
 
   // use onMessage as callback for received mqtt messages
   _mqttClient.onMessageAdvanced(ArduinoCloudClass::onMessage);
   _mqttClient.begin(server, 8883, net);
   // Set will for MQTT client: {topic, qos, retain message}
-  // const char lastMessage[] = "abcb";
-  // _mqttClient.setWill(_dataTopicOut.c_str(), lastMessage, false, 1);
-  // // Set MQTT connection options
-  // _mqttClient.setOptions(mqttOpt.keepAlive, mqttOpt.cleanSession, mqttOpt.timeout);
+  const char lastMessage[] = "abcb";
+  _mqttClient.setWill(_dataTopicOut.c_str(), lastMessage, false, 1);
+  // Set MQTT connection options
+  _mqttClient.setOptions(mqttOpt.keepAlive, mqttOpt.cleanSession, mqttOpt.timeout);
 }
 
 int ArduinoCloudClass::connect()
