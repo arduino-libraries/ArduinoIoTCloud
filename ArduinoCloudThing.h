@@ -4,11 +4,7 @@
 #include <Client.h>
 #include <Stream.h>
 #include "lib/LinkedList/LinkedList.h"
-#include "lib/ArduinoCbor/src/ArduinoCbor.h"
-
-//#define TESTING_PROTOCOL
-//#define DEBUG_MEMORY
-#define USE_ARDUINO_CLOUD
+#include "lib/tinycbor/cbor.h"
 
 enum permissionType {
     READ    = 0b01,
@@ -33,7 +29,7 @@ enum times {
 class ArduinoCloudPropertyGeneric
 {
 public:
-    virtual void append(CborObject& object) = 0;
+    virtual void append(CborEncoder* encoder) = 0;
     virtual String& getName() = 0;
     virtual void setName(String _name) = 0;
     virtual ArduinoCloudPropertyGeneric& setTag(int _tag) = 0;
@@ -57,8 +53,10 @@ template <typename T>
 class ArduinoCloudProperty : public ArduinoCloudPropertyGeneric
 {
 public:
-    ArduinoCloudProperty(T& _property, String _name) :
-        property(_property), name(_name) {}
+    ArduinoCloudProperty(T& _property,  String _name) :
+        property(_property), name(_name)
+        {
+        }
 
     bool write(T value) {
         /* permissions are intended as seen from cloud */
@@ -134,19 +132,23 @@ public:
         return *(reinterpret_cast<ArduinoCloudPropertyGeneric*>(this));
     }
 
-    void appendValue(CborObject &cbor);
+    void appendValue(CborEncoder* mapEncoder);
 
-    void append(CborObject &cbor) {
+    void append(CborEncoder* encoder) {
         if (!canRead()) {
             return;
         }
+        CborEncoder mapEncoder;
+        cbor_encoder_create_map(encoder, &mapEncoder, CborIndefiniteLength);
         if (tag != -1) {
-            cbor.set("t", tag);
+            cbor_encode_text_stringz(&mapEncoder, "t");
+            cbor_encode_int(&mapEncoder, tag);
         } else {
-            cbor.set("n", name.c_str());
+            cbor_encode_text_stringz(&mapEncoder, "n");
+            cbor_encode_text_stringz(&mapEncoder, name.c_str());
         }
-        appendValue(cbor);
-        cbor.set("p", permission);
+        appendValue(&mapEncoder);
+        cbor_encoder_close_container(encoder, &mapEncoder);
         lastUpdated = millis();
     }
 
@@ -156,7 +158,7 @@ public:
     }
 
     bool newData() {
-        return (property != shadow_property && abs(property - shadow_property) > minDelta );
+        return (property != shadow_property);
     }
 
     bool shouldBeUpdated() {
@@ -167,8 +169,9 @@ public:
     }
 
     inline bool operator==(const ArduinoCloudProperty& rhs){
-        return (strcmp(getName(), rhs.getName) == 0);
+        return (strcmp(getName(), rhs.getName()) == 0);
     }
+
 
 protected:
     T& property;
@@ -177,34 +180,49 @@ protected:
     int tag = -1;
     long lastUpdated = 0;
     long updatePolicy = ON_CHANGE;
-    T minDelta = 0;
+    T minDelta;
     permissionType permission = READWRITE;
     static int tagIndex;
 };
 
 template <>
-inline void ArduinoCloudProperty<int>::appendValue(CborObject &cbor) {
-    cbor.set("i", property);
+inline bool ArduinoCloudProperty<int>::newData() {
+    return (property != shadow_property && abs(property - shadow_property) > minDelta );
+}
+
+template <>
+inline bool ArduinoCloudProperty<float>::newData() {
+    return (property != shadow_property && abs(property - shadow_property) > minDelta );
+}
+
+template <>
+inline void ArduinoCloudProperty<int>::appendValue(CborEncoder* mapEncoder) {
+    cbor_encode_int(mapEncoder, property);
 };
 
 template <>
-inline void ArduinoCloudProperty<bool>::appendValue(CborObject &cbor) {
-    cbor.set("b", property);
+inline void ArduinoCloudProperty<bool>::appendValue(CborEncoder* mapEncoder) {
+    cbor_encode_boolean(mapEncoder, property);
 };
 
 template <>
-inline void ArduinoCloudProperty<float>::appendValue(CborObject &cbor) {
-    cbor.set("f", property);
+inline void ArduinoCloudProperty<float>::appendValue(CborEncoder* mapEncoder) {
+    cbor_encode_float(mapEncoder, property);
 };
 
 template <>
-inline void ArduinoCloudProperty<String>::appendValue(CborObject &cbor) {
-    cbor.set("s", property.c_str());
+inline void ArduinoCloudProperty<String>::appendValue(CborEncoder* mapEncoder) {
+    cbor_encode_text_stringz(mapEncoder, property.c_str());
 };
 
 template <>
-inline void ArduinoCloudProperty<char*>::appendValue(CborObject &cbor) {
-    cbor.set("s", property);
+inline void ArduinoCloudProperty<String*>::appendValue(CborEncoder* mapEncoder) {
+    cbor_encode_text_stringz(mapEncoder, property->c_str());
+};
+
+template <>
+inline void ArduinoCloudProperty<char*>::appendValue(CborEncoder* mapEncoder) {
+    cbor_encode_text_stringz(mapEncoder, property);
 };
 
 class ArduinoCloudThing {
@@ -215,17 +233,15 @@ public:
     ArduinoCloudPropertyGeneric& addPropertyReal(bool& property, String name);
     ArduinoCloudPropertyGeneric& addPropertyReal(float& property, String name);
     ArduinoCloudPropertyGeneric& addPropertyReal(void* property, String name);
-    ArduinoCloudPropertyGeneric& addPropertyReal(String property, String name);
+    ArduinoCloudPropertyGeneric& addPropertyReal(String& property, String name);
     // poll should return > 0 if something has changed
     int poll(uint8_t* data, size_t size);
     void decode(uint8_t * payload, size_t length);
 
 private:
-    int publish(CborArray& object, uint8_t* data, size_t size);
-
     void update();
     int checkNewData();
-    void compress(CborArray& object, CborBuffer& buffer);
+    int findPropertyByName(String &name);
 
     ArduinoCloudPropertyGeneric* exists(String &name);
 
