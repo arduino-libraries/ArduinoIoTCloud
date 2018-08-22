@@ -78,9 +78,6 @@ void setup() {
   String authorityKeyIdentifier = promptAndReadLine("Please enter the certificates authority key identifier: ");
   String signature              = promptAndReadLine("Please enter the certificates signature: ");
 
-  serialNumber.toUpperCase();
-  signature.toUpperCase();
-
   byte thingIdBytes[72];
   byte serialNumberBytes[16];
   byte authorityKeyIdentifierBytes[20];
@@ -90,7 +87,7 @@ void setup() {
   hexStringToBytes(serialNumber, serialNumberBytes, sizeof(serialNumberBytes));
   hexStringToBytes(authorityKeyIdentifier, authorityKeyIdentifierBytes, sizeof(authorityKeyIdentifierBytes));
   hexStringToBytes(signature, signatureBytes, sizeof(signatureBytes));
-
+  
   if (!ECCX08.writeSlot(thingIdSlot, thingIdBytes, sizeof(thingIdBytes))) {
     Serial.println("Error storing thing id!");
     while (1);
@@ -179,8 +176,9 @@ String readLine() {
   return line;
 }
 
-void hexStringToBytes(const String& in, byte out[], int length) {
+void hexStringToBytes(String& in, byte out[], int length) {
   int inLength = in.length();
+  in.toUpperCase();
   int outLength = 0;
 
   for (int i = 0; i < inLength && outLength < length; i += 2) {
@@ -190,6 +188,6 @@ void hexStringToBytes(const String& in, byte out[], int length) {
     byte highByte = (highChar <= '9') ? (highChar - '0') : (highChar + 10 - 'A');
     byte lowByte = (lowChar <= '9') ? (lowChar - '0') : (lowChar + 10 - 'A');
 
-    out[outLength++] = (highByte << 4) | lowByte;
+    out[outLength++] = (highByte << 4) | (lowByte & 0xF);
   }
 }
