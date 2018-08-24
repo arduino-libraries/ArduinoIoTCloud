@@ -129,6 +129,7 @@ ArduinoCloudPropertyGeneric& ArduinoCloudThing::addPropertyReal(int& property, S
     }
     ArduinoCloudProperty<int> *thing = new ArduinoCloudProperty<int>(property, name);
     list.add(thing);
+    thing->shadow_property = -1;
     return *(reinterpret_cast<ArduinoCloudPropertyGeneric*>(thing));
 }
 
@@ -138,6 +139,7 @@ ArduinoCloudPropertyGeneric& ArduinoCloudThing::addPropertyReal(bool& property, 
     }
     ArduinoCloudProperty<bool> *thing = new ArduinoCloudProperty<bool>(property, name);
     list.add(thing);
+    thing->shadow_property = !property;
     return *(reinterpret_cast<ArduinoCloudPropertyGeneric*>(thing));
 }
 
@@ -147,6 +149,7 @@ ArduinoCloudPropertyGeneric& ArduinoCloudThing::addPropertyReal(float& property,
     }
     ArduinoCloudProperty<float> *thing = new ArduinoCloudProperty<float>(property, name);
     list.add(thing);
+    thing->shadow_property = property - 1.0f;
     return *(reinterpret_cast<ArduinoCloudPropertyGeneric*>(thing));
 }
 
@@ -156,6 +159,7 @@ ArduinoCloudPropertyGeneric& ArduinoCloudThing::addPropertyReal(String& property
     }
     ArduinoCloudProperty<String> *thing = new ArduinoCloudProperty<String>(property, name);
     list.add(thing);
+    thing->shadow_property = "";
     return *(reinterpret_cast<ArduinoCloudPropertyGeneric*>(thing));
 }
 
