@@ -222,6 +222,8 @@ void ArduinoCloudThing::decode(uint8_t * payload, size_t length) {
                 ArduinoCloudPropertyGeneric* property = list.get(propId);
                 // Check for the property type, write method internally check for the permission
 
+                cbor_value_map_find_value(&recursedMap, "v", &propValue);
+
                 if (propValue.type == CborDoubleType) {
                     double val;
                     // get the value of the property as a double

@@ -197,31 +197,37 @@ inline bool ArduinoCloudProperty<float>::newData() {
 
 template <>
 inline void ArduinoCloudProperty<int>::appendValue(CborEncoder* mapEncoder) {
+    cbor_encode_text_stringz(mapEncoder, "v");
     cbor_encode_int(mapEncoder, property);
 };
 
 template <>
 inline void ArduinoCloudProperty<bool>::appendValue(CborEncoder* mapEncoder) {
+    cbor_encode_text_stringz(mapEncoder, "v");
     cbor_encode_boolean(mapEncoder, property);
 };
 
 template <>
 inline void ArduinoCloudProperty<float>::appendValue(CborEncoder* mapEncoder) {
+    cbor_encode_text_stringz(mapEncoder, "v");
     cbor_encode_float(mapEncoder, property);
 };
 
 template <>
 inline void ArduinoCloudProperty<String>::appendValue(CborEncoder* mapEncoder) {
+    cbor_encode_text_stringz(mapEncoder, "v");
     cbor_encode_text_stringz(mapEncoder, property.c_str());
 };
 
 template <>
 inline void ArduinoCloudProperty<String*>::appendValue(CborEncoder* mapEncoder) {
+    cbor_encode_text_stringz(mapEncoder, "v");
     cbor_encode_text_stringz(mapEncoder, property->c_str());
 };
 
 template <>
 inline void ArduinoCloudProperty<char*>::appendValue(CborEncoder* mapEncoder) {
+    cbor_encode_text_stringz(mapEncoder, "v");
     cbor_encode_text_stringz(mapEncoder, property);
 };
 
