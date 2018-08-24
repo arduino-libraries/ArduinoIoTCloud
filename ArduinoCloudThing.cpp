@@ -106,7 +106,7 @@ int ArduinoCloudThing::checkNewData() {
     int counter = 0;
     for (int i = 0; i < list.size(); i++) {
         ArduinoCloudPropertyGeneric *p = list.get(i);
-        if (p->shouldBeUpdated()) {
+        if (p->shouldBeUpdated() && p->canRead()) {
             counter++;
         }
     }
