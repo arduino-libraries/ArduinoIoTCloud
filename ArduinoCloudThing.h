@@ -192,7 +192,7 @@ public:
         if (updatePolicy == ON_CHANGE) {
             return newData();
         }
-        return (millis() - lastUpdated > updatePolicy * 1000) ;
+        return ((millis() - lastUpdated) > (updatePolicy * 1000)) ;
     }
 
     inline bool operator==(const ArduinoCloudProperty& rhs){
@@ -216,12 +216,12 @@ protected:
 
 template <>
 inline bool ArduinoCloudProperty<int>::newData() {
-    return (property != shadow_property && abs(property - shadow_property) > minDelta );
+    return (property != shadow_property && abs(property - shadow_property) >= minDelta );
 }
 
 template <>
 inline bool ArduinoCloudProperty<float>::newData() {
-    return (property != shadow_property && abs(property - shadow_property) > minDelta );
+    return (property != shadow_property && abs(property - shadow_property) >= minDelta );
 }
 
 template <>

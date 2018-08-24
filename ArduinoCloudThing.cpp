@@ -130,6 +130,7 @@ ArduinoCloudPropertyGeneric& ArduinoCloudThing::addPropertyReal(int& property, S
     ArduinoCloudProperty<int> *thing = new ArduinoCloudProperty<int>(property, name);
     list.add(thing);
     thing->shadow_property = -1;
+    thing->minDelta = 0;
     return *(reinterpret_cast<ArduinoCloudPropertyGeneric*>(thing));
 }
 
@@ -149,6 +150,7 @@ ArduinoCloudPropertyGeneric& ArduinoCloudThing::addPropertyReal(float& property,
     }
     ArduinoCloudProperty<float> *thing = new ArduinoCloudProperty<float>(property, name);
     list.add(thing);
+    thing->minDelta = 0.0f;
     thing->shadow_property = property - 1.0f;
     return *(reinterpret_cast<ArduinoCloudPropertyGeneric*>(thing));
 }
