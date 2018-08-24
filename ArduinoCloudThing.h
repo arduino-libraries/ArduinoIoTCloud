@@ -43,10 +43,37 @@ public:
     virtual bool shouldBeUpdated() = 0;
     virtual void updateShadow() = 0;
     virtual bool canRead() = 0;
-    virtual void printinfo() = 0;
+    virtual void printinfo(Stream& stream) = 0;
     virtual ArduinoCloudPropertyGeneric& onUpdate(void(*fn)(void)) = 0;
     virtual ArduinoCloudPropertyGeneric& publishEvery(long seconds) = 0;
     void(*callback)(void) = NULL;
+};
+
+class ArduinoCloudThing {
+public:
+    ArduinoCloudThing();
+    void begin();
+    ArduinoCloudPropertyGeneric& addPropertyReal(int& property, String name);
+    ArduinoCloudPropertyGeneric& addPropertyReal(bool& property, String name);
+    ArduinoCloudPropertyGeneric& addPropertyReal(float& property, String name);
+    ArduinoCloudPropertyGeneric& addPropertyReal(void* property, String name);
+    ArduinoCloudPropertyGeneric& addPropertyReal(String& property, String name);
+    // poll should return > 0 if something has changed
+    int poll(uint8_t* data, size_t size);
+    void decode(uint8_t * payload, size_t length);
+
+private:
+    void update();
+    int checkNewData();
+    int findPropertyByName(String &name);
+
+    ArduinoCloudPropertyGeneric* exists(String &name);
+
+    bool status = OFF;
+    char uuid[33];
+
+    LinkedList<ArduinoCloudPropertyGeneric*> list;
+    int currentListIndex = -1;
 };
 
 template <typename T>
@@ -67,8 +94,8 @@ public:
         return false;
     }
 
-    void printinfo() {
-        Serial.println("name: " + name + " value: " + String(property) + " shadow: " + String(shadow_property) + " permission: " + String(permission));
+    void printinfo(Stream& stream) {
+        stream.println("name: " + name + " value: " + String(property) + " shadow: " + String(shadow_property) + " permission: " + String(permission));
     }
 
     void updateShadow() {
@@ -183,6 +210,8 @@ protected:
     T minDelta;
     permissionType permission = READWRITE;
     static int tagIndex;
+
+    friend ArduinoCloudThing;
 };
 
 template <>
@@ -229,33 +258,6 @@ template <>
 inline void ArduinoCloudProperty<char*>::appendValue(CborEncoder* mapEncoder) {
     cbor_encode_text_stringz(mapEncoder, "v");
     cbor_encode_text_stringz(mapEncoder, property);
-};
-
-class ArduinoCloudThing {
-public:
-    ArduinoCloudThing();
-    void begin();
-    ArduinoCloudPropertyGeneric& addPropertyReal(int& property, String name);
-    ArduinoCloudPropertyGeneric& addPropertyReal(bool& property, String name);
-    ArduinoCloudPropertyGeneric& addPropertyReal(float& property, String name);
-    ArduinoCloudPropertyGeneric& addPropertyReal(void* property, String name);
-    ArduinoCloudPropertyGeneric& addPropertyReal(String& property, String name);
-    // poll should return > 0 if something has changed
-    int poll(uint8_t* data, size_t size);
-    void decode(uint8_t * payload, size_t length);
-
-private:
-    void update();
-    int checkNewData();
-    int findPropertyByName(String &name);
-
-    ArduinoCloudPropertyGeneric* exists(String &name);
-
-    bool status = OFF;
-    char uuid[33];
-
-    LinkedList<ArduinoCloudPropertyGeneric*> list;
-    int currentListIndex = -1;
 };
 
 #endif
