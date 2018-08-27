@@ -166,14 +166,15 @@ public:
             return;
         }
         CborEncoder mapEncoder;
-        cbor_encoder_create_map(encoder, &mapEncoder, CborIndefiniteLength);
+        cbor_encoder_create_map(encoder, &mapEncoder, 2);
         if (tag != -1) {
             cbor_encode_text_stringz(&mapEncoder, "t");
             cbor_encode_int(&mapEncoder, tag);
         } else {
             cbor_encode_text_stringz(&mapEncoder, "n");
-            cbor_encode_text_stringz(&mapEncoder, name.c_str());
+            cbor_encode_text_string(&mapEncoder, name.c_str(), name.length());
         }
+        cbor_encode_text_stringz(&mapEncoder, "v");
         appendValue(&mapEncoder);
         cbor_encoder_close_container(encoder, &mapEncoder);
         lastUpdated = millis();
@@ -226,37 +227,31 @@ inline bool ArduinoCloudProperty<float>::newData() {
 
 template <>
 inline void ArduinoCloudProperty<int>::appendValue(CborEncoder* mapEncoder) {
-    cbor_encode_text_stringz(mapEncoder, "v");
     cbor_encode_int(mapEncoder, property);
 };
 
 template <>
 inline void ArduinoCloudProperty<bool>::appendValue(CborEncoder* mapEncoder) {
-    cbor_encode_text_stringz(mapEncoder, "v");
     cbor_encode_boolean(mapEncoder, property);
 };
 
 template <>
 inline void ArduinoCloudProperty<float>::appendValue(CborEncoder* mapEncoder) {
-    cbor_encode_text_stringz(mapEncoder, "v");
     cbor_encode_float(mapEncoder, property);
 };
 
 template <>
 inline void ArduinoCloudProperty<String>::appendValue(CborEncoder* mapEncoder) {
-    cbor_encode_text_stringz(mapEncoder, "v");
     cbor_encode_text_stringz(mapEncoder, property.c_str());
 };
 
 template <>
 inline void ArduinoCloudProperty<String*>::appendValue(CborEncoder* mapEncoder) {
-    cbor_encode_text_stringz(mapEncoder, "v");
     cbor_encode_text_stringz(mapEncoder, property->c_str());
 };
 
 template <>
 inline void ArduinoCloudProperty<char*>::appendValue(CborEncoder* mapEncoder) {
-    cbor_encode_text_stringz(mapEncoder, "v");
     cbor_encode_text_stringz(mapEncoder, property);
 };
 

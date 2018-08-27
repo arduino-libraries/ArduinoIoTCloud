@@ -56,14 +56,14 @@ int ArduinoCloudThing::poll(uint8_t* data, size_t size) {
     if (diff > 0) {
         CborError err;
         CborEncoder encoder, arrayEncoder;
-         cbor_encoder_init(&encoder, data, size, 0);
+        cbor_encoder_init(&encoder, data, size, 0);
         // create a cbor array containing the property that should be updated.
-        err = cbor_encoder_create_array(&encoder, &arrayEncoder, CborIndefiniteLength);
+        err = cbor_encoder_create_array(&encoder, &arrayEncoder, diff);
         if (err) {
             Serial.println(cbor_error_string(err));
             return -1;
         }
-         for (int i = 0; i < list.size(); i++) {
+        for (int i = 0; i < list.size(); i++) {
             ArduinoCloudPropertyGeneric *p = list.get(i);
             // If a property should be updated and has read permission from the Cloud point of view
             if (p->shouldBeUpdated() && p->canRead()) {
