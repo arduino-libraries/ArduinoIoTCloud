@@ -156,25 +156,20 @@ void ArduinoCloudClass::poll(int reconnectionMaxRetries, int reconnectionTimeout
   int maxRetries = (reconnectionMaxRetries > 0) ? reconnectionMaxRetries : MAX_RETRIES;
   int timeout = (reconnectionTimeoutMs > 0) ? reconnectionTimeoutMs : RECONNECTION_TIMEOUT;
 
-  // If something has to be read from the network (prop with Write permission), perform reconnection now
-  if(!Thing.hasAllReadProperties()) {
-    // If the reconnect() culd not establish the connection, return the control to the user sketch
-    if (!mqttReconnect(maxRetries, timeout))
-      return;
-  }
+  // If the reconnect() culd not establish the connection, return the control to the user sketch
+  if (!mqttReconnect(maxRetries, timeout))
+    return;
 
   // MTTQClient connected!, poll() used to retrieve data from MQTT broker
   _mqttClient.loop();
-  
+
   uint8_t data[MQTT_BUFFER_SIZE];
   int length = Thing.poll(data, sizeof(data));
   // Are there some read properties that must be sent to the cloud ??
   if (length > 0) {
     // Check the connection is ok! if not reconnect
     // If a thing has all read properties only try to reconnect when the have to be sent(based on their update policy)
-    if(mqttReconnect(maxRetries, timeout)) {
-      writeProperties(data, length);
-    }
+    writeProperties(data, length);
   }
 }
 
