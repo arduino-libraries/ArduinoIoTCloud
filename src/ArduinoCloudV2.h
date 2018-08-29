@@ -4,7 +4,6 @@
 #include <MQTTClient.h>
 #include <ArduinoBearSSL.h>
 #include <ArduinoCloudThing.h>
-#include <ArduinoHttpClient.h>
 
 #include "CloudSerial.h"
 
@@ -70,7 +69,6 @@ private:
     String _id;
     ArduinoCloudThing Thing;
     BearSSLClient* _bearSslClient;
-    HttpClient* _otaClient;
     MQTTClient _mqttClient;
 
     // Class attribute to define MTTQ topics 2 for stdIn/out and 2 for data, in order to avoid getting previous pupblished payload
