@@ -76,7 +76,6 @@ private:
     String _stdoutTopic;
     String _dataTopicIn;
     String _dataTopicOut;
-    String _otaTopic;
 };
 
 extern ArduinoCloudClass ArduinoCloud;

@@ -2,11 +2,13 @@
 #include <ArduinoCloudV2.h>
 #include "arduino_secrets.h"
 
+#define TIMEOUT 7000
+
 ///////please enter your sensitive data in the Secret tab/arduino_secrets.h
-char ssid[] = SECRET_SSID;        // your network SSID (name)
-char pass[] = SECRET_PASS;    // your network password (use for WPA, or use as key for WEP)
+char ssid[] = SECRET_SSID;       // your network SSID (name)
+char pass[] = SECRET_PASS;       // your network password (use for WPA, or use as key for WEP)
 int status = WL_IDLE_STATUS;     // the WiFi radio's status
-String serialString = "";        // the string used to compose network messages from the received characters
+String cloudSerialBuffer = "";   // the string used to compose network messages from the received characters
 
 WiFiClient wifiClient;
 
@@ -17,7 +19,8 @@ unsigned long getTime() {
 void setup() {
   //Initialize serial and wait for port to open:
   Serial.begin(9600);
-  delay(7000);
+  int timeout = millis() + TIMEOUT;
+  while (!Serial && (millis() < timeout)) {}
 
   // check for the presence of the shield:
   if (WiFi.status() == WL_NO_SHIELD) {
@@ -46,22 +49,24 @@ void setup() {
 
   if (status != WL_CONNECTED) {
     Serial.println("Failed to connect to Wifi!");
+    while (true);
   }
 
   // you're connected now, so print out the data:
   Serial.print("You're connected to the network");
 
   Serial.println();
-  Serial.println("Attempting to connect to Arduino Cloud ...");
+  Serial.println("Attempting to connect to Arduino Cloud");
 
   ArduinoCloud.onGetTime(getTime);
 
   attempts = 0;
   while (!ArduinoCloud.connect() && attempts < 10) {
+    Serial.print(".");
     attempts++;
   }
 
-  if (attempts >= 3) {
+  if (attempts >= 10) {
     Serial.println("Failed to connect to Arduino Cloud!");
     while (1);
   }
@@ -78,9 +83,9 @@ void loop() {
   // check if there is something waiting to be read
   if (CloudSerial.available()) {
     char character = CloudSerial.read();
-    serialString += character;
+    cloudSerialBuffer += character;
 
-    // if a \n character has been received, there should be a complete command inside serialString
+    // if a \n character has been received, there should be a complete command inside cloudSerialBuffer
     if (character == '\n') {
       manageString();
     }
@@ -98,26 +103,25 @@ void loop() {
 
 void manageString() {
   // Don't proceed if the string is empty
-  if (serialString.equals("")) return;
+  if (cloudSerialBuffer.equals("")) return;
 
   // Remove whitespaces
-  serialString.trim();
+  cloudSerialBuffer.trim();
 
   // Make it uppercase;
-  serialString.toUpperCase();
+  cloudSerialBuffer.toUpperCase();
 
-  if (serialString.equals("ON")) {
+  if (cloudSerialBuffer.equals("ON")) {
     digitalWrite(6, HIGH);
   }
-  if (serialString.equals("OFF")) {
+  if (cloudSerialBuffer.equals("OFF")) {
     digitalWrite(6, LOW);
   }
 
-  // Send back the command you just applied. This way the Angular frontend can stay synchronized with the MKR1000 state.
-  sendString(serialString);
+  sendString(cloudSerialBuffer);
 
-  // Reset serialString
-  serialString = "";
+  // Reset cloudSerialBuffer
+  cloudSerialBuffer = "";
 }
 
 // sendString sends a string to the Arduino Cloud.
