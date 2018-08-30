@@ -5,6 +5,7 @@
 #include <ArduinoBearSSL.h>
 #include <ArduinoECCX08.h>
 
+const bool DEBUG = true;
 const int keySlot                                   = 0;
 const int compressedCertSlot                        = 10;
 const int serialNumberAndAuthorityKeyIdentifierSlot = 11;
@@ -127,21 +128,24 @@ void setup() {
     while (1);
   }
 
-  Serial.println("Compressed cert = ");
+  if (DEBUG) {
+    Serial.println("Compressed cert = ");
 
-  const byte* certData = ECCX08Cert.bytes();
-  int certLength = ECCX08Cert.length();
+    const byte* certData = ECCX08Cert.bytes();
+    int certLength = ECCX08Cert.length();
 
-  for (int i = 0; i < certLength; i++) {
-    byte b = certData[i];
+    for (int i = 0; i < certLength; i++) {
+      byte b = certData[i];
 
-    if (b < 16) {
-      Serial.print('0');
+      if (b < 16) {
+        Serial.print('0');
+      }
+      Serial.print(b, HEX);
     }
-    Serial.print(b, HEX);
+    Serial.println();
   }
-  Serial.println();
 }
+
 
 void loop() {
 }

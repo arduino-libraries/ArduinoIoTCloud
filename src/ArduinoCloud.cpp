@@ -52,21 +52,6 @@ int ArduinoCloudClass::begin(Client& net)
     return 0;
   }
 
-  Serial.println("Compressed cert = ");
-
-  const byte* certData = ECCX08Cert.bytes();
-  int certLength = ECCX08Cert.length();
-
-  for (int i = 0; i < certLength; i++) {
-    byte b = certData[i];
-
-    if (b < 16) {
-      Serial.print('0');
-    }
-    Serial.print(b, HEX);
-  }
-  Serial.println();
-
   if (_bearSslClient) {
     delete _bearSslClient;
   }
