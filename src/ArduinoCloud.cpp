@@ -73,6 +73,8 @@ void ArduinoCloudClass::mqttClientBegin(Client& net)
   // MQTT topics definition
   _stdoutTopic = "/a/d/" + _id + "/s/o";
   _stdinTopic = "/a/d/" + _id + "/s/i";
+  _dataTopicIn = "/a/d/" + _id + "/e/i";
+  _dataTopicOut = "/a/d/" + _id + "/e/o";
 
   // use onMessage as callback for received mqtt messages
   _mqttClient.onMessageAdvanced(ArduinoCloudClass::onMessage);
@@ -90,7 +92,7 @@ int ArduinoCloudClass::connect()
     return 0;
   }
   _mqttClient.subscribe(_stdinTopic);
-  _mqttClient.subscribe(_dataTopic);
+  _mqttClient.subscribe(_dataTopicIn);
 
   return 1;
 }
@@ -142,7 +144,8 @@ void ArduinoCloudClass::poll(int reconnectionMaxRetries, int reconnectionTimeout
 
   // MTTQClient connected!, poll() used to retrieve data from MQTT broker
   _mqttClient.loop();
-  uint8_t data[1024];
+
+  uint8_t data[MQTT_BUFFER_SIZE];
   int length = Thing.poll(data, sizeof(data));
   if (length > 0) {
     writeProperties(data, length);
@@ -168,7 +171,7 @@ int ArduinoCloudClass::connected()
 
 int ArduinoCloudClass::writeProperties(const byte data[], int length)
 {
-  return _mqttClient.publish(_dataTopic.c_str(), (const char*)data, length);
+  return _mqttClient.publish(_dataTopicOut.c_str(), (const char*)data, length);
 }
 
 int ArduinoCloudClass::writeStdout(const byte data[], int length)
@@ -186,7 +189,7 @@ void ArduinoCloudClass::handleMessage(char topic[], char bytes[], int length)
   if (_stdinTopic == topic) {
     CloudSerial.appendStdin((uint8_t*)bytes, length);
   }
-  if (_dataTopic == topic) {
+  if (_dataTopicIn == topic) {
     Thing.decode((uint8_t*)bytes, length);
   }
 }

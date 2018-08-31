@@ -77,7 +77,8 @@ private:
   // Class attribute to define MTTQ topics 2 for stdIn/out and 2 for data, in order to avoid getting previous pupblished payload
   String _stdinTopic;
   String _stdoutTopic;
-  String _dataTopic;
+  String _dataTopicOut;
+  String _dataTopicIn;
   String _otaTopic;
 };
 
