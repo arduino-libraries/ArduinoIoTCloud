@@ -5,6 +5,7 @@
 #include <ArduinoBearSSL.h>
 #include <ArduinoECCX08.h>
 
+const bool DEBUG = true;
 const int keySlot                                   = 0;
 const int compressedCertSlot                        = 10;
 const int serialNumberAndAuthorityKeyIdentifierSlot = 11;
@@ -55,7 +56,8 @@ void setup() {
     while (1);
   }
 
-  ECCX08Cert.setSubjectCommonName(ECCX08.serialNumber());
+  String thingId = promptAndReadLine("Please enter the thing id: ");
+  ECCX08Cert.setSubjectCommonName(thingId);
 
   String csr = ECCX08Cert.endCSR();
 
@@ -68,7 +70,6 @@ void setup() {
   Serial.println();
   Serial.println(csr);
 
-  String thingId                = promptAndReadLine("Please enter the thing id: ");
   String issueYear              = promptAndReadLine("Please enter the issue year of the certificate (2000 - 2031): ");
   String issueMonth             = promptAndReadLine("Please enter the issue month of the certificate (1 - 12): ");
   String issueDay               = promptAndReadLine("Please enter the issue day of the certificate (1 - 31): ");
@@ -77,9 +78,6 @@ void setup() {
   String serialNumber           = promptAndReadLine("Please enter the certificates serial number: ");
   String authorityKeyIdentifier = promptAndReadLine("Please enter the certificates authority key identifier: ");
   String signature              = promptAndReadLine("Please enter the certificates signature: ");
-
-  serialNumber.toUpperCase();
-  signature.toUpperCase();
 
   byte thingIdBytes[72];
   byte serialNumberBytes[16];
@@ -128,6 +126,10 @@ void setup() {
   if (!ECCX08Cert.endReconstruction()) {
     Serial.println("Error reconstructing ECCX08 compressed cert!");
     while (1);
+  }
+
+  if (!DEBUG) {
+    return;
   }
 
   Serial.println("Compressed cert = ");
@@ -179,8 +181,9 @@ String readLine() {
   return line;
 }
 
-void hexStringToBytes(const String& in, byte out[], int length) {
+void hexStringToBytes(String& in, byte out[], int length) {
   int inLength = in.length();
+  in.toUpperCase();
   int outLength = 0;
 
   for (int i = 0; i < inLength && outLength < length; i += 2) {
@@ -190,6 +193,6 @@ void hexStringToBytes(const String& in, byte out[], int length) {
     byte highByte = (highChar <= '9') ? (highChar - '0') : (highChar + 10 - 'A');
     byte lowByte = (lowChar <= '9') ? (lowChar - '0') : (lowChar + 10 - 'A');
 
-    out[outLength++] = (highByte << 4) | lowByte;
+    out[outLength++] = (highByte << 4) | (lowByte & 0xF);
   }
 }
