@@ -62,6 +62,8 @@ int ArduinoCloudClass::begin(Client& net)
   // Begin function for the MQTTClient
   mqttClientBegin(*_bearSslClient);
 
+  Thing.begin();
+
   return 1;
 }
 
@@ -88,6 +90,7 @@ int ArduinoCloudClass::connect()
     return 0;
   }
   _mqttClient.subscribe(_stdinTopic);
+  _mqttClient.subscribe(_dataTopic);
 
   return 1;
 }
@@ -139,6 +142,11 @@ void ArduinoCloudClass::poll(int reconnectionMaxRetries, int reconnectionTimeout
 
   // MTTQClient connected!, poll() used to retrieve data from MQTT broker
   _mqttClient.loop();
+  uint8_t data[1024];
+  int length = Thing.poll(data, sizeof(data));
+  if (length > 0) {
+    writeProperties(data, length);
+  }
 }
 
 void ArduinoCloudClass::reconnect(Client& net)
@@ -158,6 +166,11 @@ int ArduinoCloudClass::connected()
   return _mqttClient.connected();
 }
 
+int ArduinoCloudClass::writeProperties(const byte data[], int length)
+{
+  return _mqttClient.publish(_dataTopic.c_str(), (const char*)data, length);
+}
+
 int ArduinoCloudClass::writeStdout(const byte data[], int length)
 {
   return _mqttClient.publish(_stdoutTopic.c_str(), (const char*)data, length);
@@ -172,6 +185,9 @@ void ArduinoCloudClass::handleMessage(char topic[], char bytes[], int length)
 {
   if (_stdinTopic == topic) {
     CloudSerial.appendStdin((uint8_t*)bytes, length);
+  }
+  if (_dataTopic == topic) {
+    Thing.decode((uint8_t*)bytes, length);
   }
 }
 

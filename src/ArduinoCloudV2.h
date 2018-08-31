@@ -3,6 +3,7 @@
 
 #include <MQTTClient.h>
 #include <ArduinoBearSSL.h>
+#include <ArduinoCloudThing.h>
 
 #include "CloudSerial.h"
 
@@ -41,9 +42,24 @@ public:
   // Clean up existing Mqtt connection, create a new one and initialize it
   void reconnect(Client& net);
 
+  #define addProperty( v, ...) addPropertyReal(v, #v, __VA_ARGS__)
+
+  template<typename T> void addPropertyReal(T& property, String name, permissionType _permission = READWRITE, long seconds = ON_CHANGE, T minDelta = T(0), void(*fn)(void) = NULL) {
+    Thing.addPropertyReal(property, name).publishEvery(seconds).setPermission(_permission).onUpdate(fn).minimumDelta(&minDelta);
+  }
+
+  template<typename T> void addPropertyReal(T& property, String name, permissionType _permission = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, T minDelta = T(0)) {
+    Thing.addPropertyReal(property, name).publishEvery(seconds).setPermission(_permission).onUpdate(fn).minimumDelta(&minDelta);
+  }
+
+  template<typename T> void addPropertyReal(T& property, String name, permissionType _permission = READWRITE, void(*fn)(void) = NULL, long seconds = ON_CHANGE, T minDelta = T(0)) {
+    Thing.addPropertyReal(property, name).publishEvery(seconds).setPermission(_permission).onUpdate(fn).minimumDelta(&minDelta);
+  }
+
 protected:
   friend class CloudSerialClass;
   int writeStdout(const byte data[], int length);
+  int writeProperties(const byte data[], int length);
   // Used to initialize MQTTClient
   void mqttClientBegin(Client& net);
   // Function in charge of perform MQTT reconnection, basing on class parameters(retries,and timeout)
@@ -54,12 +70,15 @@ private:
   void handleMessage(char topic[], char bytes[], int length);
 
   String _id;
+  ArduinoCloudThing Thing;
   BearSSLClient* _bearSslClient;
   MQTTClient _mqttClient;
 
   // Class attribute to define MTTQ topics 2 for stdIn/out and 2 for data, in order to avoid getting previous pupblished payload
   String _stdinTopic;
   String _stdoutTopic;
+  String _dataTopic;
+  String _otaTopic;
 };
 
 extern ArduinoCloudClass ArduinoCloud;
