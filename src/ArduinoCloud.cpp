@@ -5,7 +5,7 @@
 
 #include "ArduinoCloudV2.h"
 
-const static char server[] = "a19g5nbe27wn47.iot.us-east-1.amazonaws.com"; //"xxxxxxxxxxxxxx.iot.xx-xxxx-x.amazonaws.com";
+const static char server[] = "mqtts-sa.iot.oniudra.cc";
 
 const static int keySlot                                   = 0;
 const static int compressedCertSlot                        = 10;
@@ -43,7 +43,7 @@ int ArduinoCloudClass::begin(Client& net)
     return 0;
   }
 
-  ECCX08Cert.setSubjectCommonName(ECCX08.serialNumber());
+  ECCX08Cert.setSubjectCommonName(_id);
   ECCX08Cert.setIssuerCountryName("US");
   ECCX08Cert.setIssuerOrganizationName("Arduino LLC US");
   ECCX08Cert.setIssuerOrganizationalUnitName("IT");
@@ -87,7 +87,6 @@ int ArduinoCloudClass::connect()
   if (!_mqttClient.connect(_id.c_str())) {
     return 0;
   }
-
   _mqttClient.subscribe(_stdinTopic);
 
   return 1;
