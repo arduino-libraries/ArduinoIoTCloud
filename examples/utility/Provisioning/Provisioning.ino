@@ -5,6 +5,7 @@
 #include <ArduinoBearSSL.h>
 #include <ArduinoECCX08.h>
 
+const bool DEBUG = true;
 const int keySlot                                   = 0;
 const int compressedCertSlot                        = 10;
 const int serialNumberAndAuthorityKeyIdentifierSlot = 11;
@@ -55,7 +56,8 @@ void setup() {
     while (1);
   }
 
-  ECCX08Cert.setSubjectCommonName(ECCX08.serialNumber());
+  String thingId = promptAndReadLine("Please enter the thing id: ");
+  ECCX08Cert.setSubjectCommonName(thingId);
 
   String csr = ECCX08Cert.endCSR();
 
@@ -68,7 +70,6 @@ void setup() {
   Serial.println();
   Serial.println(csr);
 
-  String thingId                = promptAndReadLine("Please enter the thing id: ");
   String issueYear              = promptAndReadLine("Please enter the issue year of the certificate (2000 - 2031): ");
   String issueMonth             = promptAndReadLine("Please enter the issue month of the certificate (1 - 12): ");
   String issueDay               = promptAndReadLine("Please enter the issue day of the certificate (1 - 31): ");
@@ -125,6 +126,10 @@ void setup() {
   if (!ECCX08Cert.endReconstruction()) {
     Serial.println("Error reconstructing ECCX08 compressed cert!");
     while (1);
+  }
+
+  if (!DEBUG) {
+    return;
   }
 
   Serial.println("Compressed cert = ");
