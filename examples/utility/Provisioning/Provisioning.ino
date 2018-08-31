@@ -5,6 +5,7 @@
 #include <ArduinoBearSSL.h>
 #include <ArduinoECCX08.h>
 
+const bool DEBUG = true;
 const int keySlot                                   = 0;
 const int compressedCertSlot                        = 10;
 const int serialNumberAndAuthorityKeyIdentifierSlot = 11;
@@ -55,7 +56,8 @@ void setup() {
     while (1);
   }
 
-  ECCX08Cert.setSubjectCommonName(ECCX08.serialNumber());
+  String thingId = promptAndReadLine("Please enter the thing id: ");
+  ECCX08Cert.setSubjectCommonName(thingId);
 
   String csr = ECCX08Cert.endCSR();
 
@@ -68,7 +70,6 @@ void setup() {
   Serial.println();
   Serial.println(csr);
 
-  String thingId                = promptAndReadLine("Please enter the thing id: ");
   String issueYear              = promptAndReadLine("Please enter the issue year of the certificate (2000 - 2031): ");
   String issueMonth             = promptAndReadLine("Please enter the issue month of the certificate (1 - 12): ");
   String issueDay               = promptAndReadLine("Please enter the issue day of the certificate (1 - 31): ");
@@ -127,21 +128,24 @@ void setup() {
     while (1);
   }
 
-  Serial.println("Compressed cert = ");
+  if (DEBUG) {
+    Serial.println("Compressed cert = ");
 
-  const byte* certData = ECCX08Cert.bytes();
-  int certLength = ECCX08Cert.length();
+    const byte* certData = ECCX08Cert.bytes();
+    int certLength = ECCX08Cert.length();
 
-  for (int i = 0; i < certLength; i++) {
-    byte b = certData[i];
+    for (int i = 0; i < certLength; i++) {
+      byte b = certData[i];
 
-    if (b < 16) {
-      Serial.print('0');
+      if (b < 16) {
+        Serial.print('0');
+      }
+      Serial.print(b, HEX);
     }
-    Serial.print(b, HEX);
+    Serial.println();
   }
-  Serial.println();
 }
+
 
 void loop() {
 }
