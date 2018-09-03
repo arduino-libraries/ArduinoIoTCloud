@@ -45,15 +45,15 @@ public:
   #define addProperty( v, ...) addPropertyReal(v, #v, __VA_ARGS__)
 
   template<typename T> void addPropertyReal(T& property, String name, permissionType _permission = READWRITE, long seconds = ON_CHANGE, T minDelta = T(0), void(*fn)(void) = NULL) {
-    Thing.addPropertyReal(property, name).publishEvery(seconds).setPermission(_permission).onUpdate(fn).minimumDelta(&minDelta);
+    Thing.addPropertyReal(property, name, _permission, seconds, fn, minDelta);
   }
 
   template<typename T> void addPropertyReal(T& property, String name, permissionType _permission = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, T minDelta = T(0)) {
-    Thing.addPropertyReal(property, name).publishEvery(seconds).setPermission(_permission).onUpdate(fn).minimumDelta(&minDelta);
+    Thing.addPropertyReal(property, name, _permission, seconds, fn, minDelta);
   }
 
   template<typename T> void addPropertyReal(T& property, String name, permissionType _permission = READWRITE, void(*fn)(void) = NULL, long seconds = ON_CHANGE, T minDelta = T(0)) {
-    Thing.addPropertyReal(property, name).publishEvery(seconds).setPermission(_permission).onUpdate(fn).minimumDelta(&minDelta);
+    Thing.addPropertyReal(property, name, _permission, seconds, fn, minDelta);
   }
 
 protected:
