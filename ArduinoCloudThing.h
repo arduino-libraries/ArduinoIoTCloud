@@ -31,21 +31,13 @@ class ArduinoCloudPropertyGeneric
 public:
     virtual void append(CborEncoder* encoder) = 0;
     virtual String& getName() = 0;
-    virtual void setName(String _name) = 0;
-    virtual ArduinoCloudPropertyGeneric& setTag(int _tag) = 0;
-    virtual ArduinoCloudPropertyGeneric& readOnly() = 0;
-    virtual ArduinoCloudPropertyGeneric& writeOnly() = 0;
-    virtual ArduinoCloudPropertyGeneric& minimumDelta(void* delta) = 0;
     virtual int getTag() = 0;
-    virtual ArduinoCloudPropertyGeneric& setPermission(permissionType _permission) = 0;
     virtual permissionType getPermission() = 0;
     virtual bool newData() = 0;
     virtual bool shouldBeUpdated() = 0;
     virtual void updateShadow() = 0;
     virtual bool canRead() = 0;
     virtual void printinfo(Stream& stream) = 0;
-    virtual ArduinoCloudPropertyGeneric& onUpdate(void(*fn)(void)) = 0;
-    virtual ArduinoCloudPropertyGeneric& publishEvery(long seconds) = 0;
     void(*callback)(void) = NULL;
 };
 
@@ -53,11 +45,11 @@ class ArduinoCloudThing {
 public:
     ArduinoCloudThing();
     void begin();
-    ArduinoCloudPropertyGeneric& addPropertyReal(int& property, String name);
-    ArduinoCloudPropertyGeneric& addPropertyReal(bool& property, String name);
-    ArduinoCloudPropertyGeneric& addPropertyReal(float& property, String name);
-    ArduinoCloudPropertyGeneric& addPropertyReal(void* property, String name);
-    ArduinoCloudPropertyGeneric& addPropertyReal(String& property, String name);
+    ArduinoCloudPropertyGeneric& addPropertyReal(int& property, String name, permissionType _permission = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, int minDelta = 0);
+    ArduinoCloudPropertyGeneric& addPropertyReal(bool& property, String name, permissionType _permission = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL);
+    ArduinoCloudPropertyGeneric& addPropertyReal(float& property, String name, permissionType _permission = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, float minDelta = 0.0f);
+    ArduinoCloudPropertyGeneric& addPropertyReal(void* property, String name, permissionType _permission = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL);
+    ArduinoCloudPropertyGeneric& addPropertyReal(String& property, String name, permissionType _permission = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL);
     // poll should return > 0 if something has changed
     int poll(uint8_t* data, size_t size);
     void decode(uint8_t * payload, size_t length);
@@ -117,46 +109,12 @@ public:
         return name;
     }
 
-    void setName(String _name) {
-        name = _name;
-    }
-
-    ArduinoCloudPropertyGeneric& setTag(int _tag) {
-        tag = _tag;
-        return *(reinterpret_cast<ArduinoCloudPropertyGeneric*>(this));
-    }
-
     int getTag() {
         return tag;
     }
 
-    ArduinoCloudPropertyGeneric& setPermission(permissionType _permission) {
-        permission = _permission;
-        return *(reinterpret_cast<ArduinoCloudPropertyGeneric*>(this));
-    }
-
-    ArduinoCloudPropertyGeneric& readOnly() {
-        permission = READ;
-        return *(reinterpret_cast<ArduinoCloudPropertyGeneric*>(this));
-    }
-
-    ArduinoCloudPropertyGeneric& writeOnly() {
-        permission = WRITE;
-        return *(reinterpret_cast<ArduinoCloudPropertyGeneric*>(this));
-    }
-
-    ArduinoCloudPropertyGeneric& minimumDelta(void* delta) {
-        minDelta = *(T*)delta;
-        return *(reinterpret_cast<ArduinoCloudPropertyGeneric*>(this));
-    }
-
     permissionType getPermission() {
         return permission;
-    }
-
-    ArduinoCloudPropertyGeneric& onUpdate(void(*fn)(void)) {
-        callback = fn;
-        return *(reinterpret_cast<ArduinoCloudPropertyGeneric*>(this));
     }
 
     void appendValue(CborEncoder* mapEncoder);

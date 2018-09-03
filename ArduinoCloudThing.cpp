@@ -44,7 +44,7 @@ ArduinoCloudThing::ArduinoCloudThing() {
 void ArduinoCloudThing::begin() {
 
     status = ON;
-    addPropertyReal(status, "status").readOnly();
+    addPropertyReal(status, "status", READ);
 }
 
 int ArduinoCloudThing::poll(uint8_t* data, size_t size) {
@@ -123,45 +123,54 @@ ArduinoCloudPropertyGeneric* ArduinoCloudThing::exists(String &name) {
     return NULL;
 }
 
-ArduinoCloudPropertyGeneric& ArduinoCloudThing::addPropertyReal(int& property, String name) {
+ArduinoCloudPropertyGeneric& ArduinoCloudThing::addPropertyReal(int& property, String name, permissionType _permission, long seconds, void(*fn)(void), int minDelta) {
     if (ArduinoCloudPropertyGeneric* p = exists(name)) {
         return *p;
     }
     ArduinoCloudProperty<int> *thing = new ArduinoCloudProperty<int>(property, name);
     list.add(thing);
     thing->shadow_property = -1;
-    thing->minDelta = 0;
+    thing->minDelta = minDelta;
+    thing->permission = _permission;
+    thing->minDelta = minDelta;
+    thing->updatePolicy = seconds;
     return *(reinterpret_cast<ArduinoCloudPropertyGeneric*>(thing));
 }
 
-ArduinoCloudPropertyGeneric& ArduinoCloudThing::addPropertyReal(bool& property, String name) {
+ArduinoCloudPropertyGeneric& ArduinoCloudThing::addPropertyReal(bool& property, String name, permissionType _permission, long seconds, void(*fn)(void)) {
     if (ArduinoCloudPropertyGeneric* p = exists(name)) {
         return *p;
     }
     ArduinoCloudProperty<bool> *thing = new ArduinoCloudProperty<bool>(property, name);
     list.add(thing);
     thing->shadow_property = !property;
+    thing->permission = _permission;
+    thing->updatePolicy = seconds;
     return *(reinterpret_cast<ArduinoCloudPropertyGeneric*>(thing));
 }
 
-ArduinoCloudPropertyGeneric& ArduinoCloudThing::addPropertyReal(float& property, String name) {
+ArduinoCloudPropertyGeneric& ArduinoCloudThing::addPropertyReal(float& property, String name, permissionType _permission, long seconds, void(*fn)(void), float minDelta) {
     if (ArduinoCloudPropertyGeneric* p = exists(name)) {
         return *p;
     }
     ArduinoCloudProperty<float> *thing = new ArduinoCloudProperty<float>(property, name);
     list.add(thing);
-    thing->minDelta = 0.0f;
+    thing->permission = _permission;
+    thing->minDelta = minDelta;
+    thing->updatePolicy = seconds;
     thing->shadow_property = property - 1.0f;
     return *(reinterpret_cast<ArduinoCloudPropertyGeneric*>(thing));
 }
 
-ArduinoCloudPropertyGeneric& ArduinoCloudThing::addPropertyReal(String& property, String name) {
+ArduinoCloudPropertyGeneric& ArduinoCloudThing::addPropertyReal(String& property, String name, permissionType _permission, long seconds, void(*fn)(void)) {
     if (ArduinoCloudPropertyGeneric* p = exists(name)) {
         return *p;
     }
     ArduinoCloudProperty<String> *thing = new ArduinoCloudProperty<String>(property, name);
     list.add(thing);
     thing->shadow_property = "";
+    thing->permission = _permission;
+    thing->updatePolicy = seconds;
     return *(reinterpret_cast<ArduinoCloudPropertyGeneric*>(thing));
 }
 
