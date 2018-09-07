@@ -134,6 +134,7 @@ ArduinoCloudPropertyGeneric& ArduinoCloudThing::addPropertyReal(int& property, S
     thing->permission = _permission;
     thing->minDelta = minDelta;
     thing->updatePolicy = seconds;
+    thing->callback = fn;
     return *(reinterpret_cast<ArduinoCloudPropertyGeneric*>(thing));
 }
 
@@ -146,6 +147,7 @@ ArduinoCloudPropertyGeneric& ArduinoCloudThing::addPropertyReal(bool& property, 
     thing->shadow_property = !property;
     thing->permission = _permission;
     thing->updatePolicy = seconds;
+    thing->callback = fn;
     return *(reinterpret_cast<ArduinoCloudPropertyGeneric*>(thing));
 }
 
@@ -159,6 +161,7 @@ ArduinoCloudPropertyGeneric& ArduinoCloudThing::addPropertyReal(float& property,
     thing->minDelta = minDelta;
     thing->updatePolicy = seconds;
     thing->shadow_property = property - 1.0f;
+    thing->callback = fn;
     return *(reinterpret_cast<ArduinoCloudPropertyGeneric*>(thing));
 }
 
@@ -171,6 +174,7 @@ ArduinoCloudPropertyGeneric& ArduinoCloudThing::addPropertyReal(String& property
     thing->shadow_property = "";
     thing->permission = _permission;
     thing->updatePolicy = seconds;
+    thing->callback = fn;
     return *(reinterpret_cast<ArduinoCloudPropertyGeneric*>(thing));
 }
 
