@@ -137,7 +137,7 @@ ArduinoCloudPropertyGeneric& ArduinoCloudThing::addPropertyReal(int& property, S
     return *(reinterpret_cast<ArduinoCloudPropertyGeneric*>(thing));
 }
 
-ArduinoCloudPropertyGeneric& ArduinoCloudThing::addPropertyReal(bool& property, String name, permissionType _permission, long seconds, void(*fn)(void)) {
+ArduinoCloudPropertyGeneric& ArduinoCloudThing::addPropertyReal(bool& property, String name, permissionType _permission, long seconds, void(*fn)(void), bool minDelta) {
     if (ArduinoCloudPropertyGeneric* p = exists(name)) {
         return *p;
     }
@@ -162,7 +162,7 @@ ArduinoCloudPropertyGeneric& ArduinoCloudThing::addPropertyReal(float& property,
     return *(reinterpret_cast<ArduinoCloudPropertyGeneric*>(thing));
 }
 
-ArduinoCloudPropertyGeneric& ArduinoCloudThing::addPropertyReal(String& property, String name, permissionType _permission, long seconds, void(*fn)(void)) {
+ArduinoCloudPropertyGeneric& ArduinoCloudThing::addPropertyReal(String& property, String name, permissionType _permission, long seconds, void(*fn)(void), String mindelta) {
     if (ArduinoCloudPropertyGeneric* p = exists(name)) {
         return *p;
     }

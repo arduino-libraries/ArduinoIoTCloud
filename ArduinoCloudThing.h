@@ -46,10 +46,9 @@ public:
     ArduinoCloudThing();
     void begin();
     ArduinoCloudPropertyGeneric& addPropertyReal(int& property, String name, permissionType _permission = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, int minDelta = 0);
-    ArduinoCloudPropertyGeneric& addPropertyReal(bool& property, String name, permissionType _permission = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL);
+    ArduinoCloudPropertyGeneric& addPropertyReal(bool& property, String name, permissionType _permission = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, bool minDelta = false);
     ArduinoCloudPropertyGeneric& addPropertyReal(float& property, String name, permissionType _permission = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, float minDelta = 0.0f);
-    ArduinoCloudPropertyGeneric& addPropertyReal(void* property, String name, permissionType _permission = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL);
-    ArduinoCloudPropertyGeneric& addPropertyReal(String& property, String name, permissionType _permission = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL);
+    ArduinoCloudPropertyGeneric& addPropertyReal(String& property, String name, permissionType _permission = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, String minDelta = "");
     // poll should return > 0 if something has changed
     int poll(uint8_t* data, size_t size);
     void decode(uint8_t * payload, size_t length);
