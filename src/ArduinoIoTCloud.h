@@ -26,7 +26,7 @@ public:
   static const int MQTT_BUFFER_SIZE = 256;
   static const int MAX_RETRIES = 5;
   static const int RECONNECTION_TIMEOUT = 2000;
-  const mqttConnectionOptions mqttOpt = {30, false, 1000};
+  const mqttConnectionOptions mqttOpt = {30, false, 1500};
 
   int connect();
   bool disconnect();
