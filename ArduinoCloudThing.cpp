@@ -200,14 +200,20 @@ void ArduinoCloudThing::decode(uint8_t * payload, size_t length) {
         CborType type = cbor_value_get_type(&recursedMap);
         if (type != CborMapType) {
             // stop the decode when 1st item thai is not a cbor map is found.
-            cbor_value_advance(&dataArray);
+            CborError err = cbor_value_advance(&dataArray);
+            if (err != CborNoError) {
+                break;
+            }
             continue;
         } else {
 
             while (!cbor_value_at_end(&recursedMap)) {
                  // if the current element is not a cbor object as expected, skip it and go ahead.
                 if (cbor_value_get_type(&recursedMap) != CborMapType) {
-                    cbor_value_advance(&recursedMap);
+                    CborError err = cbor_value_advance(&recursedMap);
+                    if (err != CborNoError) {
+                        break;
+                    }
                     continue;
                 }
 
