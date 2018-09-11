@@ -60,9 +60,9 @@ int ArduinoCloudThing::poll(uint8_t* data, size_t size) {
 
         cbor_encoder_init(&encoder, data, size, 0);
         // create a cbor array containing the property that should be updated.
-        err = cbor_encoder_create_array(&encoder, &arrayEncoder, CborIndefiniteLength);
+        err = cbor_encoder_create_array(&encoder, &arrayEncoder, diff);
         if (err) {
-            Serial.println(cbor_error_string(err));
+            //Serial.println(cbor_error_string(err));
             return -1;
         }
 
@@ -136,7 +136,7 @@ ArduinoCloudPropertyGeneric& ArduinoCloudThing::addPropertyReal(int& property, S
     // If a property with ythis name does not exist, create it into thing
     ArduinoCloudProperty<int> *propertyObj = new ArduinoCloudProperty<int>(property, name);
     // Initialize property data members, this is a friend class of ArduinoCloudProperty
-    propertyObj->shadow_property = -1;
+    propertyObj->shadow_property = property + 1;
     propertyObj->minDelta = minDelta;
     propertyObj->permission = _permission;
     propertyObj->updatePolicy = seconds;
