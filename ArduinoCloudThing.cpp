@@ -185,47 +185,48 @@ void ArduinoCloudThing::decode(uint8_t * payload, size_t length) {
     int propId; String propType, propName;
 
     err = cbor_parser_init(payload, length, 0, &parser, &dataArray);
-    if (err) {
+    if(err) {
+        //Serial.println("Error in the parser creation.");
+        //Serial.println(cbor_error_string(err));
         return;
     }
 
     // parse cbor data only if a cbor array is received.
-    if (dataArray.type != CborArrayType)
+    if(dataArray.type != CborArrayType)
         return;
 
     // main loop through the cbor array elements
-    while (!cbor_value_at_end(&dataArray)) {
-         // parse cbor object
+    while (!cbor_value_at_end(&dataArray)) {  
+
+        // parse cbor object
         cbor_value_enter_container(&dataArray, &recursedMap);
+
         CborType type = cbor_value_get_type(&recursedMap);
         if (type != CborMapType) {
             // stop the decode when 1st item thai is not a cbor map is found.
-            CborError err = cbor_value_advance(&dataArray);
-            if (err != CborNoError) {
-                break;
-            }
+            cbor_value_advance(&dataArray);
             continue;
-        } else {
 
+        } else {
+            
             while (!cbor_value_at_end(&recursedMap)) {
-                 // if the current element is not a cbor object as expected, skip it and go ahead.
-                if (cbor_value_get_type(&recursedMap) != CborMapType) {
-                    CborError err = cbor_value_advance(&recursedMap);
-                    if (err != CborNoError) {
-                        break;
-                    }
+
+                // if the current element is not a cbor object as expected, skip it and go ahead.
+                if(cbor_value_get_type(&recursedMap) != CborMapType) {
+                    cbor_value_advance(&recursedMap);
                     continue;
                 }
 
                 CborValue name;
                 // chechk for the if the a property has a name, if yes Cbor value name will properly updated
                 cbor_value_map_find_value(&recursedMap, "n", &name);
-                 // check if a property has a name, of string type, if not do nothin and skip curtrent property
+
+                // check if a property has a name, of string type, if not do nothin and skip curtrent property
                 if (name.type != CborTextStringType) {
                     cbor_value_advance(&recursedMap);
                     continue;
                 }
-
+    
                 // get the property name from cbor map as char* string
                 char *nameVal; size_t nameValSize;
                 err = cbor_value_dup_text_string(&name, &nameVal, &nameValSize, NULL);
@@ -236,52 +237,67 @@ void ArduinoCloudThing::decode(uint8_t * payload, size_t length) {
                 propName = String(nameVal);
                 // used to avoid memory leaks (cbor_value_dup_text_string automatically perform a malloc)
                 free(nameVal);
-                 // Search for the index of the device property with that name
+
+                // Search for the index of the device property with that name
                 propId = findPropertyByName(propName);
                 // If property does not exist, skip it and do nothing.
                 if (propId < 0) {
                     cbor_value_advance(&recursedMap);
                     continue;
                 }
-
+                
                 ArduinoCloudPropertyGeneric* property = list.get(propId);
                 // Check for the property type, write method internally check for the permission
-
-                cbor_value_map_find_value(&recursedMap, "v", &propValue);
-
-                if (propValue.type == CborDoubleType) {
-                    double val;
-                    // get the value of the property as a double
-                    cbor_value_get_double(&propValue, &val);
-                    reinterpret_cast<ArduinoCloudProperty<float>*>(property)->write((float)val);
-                }
-                // if no key proper key was found, do nothing
-                if (propValue.type == CborIntegerType) {
-                    int val;
-                    cbor_value_get_int(&propValue, &val);
-                    reinterpret_cast<ArduinoCloudProperty<int>*>(property)->write(val);
-                }
-                if (propValue.type == CborBooleanType) {
-                    bool val;
-                    cbor_value_get_boolean(&propValue, &val);
-                    reinterpret_cast<ArduinoCloudProperty<bool>*>(property)->write(val);
-                }
-                if (propValue.type == CborTextStringType) {
-                    char *val; size_t valSize;
-                    err = cbor_value_dup_text_string(&propValue, &val, &valSize, &propValue);
-                    // Char* string transformed into array
-                    reinterpret_cast<ArduinoCloudProperty<String>*>(property)->write(String((char*)val));
-                    free(val);
+                propType = property->getType();
+                
+                if (propType == "FLOAT" && !cbor_value_map_find_value(&recursedMap, "v", &propValue)) {
+                    if (propValue.type == CborDoubleType) {
+                        double val;
+                        // get the value of the property as a double
+                        cbor_value_get_double(&propValue, &val);
+                        ArduinoCloudProperty<float>* p = (ArduinoCloudProperty<float>*) property;
+                        p->write((float)val);
+                    }
+                } else if (propType == "INT" && !cbor_value_map_find_value(&recursedMap, "v", &propValue)) {
+                    // if no key proper key was found, do nothing
+                    if (propValue.type == CborIntegerType) {
+                        int val;
+                        cbor_value_get_int(&propValue, &val);
+                        ArduinoCloudProperty<int>* p = (ArduinoCloudProperty<int>*) property;
+                        p->write(val);
+                    } else if (propValue.type == CborDoubleType) {
+                        // If a double value is received, a cast to int is performed(so it is still accepted)
+                        double val;
+                        cbor_value_get_double(&propValue, &val);
+                        ArduinoCloudProperty<int>* p = (ArduinoCloudProperty<int>*) property;
+                        p->write((int)val);
+                    }
+                } else if (propType == "BOOL" && !cbor_value_map_find_value(&recursedMap, "vb", &propValue)) {
+                    if (propValue.type == CborBooleanType) {
+                        bool val;
+                        cbor_value_get_boolean(&propValue, &val);
+                        ArduinoCloudProperty<bool>* p = (ArduinoCloudProperty<bool>*) property;
+                        p->write(val);
+                    }
+                } else if (propType == "STRING" && !cbor_value_map_find_value(&recursedMap, "vs", &propValue)){ 
+                    if (propValue.type == CborTextStringType) {
+                        char *val; size_t valSize;
+                        err = cbor_value_dup_text_string(&propValue, &val, &valSize, &propValue);
+                        ArduinoCloudProperty<String>* p = (ArduinoCloudProperty<String>*) property;
+                        // Char* string transformed into array
+                        p->write(String((char*)val));
+                        free(val);
+                    }
                 }
                 // If the property has been changed call its callback
                 if (property->newData()) {
                     if (property->callback != NULL) {
                         property->callback();
                     }
-                }
+                } 
                 // Continue to scan the cbor map
                 cbor_value_advance(&recursedMap);
-            }
+            }  
         }
         // Leave the current cbor object, and advance to the next one
         err = cbor_value_leave_container(&dataArray, &recursedMap);
