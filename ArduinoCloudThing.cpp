@@ -15,7 +15,6 @@ static void utox8(uint32_t val, char* s) {
     for (int i = 0; i < 8; i++) {
         int d = val & 0XF;
         val = (val >> 4);
-
         s[7 - i] = d > 9 ? 'A' + d - 10 : '0' + d;
     }
 }
@@ -42,27 +41,31 @@ ArduinoCloudThing::ArduinoCloudThing() {
 
 
 void ArduinoCloudThing::begin() {
-
     status = ON;
     addPropertyReal(status, "status", READ);
 }
 
+
 int ArduinoCloudThing::poll(uint8_t* data, size_t size) {
 
     // check if backing storage and cloud has diverged
+    // time interval may be elapsed or property may be changed
     int diff = 0;
 
+    // are there some changed prperies???
     diff = checkNewData();
     if (diff > 0) {
         CborError err;
         CborEncoder encoder, arrayEncoder;
+
         cbor_encoder_init(&encoder, data, size, 0);
         // create a cbor array containing the property that should be updated.
-        err = cbor_encoder_create_array(&encoder, &arrayEncoder, diff);
+        err = cbor_encoder_create_array(&encoder, &arrayEncoder, CborIndefiniteLength);
         if (err) {
             Serial.println(cbor_error_string(err));
             return -1;
         }
+
         for (int i = 0; i < list.size(); i++) {
             ArduinoCloudPropertyGeneric *p = list.get(i);
             // If a property should be updated and has read permission from the Cloud point of view
@@ -73,21 +76,45 @@ int ArduinoCloudThing::poll(uint8_t* data, size_t size) {
         }
 
         err = cbor_encoder_close_container(&encoder, &arrayEncoder);
-        // update properties shadow values, in order to check if variable has changed since last publish
 
+        // update properties shadow values, in order to check if variable has changed since last publish
         for (int i = 0; i < list.size(); i++) {
             ArduinoCloudPropertyGeneric *p = list.get(i);
             p->updateShadow();
         }
-         // return the number of byte of the CBOR encoded array
+
+        // return the number of byte of the CBOR encoded array
         return cbor_encoder_get_buffer_size(&encoder, data);
     }
 
 #if defined(DEBUG_MEMORY) && defined(ARDUINO_ARCH_SAMD)
     PrintFreeRam();
 #endif
-     // If nothing has to be sent, return diff, that is 0 in this case
+    // If nothing has to be sent, return diff, that is 0 in this case
     return diff;
+}
+
+int ArduinoCloudThing::checkNewData() {
+    int counter = 0;
+    for (int i = 0; i < list.size(); i++) {
+        ArduinoCloudPropertyGeneric *p = list.get(i);
+        if (p->shouldBeUpdated() && p->canRead()) {
+            counter++;
+        }
+    }
+    // return number of props that has to be updated
+    return counter;
+}
+
+ArduinoCloudPropertyGeneric* ArduinoCloudThing::exists(String &name) {
+    for (int i = 0; i < list.size(); i++) {
+        ArduinoCloudPropertyGeneric *p = list.get(i);
+        // Check the property existance just comparing its name with existent ones
+        if (p->getName() == name) {
+            return p;
+        }
+    }
+    return NULL;
 }
 
 // It return the index of the property, inside the local array, with the name passed as parameter. (-1 if it does not exist.)
@@ -102,87 +129,73 @@ int ArduinoCloudThing::findPropertyByName(String &name) {
     return -1;
 }
 
-int ArduinoCloudThing::checkNewData() {
-    int counter = 0;
-    for (int i = 0; i < list.size(); i++) {
-        ArduinoCloudPropertyGeneric *p = list.get(i);
-        if (p->shouldBeUpdated() && p->canRead()) {
-            counter++;
-        }
-    }
-    return counter;
-}
-
-ArduinoCloudPropertyGeneric* ArduinoCloudThing::exists(String &name) {
-    for (int i = 0; i < list.size(); i++) {
-        ArduinoCloudPropertyGeneric *p = list.get(i);
-        if (p->getName() == name) {
-            return p;
-        }
-    }
-    return NULL;
-}
-
 ArduinoCloudPropertyGeneric& ArduinoCloudThing::addPropertyReal(int& property, String name, permissionType _permission, long seconds, void(*fn)(void), int minDelta) {
     if (ArduinoCloudPropertyGeneric* p = exists(name)) {
         return *p;
     }
-    ArduinoCloudProperty<int> *thing = new ArduinoCloudProperty<int>(property, name);
-    list.add(thing);
-    thing->shadow_property = -1;
-    thing->minDelta = minDelta;
-    thing->permission = _permission;
-    thing->minDelta = minDelta;
-    thing->updatePolicy = seconds;
-    thing->callback = fn;
-    return *(reinterpret_cast<ArduinoCloudPropertyGeneric*>(thing));
+    // If a property with ythis name does not exist, create it into thing
+    ArduinoCloudProperty<int> *propertyObj = new ArduinoCloudProperty<int>(property, name);
+    // Initialize property data members, this is a friend class of ArduinoCloudProperty
+    propertyObj->shadow_property = -1;
+    propertyObj->minDelta = minDelta;
+    propertyObj->permission = _permission;
+    propertyObj->updatePolicy = seconds;
+    propertyObj->callback = fn;
+    // Add the new property to the thin properties list
+    list.add(propertyObj);
+    // Return the new property as a generic one
+    return *(reinterpret_cast<ArduinoCloudPropertyGeneric*>(propertyObj));
 }
 
 ArduinoCloudPropertyGeneric& ArduinoCloudThing::addPropertyReal(bool& property, String name, permissionType _permission, long seconds, void(*fn)(void), bool minDelta) {
     if (ArduinoCloudPropertyGeneric* p = exists(name)) {
         return *p;
     }
-    ArduinoCloudProperty<bool> *thing = new ArduinoCloudProperty<bool>(property, name);
-    list.add(thing);
-    thing->shadow_property = !property;
-    thing->permission = _permission;
-    thing->updatePolicy = seconds;
-    thing->callback = fn;
-    return *(reinterpret_cast<ArduinoCloudPropertyGeneric*>(thing));
+    ArduinoCloudProperty<bool> *propertyObj = new ArduinoCloudProperty<bool>(property, name);
+    propertyObj->shadow_property = !property;
+    propertyObj->permission = _permission;
+    propertyObj->updatePolicy = seconds;
+    propertyObj->callback = fn;
+    list.add(propertyObj);
+    return *(reinterpret_cast<ArduinoCloudPropertyGeneric*>(propertyObj));
 }
 
 ArduinoCloudPropertyGeneric& ArduinoCloudThing::addPropertyReal(float& property, String name, permissionType _permission, long seconds, void(*fn)(void), float minDelta) {
     if (ArduinoCloudPropertyGeneric* p = exists(name)) {
         return *p;
     }
-    ArduinoCloudProperty<float> *thing = new ArduinoCloudProperty<float>(property, name);
-    list.add(thing);
-    thing->permission = _permission;
-    thing->minDelta = minDelta;
-    thing->updatePolicy = seconds;
-    thing->shadow_property = property - 1.0f;
-    thing->callback = fn;
-    return *(reinterpret_cast<ArduinoCloudPropertyGeneric*>(thing));
+    ArduinoCloudProperty<float> *propertyObj = new ArduinoCloudProperty<float>(property, name);
+    propertyObj->shadow_property = property + 0.5f;
+    propertyObj->permission = _permission;
+    propertyObj->minDelta = minDelta;
+    propertyObj->updatePolicy = seconds;
+    propertyObj->callback = fn;
+    list.add(propertyObj);
+    return *(reinterpret_cast<ArduinoCloudPropertyGeneric*>(propertyObj));
 }
 
-ArduinoCloudPropertyGeneric& ArduinoCloudThing::addPropertyReal(String& property, String name, permissionType _permission, long seconds, void(*fn)(void), String mindelta) {
+ArduinoCloudPropertyGeneric& ArduinoCloudThing::addPropertyReal(String& property, String name, permissionType _permission, long seconds, void(*fn)(void), String minDelta) {
     if (ArduinoCloudPropertyGeneric* p = exists(name)) {
         return *p;
     }
-    ArduinoCloudProperty<String> *thing = new ArduinoCloudProperty<String>(property, name);
-    list.add(thing);
-    thing->shadow_property = "";
-    thing->permission = _permission;
-    thing->updatePolicy = seconds;
-    thing->callback = fn;
-    return *(reinterpret_cast<ArduinoCloudPropertyGeneric*>(thing));
+    ArduinoCloudProperty<String> *propertyObj = new ArduinoCloudProperty<String>(property, name);
+    propertyObj->shadow_property = property + "x";
+    propertyObj->permission = _permission;
+    propertyObj->updatePolicy = seconds;
+    propertyObj->callback = fn;
+    list.add(propertyObj);
+    return *(reinterpret_cast<ArduinoCloudPropertyGeneric*>(propertyObj));
 }
 
-void ArduinoCloudThing::decode(uint8_t * payload, size_t length) {
+
+void ArduinoCloudThing::decode(uint8_t *payload, size_t length) {
+    
     CborError err;
     CborParser parser;
     CborValue recursedMap, propValue, dataArray;
-    int propId; String propType, propName;
+    int propId;
+    String propName;
+    propertyType propType;
 
     err = cbor_parser_init(payload, length, 0, &parser, &dataArray);
     if(err) {
@@ -250,7 +263,7 @@ void ArduinoCloudThing::decode(uint8_t * payload, size_t length) {
                 // Check for the property type, write method internally check for the permission
                 propType = property->getType();
                 
-                if (propType == "FLOAT" && !cbor_value_map_find_value(&recursedMap, "v", &propValue)) {
+                if (propType == FLOAT && !cbor_value_map_find_value(&recursedMap, "v", &propValue)) {
                     if (propValue.type == CborDoubleType) {
                         double val;
                         // get the value of the property as a double
@@ -258,7 +271,7 @@ void ArduinoCloudThing::decode(uint8_t * payload, size_t length) {
                         ArduinoCloudProperty<float>* p = (ArduinoCloudProperty<float>*) property;
                         p->write((float)val);
                     }
-                } else if (propType == "INT" && !cbor_value_map_find_value(&recursedMap, "v", &propValue)) {
+                } else if (propType == INT && !cbor_value_map_find_value(&recursedMap, "v", &propValue)) {
                     // if no key proper key was found, do nothing
                     if (propValue.type == CborIntegerType) {
                         int val;
@@ -272,14 +285,14 @@ void ArduinoCloudThing::decode(uint8_t * payload, size_t length) {
                         ArduinoCloudProperty<int>* p = (ArduinoCloudProperty<int>*) property;
                         p->write((int)val);
                     }
-                } else if (propType == "BOOL" && !cbor_value_map_find_value(&recursedMap, "vb", &propValue)) {
+                } else if (propType == BOOL && !cbor_value_map_find_value(&recursedMap, "vb", &propValue)) {
                     if (propValue.type == CborBooleanType) {
                         bool val;
                         cbor_value_get_boolean(&propValue, &val);
                         ArduinoCloudProperty<bool>* p = (ArduinoCloudProperty<bool>*) property;
                         p->write(val);
                     }
-                } else if (propType == "STRING" && !cbor_value_map_find_value(&recursedMap, "vs", &propValue)){ 
+                } else if (propType == STRING && !cbor_value_map_find_value(&recursedMap, "vs", &propValue)){ 
                     if (propValue.type == CborTextStringType) {
                         char *val; size_t valSize;
                         err = cbor_value_dup_text_string(&propValue, &val, &valSize, &propValue);

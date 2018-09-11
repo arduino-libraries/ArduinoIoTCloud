@@ -54,7 +54,7 @@ class ArduinoCloudThing {
     public:
         ArduinoCloudThing();
         void begin();
-        // overload for different type of properties
+        // overload, with default arguments, of different type of properties
         ArduinoCloudPropertyGeneric& addPropertyReal(int& property, String name, permissionType _permission = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, int minDelta = 0);
         ArduinoCloudPropertyGeneric& addPropertyReal(bool& property, String name, permissionType _permission = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, bool minDelta = false);
         ArduinoCloudPropertyGeneric& addPropertyReal(float& property, String name, permissionType _permission = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, float minDelta = 0.0f);
@@ -63,7 +63,6 @@ class ArduinoCloudThing {
         int poll(uint8_t* data, size_t size);
         // decode a CBOR payload received from the Cloud.
         void decode(uint8_t * payload, size_t length);
-        bool hasAllReadProperties();
 
     private:
         void update();
