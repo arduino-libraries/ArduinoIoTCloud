@@ -16,8 +16,8 @@ enum permissionType {
 };
 
 enum boolStatus {
-    ON,
-    OFF,
+    ON = true,
+    OFF = false,
 };
 
 // allowed property types
