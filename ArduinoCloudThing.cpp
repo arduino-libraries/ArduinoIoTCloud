@@ -214,19 +214,26 @@ void ArduinoCloudThing::decode(uint8_t *payload, size_t length) {
         // parse cbor object
         cbor_value_enter_container(&dataArray, &recursedMap);
 
-        CborType type = cbor_value_get_type(&recursedMap);
-        if (type != CborMapType) {
+        if (cbor_value_get_type(&recursedMap) != CborMapType) {
             // stop the decode when 1st item thai is not a cbor map is found.
-            cbor_value_advance(&dataArray);
+            err = cbor_value_advance(&dataArray);
+            // avoid infinite loop if it is not possible to advance to the next array value
+            if (err != CborNoError) {
+                break;
+            }
+            // go to the next element
             continue;
 
         } else {
-            
             while (!cbor_value_at_end(&recursedMap)) {
 
                 // if the current element is not a cbor object as expected, skip it and go ahead.
                 if(cbor_value_get_type(&recursedMap) != CborMapType) {
-                    cbor_value_advance(&recursedMap);
+
+                    err = cbor_value_advance(&recursedMap);
+                    if (err != CborNoError) {
+                        break;
+                    }
                     continue;
                 }
 
@@ -234,9 +241,13 @@ void ArduinoCloudThing::decode(uint8_t *payload, size_t length) {
                 // chechk for the if the a property has a name, if yes Cbor value name will properly updated
                 cbor_value_map_find_value(&recursedMap, "n", &name);
 
-                // check if a property has a name, of string type, if not do nothin and skip curtrent property
+                // check if a property has a name, of string type, if not do nothing and skip curtrent property
                 if (name.type != CborTextStringType) {
-                    cbor_value_advance(&recursedMap);
+                    err = cbor_value_advance(&recursedMap);
+                    // problem to advance to the next array object
+                    if (err != CborNoError)
+                        break;
+                    
                     continue;
                 }
     
@@ -307,12 +318,20 @@ void ArduinoCloudThing::decode(uint8_t *payload, size_t length) {
                     if (property->callback != NULL) {
                         property->callback();
                     }
-                } 
+                }
+
                 // Continue to scan the cbor map
-                cbor_value_advance(&recursedMap);
+                err = cbor_value_advance(&recursedMap);
+                if (err != CborNoError) {
+                    break;
+                }
             }  
         }
+
+        if (err != CborNoError) 
+            break;
         // Leave the current cbor object, and advance to the next one
-        err = cbor_value_leave_container(&dataArray, &recursedMap);
+        cbor_value_leave_container(&dataArray, &recursedMap);
+        
     }
 }
