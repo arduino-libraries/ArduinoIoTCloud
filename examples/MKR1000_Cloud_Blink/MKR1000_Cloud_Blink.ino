@@ -1,5 +1,5 @@
 #include <WiFi101.h> // change to WiFiNINA.h if you are using the MKR WiFi 1010 or MKR Vidor 4000
-#include <ArduinoCloudV2.h>
+#include <ArduinoIoTCloud.h>
 #include "arduino_secrets.h"
 
 #define TIMEOUT 7000
@@ -36,7 +36,7 @@ void setup() {
     while (true);
   }
 
-  if (!ArduinoCloud.begin(wifiClient)) {
+  if (!ArduinoIoTCloud.begin(wifiClient)) {
     Serial.println("Starting Arduino Cloud failed!");
     while (true);
   }
@@ -65,10 +65,10 @@ void setup() {
   Serial.println();
   Serial.println("Attempting to connect to Arduino Cloud");
 
-  ArduinoCloud.onGetTime(getTime);
+  ArduinoIoTCloud.onGetTime(getTime);
 
   attempts = 0;
-  while (!ArduinoCloud.connect() && attempts < 10) {
+  while (!ArduinoIoTCloud.connect() && attempts < 10) {
     Serial.print(".");
     attempts++;
   }
@@ -80,14 +80,14 @@ void setup() {
 
   Serial.println("Successfully connected to Arduino Cloud :)");
 
-  ArduinoCloud.addProperty(position, READ, 10*SECONDS, onPositionUpdate);
+  ArduinoIoTCloud.addProperty(position, READ, 10*SECONDS, onPositionUpdate);
 
   CloudSerial.begin(9600);
   CloudSerial.print("I'm ready for blinking!\n");
 }
 
 void loop() {
-  ArduinoCloud.poll();
+  ArduinoIoTCloud.poll();
 
   // check if there is something waiting to be read
   if (CloudSerial.available()) {

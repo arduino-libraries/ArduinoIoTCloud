@@ -1,5 +1,4 @@
-#include "ArduinoCloudV2.h"
-
+#include "ArduinoIoTCloud.h"
 #include "CloudSerial.h"
 
 CloudSerialClass::CloudSerialClass()
@@ -22,35 +21,35 @@ void CloudSerialClass::end()
 
 int CloudSerialClass::available()
 {
-  ArduinoCloud.poll();
+  ArduinoIoTCloud.poll();
 
   return _rxBuffer.available();
 }
 
 int CloudSerialClass::availableForWrite()
 {
-  ArduinoCloud.poll();
+  ArduinoIoTCloud.poll();
 
   return _txBuffer.availableForStore();
 }
 
 int CloudSerialClass::peek()
 {
-  ArduinoCloud.poll();
+  ArduinoIoTCloud.poll();
 
   return _rxBuffer.peek();
 }
 
 int CloudSerialClass::read()
 {
-  ArduinoCloud.poll();
+  ArduinoIoTCloud.poll();
 
   return _rxBuffer.read_char();
 }
 
 void CloudSerialClass::flush()
 {
-  ArduinoCloud.poll();
+  ArduinoIoTCloud.poll();
 
   byte out[CLOUD_SERIAL_TX_BUFFER_SIZE];
   int length = 0;
@@ -59,7 +58,7 @@ void CloudSerialClass::flush()
     out[length++] = _txBuffer.read_char();
   }
 
-  ArduinoCloud.writeStdout(out, length);
+  ArduinoIoTCloud.writeStdout(out, length);
 }
 
 size_t CloudSerialClass::write(const uint8_t data)
@@ -75,9 +74,9 @@ size_t CloudSerialClass::write(const uint8_t data)
 
 CloudSerialClass::operator bool()
 {
-  ArduinoCloud.poll();
+  ArduinoIoTCloud.poll();
 
-  return ArduinoCloud.connected();
+  return ArduinoIoTCloud.connected();
 }
 
 void CloudSerialClass::appendStdin(const uint8_t *buffer, size_t size)

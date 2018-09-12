@@ -3,7 +3,7 @@
 #include "utility/ECCX08Cert.h"
 #include "CloudSerial.h"
 
-#include "ArduinoCloudV2.h"
+#include "ArduinoIoTCloud.h"
 
 const static char server[] = "mqtts-sa.iot.oniudra.cc";
 
@@ -12,21 +12,21 @@ const static int compressedCertSlot                        = 10;
 const static int serialNumberAndAuthorityKeyIdentifierSlot = 11;
 const static int thingIdSlot                               = 12;
 
-ArduinoCloudClass::ArduinoCloudClass() :
+ArduinoIoTCloudClass::ArduinoIoTCloudClass() :
   _bearSslClient(NULL),
   // Size of the receive buffer
   _mqttClient(MQTT_BUFFER_SIZE)
 {
 }
 
-ArduinoCloudClass::~ArduinoCloudClass()
+ArduinoIoTCloudClass::~ArduinoIoTCloudClass()
 {
   if (_bearSslClient) {
     delete _bearSslClient;
   }
 }
 
-int ArduinoCloudClass::begin(Client& net)
+int ArduinoIoTCloudClass::begin(Client& net)
 {
   byte thingIdBytes[72];
 
@@ -68,7 +68,7 @@ int ArduinoCloudClass::begin(Client& net)
 }
 
 // private class method used to initialize mqttClient class member. (called in the begin class method)
-void ArduinoCloudClass::mqttClientBegin(Client& net)
+void ArduinoIoTCloudClass::mqttClientBegin(Client& net)
 {
   // MQTT topics definition
   _stdoutTopic = "/a/d/" + _id + "/s/o";
@@ -77,14 +77,14 @@ void ArduinoCloudClass::mqttClientBegin(Client& net)
   _dataTopicOut = "/a/d/" + _id + "/e/o";
 
   // use onMessage as callback for received mqtt messages
-  _mqttClient.onMessageAdvanced(ArduinoCloudClass::onMessage);
+  _mqttClient.onMessageAdvanced(ArduinoIoTCloudClass::onMessage);
   _mqttClient.begin(server, 8883, net);
 
   // Set MQTT connection options
   _mqttClient.setOptions(mqttOpt.keepAlive, mqttOpt.cleanSession, mqttOpt.timeout);
 }
 
-int ArduinoCloudClass::connect()
+int ArduinoIoTCloudClass::connect()
 {
   // Username: device id
   // Password: empty
@@ -97,18 +97,18 @@ int ArduinoCloudClass::connect()
   return 1;
 }
 
-bool ArduinoCloudClass::disconnect()
+bool ArduinoIoTCloudClass::disconnect()
 {
     return _mqttClient.disconnect();
 }
 
-void ArduinoCloudClass::poll()
+void ArduinoIoTCloudClass::poll()
 {
   // If user call poll() without parameters use the default ones
   poll(MAX_RETRIES, RECONNECTION_TIMEOUT);
 }
 
-bool ArduinoCloudClass::mqttReconnect(int maxRetries, int timeout)
+bool ArduinoIoTCloudClass::mqttReconnect(int maxRetries, int timeout)
 {
   // Counter for reconnection retries
   int retries = 0;
@@ -132,7 +132,7 @@ bool ArduinoCloudClass::mqttReconnect(int maxRetries, int timeout)
   return true;
 }
 
-void ArduinoCloudClass::poll(int reconnectionMaxRetries, int reconnectionTimeoutMs)
+void ArduinoIoTCloudClass::poll(int reconnectionMaxRetries, int reconnectionTimeoutMs)
 {
   // Method's argument controls
   int maxRetries = (reconnectionMaxRetries > 0) ? reconnectionMaxRetries : MAX_RETRIES;
@@ -152,39 +152,39 @@ void ArduinoCloudClass::poll(int reconnectionMaxRetries, int reconnectionTimeout
   }
 }
 
-void ArduinoCloudClass::reconnect(Client& net)
+void ArduinoIoTCloudClass::reconnect(Client& net)
 {
   // Initialize again the MQTTClient, otherwise it would not be able to receive messages through its callback
   mqttClientBegin(net);
   connect();
 }
 
-void ArduinoCloudClass::onGetTime(unsigned long(*callback)(void))
+void ArduinoIoTCloudClass::onGetTime(unsigned long(*callback)(void))
 {
   ArduinoBearSSL.onGetTime(callback);
 }
 
-int ArduinoCloudClass::connected()
+int ArduinoIoTCloudClass::connected()
 {
   return _mqttClient.connected();
 }
 
-int ArduinoCloudClass::writeProperties(const byte data[], int length)
+int ArduinoIoTCloudClass::writeProperties(const byte data[], int length)
 {
   return _mqttClient.publish(_dataTopicOut.c_str(), (const char*)data, length);
 }
 
-int ArduinoCloudClass::writeStdout(const byte data[], int length)
+int ArduinoIoTCloudClass::writeStdout(const byte data[], int length)
 {
   return _mqttClient.publish(_stdoutTopic.c_str(), (const char*)data, length);
 }
 
-void ArduinoCloudClass::onMessage(MQTTClient* /*client*/, char topic[], char bytes[], int length)
+void ArduinoIoTCloudClass::onMessage(MQTTClient* /*client*/, char topic[], char bytes[], int length)
 {
-  ArduinoCloud.handleMessage(topic, bytes, length);
+  ArduinoIoTCloud.handleMessage(topic, bytes, length);
 }
 
-void ArduinoCloudClass::handleMessage(char topic[], char bytes[], int length)
+void ArduinoIoTCloudClass::handleMessage(char topic[], char bytes[], int length)
 {
   if (_stdinTopic == topic) {
     CloudSerial.appendStdin((uint8_t*)bytes, length);
@@ -194,4 +194,4 @@ void ArduinoCloudClass::handleMessage(char topic[], char bytes[], int length)
   }
 }
 
-ArduinoCloudClass ArduinoCloud;
+ArduinoIoTCloudClass ArduinoIoTCloud;
