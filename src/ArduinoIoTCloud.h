@@ -74,6 +74,6 @@ private:
   String _otaTopic;
 };
 
-extern ArduinoIoTCloudClass ArduinoIoTCloud;
+extern ArduinoIoTCloudClass ArduinoCloud;
 
 #endif

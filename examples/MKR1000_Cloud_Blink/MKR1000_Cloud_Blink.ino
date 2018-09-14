@@ -36,7 +36,7 @@ void setup() {
     while (true);
   }
 
-  if (!ArduinoIoTCloud.begin(wifiClient)) {
+  if (!ArduinoCloud.begin(wifiClient)) {
     Serial.println("Starting Arduino Cloud failed!");
     while (true);
   }
@@ -65,10 +65,10 @@ void setup() {
   Serial.println();
   Serial.println("Attempting to connect to Arduino Cloud");
 
-  ArduinoIoTCloud.onGetTime(getTime);
+  ArduinoCloud.onGetTime(getTime);
 
   attempts = 0;
-  while (!ArduinoIoTCloud.connect() && attempts < 10) {
+  while (!ArduinoCloud.connect() && attempts < 10) {
     Serial.print(".");
     attempts++;
   }
@@ -80,14 +80,14 @@ void setup() {
 
   Serial.println("Successfully connected to Arduino Cloud :)");
 
-  ArduinoIoTCloud.addProperty(position, READ, 10*SECONDS, onPositionUpdate);
+  ArduinoCloud.addProperty(position, READ, 10*SECONDS, onPositionUpdate);
 
   CloudSerial.begin(9600);
   CloudSerial.print("I'm ready for blinking!\n");
 }
 
 void loop() {
-  ArduinoIoTCloud.poll();
+  ArduinoCloud.poll();
 
   // check if there is something waiting to be read
   if (CloudSerial.available()) {

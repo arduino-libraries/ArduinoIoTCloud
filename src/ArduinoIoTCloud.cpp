@@ -181,7 +181,7 @@ int ArduinoIoTCloudClass::writeStdout(const byte data[], int length)
 
 void ArduinoIoTCloudClass::onMessage(MQTTClient* /*client*/, char topic[], char bytes[], int length)
 {
-  ArduinoIoTCloud.handleMessage(topic, bytes, length);
+  ArduinoCloud.handleMessage(topic, bytes, length);
 }
 
 void ArduinoIoTCloudClass::handleMessage(char topic[], char bytes[], int length)
@@ -194,4 +194,4 @@ void ArduinoIoTCloudClass::handleMessage(char topic[], char bytes[], int length)
   }
 }
 
-ArduinoIoTCloudClass ArduinoIoTCloud;
+ArduinoIoTCloudClass ArduinoCloud;
