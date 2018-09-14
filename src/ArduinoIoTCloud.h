@@ -1,8 +1,8 @@
-#ifndef ARDUINO_CLOUD_V2_H
-#define ARDUINO_CLOUD_V2_H
+#ifndef ARDUINO_IOT_CLOUD_H
+#define ARDUINO_IOT_CLOUD_H
 
 #include <MQTTClient.h>
-#include <ArduinoBearSSL.h>
+#include <ArduinoIoTCloudBearSSL.h>
 #include <ArduinoCloudThing.h>
 
 #include "CloudSerial.h"
@@ -14,11 +14,11 @@ typedef struct mqtt_opt{
   int timeout;
 } mqttConnectionOptions;
 
-class ArduinoCloudClass {
+class ArduinoIoTCloudClass {
 
 public:
-  ArduinoCloudClass();
-  ~ArduinoCloudClass();
+  ArduinoIoTCloudClass();
+  ~ArduinoIoTCloudClass();
 
   int begin(Client& net);
 
@@ -74,6 +74,6 @@ private:
   String _otaTopic;
 };
 
-extern ArduinoCloudClass ArduinoCloud;
+extern ArduinoIoTCloudClass ArduinoCloud;
 
 #endif

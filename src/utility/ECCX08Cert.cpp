@@ -1,4 +1,4 @@
-#include <ArduinoBearSSL.h>
+#include <ArduinoIoTCloudBearSSL.h>
 #include <bearssl/bearssl_hash.h>
 #include <ArduinoECCX08.h>
 

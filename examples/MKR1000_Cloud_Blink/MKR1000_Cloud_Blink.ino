@@ -1,5 +1,5 @@
 #include <WiFi101.h> // change to WiFiNINA.h if you are using the MKR WiFi 1010 or MKR Vidor 4000
-#include <ArduinoCloudV2.h>
+#include <ArduinoIoTCloud.h>
 #include "arduino_secrets.h"
 
 #define TIMEOUT 7000

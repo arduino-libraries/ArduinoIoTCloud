@@ -1,5 +1,4 @@
-#include "ArduinoCloudV2.h"
-
+#include "ArduinoIoTCloud.h"
 #include "CloudSerial.h"
 
 CloudSerialClass::CloudSerialClass()

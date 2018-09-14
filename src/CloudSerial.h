@@ -2,13 +2,12 @@
 #define CLOUD_SERIAL_H
 
 #include <Arduino.h>
-
 #include <RingBuffer.h>
 
 #define CLOUD_SERIAL_TX_BUFFER_SIZE 64
 #define CLOUD_SERIAL_RX_BUFFER_SIZE 512
 
-class ArduinoCloudClass;
+class ArduinoIoTCloudClass;
 
 class CloudSerialClass : public Stream
 {
@@ -29,7 +28,7 @@ public:
   operator bool();
 
 protected:
-  friend class ArduinoCloudClass;
+  friend class ArduinoIoTCloudClass;
 
   void appendStdin(const uint8_t *buffer, size_t size);
 
