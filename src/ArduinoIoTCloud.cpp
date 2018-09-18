@@ -152,11 +152,24 @@ void ArduinoIoTCloudClass::poll(int reconnectionMaxRetries, int reconnectionTime
   }
 }
 
-void ArduinoIoTCloudClass::reconnect(Client& net)
+int ArduinoIoTCloudClass::reconnect(Client& net)
 {
+  // check if MQTT client is still connected
+  if (_mqttClient.connected()) {
+    while(!_mqttClient.disconnect());
+  }
+
+  // Re-initialize _bearSslClient
+  if (_bearSslClient) {
+      delete _bearSslClient;
+    }
+  _bearSslClient = new BearSSLClient(net);
+  _bearSslClient->setEccSlot(keySlot, ECCX08Cert.bytes(), ECCX08Cert.length());
+  
   // Initialize again the MQTTClient, otherwise it would not be able to receive messages through its callback
-  mqttClientBegin(net);
-  connect();
+  mqttClientBegin(*_bearSslClient);
+  // Connect to the broker
+  return connect();
 }
 
 void ArduinoIoTCloudClass::onGetTime(unsigned long(*callback)(void))

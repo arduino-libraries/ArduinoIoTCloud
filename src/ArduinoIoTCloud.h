@@ -40,7 +40,7 @@ public:
 
   int connected();
   // Clean up existing Mqtt connection, create a new one and initialize it
-  void reconnect(Client& net);
+  int reconnect(Client& net);
 
   #define addProperty( v, ...) addPropertyReal(v, #v, __VA_ARGS__)
 
