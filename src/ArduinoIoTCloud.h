@@ -20,7 +20,7 @@ public:
   ArduinoIoTCloudClass();
   ~ArduinoIoTCloudClass();
 
-  int begin(Client& net, String brokerAddress = "mqtts-sa.iot.oniudra.cc");
+  int begin(Client& net, String brokerAddress = "mqtts-sa.iot.arduino.cc");
 
   // Class constant declaration
   static const int MQTT_BUFFER_SIZE = 256;
