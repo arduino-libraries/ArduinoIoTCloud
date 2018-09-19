@@ -1,11 +1,7 @@
 #include <ArduinoECCX08.h>
-
 #include "utility/ECCX08Cert.h"
 #include "CloudSerial.h"
-
 #include "ArduinoIoTCloud.h"
-
-const static char server[] = "mqtts-sa.iot.oniudra.cc";
 
 const static int keySlot                                   = 0;
 const static int compressedCertSlot                        = 10;
@@ -26,8 +22,11 @@ ArduinoIoTCloudClass::~ArduinoIoTCloudClass()
   }
 }
 
-int ArduinoIoTCloudClass::begin(Client& net)
+int ArduinoIoTCloudClass::begin(Client& net, String brokerAddress)
 {
+  // store the broker address as class member
+  _brokerAddress = brokerAddress;
+
   byte thingIdBytes[72];
 
   if (!ECCX08.begin()) {
@@ -78,7 +77,7 @@ void ArduinoIoTCloudClass::mqttClientBegin(Client& net)
 
   // use onMessage as callback for received mqtt messages
   _mqttClient.onMessageAdvanced(ArduinoIoTCloudClass::onMessage);
-  _mqttClient.begin(server, 8883, net);
+  _mqttClient.begin(_brokerAddress.c_str(), 8883, net);
 
   // Set MQTT connection options
   _mqttClient.setOptions(mqttOpt.keepAlive, mqttOpt.cleanSession, mqttOpt.timeout);
