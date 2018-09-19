@@ -20,7 +20,7 @@ public:
   ArduinoIoTCloudClass();
   ~ArduinoIoTCloudClass();
 
-  int begin(Client& net);
+  int begin(Client& net, String brokerAddress);
 
   // Class constant declaration
   static const int MQTT_BUFFER_SIZE = 256;
@@ -62,6 +62,7 @@ private:
   void handleMessage(char topic[], char bytes[], int length);
 
   String _id;
+  String _brokerAddress = "mqtts-sa.iot.oniudra.cc";
   ArduinoCloudThing Thing;
   BearSSLClient* _bearSslClient;
   MQTTClient _mqttClient;
