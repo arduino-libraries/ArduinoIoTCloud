@@ -281,6 +281,21 @@ void ArduinoCloudThing::decode(uint8_t *payload, size_t length) {
                         cbor_value_get_double(&propValue, &val);
                         ArduinoCloudProperty<float>* p = (ArduinoCloudProperty<float>*) property;
                         p->write((float)val);
+                    } else if (propValue.type == CborIntegerType) {
+                        int val;
+                        cbor_value_get_int(&propValue, &val);
+                        ArduinoCloudProperty<float>* p = (ArduinoCloudProperty<float>*) property;
+                        p->write((float)val);
+                    } else if (propValue.type == CborFloatType) {
+                        float val;
+                        cbor_value_get_float(&propValue, &val);
+                        ArduinoCloudProperty<float>* p = (ArduinoCloudProperty<float>*) property;
+                        p->write(val);
+                    } else if (propValue.type == CborHalfFloatType) {
+                        float val;
+                        cbor_value_get_half_float(&propValue, &val);
+                        ArduinoCloudProperty<float>* p = (ArduinoCloudProperty<float>*) property;
+                        p->write(val);
                     }
                 } else if (propType == INT && !cbor_value_map_find_value(&recursedMap, "v", &propValue)) {
                     // if no key proper key was found, do nothing
@@ -293,6 +308,16 @@ void ArduinoCloudThing::decode(uint8_t *payload, size_t length) {
                         // If a double value is received, a cast to int is performed(so it is still accepted)
                         double val;
                         cbor_value_get_double(&propValue, &val);
+                        ArduinoCloudProperty<int>* p = (ArduinoCloudProperty<int>*) property;
+                        p->write((int)val);
+                    } else if (propValue.type == CborFloatType) {
+                        float val;
+                        cbor_value_get_float(&propValue, &val);
+                        ArduinoCloudProperty<int>* p = (ArduinoCloudProperty<int>*) property;
+                        p->write((int)val);
+                    } else if (propValue.type == CborHalfFloatType) {
+                        float val;
+                        cbor_value_get_half_float(&propValue, &val);
                         ArduinoCloudProperty<int>* p = (ArduinoCloudProperty<int>*) property;
                         p->write((int)val);
                     }
