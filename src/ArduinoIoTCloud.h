@@ -1,7 +1,7 @@
 #ifndef ARDUINO_IOT_CLOUD_H
 #define ARDUINO_IOT_CLOUD_H
 
-#include <MQTTClient.h>
+#include <MQTT.h>
 #include <ArduinoIoTCloudBearSSL.h>
 #include <ArduinoCloudThing.h>
 
