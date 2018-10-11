@@ -35,7 +35,7 @@ public:
   void update();
 
   // defined for users who want to specify max reconnections reties and timeout between them
-  void update(int reconnectionMaxRetries, int reconnectionTimeoutMs);
+  void update(int const reconnectionMaxRetries, int const reconnectionTimeoutMs);
   // It must be a user defined function, in order to avoid ArduinoCloud include specific WiFi file
   // in this case this library is independent from the WiFi one
   void onGetTime(unsigned long(*)(void));
@@ -52,16 +52,16 @@ public:
 
 protected:
   friend class CloudSerialClass;
-  int writeStdout(const byte data[], int length);
-  int writeProperties(const byte data[], int length);
+  int writeStdout(const byte data[], int const length);
+  int writeProperties(const byte data[], int const length);
   // Used to initialize MQTTClient
   void mqttClientBegin(Client& net);
   // Function in charge of perform MQTT reconnection, basing on class parameters(retries,and timeout)
-  bool mqttReconnect(int maxRetries, int timeout);
+  bool mqttReconnect(int const maxRetries, int const timeout);
 
 private:
-  static void onMessage(MQTTClient *client, char topic[], char bytes[], int length);
-  void handleMessage(char topic[], char bytes[], int length);
+  static void onMessage(MQTTClient *client, char topic[], char bytes[], int const length);
+  void handleMessage(char topic[], char bytes[], int const length);
 
   String _id;
   String _brokerAddress;
