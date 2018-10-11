@@ -8,7 +8,7 @@
 #include "CloudSerial.h"
 
 // Declaration of the struct for the mqtt connection options
-typedef struct mqtt_opt{
+typedef struct {
   int keepAlive;
   bool cleanSession;
   int timeout;
