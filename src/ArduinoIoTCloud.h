@@ -30,10 +30,12 @@ public:
 
   int connect();
   bool disconnect();
-  void poll();
+
+  void poll(); /* Attention: Function is deprecated - use 'update' instead */
+  void update();
 
   // defined for users who want to specify max reconnections reties and timeout between them
-  void poll(int reconnectionMaxRetries, int reconnectionTimeoutMs);
+  void update(int reconnectionMaxRetries, int reconnectionTimeoutMs);
   // It must be a user defined function, in order to avoid ArduinoCloud include specific WiFi file
   // in this case this library is independent from the WiFi one
   void onGetTime(unsigned long(*)(void));
