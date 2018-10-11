@@ -83,22 +83,22 @@ void ArduinoIoTCloudClass::mqttClientBegin(Client& net)
   _mqttClient.setOptions(mqttOpt.keepAlive, mqttOpt.cleanSession, mqttOpt.timeout);
 }
 
-int ArduinoIoTCloudClass::connect()
+bool ArduinoIoTCloudClass::connect()
 {
   // Username: device id
   // Password: empty
   if (!_mqttClient.connect(_id.c_str())) {
-    return 0;
+    return false;
   }
   _mqttClient.subscribe(_stdinTopic);
   _mqttClient.subscribe(_dataTopicIn);
 
-  return 1;
+  return true;
 }
 
 bool ArduinoIoTCloudClass::disconnect()
 {
-    return _mqttClient.disconnect();
+  return _mqttClient.disconnect();
 }
 
 void ArduinoIoTCloudClass::poll()

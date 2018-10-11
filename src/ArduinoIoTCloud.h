@@ -28,7 +28,7 @@ public:
   static const int RECONNECTION_TIMEOUT = 2000;
   const mqttConnectionOptions mqttOpt = {30, false, 1500};
 
-  int connect();
+  bool connect();
   bool disconnect();
 
   void poll(); /* Attention: Function is deprecated - use 'update' instead */
