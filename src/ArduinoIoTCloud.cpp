@@ -22,7 +22,7 @@ ArduinoIoTCloudClass::~ArduinoIoTCloudClass()
   }
 }
 
-int ArduinoIoTCloudClass::begin(Client& net, String brokerAddress)
+bool ArduinoIoTCloudClass::begin(Client& net, String brokerAddress)
 {
   // store the broker address as class member
   _brokerAddress = brokerAddress;
@@ -30,16 +30,16 @@ int ArduinoIoTCloudClass::begin(Client& net, String brokerAddress)
   byte thingIdBytes[72];
 
   if (!ECCX08.begin()) {
-    return 0;
+    return false;
   }
 
   if (!ECCX08.readSlot(thingIdSlot, thingIdBytes, sizeof(thingIdBytes))) {
-    return 0;
+    return false;
   }
   _id = (char*)thingIdBytes;
 
   if (!ECCX08Cert.beginReconstruction(keySlot, compressedCertSlot, serialNumberAndAuthorityKeyIdentifierSlot)) {
-    return 0;
+    return false;
   }
 
   ECCX08Cert.setSubjectCommonName(_id);
@@ -49,7 +49,7 @@ int ArduinoIoTCloudClass::begin(Client& net, String brokerAddress)
   ECCX08Cert.setIssuerCommonName("Arduino");
 
   if (!ECCX08Cert.endReconstruction()) {
-    return 0;
+    return false;
   }
 
   if (_bearSslClient) {
@@ -63,7 +63,7 @@ int ArduinoIoTCloudClass::begin(Client& net, String brokerAddress)
 
   Thing.begin();
 
-  return 1;
+  return true;
 }
 
 // private class method used to initialize mqttClient class member. (called in the begin class method)
