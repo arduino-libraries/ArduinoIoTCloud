@@ -87,7 +87,7 @@ void setup() {
 }
 
 void loop() {
-  ArduinoCloud.poll();
+  ArduinoCloud.update();
 
   // check if there is something waiting to be read
   if (CloudSerial.available()) {
