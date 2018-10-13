@@ -7,7 +7,7 @@ ArduinoCloudProperty<T>::ArduinoCloudProperty(T& _property,  String _name) :
 template <typename T>
 bool ArduinoCloudProperty<T>::write(T value) {
   /* permissions are intended as seen from cloud */
-  if (permission & WRITE) {
+  if (canWrite()) {
     property = value;
     return true;
   }
@@ -17,9 +17,13 @@ bool ArduinoCloudProperty<T>::write(T value) {
 template <typename T>
 T ArduinoCloudProperty<T>::read() {
   /* permissions are intended as seen from cloud */
-  if (permission & READ) {
+  if (canRead()) {
     return property;
   }
+  /* FIXME: What happens if we can not read? Compiler should complain there
+   * because there is no return value in case of the canRead() evaluating
+   * to false
+   */
 }
 
 template <typename T>

@@ -23,7 +23,8 @@ class ArduinoCloudProperty : public ArduinoCloudPropertyGeneric {
         inline bool newData        () { return (property != shadow_property); }
 
 
-        inline bool canRead() { return (permission & READ); }
+        inline bool canWrite() { return (permission & WRITE); }
+        inline bool canRead () { return (permission & READ);  }
 
         inline String&        getName      () { return name;       }
         inline int            getTag       () { return tag;        }
