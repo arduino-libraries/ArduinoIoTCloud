@@ -1,31 +1,20 @@
-#ifndef ArduinoCloudThing_h
-#define ArduinoCloudThing_h
+#ifndef ARDUINO_CLOUD_THING_H_
+#define ARDUINO_CLOUD_THING_H_
 
 #include <Client.h>
 #include <Stream.h>
-#include "lib/LinkedList/LinkedList.h"
+
+#include "ArduinoCloudPropertyGeneric.h"
+
 #include "lib/tinycbor/cbor-lib.h"
+#include "lib/LinkedList/LinkedList.h"
 
 // definition of the default property update policy
 static const int ON_CHANGE = -1;
 
-enum permissionType {
-    READ    = 0b01,
-    WRITE   = 0b10,
-    READWRITE = READ|WRITE,
-};
-
 enum boolStatus {
     ON = true,
     OFF = false,
-};
-
-// allowed property types
-enum propertyType {
-    INT,
-    FLOAT,
-    BOOL,
-    STRING
 };
 
 enum times {
@@ -33,21 +22,6 @@ enum times {
     MINUTES = 60,
     HOURS = 3600,
     DAYS = 86400,
-};
-
-class ArduinoCloudPropertyGeneric {
-    public:
-        virtual void append(CborEncoder* encoder) = 0;
-        virtual String& getName() = 0;
-        virtual int getTag() = 0;
-        virtual propertyType getType() = 0;
-        virtual permissionType getPermission() = 0;
-        virtual bool newData() = 0;
-        virtual bool shouldBeUpdated() = 0;
-        virtual void updateShadow() = 0;
-        virtual bool canRead() = 0;
-        virtual void printinfo(Stream& stream) = 0;
-        void(*callback)(void) = NULL;
 };
 
 class ArduinoCloudThing {
@@ -237,4 +211,4 @@ inline propertyType ArduinoCloudProperty<String>::getType() {
     return STRING;
 }
 
-#endif
+#endif /* ARDUINO_CLOUD_THING_H_ */
