@@ -11,28 +11,28 @@ static const int ON_CHANGE = -1;
 template <typename T>
 class ArduinoCloudProperty : public ArduinoCloudPropertyGeneric {
     public:
+
         ArduinoCloudProperty(T& _property,  String _name);
 
         bool write(T value);
         T    read ();
 
-        void printinfo(Stream& stream);
+        virtual void printinfo(Stream& stream) override;
 
-        inline void updateShadow   () { shadow_property = property;           }
-               bool shouldBeUpdated();
-        inline bool newData        () { return (property != shadow_property); }
+        virtual void updateShadow   () override { shadow_property = property;           }
+        virtual bool shouldBeUpdated() override;
+        virtual bool newData        () override { return (property != shadow_property); }
 
+        inline  bool canWrite()          { return (permission & WRITE); }
+        virtual bool canRead () override { return (permission & READ);  }
 
-        inline bool canWrite() { return (permission & WRITE); }
-        inline bool canRead () { return (permission & READ);  }
+        virtual String&        getName      () override { return name;       }
+        virtual int            getTag       () override { return tag;        }
+        virtual permissionType getPermission() override { return permission; }
+        virtual propertyType   getType      () override;
 
-        inline String&        getName      () { return name;       }
-        inline int            getTag       () { return tag;        }
-        inline permissionType getPermission() { return permission; }
-               propertyType   getType      ();
-
-        void append     (CborEncoder* encoder);
-        void appendValue(CborEncoder* mapEncoder);
+        virtual void append     (CborEncoder* encoder) override;
+                void appendValue(CborEncoder* mapEncoder);
 
         inline bool operator == (const ArduinoCloudProperty& rhs) { return (getName() == rhs.getName()); }
 
