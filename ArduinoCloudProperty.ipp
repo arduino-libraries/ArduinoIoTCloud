@@ -15,16 +15,34 @@ bool ArduinoCloudProperty<T>::write(T value) {
 }
 
 template <typename T>
-void ArduinoCloudProperty<T>::printinfo(Stream& stream) {
-  stream.println("name: " + name + " value: " + String(property) + " shadow: " + String(shadow_property) + " permission: " + String(permission));
-}
-
-template <typename T>
 T ArduinoCloudProperty<T>::read() {
   /* permissions are intended as seen from cloud */
   if (permission & READ) {
     return property;
   }
+}
+
+template <typename T>
+void ArduinoCloudProperty<T>::printinfo(Stream& stream) {
+  stream.println("name: " + name + " value: " + String(property) + " shadow: " + String(shadow_property) + " permission: " + String(permission));
+}
+
+template <typename T>
+bool ArduinoCloudProperty<T>::shouldBeUpdated() {
+    if (updatePolicy == ON_CHANGE) {
+        return newData();
+    }
+    return ((millis() - lastUpdated) > (updatePolicy * 1000)) ;
+}
+
+template <>
+inline bool ArduinoCloudProperty<int>::newData() {
+    return (property != shadow_property && abs(property - shadow_property) >= minDelta );
+}
+
+template <>
+inline bool ArduinoCloudProperty<float>::newData() {
+    return (property != shadow_property && abs(property - shadow_property) >= minDelta );
 }
 
 template <typename T>
@@ -45,24 +63,6 @@ void ArduinoCloudProperty<T>::append(CborEncoder* encoder) {
   appendValue(&mapEncoder);
   cbor_encoder_close_container(encoder, &mapEncoder);
   lastUpdated = millis();
-}
-
-template <typename T>
-bool ArduinoCloudProperty<T>::shouldBeUpdated() {
-    if (updatePolicy == ON_CHANGE) {
-        return newData();
-    }
-    return ((millis() - lastUpdated) > (updatePolicy * 1000)) ;
-}
-
-template <>
-inline bool ArduinoCloudProperty<int>::newData() {
-    return (property != shadow_property && abs(property - shadow_property) >= minDelta );
-}
-
-template <>
-inline bool ArduinoCloudProperty<float>::newData() {
-    return (property != shadow_property && abs(property - shadow_property) >= minDelta );
 }
 
 // Different appendValue function for different property typer, because the CBOR encoder and message format

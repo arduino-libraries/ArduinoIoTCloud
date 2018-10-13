@@ -14,32 +14,26 @@ class ArduinoCloudProperty : public ArduinoCloudPropertyGeneric {
         ArduinoCloudProperty(T& _property,  String _name);
 
         bool write(T value);
+        T    read ();
 
         void printinfo(Stream& stream);
 
-        inline void updateShadow() { shadow_property = property; }
+        inline void updateShadow   () { shadow_property = property;           }
+               bool shouldBeUpdated();
+        inline bool newData        () { return (property != shadow_property); }
 
-        T read();
 
         inline bool canRead() { return (permission & READ); }
 
-        inline String& getName() { return name; }
+        inline String&        getName      () { return name;       }
+        inline int            getTag       () { return tag;        }
+        inline permissionType getPermission() { return permission; }
+               propertyType   getType      ();
 
-        inline int getTag() { return tag; }
-
-        permissionType getPermission() { return permission; }
-
+        void append     (CborEncoder* encoder);
         void appendValue(CborEncoder* mapEncoder);
 
-        void append(CborEncoder* encoder);
-
-        inline bool newData() { return (property != shadow_property); }
-
-        bool shouldBeUpdated();
-
         inline bool operator == (const ArduinoCloudProperty& rhs) { return (getName() == rhs.getName()); }
-
-        propertyType getType();
 
     protected:
         T& property;
