@@ -18,6 +18,11 @@ typedef enum {
 
 class ArduinoCloudPropertyGeneric {
     public:
+
+        ArduinoCloudPropertyGeneric(void(*fn)(void)) : callback(fn)
+        {
+        }
+
         virtual void append(CborEncoder* encoder) = 0;
         virtual String const & getName() const = 0;
         virtual int getTag() const = 0;
@@ -28,6 +33,7 @@ class ArduinoCloudPropertyGeneric {
         virtual void updateShadow() = 0;
         virtual bool canRead() const = 0;
         virtual void printinfo(Stream& stream) = 0;
+
         void(*callback)(void) = NULL;
 };
 

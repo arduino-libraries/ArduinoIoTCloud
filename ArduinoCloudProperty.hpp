@@ -3,8 +3,6 @@
 
 #include "ArduinoCloudPropertyGeneric.h"
 
-class ArduinoCloudThing; /* Forward declaration to satisfy compiler for this line "friend ArduinoCloudThing" */
-
 // definition of the default property update policy
 static const int ON_CHANGE = -1;
 
@@ -12,7 +10,7 @@ template <typename T>
 class ArduinoCloudProperty : public ArduinoCloudPropertyGeneric {
     public:
 
-        ArduinoCloudProperty(T& _property,  String _name);
+        ArduinoCloudProperty(T& _property, T const _shadow_property, String const & _name, T const _minDelta, permissionType const _permission, long const _updatePolicy, void(*fn)(void));
 
         bool write(T value);
         T    read ();
@@ -36,20 +34,17 @@ class ArduinoCloudProperty : public ArduinoCloudPropertyGeneric {
 
         inline bool operator == (ArduinoCloudProperty const & rhs) const { return (getName() == rhs.getName()); }
 
-    protected:
+      private:
+
         T& property;
         T shadow_property;
         String name;
-        int tag = -1;
-        long lastUpdated = 0;
-        long updatePolicy = ON_CHANGE;
         T minDelta;
         permissionType permission = READWRITE;
-        static int tagIndex;
+        long updatePolicy = ON_CHANGE;
+        int tag = -1;
+        long lastUpdated = 0;
 
-        // In this way it is possible to set shadow_property(protected), from ArduinoCloudThing,
-        // when a new property is added.
-        friend ArduinoCloudThing;
 };
 
 #include "ArduinoCloudProperty.ipp"

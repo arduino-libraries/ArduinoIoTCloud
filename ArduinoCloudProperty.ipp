@@ -1,8 +1,14 @@
 template <typename T>
-ArduinoCloudProperty<T>::ArduinoCloudProperty(T& _property,  String _name) :
-  property(_property), name(_name)
-  {
-  }
+ArduinoCloudProperty<T>::ArduinoCloudProperty(T& _property, T const _shadow_property, String const & _name, T const _minDelta, permissionType const _permission, long const _updatePolicy, void(*fn)(void)) :
+  ArduinoCloudPropertyGeneric(fn),
+  property       (_property       ),
+  shadow_property(_shadow_property),
+  name           (_name           ),
+  minDelta       (_minDelta       ),
+  permission     (_permission     ),
+  updatePolicy   (_updatePolicy   )
+{
+}
 
 template <typename T>
 bool ArduinoCloudProperty<T>::write(T value) {
