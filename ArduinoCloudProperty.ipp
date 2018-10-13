@@ -32,7 +32,7 @@ void ArduinoCloudProperty<T>::printinfo(Stream& stream) {
 }
 
 template <typename T>
-bool ArduinoCloudProperty<T>::shouldBeUpdated() {
+bool ArduinoCloudProperty<T>::shouldBeUpdated() const {
     if (updatePolicy == ON_CHANGE) {
         return newData();
     }
@@ -40,12 +40,12 @@ bool ArduinoCloudProperty<T>::shouldBeUpdated() {
 }
 
 template <>
-inline bool ArduinoCloudProperty<int>::newData() {
+inline bool ArduinoCloudProperty<int>::newData() const {
     return (property != shadow_property && abs(property - shadow_property) >= minDelta );
 }
 
 template <>
-inline bool ArduinoCloudProperty<float>::newData() {
+inline bool ArduinoCloudProperty<float>::newData() const {
     return (property != shadow_property && abs(property - shadow_property) >= minDelta );
 }
 
@@ -96,21 +96,21 @@ inline void ArduinoCloudProperty<String>::appendValue(CborEncoder* mapEncoder) {
 
 // Return property type
 template <>
-inline propertyType ArduinoCloudProperty<int>::getType() {
+inline propertyType ArduinoCloudProperty<int>::getType() const {
     return INT;
 }
 
 template <>
-inline propertyType ArduinoCloudProperty<float>::getType() {
+inline propertyType ArduinoCloudProperty<float>::getType() const {
     return FLOAT;
 }
 
 template <>
-inline propertyType ArduinoCloudProperty<bool>::getType() {
+inline propertyType ArduinoCloudProperty<bool>::getType() const {
     return BOOL;
 }
 
 template <>
-inline propertyType ArduinoCloudProperty<String>::getType() {
+inline propertyType ArduinoCloudProperty<String>::getType() const {
     return STRING;
 }

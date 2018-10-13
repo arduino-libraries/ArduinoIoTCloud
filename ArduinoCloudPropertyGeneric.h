@@ -19,14 +19,14 @@ typedef enum {
 class ArduinoCloudPropertyGeneric {
     public:
         virtual void append(CborEncoder* encoder) = 0;
-        virtual String& getName() = 0;
-        virtual int getTag() = 0;
-        virtual propertyType getType() = 0;
-        virtual permissionType getPermission() = 0;
-        virtual bool newData() = 0;
-        virtual bool shouldBeUpdated() = 0;
+        virtual String const & getName() const = 0;
+        virtual int getTag() const = 0;
+        virtual propertyType getType() const = 0;
+        virtual permissionType getPermission() const = 0;
+        virtual bool newData() const = 0;
+        virtual bool shouldBeUpdated() const = 0;
         virtual void updateShadow() = 0;
-        virtual bool canRead() = 0;
+        virtual bool canRead() const = 0;
         virtual void printinfo(Stream& stream) = 0;
         void(*callback)(void) = NULL;
 };

@@ -19,22 +19,22 @@ class ArduinoCloudProperty : public ArduinoCloudPropertyGeneric {
 
         virtual void printinfo(Stream& stream) override;
 
-        virtual void updateShadow   () override { shadow_property = property;           }
-        virtual bool shouldBeUpdated() override;
-        virtual bool newData        () override { return (property != shadow_property); }
+        virtual void updateShadow   () override { shadow_property = property; }
+        virtual bool shouldBeUpdated() const override;
+        virtual bool newData        () const override { return (property != shadow_property); };
 
-        inline  bool canWrite()          { return (permission & WRITE); }
-        virtual bool canRead () override { return (permission & READ);  }
+        inline  bool canWrite() const          { return (permission & WRITE); }
+        virtual bool canRead () const override { return (permission & READ);  }
 
-        virtual String&        getName      () override { return name;       }
-        virtual int            getTag       () override { return tag;        }
-        virtual permissionType getPermission() override { return permission; }
-        virtual propertyType   getType      () override;
+        virtual String const & getName      () const override { return name;       }
+        virtual int            getTag       () const override { return tag;        }
+        virtual permissionType getPermission() const override { return permission; }
+        virtual propertyType   getType      () const override;
 
         virtual void append     (CborEncoder* encoder) override;
                 void appendValue(CborEncoder* mapEncoder);
 
-        inline bool operator == (const ArduinoCloudProperty& rhs) { return (getName() == rhs.getName()); }
+        inline bool operator == (ArduinoCloudProperty const & rhs) const { return (getName() == rhs.getName()); }
 
     protected:
         T& property;
