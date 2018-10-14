@@ -86,10 +86,8 @@ class ArduinoCloudPropertyGeneric {
         propertyType    _property_type;
         permissionType  _permission;
         long            _update_policy;
-        int             _tag;
-
-     protected:
         long            _last_updated;
+        int             _tag;
 
 };
 
