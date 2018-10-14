@@ -18,9 +18,6 @@ class ArduinoCloudProperty : public ArduinoCloudPropertyGeneric {
         virtual bool shouldBeUpdated() const override;
         virtual bool newData        () const override { return (property != shadow_property); };
 
-        inline  bool canWrite() const          { return (getPermission() & WRITE); }
-        virtual bool canRead () const override { return (getPermission() & READ);  }
-
         virtual int            getTag       () const override { return tag;        }
 
         virtual void append     (CborEncoder* encoder) override;

@@ -6,7 +6,7 @@
 typedef enum {
     READ    = 0b01,
     WRITE   = 0b10,
-    READWRITE = READ|WRITE,
+    READWRITE = READ | WRITE,
 } permissionType;
 
 typedef enum {
@@ -40,13 +40,16 @@ class ArduinoCloudPropertyGeneric {
         inline permissionType getPermission  () const { return _permission;    }
         inline long           getUpdatePolicy() const { return _update_policy; }
 
+        inline  bool          canWrite       () const { return (_permission & WRITE); }
+        virtual bool          canRead        () const { return (_permission & READ);  }
+
+
 
         virtual void append(CborEncoder* encoder) = 0;
         virtual int getTag() const = 0;
         virtual bool newData() const = 0;
         virtual bool shouldBeUpdated() const = 0;
         virtual void updateShadow() = 0;
-        virtual bool canRead() const = 0;
         virtual void printinfo(Stream& stream) = 0;
 
         void(*callback)(void) = NULL;
