@@ -1,6 +1,7 @@
 #include <Arduino.h>
 #include <ArduinoCloudThing.h>
 #include <ArduinoCloudPropertyBool.h>
+#include <ArduinoCloudPropertyString.h>
 
 #if defined(DEBUG_MEMORY) && defined(ARDUINO_ARCH_SAMD)
 extern "C" char *sbrk(int i);
@@ -160,11 +161,11 @@ ArduinoCloudPropertyGeneric& ArduinoCloudThing::addPropertyReal(float& property,
     return *(reinterpret_cast<ArduinoCloudPropertyGeneric*>(propertyObj));
 }
 
-ArduinoCloudPropertyGeneric& ArduinoCloudThing::addPropertyReal(String& property, String name, permissionType _permission, long seconds, void(*fn)(void), String minDelta) {
+ArduinoCloudPropertyGeneric& ArduinoCloudThing::addPropertyReal(String& property, String name, permissionType permission, long seconds, void(*fn)(void), String minDelta) {
     if (ArduinoCloudPropertyGeneric* p = exists(name)) {
         return *p;
     }
-    ArduinoCloudProperty<String> *propertyObj = new ArduinoCloudProperty<String>(property, property + "x", name, STRING, "" /* = minDelta */, _permission, seconds, fn);
+    ArduinoCloudPropertyString *propertyObj = new ArduinoCloudPropertyString(property, name, permission, seconds, fn);
     list.add(propertyObj);
     return *(reinterpret_cast<ArduinoCloudPropertyGeneric*>(propertyObj));
 }

@@ -1,0 +1,64 @@
+#ifndef ARDUINO_CLOUD_PROPERTY_STRING_H_
+#define ARDUINO_CLOUD_PROPERTY_STRING_H_
+
+#include "ArduinoCloudPropertyGeneric.h"
+
+class ArduinoCloudPropertyString : public ArduinoCloudPropertyGeneric {
+
+public:
+  ArduinoCloudPropertyString(String & property,
+                           String const & name,
+                           permissionType const permission,
+                           long const update_policy,
+                          void(*fn)(void)) :
+  ArduinoCloudPropertyGeneric(name, STRING, permission, update_policy, fn),
+  _property(property),
+  _shadow_property(property + "x")
+  {
+  }
+
+  virtual bool newData() const override {
+    return (_property != _shadow_property);
+  }
+
+  virtual void updateShadow() override {
+    _shadow_property = _property;
+  }
+
+  virtual void printinfo(Stream& stream) override {
+    stream.println("name: " + getName() + " value: " + String(_property) + " shadow: " + String(_shadow_property) + " permission: " + String(getPermission()));
+  }
+
+  virtual void appendValue(CborEncoder* mapEncoder) override {
+    cbor_encode_text_stringz(mapEncoder, "vs");
+    cbor_encode_text_stringz(mapEncoder, _property.c_str());
+  };
+
+  bool write(bool const value) {
+    /* permissions are intended as seen from cloud */
+    if (canWrite()) {
+      _property = value;
+      return true;
+    }
+    return false;
+  }
+
+  bool read() const {
+    /* permissions are intended as seen from cloud */
+    if (canRead()) {
+      return _property;
+    }
+    /* FIXME: What happens if we can not read? Compiler should complain there
+     * because there is no return value in case of the canRead() evaluating
+     * to false
+     */
+  }
+
+private:
+
+  String & _property;
+  String   _shadow_property;
+
+};
+
+#endif /* ARDUINO_CLOUD_PROPERTY_STRING_H_ */

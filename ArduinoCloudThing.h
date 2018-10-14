@@ -30,7 +30,7 @@ class ArduinoCloudThing {
         ArduinoCloudPropertyGeneric& addPropertyReal(int& property, String name, permissionType _permission = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, int minDelta = 0);
         ArduinoCloudPropertyGeneric& addPropertyReal(bool& property, String name, permissionType permission = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, bool minDelta = false);
         ArduinoCloudPropertyGeneric& addPropertyReal(float& property, String name, permissionType _permission = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, float minDelta = 0.0f);
-        ArduinoCloudPropertyGeneric& addPropertyReal(String& property, String name, permissionType _permission = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, String minDelta = "");
+        ArduinoCloudPropertyGeneric& addPropertyReal(String& property, String name, permissionType permission = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, String minDelta = "");
         // poll should return > 0 if something has changed
         int poll(uint8_t* data, size_t size);
         // decode a CBOR payload received from the Cloud.
