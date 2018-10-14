@@ -43,8 +43,6 @@ class ArduinoCloudPropertyGeneric {
         inline  bool          canWrite       () const { return (_permission & WRITE); }
         virtual bool          canRead        () const { return (_permission & READ);  }
 
-
-
         virtual void append(CborEncoder* encoder) = 0;
         virtual int getTag() const = 0;
         virtual bool newData() const = 0;
@@ -62,5 +60,7 @@ class ArduinoCloudPropertyGeneric {
         long            _update_policy;
 
 };
+
+inline bool operator == (ArduinoCloudPropertyGeneric const & lhs, ArduinoCloudPropertyGeneric const & rhs) { return (lhs.getName() == rhs.getName()); }
 
 #endif /* ARDUINO_CLOUD_PROPERTY_GENERIC_H_ */

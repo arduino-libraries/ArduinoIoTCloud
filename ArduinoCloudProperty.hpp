@@ -23,8 +23,6 @@ class ArduinoCloudProperty : public ArduinoCloudPropertyGeneric {
         virtual void append     (CborEncoder* encoder) override;
                 void appendValue(CborEncoder* mapEncoder);
 
-        inline bool operator == (ArduinoCloudProperty const & rhs) const { return (getName() == rhs.getName()); }
-
       private:
 
         T& property;
