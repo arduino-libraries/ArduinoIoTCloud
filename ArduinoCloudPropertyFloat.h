@@ -1,20 +1,20 @@
-#ifndef ARDUINO_CLOUD_PROPERTY_INT_H_
-#define ARDUINO_CLOUD_PROPERTY_INT_H_
+#ifndef ARDUINO_CLOUD_PROPERTY_FLOAT_H_
+#define ARDUINO_CLOUD_PROPERTY_FLOAT_H_
 
 #include "ArduinoCloudPropertyGeneric.h"
 
-class ArduinoCloudPropertyInt : public ArduinoCloudPropertyGeneric {
+class ArduinoCloudPropertyFloat : public ArduinoCloudPropertyGeneric {
 
 public:
-  ArduinoCloudPropertyInt(int & property,
-                          int const min_delta,
+  ArduinoCloudPropertyFloat(float & property,
+                            float const min_delta,
                           String const & name,
                           permissionType const permission,
                           long const update_policy,
                           void(*fn)(void)) :
-  ArduinoCloudPropertyGeneric(name, INT, permission, update_policy, fn),
+  ArduinoCloudPropertyGeneric(name, FLOAT, permission, update_policy, fn),
   _property(property),
-  _shadow_property(property + 1),
+  _shadow_property(property + 0.5f),
   _min_delta(min_delta)
   {
   }
@@ -33,7 +33,7 @@ public:
 
   virtual void appendValue(CborEncoder* mapEncoder) override {
     cbor_encode_text_stringz(mapEncoder, "v");
-    cbor_encode_int(mapEncoder, _property);
+    cbor_encode_float(mapEncoder, _property);
   };
 
   bool write(bool const value) {
@@ -58,10 +58,10 @@ public:
 
 private:
 
-  int & _property;
-  int   _shadow_property;
-  int   _min_delta;
+  float & _property;
+  float   _shadow_property;
+  float   _min_delta;
 
 };
 
-#endif /* ARDUINO_CLOUD_PROPERTY_INT_H_ */
+#endif /* ARDUINO_CLOUD_PROPERTY_FLOAT_H_ */

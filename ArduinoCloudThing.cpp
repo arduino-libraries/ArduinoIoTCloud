@@ -2,6 +2,7 @@
 #include <ArduinoCloudThing.h>
 #include <ArduinoCloudPropertyInt.h>
 #include <ArduinoCloudPropertyBool.h>
+#include <ArduinoCloudPropertyFloat.h>
 #include <ArduinoCloudPropertyString.h>
 
 #if defined(DEBUG_MEMORY) && defined(ARDUINO_ARCH_SAMD)
@@ -153,11 +154,11 @@ ArduinoCloudPropertyGeneric& ArduinoCloudThing::addPropertyReal(bool& property, 
     return *(reinterpret_cast<ArduinoCloudPropertyGeneric*>(propertyObj));
 }
 
-ArduinoCloudPropertyGeneric& ArduinoCloudThing::addPropertyReal(float& property, String name, permissionType _permission, long seconds, void(*fn)(void), float minDelta) {
+ArduinoCloudPropertyGeneric& ArduinoCloudThing::addPropertyReal(float& property, String name, permissionType permission, long seconds, void(*fn)(void), float minDelta) {
     if (ArduinoCloudPropertyGeneric* p = exists(name)) {
         return *p;
     }
-    ArduinoCloudProperty<float> *propertyObj = new ArduinoCloudProperty<float>(property, property + 0.5f, name, FLOAT, minDelta, _permission, seconds, fn);
+    ArduinoCloudPropertyFloat *propertyObj = new ArduinoCloudPropertyFloat(property, minDelta, name, permission, seconds, fn);
     list.add(propertyObj);
     return *(reinterpret_cast<ArduinoCloudPropertyGeneric*>(propertyObj));
 }
@@ -263,22 +264,22 @@ void ArduinoCloudThing::decode(uint8_t *payload, size_t length) {
                         double val;
                         // get the value of the property as a double
                         cbor_value_get_double(&propValue, &val);
-                        ArduinoCloudProperty<float>* p = (ArduinoCloudProperty<float>*) property;
+                        ArduinoCloudPropertyFloat* p = (ArduinoCloudPropertyFloat*) property;
                         p->write((float)val);
                     } else if (propValue.type == CborIntegerType) {
                         int val;
                         cbor_value_get_int(&propValue, &val);
-                        ArduinoCloudProperty<float>* p = (ArduinoCloudProperty<float>*) property;
+                        ArduinoCloudPropertyFloat* p = (ArduinoCloudPropertyFloat*) property;
                         p->write((float)val);
                     } else if (propValue.type == CborFloatType) {
                         float val;
                         cbor_value_get_float(&propValue, &val);
-                        ArduinoCloudProperty<float>* p = (ArduinoCloudProperty<float>*) property;
+                        ArduinoCloudPropertyFloat* p = (ArduinoCloudPropertyFloat*) property;
                         p->write(val);
                     } else if (propValue.type == CborHalfFloatType) {
                         float val;
                         cbor_value_get_half_float(&propValue, &val);
-                        ArduinoCloudProperty<float>* p = (ArduinoCloudProperty<float>*) property;
+                        ArduinoCloudPropertyFloat * p = (ArduinoCloudPropertyFloat*) property;
                         p->write(val);
                     }
                 } else if (propType == INT && !cbor_value_map_find_value(&recursedMap, "v", &propValue)) {
@@ -286,37 +287,37 @@ void ArduinoCloudThing::decode(uint8_t *payload, size_t length) {
                     if (propValue.type == CborIntegerType) {
                         int val;
                         cbor_value_get_int(&propValue, &val);
-                        ArduinoCloudProperty<int>* p = (ArduinoCloudProperty<int>*) property;
+                        ArduinoCloudPropertyInt* p = (ArduinoCloudPropertyInt*) property;
                         p->write(val);
                     } else if (propValue.type == CborDoubleType) {
                         // If a double value is received, a cast to int is performed(so it is still accepted)
                         double val;
                         cbor_value_get_double(&propValue, &val);
-                        ArduinoCloudProperty<int>* p = (ArduinoCloudProperty<int>*) property;
+                        ArduinoCloudPropertyInt* p = (ArduinoCloudPropertyInt*) property;
                         p->write((int)val);
                     } else if (propValue.type == CborFloatType) {
                         float val;
                         cbor_value_get_float(&propValue, &val);
-                        ArduinoCloudProperty<int>* p = (ArduinoCloudProperty<int>*) property;
+                        ArduinoCloudPropertyInt* p = (ArduinoCloudPropertyInt*) property;
                         p->write((int)val);
                     } else if (propValue.type == CborHalfFloatType) {
                         float val;
                         cbor_value_get_half_float(&propValue, &val);
-                        ArduinoCloudProperty<int>* p = (ArduinoCloudProperty<int>*) property;
+                        ArduinoCloudPropertyInt* p = (ArduinoCloudPropertyInt*) property;
                         p->write((int)val);
                     }
                 } else if (propType == BOOL && !cbor_value_map_find_value(&recursedMap, "vb", &propValue)) {
                     if (propValue.type == CborBooleanType) {
                         bool val;
                         cbor_value_get_boolean(&propValue, &val);
-                        ArduinoCloudProperty<bool>* p = (ArduinoCloudProperty<bool>*) property;
+                        ArduinoCloudPropertyBool* p = (ArduinoCloudPropertyBool*) property;
                         p->write(val);
                     }
                 } else if (propType == STRING && !cbor_value_map_find_value(&recursedMap, "vs", &propValue)){
                     if (propValue.type == CborTextStringType) {
                         char *val; size_t valSize;
                         err = cbor_value_dup_text_string(&propValue, &val, &valSize, &propValue);
-                        ArduinoCloudProperty<String>* p = (ArduinoCloudProperty<String>*) property;
+                        ArduinoCloudPropertyString* p = (ArduinoCloudPropertyString*) property;
                         // Char* string transformed into array
                         p->write(String((char*)val));
                         free(val);

@@ -4,7 +4,6 @@
 #include <Client.h>
 #include <Stream.h>
 
-#include "ArduinoCloudProperty.hpp"
 #include "ArduinoCloudPropertyGeneric.h"
 
 #include "lib/tinycbor/cbor-lib.h"
