@@ -134,7 +134,7 @@ ArduinoCloudPropertyGeneric& ArduinoCloudThing::addPropertyReal(int& property, S
         return *p;
     }
     // If a property with ythis name does not exist, create it into thing
-    ArduinoCloudProperty<int> *propertyObj = new ArduinoCloudProperty<int>(property, property + 1, name, minDelta, _permission, seconds, fn);
+    ArduinoCloudProperty<int> *propertyObj = new ArduinoCloudProperty<int>(property, property + 1, name, INT, minDelta, _permission, seconds, fn);
     // Add the new property to the thin properties list
     list.add(propertyObj);
     // Return the new property as a generic one
@@ -145,7 +145,7 @@ ArduinoCloudPropertyGeneric& ArduinoCloudThing::addPropertyReal(bool& property, 
     if (ArduinoCloudPropertyGeneric* p = exists(name)) {
         return *p;
     }
-    ArduinoCloudProperty<bool> *propertyObj = new ArduinoCloudProperty<bool>(property, !property, name, false /* = minDelta */, _permission, seconds, fn);
+    ArduinoCloudProperty<bool> *propertyObj = new ArduinoCloudProperty<bool>(property, !property, name, BOOL, false /* = minDelta */, _permission, seconds, fn);
     list.add(propertyObj);
     return *(reinterpret_cast<ArduinoCloudPropertyGeneric*>(propertyObj));
 }
@@ -154,7 +154,7 @@ ArduinoCloudPropertyGeneric& ArduinoCloudThing::addPropertyReal(float& property,
     if (ArduinoCloudPropertyGeneric* p = exists(name)) {
         return *p;
     }
-    ArduinoCloudProperty<float> *propertyObj = new ArduinoCloudProperty<float>(property, property + 0.5f, name, minDelta, _permission, seconds, fn);
+    ArduinoCloudProperty<float> *propertyObj = new ArduinoCloudProperty<float>(property, property + 0.5f, name, FLOAT, minDelta, _permission, seconds, fn);
     list.add(propertyObj);
     return *(reinterpret_cast<ArduinoCloudPropertyGeneric*>(propertyObj));
 }
@@ -163,7 +163,7 @@ ArduinoCloudPropertyGeneric& ArduinoCloudThing::addPropertyReal(String& property
     if (ArduinoCloudPropertyGeneric* p = exists(name)) {
         return *p;
     }
-    ArduinoCloudProperty<String> *propertyObj = new ArduinoCloudProperty<String>(property, property + "x", name, "" /* = minDelta */, _permission, seconds, fn);
+    ArduinoCloudProperty<String> *propertyObj = new ArduinoCloudProperty<String>(property, property + "x", name, STRING, "" /* = minDelta */, _permission, seconds, fn);
     list.add(propertyObj);
     return *(reinterpret_cast<ArduinoCloudPropertyGeneric*>(propertyObj));
 }

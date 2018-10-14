@@ -1,12 +1,9 @@
 template <typename T>
-ArduinoCloudProperty<T>::ArduinoCloudProperty(T& _property, T const _shadow_property, String const & _name, T const _minDelta, permissionType const _permission, long const _updatePolicy, void(*fn)(void)) :
-  ArduinoCloudPropertyGeneric(fn),
+ArduinoCloudProperty<T>::ArduinoCloudProperty(T& _property, T const _shadow_property, String const & _name, propertyType const property_type, T const _minDelta, permissionType const _permission, long const _updatePolicy, void(*fn)(void)) :
+  ArduinoCloudPropertyGeneric(_name, property_type, _permission, _updatePolicy, fn),
   property       (_property       ),
   shadow_property(_shadow_property),
-  name           (_name           ),
-  minDelta       (_minDelta       ),
-  permission     (_permission     ),
-  updatePolicy   (_updatePolicy   )
+  minDelta       (_minDelta       )
 {
 }
 
@@ -34,15 +31,15 @@ T ArduinoCloudProperty<T>::read() {
 
 template <typename T>
 void ArduinoCloudProperty<T>::printinfo(Stream& stream) {
-  stream.println("name: " + name + " value: " + String(property) + " shadow: " + String(shadow_property) + " permission: " + String(permission));
+  stream.println("name: " + getName() + " value: " + String(property) + " shadow: " + String(shadow_property) + " permission: " + String(getPermission()));
 }
 
 template <typename T>
 bool ArduinoCloudProperty<T>::shouldBeUpdated() const {
-    if (updatePolicy == ON_CHANGE) {
+    if (getUpdatePolicy() == ON_CHANGE) {
         return newData();
     }
-    return ((millis() - lastUpdated) > (updatePolicy * 1000)) ;
+    return ((millis() - lastUpdated) > (getUpdatePolicy() * 1000)) ;
 }
 
 template <>
@@ -68,7 +65,7 @@ void ArduinoCloudProperty<T>::append(CborEncoder* encoder) {
   }
   else {
     cbor_encode_text_stringz(&mapEncoder, "n");
-    cbor_encode_text_stringz(&mapEncoder, name.c_str());
+    cbor_encode_text_stringz(&mapEncoder, getName().c_str());
   }
   appendValue(&mapEncoder);
   cbor_encoder_close_container(encoder, &mapEncoder);
@@ -99,24 +96,3 @@ inline void ArduinoCloudProperty<String>::appendValue(CborEncoder* mapEncoder) {
     cbor_encode_text_stringz(mapEncoder, "vs");
     cbor_encode_text_stringz(mapEncoder, property.c_str());
 };
-
-// Return property type
-template <>
-inline propertyType ArduinoCloudProperty<int>::getType() const {
-    return INT;
-}
-
-template <>
-inline propertyType ArduinoCloudProperty<float>::getType() const {
-    return FLOAT;
-}
-
-template <>
-inline propertyType ArduinoCloudProperty<bool>::getType() const {
-    return BOOL;
-}
-
-template <>
-inline propertyType ArduinoCloudProperty<String>::getType() const {
-    return STRING;
-}
