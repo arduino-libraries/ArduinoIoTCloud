@@ -14,22 +14,15 @@ class ArduinoCloudProperty : public ArduinoCloudPropertyGeneric {
 
         virtual void printinfo(Stream& stream) override;
 
-        virtual void updateShadow   () override { shadow_property = property; }
+        virtual void updateShadow   () override       { shadow_property = property; }
         virtual bool newData        () const override { return (property != shadow_property); };
-
-        virtual int            getTag       () const override { return tag;        }
-
-        virtual void append     (CborEncoder* encoder) override;
-                void appendValue(CborEncoder* mapEncoder);
+        virtual void appendValue    (CborEncoder* mapEncoder) override;
 
       private:
 
         T& property;
         T shadow_property;
         T minDelta;
-        int tag = -1;
-
-
 };
 
 #include "ArduinoCloudProperty.ipp"

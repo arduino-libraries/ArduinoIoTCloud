@@ -44,26 +44,6 @@ inline bool ArduinoCloudProperty<float>::newData() const {
     return (property != shadow_property && abs(property - shadow_property) >= minDelta );
 }
 
-template <typename T>
-void ArduinoCloudProperty<T>::append(CborEncoder* encoder) {
-  if (!canRead()) {
-    return;
-  }
-  CborEncoder mapEncoder;
-  cbor_encoder_create_map(encoder, &mapEncoder, CborIndefiniteLength);
-  if (tag != -1) {
-    cbor_encode_text_stringz(&mapEncoder, "t");
-    cbor_encode_int(&mapEncoder, tag);
-  }
-  else {
-    cbor_encode_text_stringz(&mapEncoder, "n");
-    cbor_encode_text_stringz(&mapEncoder, getName().c_str());
-  }
-  appendValue(&mapEncoder);
-  cbor_encoder_close_container(encoder, &mapEncoder);
-  _last_updated = millis();
-}
-
 // Different appendValue function for different property typer, because the CBOR encoder and message format
 template <>
 inline void ArduinoCloudProperty<int>::appendValue(CborEncoder* mapEncoder) {

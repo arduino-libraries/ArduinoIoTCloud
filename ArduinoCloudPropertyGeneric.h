@@ -32,6 +32,7 @@ class ArduinoCloudPropertyGeneric {
           _permission(permission),
           _update_policy(_update_policy),
           _last_updated(0),
+          _tag(-1),
           callback(fn)
         {
         }
@@ -40,15 +41,17 @@ class ArduinoCloudPropertyGeneric {
         inline propertyType   getType        () const { return _property_type; }
         inline permissionType getPermission  () const { return _permission;    }
         inline long           getUpdatePolicy() const { return _update_policy; }
+        inline int            getTag         () const { return _tag;           }
 
         inline  bool          canWrite       () const { return (_permission & WRITE); }
         virtual bool          canRead        () const { return (_permission & READ);  }
 
-        virtual void append(CborEncoder* encoder) = 0;
-        virtual int getTag() const = 0;
+
+
         virtual bool newData() const = 0;
         virtual void updateShadow() = 0;
         virtual void printinfo(Stream& stream) = 0;
+        virtual void appendValue(CborEncoder* mapEncoder) = 0;
 
         bool shouldBeUpdated()
         {
@@ -56,6 +59,24 @@ class ArduinoCloudPropertyGeneric {
           else                              return ((millis() - _last_updated) > (_update_policy * 1000));
         }
 
+        void append(CborEncoder * encoder) {
+          if (!canRead()) {
+            return;
+          }
+          CborEncoder mapEncoder;
+          cbor_encoder_create_map(encoder, &mapEncoder, CborIndefiniteLength);
+          if (_tag != -1) {
+            cbor_encode_text_stringz(&mapEncoder, "t");
+            cbor_encode_int(&mapEncoder, _tag);
+          }
+          else {
+            cbor_encode_text_stringz(&mapEncoder, "n");
+            cbor_encode_text_stringz(&mapEncoder, getName().c_str());
+          }
+          appendValue(&mapEncoder);
+          cbor_encoder_close_container(encoder, &mapEncoder);
+          _last_updated = millis();
+        }
 
         void(*callback)(void) = NULL;
 
@@ -65,6 +86,7 @@ class ArduinoCloudPropertyGeneric {
         propertyType    _property_type;
         permissionType  _permission;
         long            _update_policy;
+        int             _tag;
 
      protected:
         long            _last_updated;
