@@ -44,7 +44,7 @@ class ArduinoCloudPropertyGeneric {
         inline int            getTag         () const { return _tag;           }
 
         inline  bool          canWrite       () const { return (_permission & WRITE); }
-        virtual bool          canRead        () const { return (_permission & READ);  }
+        inline  bool          canRead        () const { return (_permission & READ);  }
 
 
 
