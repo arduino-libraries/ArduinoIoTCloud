@@ -1,5 +1,6 @@
 #include <Arduino.h>
 #include <ArduinoCloudThing.h>
+#include <ArduinoCloudPropertyInt.h>
 #include <ArduinoCloudPropertyBool.h>
 #include <ArduinoCloudPropertyString.h>
 
@@ -131,12 +132,12 @@ int ArduinoCloudThing::findPropertyByName(String &name) {
     return -1;
 }
 
-ArduinoCloudPropertyGeneric& ArduinoCloudThing::addPropertyReal(int& property, String name, permissionType _permission, long seconds, void(*fn)(void), int minDelta) {
+ArduinoCloudPropertyGeneric& ArduinoCloudThing::addPropertyReal(int& property, String name, permissionType permission, long seconds, void(*fn)(void), int minDelta) {
     if (ArduinoCloudPropertyGeneric* p = exists(name)) {
         return *p;
     }
     // If a property with ythis name does not exist, create it into thing
-    ArduinoCloudProperty<int> *propertyObj = new ArduinoCloudProperty<int>(property, property + 1, name, INT, minDelta, _permission, seconds, fn);
+    ArduinoCloudPropertyInt *propertyObj = new ArduinoCloudPropertyInt(property, minDelta, name, permission, seconds, fn);
     // Add the new property to the thin properties list
     list.add(propertyObj);
     // Return the new property as a generic one

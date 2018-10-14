@@ -35,21 +35,9 @@ void ArduinoCloudProperty<T>::printinfo(Stream& stream) {
 }
 
 template <>
-inline bool ArduinoCloudProperty<int>::newData() const {
-    return (property != shadow_property && abs(property - shadow_property) >= minDelta );
-}
-
-template <>
 inline bool ArduinoCloudProperty<float>::newData() const {
     return (property != shadow_property && abs(property - shadow_property) >= minDelta );
 }
-
-// Different appendValue function for different property typer, because the CBOR encoder and message format
-template <>
-inline void ArduinoCloudProperty<int>::appendValue(CborEncoder* mapEncoder) {
-    cbor_encode_text_stringz(mapEncoder, "v");
-    cbor_encode_int(mapEncoder, property);
-};
 
 template <>
 inline void ArduinoCloudProperty<float>::appendValue(CborEncoder* mapEncoder) {
