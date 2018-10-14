@@ -52,12 +52,6 @@ inline void ArduinoCloudProperty<int>::appendValue(CborEncoder* mapEncoder) {
 };
 
 template <>
-inline void ArduinoCloudProperty<bool>::appendValue(CborEncoder* mapEncoder) {
-    cbor_encode_text_stringz(mapEncoder, "vb");
-    cbor_encode_boolean(mapEncoder, property);
-};
-
-template <>
 inline void ArduinoCloudProperty<float>::appendValue(CborEncoder* mapEncoder) {
     cbor_encode_text_stringz(mapEncoder, "v");
     cbor_encode_float(mapEncoder, property);
