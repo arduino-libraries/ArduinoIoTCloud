@@ -53,7 +53,7 @@ class ArduinoCloudPropertyGeneric {
         virtual void printinfo(Stream& stream) = 0;
         virtual void appendValue(CborEncoder* mapEncoder) = 0;
 
-        bool shouldBeUpdated()
+        bool shouldBeUpdated() const
         {
           if  (_update_policy == ON_CHANGE) return newData();
           else                              return ((millis() - _last_updated) > (_update_policy * 1000));
