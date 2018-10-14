@@ -15,7 +15,6 @@ class ArduinoCloudProperty : public ArduinoCloudPropertyGeneric {
         virtual void printinfo(Stream& stream) override;
 
         virtual void updateShadow   () override { shadow_property = property; }
-        virtual bool shouldBeUpdated() const override;
         virtual bool newData        () const override { return (property != shadow_property); };
 
         virtual int            getTag       () const override { return tag;        }
@@ -29,7 +28,7 @@ class ArduinoCloudProperty : public ArduinoCloudPropertyGeneric {
         T shadow_property;
         T minDelta;
         int tag = -1;
-        long lastUpdated = 0;
+
 
 };
 

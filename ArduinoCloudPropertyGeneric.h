@@ -31,6 +31,7 @@ class ArduinoCloudPropertyGeneric {
           _property_type(property_type),
           _permission(permission),
           _update_policy(_update_policy),
+          _last_updated(0),
           callback(fn)
         {
         }
@@ -46,9 +47,15 @@ class ArduinoCloudPropertyGeneric {
         virtual void append(CborEncoder* encoder) = 0;
         virtual int getTag() const = 0;
         virtual bool newData() const = 0;
-        virtual bool shouldBeUpdated() const = 0;
         virtual void updateShadow() = 0;
         virtual void printinfo(Stream& stream) = 0;
+
+        bool shouldBeUpdated()
+        {
+          if  (_update_policy == ON_CHANGE) return newData();
+          else                              return ((millis() - _last_updated) > (_update_policy * 1000));
+        }
+
 
         void(*callback)(void) = NULL;
 
@@ -58,6 +65,9 @@ class ArduinoCloudPropertyGeneric {
         propertyType    _property_type;
         permissionType  _permission;
         long            _update_policy;
+
+     protected:
+        long            _last_updated;
 
 };
 

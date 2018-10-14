@@ -34,14 +34,6 @@ void ArduinoCloudProperty<T>::printinfo(Stream& stream) {
   stream.println("name: " + getName() + " value: " + String(property) + " shadow: " + String(shadow_property) + " permission: " + String(getPermission()));
 }
 
-template <typename T>
-bool ArduinoCloudProperty<T>::shouldBeUpdated() const {
-    if (getUpdatePolicy() == ON_CHANGE) {
-        return newData();
-    }
-    return ((millis() - lastUpdated) > (getUpdatePolicy() * 1000)) ;
-}
-
 template <>
 inline bool ArduinoCloudProperty<int>::newData() const {
     return (property != shadow_property && abs(property - shadow_property) >= minDelta );
@@ -69,7 +61,7 @@ void ArduinoCloudProperty<T>::append(CborEncoder* encoder) {
   }
   appendValue(&mapEncoder);
   cbor_encoder_close_container(encoder, &mapEncoder);
-  lastUpdated = millis();
+  _last_updated = millis();
 }
 
 // Different appendValue function for different property typer, because the CBOR encoder and message format
