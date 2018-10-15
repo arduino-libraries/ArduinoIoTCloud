@@ -75,7 +75,6 @@ int ArduinoCloudThing::poll(uint8_t* data, size_t size) {
         _float_property_list.appendIfPropertyShouldBeUpdated (&arrayEncoder);
         _string_property_list.appendIfPropertyShouldBeUpdated(&arrayEncoder);
 
-
         err = cbor_encoder_close_container(&encoder, &arrayEncoder);
 
         // return the number of byte of the CBOR encoded array
@@ -93,6 +92,7 @@ ArduinoCloudProperty<bool> & ArduinoCloudThing::addProperty(bool & property, Str
   ArduinoCloudProperty<bool> * property_opj = _bool_property_list[name];
   if(!property_opj) {
     property_opj = new ArduinoCloudProperty<bool>(property, name, permission);
+    _bool_property_list.add(property_opj);
   }
   return (*property_opj);
 }
@@ -101,6 +101,7 @@ ArduinoCloudProperty<int> & ArduinoCloudThing::addProperty(int & property, Strin
   ArduinoCloudProperty<int> * property_opj = _int_property_list[name];
   if(!property_opj) {
     property_opj = new ArduinoCloudProperty<int>(property, name, permission);
+    _int_property_list.add(property_opj);
   }
   return (*property_opj);
 }
@@ -109,6 +110,7 @@ ArduinoCloudProperty<float> & ArduinoCloudThing::addProperty(float  & property, 
   ArduinoCloudProperty<float> * property_opj = _float_property_list[name];
   if(!property_opj) {
     property_opj = new ArduinoCloudProperty<float>(property, name, permission);
+    _float_property_list.add(property_opj);
   }
   return (*property_opj);
 }
@@ -117,6 +119,7 @@ ArduinoCloudProperty<String> & ArduinoCloudThing::addProperty(String & property,
   ArduinoCloudProperty<String> * property_opj = _string_property_list[name];
   if(!property_opj) {
     property_opj = new ArduinoCloudProperty<String>(property, name, permission);
+    _string_property_list.add(property_opj);
   }
   return (*property_opj);
 }
@@ -208,29 +211,29 @@ void ArduinoCloudThing::decode(uint8_t *payload, size_t length) {
                   continue;
                 }
 
-                if     (bool_property   == 0) propType = Type::Bool;
-                else if(int_property    == 0) propType = Type::Int;
-                else if(float_property  == 0) propType = Type::Float;
-                else if(string_property == 0) propType = Type::String;
+                if     (bool_property   != 0) propType = Type::Bool;
+                else if(int_property    != 0) propType = Type::Int;
+                else if(float_property  != 0) propType = Type::Float;
+                else if(string_property != 0) propType = Type::String;
 
                 if (propType == Type::Float && !cbor_value_map_find_value(&recursedMap, "v", &propValue)) {
                     if (propValue.type == CborDoubleType) {
                         double val;
                         // get the value of the property as a double
                         cbor_value_get_double(&propValue, &val);
-                        float_property->write(static_cast<float>(val));
+                        float_property->writeByCloud(static_cast<float>(val));
                     } else if (propValue.type == CborIntegerType) {
                         int val;
                         cbor_value_get_int(&propValue, &val);
-                        float_property->write(static_cast<float>(val));
+                        float_property->writeByCloud(static_cast<float>(val));
                     } else if (propValue.type == CborFloatType) {
                         float val;
                         cbor_value_get_float(&propValue, &val);
-                        float_property->write(val);
+                        float_property->writeByCloud(val);
                     } else if (propValue.type == CborHalfFloatType) {
                         float val;
                         cbor_value_get_half_float(&propValue, &val);
-                        float_property->write(val);
+                        float_property->writeByCloud(val);
                     }
                     float_property->execCallbackOnChange();
                 } else if (propType == Type::Int && !cbor_value_map_find_value(&recursedMap, "v", &propValue)) {
@@ -238,34 +241,34 @@ void ArduinoCloudThing::decode(uint8_t *payload, size_t length) {
                     if (propValue.type == CborIntegerType) {
                         int val;
                         cbor_value_get_int(&propValue, &val);
-                        int_property->write(val);
+                        int_property->writeByCloud(val);
                     } else if (propValue.type == CborDoubleType) {
                         // If a double value is received, a cast to int is performed(so it is still accepted)
                         double val;
                         cbor_value_get_double(&propValue, &val);
-                        int_property->write(static_cast<int>(val));
+                        int_property->writeByCloud(static_cast<int>(val));
                     } else if (propValue.type == CborFloatType) {
                         float val;
                         cbor_value_get_float(&propValue, &val);
-                        int_property->write(static_cast<int>(val));
+                        int_property->writeByCloud(static_cast<int>(val));
                     } else if (propValue.type == CborHalfFloatType) {
                         float val;
                         cbor_value_get_half_float(&propValue, &val);
-                        int_property->write(static_cast<int>(val));
+                        int_property->writeByCloud(static_cast<int>(val));
                     }
                     int_property->execCallbackOnChange();
                 } else if (propType == Type::Bool && !cbor_value_map_find_value(&recursedMap, "vb", &propValue)) {
                     if (propValue.type == CborBooleanType) {
                         bool val;
                         cbor_value_get_boolean(&propValue, &val);
-                        bool_property->write(val);
+                        bool_property->writeByCloud(val);
                         bool_property->execCallbackOnChange();
                     }
                 } else if (propType == Type::String && !cbor_value_map_find_value(&recursedMap, "vs", &propValue)){
                     if (propValue.type == CborTextStringType) {
                         char *val; size_t valSize;
                         err = cbor_value_dup_text_string(&propValue, &val, &valSize, &propValue);
-                        string_property->write(static_cast<char *>(val));
+                        string_property->writeByCloud(static_cast<char *>(val));
                         string_property->execCallbackOnChange();
                         free(val);
                     }

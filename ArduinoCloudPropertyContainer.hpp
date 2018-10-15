@@ -41,7 +41,7 @@ int ArduinoCloudPropertyContainer<T>::cntNumberOfPropertiesWhichShouldBeUpdated(
 
   for (int i = 0; i < _list.size(); i++) {
     ArduinoCloudProperty<T> * p = _list.get(i);
-    if (p->shouldBeUpdated() && p->canRead()) {
+    if (p->shouldBeUpdated() && p->isReadableByCloud()) {
       should_be_updated_cnt++;
     }
   }
@@ -53,7 +53,7 @@ template <typename T>
 void ArduinoCloudPropertyContainer<T>::appendIfPropertyShouldBeUpdated(CborEncoder * arrayEncoder) {
   for (int i = 0; i < _list.size(); i++) {
     ArduinoCloudProperty<T> * p = _list.get(i);
-    if (p->shouldBeUpdated() && p->canRead()) {
+    if (p->shouldBeUpdated() && p->isReadableByCloud()) {
       p->append(arrayEncoder);
     }
   }

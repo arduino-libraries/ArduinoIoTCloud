@@ -24,17 +24,16 @@ public:
 
   ArduinoCloudProperty(T & property, String const & name, Permission const permission);
 
-  bool write(T const  val);
-  bool read (T      * val) const;
+  bool writeByCloud(T const val);
 
   void onUpdate       (UpdateCallbackFunc       func              );
   void publishOnChange(T                  const min_delta_property);
   void publishEvery   (unsigned long      const seconds           );
 
-  inline String name    () const { return _name; }
-         Type   type    () const;
-  inline bool   canRead () const { return (_permission == Permission::Read ) || (_permission == Permission::ReadWrite); }
-  inline bool   canWrite() const { return (_permission == Permission::Write) || (_permission == Permission::ReadWrite); }
+  inline String name              () const { return _name; }
+         Type   type              () const;
+  inline bool   isReadableByCloud () const { return (_permission == Permission::Read ) || (_permission == Permission::ReadWrite); }
+  inline bool   isWriteableByCloud() const { return (_permission == Permission::Write) || (_permission == Permission::ReadWrite); }
 
   bool shouldBeUpdated        () const;
   void execCallbackOnChange   ();
@@ -80,17 +79,10 @@ ArduinoCloudProperty<T>::ArduinoCloudProperty(T & property, String const & name,
 }
 
 template <typename T>
-bool ArduinoCloudProperty<T>::write(T const val) {
-  if(!canWrite()) return false;
+bool ArduinoCloudProperty<T>::writeByCloud(T const val) {
+  if(!isWriteableByCloud()) return false;
   _property = val;
   /* _shadow_property is not updated so there will be an update the next time around */
-  return true;
-}
-
-template <typename T>
-bool ArduinoCloudProperty<T>::read(T * val) const {
-  if(!canRead()) return false;
-  *val = _property;
   return true;
 }
 
@@ -158,7 +150,7 @@ void ArduinoCloudProperty<T>::execCallbackOnChange() {
 
 template <typename T>
 void ArduinoCloudProperty<T>::append(CborEncoder * encoder) {
-  if (canRead()) {
+  if (isReadableByCloud()) {
     CborEncoder mapEncoder;
 
     cbor_encoder_create_map(encoder, &mapEncoder, CborIndefiniteLength);
