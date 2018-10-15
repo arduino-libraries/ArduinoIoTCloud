@@ -28,10 +28,10 @@ public:
   static const int RECONNECTION_TIMEOUT = 2000;
   const mqttConnectionOptions mqttOpt = {30, false, 1500};
 
-  bool connect();
+  int  connect   ();
   bool disconnect();
 
-  void poll(); /* Attention: Function is deprecated - use 'update' instead */
+  void poll() __attribute__((deprecated)); /* Attention: Function is deprecated - use 'update' instead */
   void update();
 
   // defined for users who want to specify max reconnections reties and timeout between them
