@@ -1,6 +1,8 @@
 #ifndef ARDUINO_CLOUD_PROPERTY_HPP_
 #define ARDUINO_CLOUD_PROPERTY_HPP_
 
+#include "lib/tinycbor/cbor-lib.h"
+
 enum class Permission {
   Read, Write, ReadWrite
 };
@@ -13,37 +15,47 @@ enum class UpdatePolicy {
   OnChange, TimeInterval
 };
 
+typedef void(*UpdateCallbackFunc)(void);
+
+
 template <typename T>
 class ArduinoCloudProperty {
 public:
 
-  ArduinoCloudProperty(String const & name, T & property, Permission const permission, UpdatePolicy const update_policy);
+  ArduinoCloudProperty(T & property, String const & name, Permission const permission);
 
-  bool read (T * val) const;
+  bool write(T const  val);
+  bool read (T      * val) const;
 
-  inline void publishEvery(unsigned long const seconds  ) { _update_interval_sec = seconds; }
-  inline void setMinDelta (T             const min_delta) { _min_delta_property_val = min_delta; }
+  void onUpdate       (UpdateCallbackFunc       func              );
+  void publishOnChange(T                  const min_delta_property);
+  void publishEvery   (unsigned long      const seconds           );
 
   inline String name    () const { return _name; }
          Type   type    () const;
   inline bool   canRead () const { return (_permission == Permission::Read ) || (_permission == Permission::ReadWrite); }
   inline bool   canWrite() const { return (_permission == Permission::Write) || (_permission == Permission::ReadWrite); }
 
-  bool shouldBeUpdated() const;
-  void append(CborEncoder * encoder);
+  bool shouldBeUpdated        () const;
+  void execCallbackOnChange   ();
+
+  void append                 (CborEncoder * encoder);
 
 private:
 
-  String          _name;
-  T             & _property,
-                  _shadow_property;
-  Permission      _permission;
-  UpdatePolicy    _update_policy;
+  T                & _property,
+                     _shadow_property;
+  String             _name;
+  Permission         _permission;
+  UpdateCallbackFunc _update_callback_func;
+
+  UpdatePolicy       _update_policy;
+  bool               _has_been_updated_once;
   /* Variables used for update_policy OnChange */
-  T               _min_delta_property_val;
+  T                  _min_delta_property;
   /* Variables used for update policy TimeInterval */
-  unsigned long   _last_updated,
-                  _update_interval_sec;
+  unsigned long      _last_updated,
+                     _update_interval_sec;
 
   void appendValue(CborEncoder * mapEncoder) const;
   bool isValueDifferent(T const lhs, T const rhs) const;
@@ -54,15 +66,25 @@ template <typename T>
 inline bool operator == (ArduinoCloudProperty<T> const & lhs, ArduinoCloudProperty<T> const & rhs) { return (lhs.name() == rhs.name()); }
 
 template <typename T>
-ArduinoCloudProperty<T>::ArduinoCloudProperty(String const & name, T & property, Permission const permission, UpdatePolicy const update_policy)
-: _name(name),
-  _property(property),
+ArduinoCloudProperty<T>::ArduinoCloudProperty(T & property, String const & name, Permission const permission)
+: _property(property),
   _shadow_property(property),
+  _name(name),
   _permission(permission),
-  _update_policy(update_policy),
+  _update_callback_func(NULL),
+  _update_policy(UpdatePolicy::OnChange),
+  _has_been_updated_once(false),
   _last_updated(0),
   _update_interval_sec(0)
 {
+}
+
+template <typename T>
+bool ArduinoCloudProperty<T>::write(T const val) {
+  if(!canWrite()) return false;
+  _property = val;
+  /* _shadow_property is not updated so there will be an update the next time around */
+  return true;
 }
 
 template <typename T>
@@ -71,6 +93,24 @@ bool ArduinoCloudProperty<T>::read(T * val) const {
   *val = _property;
   return true;
 }
+
+template <typename T>
+void ArduinoCloudProperty<T>::onUpdate(UpdateCallbackFunc func) {
+  _update_callback_func = func;
+}
+
+template <typename T>
+void ArduinoCloudProperty<T>::publishOnChange(T const min_delta_property) {
+  _update_policy = UpdatePolicy::OnChange;
+  _min_delta_property = min_delta_property;
+}
+
+template <typename T>
+void ArduinoCloudProperty<T>::publishEvery(unsigned long const seconds) {
+  _update_policy = UpdatePolicy::TimeInterval;
+  _update_interval_sec = seconds;
+}
+
 
 template <>
 inline Type ArduinoCloudProperty<bool>::type() const {
@@ -94,6 +134,8 @@ inline Type ArduinoCloudProperty<String>::type() const {
 
 template <typename T>
 bool ArduinoCloudProperty<T>::shouldBeUpdated() const {
+  if(!_has_been_updated_once) return true;
+
   if     (_update_policy == UpdatePolicy::OnChange) {
     return isValueDifferent(_property, _shadow_property);
   }
@@ -102,6 +144,15 @@ bool ArduinoCloudProperty<T>::shouldBeUpdated() const {
   }
   else {
     return false;
+  }
+}
+
+template <typename T>
+void ArduinoCloudProperty<T>::execCallbackOnChange() {
+  if(isValueDifferent(_property, _shadow_property)) {
+    if(_update_callback_func != NULL) {
+      _update_callback_func();
+    }
   }
 }
 
@@ -117,6 +168,7 @@ void ArduinoCloudProperty<T>::append(CborEncoder * encoder) {
     cbor_encoder_close_container(encoder, &mapEncoder);
 
     _shadow_property = _property;
+    _has_been_updated_once = true;
     _last_updated = millis();
   }
 }
@@ -152,12 +204,12 @@ inline bool ArduinoCloudProperty<bool>::isValueDifferent(bool const lhs, bool co
 
 template <>
 inline bool ArduinoCloudProperty<int>::isValueDifferent(int const lhs, int const rhs) const {
-  return (lhs != rhs) && (abs(lhs - rhs) >= _min_delta_property_val);
+  return (lhs != rhs) && (abs(lhs - rhs) >= _min_delta_property);
 }
 
 template <>
 inline bool ArduinoCloudProperty<float>::isValueDifferent(float const lhs, float const rhs) const {
-  return (lhs != rhs) && (abs(lhs - rhs) >= _min_delta_property_val);
+  return (lhs != rhs) && (abs(lhs - rhs) >= _min_delta_property);
 }
 
 template <>

@@ -4,9 +4,9 @@
 #include <Client.h>
 #include <Stream.h>
 
-#include "ArduinoCloudPropertyGeneric.h"
+#include "ArduinoCloudProperty.hpp"
+#include "ArduinoCloudPropertyContainer.hpp"
 
-#include "lib/tinycbor/cbor-lib.h"
 #include "lib/LinkedList/LinkedList.h"
 
 enum boolStatus {
@@ -25,11 +25,12 @@ class ArduinoCloudThing {
     public:
         ArduinoCloudThing();
         void begin();
-        // overload, with default arguments, of different type of properties
-        ArduinoCloudPropertyGeneric& addPropertyReal(int& property, String name, permissionType _permission = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, int minDelta = 0);
-        ArduinoCloudPropertyGeneric& addPropertyReal(bool& property, String name, permissionType permission = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, bool minDelta = false);
-        ArduinoCloudPropertyGeneric& addPropertyReal(float& property, String name, permissionType _permission = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, float minDelta = 0.0f);
-        ArduinoCloudPropertyGeneric& addPropertyReal(String& property, String name, permissionType permission = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, String minDelta = "");
+
+        ArduinoCloudProperty<bool>   & addProperty(bool   & property, String const & name, Permission const permission);
+        ArduinoCloudProperty<int>    & addProperty(int    & property, String const & name, Permission const permission);
+        ArduinoCloudProperty<float>  & addProperty(float  & property, String const & name, Permission const permission);
+        ArduinoCloudProperty<String> & addProperty(String & property, String const & name, Permission const permission);
+
         // poll should return > 0 if something has changed
         int poll(uint8_t* data, size_t size);
         // decode a CBOR payload received from the Cloud.
@@ -37,16 +38,14 @@ class ArduinoCloudThing {
 
     private:
         void update();
-        int checkNewData();
-        // return the index of that property in the linked list, -1 if it does not exist.
-        int findPropertyByName(String &name);
-        // return the pointer to the desired property, NULL if it does not exist.
-        ArduinoCloudPropertyGeneric* exists(String &name);
 
         bool status = OFF;
         char uuid[33];
-        int currentListIndex = -1;
-        LinkedList<ArduinoCloudPropertyGeneric*> list;
+
+        ArduinoCloudPropertyContainer<bool>   _bool_property_list;
+        ArduinoCloudPropertyContainer<int>    _int_property_list;
+        ArduinoCloudPropertyContainer<float>  _float_property_list;
+        ArduinoCloudPropertyContainer<String> _string_property_list;
 
 };
 
