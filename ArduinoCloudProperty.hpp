@@ -1,6 +1,8 @@
 #ifndef ARDUINO_CLOUD_PROPERTY_HPP_
 #define ARDUINO_CLOUD_PROPERTY_HPP_
 
+#include <Arduino.h>
+
 #include "lib/tinycbor/cbor-lib.h"
 
 enum class Permission {

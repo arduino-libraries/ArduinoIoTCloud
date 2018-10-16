@@ -1,62 +1,49 @@
-#ifndef ARDUINO_CLOUD_PROPERTY_CONTAINER_H_
-#define ARDUINO_CLOUD_PROPERTY_CONTAINER_H_
+#ifndef ARDUINO_CLOUD_PROPERTY_CONTAINER_NEW_H_
+#define ARDUINO_CLOUD_PROPERTY_CONTAINER_NEW_H_
 
 #include "ArduinoCloudProperty.hpp"
 
 #include "lib/tinycbor/cbor-lib.h"
 #include "lib/LinkedList/LinkedList.h"
 
-template <typename T>
 class ArduinoCloudPropertyContainer {
 public:
 
-  void add(ArduinoCloudProperty<T> * property_obj);
-  ArduinoCloudProperty<T> * operator [] (String const & name);
-  int cntNumberOfPropertiesWhichShouldBeUpdated();
-  void appendIfPropertyShouldBeUpdated(CborEncoder * arrayEncoder);
+  bool isPropertyInContainer    (Type const type, String const & name);
+  int  getNumOfChangedProperties();
+  void appendChangedProperties  (CborEncoder * arrayEncoder);
+
+  inline ArduinoCloudProperty<bool>   * getPropertyBool  (String const & name) { return getProperty(_bool_property_list,   name); }
+  inline ArduinoCloudProperty<int>    * getPropertyInt   (String const & name) { return getProperty(_int_property_list,    name); }
+  inline ArduinoCloudProperty<float>  * getPropertyFloat (String const & name) { return getProperty(_float_property_list,  name); }
+  inline ArduinoCloudProperty<String> * getPropertyString(String const & name) { return getProperty(_string_property_list, name); }
+
+  inline void addProperty(ArduinoCloudProperty<bool>   * property_obj) { _bool_property_list.add  (property_obj); }
+  inline void addProperty(ArduinoCloudProperty<int>    * property_obj) { _int_property_list.add   (property_obj); }
+  inline void addProperty(ArduinoCloudProperty<float>  * property_obj) { _float_property_list.add (property_obj); }
+  inline void addProperty(ArduinoCloudProperty<String> * property_obj) { _string_property_list.add(property_obj); }
 
 private:
 
-  LinkedList<ArduinoCloudProperty<T> *> _list;
+  LinkedList<ArduinoCloudProperty<bool>   *> _bool_property_list;
+  LinkedList<ArduinoCloudProperty<int>    *> _int_property_list;
+  LinkedList<ArduinoCloudProperty<float>  *> _float_property_list;
+  LinkedList<ArduinoCloudProperty<String> *> _string_property_list;
+
+  template <typename T>
+  bool isPropertyInList(LinkedList<ArduinoCloudProperty<T> *> & list, String const & name);
+
+  template <typename T>
+  ArduinoCloudProperty<T> * getProperty(LinkedList<ArduinoCloudProperty<T> *> & list, String const & name);
+
+  template <typename T>
+  int getNumOfChangedProperties(LinkedList<ArduinoCloudProperty<T> *> & list);
+
+  template <typename T>
+  void appendChangedProperties(LinkedList<ArduinoCloudProperty<T> *> & list, CborEncoder * arrayEncoder);
 
 };
 
-template <typename T>
-void ArduinoCloudPropertyContainer<T>::add(ArduinoCloudProperty<T> * property_obj) {
-  _list.add(property_obj);
-}
+#include "ArduinoCloudPropertyContainer.ipp"
 
-template <typename T>
-ArduinoCloudProperty<T> * ArduinoCloudPropertyContainer<T>::operator [] (String const & name) {
-  for (int i = 0; i < _list.size(); i++) {
-    ArduinoCloudProperty<T> * p = _list.get(i);
-    if (p->name() == name) return p;
-  }
-  return 0;
-}
-
-template <typename T>
-int ArduinoCloudPropertyContainer<T>::cntNumberOfPropertiesWhichShouldBeUpdated() {
-  int should_be_updated_cnt = 0;
-
-  for (int i = 0; i < _list.size(); i++) {
-    ArduinoCloudProperty<T> * p = _list.get(i);
-    if (p->shouldBeUpdated() && p->isReadableByCloud()) {
-      should_be_updated_cnt++;
-    }
-  }
-
-  return should_be_updated_cnt;
-}
-
-template <typename T>
-void ArduinoCloudPropertyContainer<T>::appendIfPropertyShouldBeUpdated(CborEncoder * arrayEncoder) {
-  for (int i = 0; i < _list.size(); i++) {
-    ArduinoCloudProperty<T> * p = _list.get(i);
-    if (p->shouldBeUpdated() && p->isReadableByCloud()) {
-      p->append(arrayEncoder);
-    }
-  }
-}
-
-#endif /* ARDUINO_CLOUD_PROPERTY_CONTAINER_H_ */
+#endif /* ARDUINO_CLOUD_PROPERTY_CONTAINER_NEW_H_ */

@@ -51,29 +51,21 @@ int ArduinoCloudThing::poll(uint8_t* data, size_t size) {
 
     // check if backing storage and cloud has diverged
     // time interval may be elapsed or property may be changed
-    int diff = 0;
+    int const num_changed_properties = _property_cont.getNumOfChangedProperties();
 
-    diff += _bool_property_list.cntNumberOfPropertiesWhichShouldBeUpdated  ();
-    diff += _int_property_list.cntNumberOfPropertiesWhichShouldBeUpdated   ();
-    diff += _float_property_list.cntNumberOfPropertiesWhichShouldBeUpdated ();
-    diff += _string_property_list.cntNumberOfPropertiesWhichShouldBeUpdated();
-
-    if (diff > 0) {
+    if (num_changed_properties > 0) {
         CborError err;
         CborEncoder encoder, arrayEncoder;
 
         cbor_encoder_init(&encoder, data, size, 0);
         // create a cbor array containing the property that should be updated.
-        err = cbor_encoder_create_array(&encoder, &arrayEncoder, diff);
+        err = cbor_encoder_create_array(&encoder, &arrayEncoder, num_changed_properties);
         if (err) {
             //Serial.println(cbor_error_string(err));
             return -1;
         }
 
-        _bool_property_list.appendIfPropertyShouldBeUpdated  (&arrayEncoder);
-        _int_property_list.appendIfPropertyShouldBeUpdated   (&arrayEncoder);
-        _float_property_list.appendIfPropertyShouldBeUpdated (&arrayEncoder);
-        _string_property_list.appendIfPropertyShouldBeUpdated(&arrayEncoder);
+        _property_cont.appendChangedProperties(&arrayEncoder);
 
         err = cbor_encoder_close_container(&encoder, &arrayEncoder);
 
@@ -85,43 +77,51 @@ int ArduinoCloudThing::poll(uint8_t* data, size_t size) {
     PrintFreeRam();
 #endif
     // If nothing has to be sent, return diff, that is 0 in this case
-    return diff;
+    return num_changed_properties;
 }
 
 ArduinoCloudProperty<bool> & ArduinoCloudThing::addProperty(bool & property, String const & name, Permission const permission) {
-  ArduinoCloudProperty<bool> * property_opj = _bool_property_list[name];
-  if(!property_opj) {
-    property_opj = new ArduinoCloudProperty<bool>(property, name, permission);
-    _bool_property_list.add(property_opj);
+  if(_property_cont.isPropertyInContainer(Type::Bool, name)) {
+    return (*_property_cont.getPropertyBool(name));
   }
-  return (*property_opj);
+  else {
+    ArduinoCloudProperty<bool> *property_opj = new ArduinoCloudProperty<bool>(property, name, permission);
+    _property_cont.addProperty(property_opj);
+    return (*property_opj);
+  }
 }
 
 ArduinoCloudProperty<int> & ArduinoCloudThing::addProperty(int & property, String const & name, Permission const permission) {
-  ArduinoCloudProperty<int> * property_opj = _int_property_list[name];
-  if(!property_opj) {
-    property_opj = new ArduinoCloudProperty<int>(property, name, permission);
-    _int_property_list.add(property_opj);
+  if(_property_cont.isPropertyInContainer(Type::Int, name)) {
+    return (*_property_cont.getPropertyInt(name));
   }
-  return (*property_opj);
+  else {
+    ArduinoCloudProperty<int> * property_opj = new ArduinoCloudProperty<int>(property, name, permission);
+    _property_cont.addProperty(property_opj);
+    return (*property_opj);
+  }
 }
 
-ArduinoCloudProperty<float> & ArduinoCloudThing::addProperty(float  & property, String const & name, Permission const permission) {
-  ArduinoCloudProperty<float> * property_opj = _float_property_list[name];
-  if(!property_opj) {
-    property_opj = new ArduinoCloudProperty<float>(property, name, permission);
-    _float_property_list.add(property_opj);
+ArduinoCloudProperty<float> & ArduinoCloudThing::addProperty(float & property, String const & name, Permission const permission) {
+  if(_property_cont.isPropertyInContainer(Type::Float, name)) {
+    return (*_property_cont.getPropertyFloat(name));
   }
-  return (*property_opj);
+  else {
+    ArduinoCloudProperty<float> * property_opj = new ArduinoCloudProperty<float>(property, name, permission);
+    _property_cont.addProperty(property_opj);
+    return (*property_opj);
+  }
 }
 
 ArduinoCloudProperty<String> & ArduinoCloudThing::addProperty(String & property, String const & name, Permission const permission) {
-  ArduinoCloudProperty<String> * property_opj = _string_property_list[name];
-  if(!property_opj) {
-    property_opj = new ArduinoCloudProperty<String>(property, name, permission);
-    _string_property_list.add(property_opj);
+  if(_property_cont.isPropertyInContainer(Type::String, name)) {
+    return (*_property_cont.getPropertyString(name));
   }
-  return (*property_opj);
+  else {
+    ArduinoCloudProperty<String> * property_opj = new ArduinoCloudProperty<String>(property, name, permission);
+    _property_cont.addProperty(property_opj);
+    return (*property_opj);
+  }
 }
 
 void ArduinoCloudThing::decode(uint8_t *payload, size_t length) {
@@ -199,10 +199,10 @@ void ArduinoCloudThing::decode(uint8_t *payload, size_t length) {
                 free(nameVal);
 
                 // Search for the device property with that name
-                ArduinoCloudProperty<bool>   * bool_property   = _bool_property_list  [propName];
-                ArduinoCloudProperty<int>    * int_property    = _int_property_list   [propName];
-                ArduinoCloudProperty<float>  * float_property  = _float_property_list [propName];
-                ArduinoCloudProperty<String> * string_property = _string_property_list[propName];
+                ArduinoCloudProperty<bool>   * bool_property   = _property_cont.getPropertyBool  (propName);
+                ArduinoCloudProperty<int>    * int_property    = _property_cont.getPropertyInt   (propName);
+                ArduinoCloudProperty<float>  * float_property  = _property_cont.getPropertyFloat (propName);
+                ArduinoCloudProperty<String> * string_property = _property_cont.getPropertyString(propName);
 
                 // If property does not exist, skip it and do nothing.
                 if((bool_property == 0) && (int_property == 0) && (float_property == 0) && (string_property == 0))

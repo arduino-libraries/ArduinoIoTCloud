@@ -42,11 +42,7 @@ class ArduinoCloudThing {
         bool status = OFF;
         char uuid[33];
 
-        ArduinoCloudPropertyContainer<bool>   _bool_property_list;
-        ArduinoCloudPropertyContainer<int>    _int_property_list;
-        ArduinoCloudPropertyContainer<float>  _float_property_list;
-        ArduinoCloudPropertyContainer<String> _string_property_list;
-
+        ArduinoCloudPropertyContainer _property_cont;
 };
 
 #endif /* ARDUINO_CLOUD_THING_H_ */
