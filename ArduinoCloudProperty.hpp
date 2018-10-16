@@ -26,12 +26,12 @@ public:
 
   bool writeByCloud(T const val);
 
-  void onUpdate       (UpdateCallbackFunc       func              );
-  void publishOnChange(T                  const min_delta_property);
-  void publishEvery   (unsigned long      const seconds           );
+  /* Composable configuration of the ArduinoCloudProperty class */
+  ArduinoCloudProperty<T> & onUpdate       (UpdateCallbackFunc       func              );
+  ArduinoCloudProperty<T> & publishOnChange(T                  const min_delta_property);
+  ArduinoCloudProperty<T> & publishEvery   (unsigned long      const seconds           );
 
   inline String name              () const { return _name; }
-         Type   type              () const;
   inline bool   isReadableByCloud () const { return (_permission == Permission::Read ) || (_permission == Permission::ReadWrite); }
   inline bool   isWriteableByCloud() const { return (_permission == Permission::Write) || (_permission == Permission::ReadWrite); }
 
@@ -87,41 +87,23 @@ bool ArduinoCloudProperty<T>::writeByCloud(T const val) {
 }
 
 template <typename T>
-void ArduinoCloudProperty<T>::onUpdate(UpdateCallbackFunc func) {
+ArduinoCloudProperty<T> & ArduinoCloudProperty<T>::onUpdate(UpdateCallbackFunc func) {
   _update_callback_func = func;
+  return (*this);
 }
 
 template <typename T>
-void ArduinoCloudProperty<T>::publishOnChange(T const min_delta_property) {
+ArduinoCloudProperty<T> & ArduinoCloudProperty<T>::publishOnChange(T const min_delta_property) {
   _update_policy = UpdatePolicy::OnChange;
   _min_delta_property = min_delta_property;
+  return (*this);
 }
 
 template <typename T>
-void ArduinoCloudProperty<T>::publishEvery(unsigned long const seconds) {
+ArduinoCloudProperty<T> & ArduinoCloudProperty<T>::publishEvery(unsigned long const seconds) {
   _update_policy = UpdatePolicy::TimeInterval;
   _update_interval_sec = seconds;
-}
-
-
-template <>
-inline Type ArduinoCloudProperty<bool>::type() const {
-  return Type::Bool;
-}
-
-template <>
-inline Type ArduinoCloudProperty<int>::type() const {
-  return Type::Int;
-}
-
-template <>
-inline Type ArduinoCloudProperty<float>::type() const {
-  return Type::Float;
-}
-
-template <>
-inline Type ArduinoCloudProperty<String>::type() const {
-  return Type::String;
+  return (*this);
 }
 
 template <typename T>
