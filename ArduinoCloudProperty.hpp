@@ -14,7 +14,7 @@ enum class Type {
 };
 
 enum class UpdatePolicy {
-  OnChange, OnChangeRateLimited, TimeInterval
+  OnChange, TimeInterval
 };
 
 typedef void(*UpdateCallbackFunc)(void);
@@ -29,11 +29,9 @@ public:
   bool writeByCloud(T const val);
 
   /* Composable configuration of the ArduinoCloudProperty class */
-  ArduinoCloudProperty<T> & onUpdate                  (UpdateCallbackFunc       func                                 );
-  ArduinoCloudProperty<T> & setMinDelta               (T                  const min_delta_property                   );
-  ArduinoCloudProperty<T> & publishOnChange           (                                                              );
-  ArduinoCloudProperty<T> & publishOnChangeRateLimited(unsigned long      const min_time_between_updates_milliseconds);
-  ArduinoCloudProperty<T> & publishEvery              (unsigned long      const seconds                              );
+  ArduinoCloudProperty<T> & onUpdate       (UpdateCallbackFunc func);
+  ArduinoCloudProperty<T> & publishOnChange(T const min_delta_property, unsigned long const min_time_between_updates_milliseconds = 0);
+  ArduinoCloudProperty<T> & publishEvery   (unsigned long const seconds);
 
   inline String name              () const { return _name; }
   inline bool   isReadableByCloud () const { return (_permission == Permission::Read ) || (_permission == Permission::ReadWrite); }
@@ -54,9 +52,8 @@ private:
 
   UpdatePolicy       _update_policy;
   bool               _has_been_updated_once;
-  /* Variables used for update_policy OnChange/OnChangeRateLimited */
+  /* Variables used for update_policy OnChange */
   T                  _min_delta_property;
-  /* Variables used OnChangeRateLimited */
   unsigned long      _min_time_between_updates_milliseconds;
   /* Variables used for update policy TimeInterval */
   unsigned long      _last_updated,
@@ -101,20 +98,9 @@ ArduinoCloudProperty<T> & ArduinoCloudProperty<T>::onUpdate(UpdateCallbackFunc f
 }
 
 template <typename T>
-ArduinoCloudProperty<T> & ArduinoCloudProperty<T>::setMinDelta(T const min_delta_property) {
-  _min_delta_property = min_delta_property;
-  return (*this);
-}
-
-template <typename T>
-ArduinoCloudProperty<T> & ArduinoCloudProperty<T>::publishOnChange() {
+ArduinoCloudProperty<T> & ArduinoCloudProperty<T>::publishOnChange(T const min_delta_property, unsigned long const min_time_between_updates_milliseconds) {
   _update_policy = UpdatePolicy::OnChange;
-  return (*this);
-}
-
-template <typename T>
-ArduinoCloudProperty<T> & ArduinoCloudProperty<T>::publishOnChangeRateLimited(unsigned long const min_time_between_updates_milliseconds) {
-  _update_policy = UpdatePolicy::OnChangeRateLimited;
+  _min_delta_property = min_delta_property;
   _min_time_between_updates_milliseconds = min_time_between_updates_milliseconds;
   return (*this);
 }
@@ -131,9 +117,6 @@ bool ArduinoCloudProperty<T>::shouldBeUpdated() const {
   if(!_has_been_updated_once) return true;
 
   if     (_update_policy == UpdatePolicy::OnChange) {
-    return isValueDifferent(_property, _shadow_property);
-  }
-  else if(_update_policy == UpdatePolicy::OnChangeRateLimited) {
     return (isValueDifferent(_property, _shadow_property) && ((millis() - _last_updated) > (_min_time_between_updates_milliseconds)));
   }
   else if(_update_policy == UpdatePolicy::TimeInterval) {

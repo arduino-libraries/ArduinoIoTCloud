@@ -32,22 +32,22 @@ ArduinoCloudThing::ArduinoCloudThing() {
     #define SERIAL_NUMBER_WORD_2    *(volatile uint32_t*)(0x0080A044)
     #define SERIAL_NUMBER_WORD_3    *(volatile uint32_t*)(0x0080A048)
 
-    utox8(SERIAL_NUMBER_WORD_0, &uuid[0]);
-    utox8(SERIAL_NUMBER_WORD_1, &uuid[8]);
-    utox8(SERIAL_NUMBER_WORD_2, &uuid[16]);
-    utox8(SERIAL_NUMBER_WORD_3, &uuid[24]);
-    uuid[32] = '\0';
+    utox8(SERIAL_NUMBER_WORD_0, &_uuid[0]);
+    utox8(SERIAL_NUMBER_WORD_1, &_uuid[8]);
+    utox8(SERIAL_NUMBER_WORD_2, &_uuid[16]);
+    utox8(SERIAL_NUMBER_WORD_3, &_uuid[24]);
+    _uuid[32] = '\0';
 #endif
 }
 
 
 void ArduinoCloudThing::begin() {
-    status = ON;
-    addProperty(status, "status", Permission::Read);
+    _status = ON;
+    addProperty(_status, "status", Permission::Read);
 }
 
 
-int ArduinoCloudThing::poll(uint8_t* data, size_t size) {
+int ArduinoCloudThing::poll(uint8_t * data, size_t const size) {
 
     // check if backing storage and cloud has diverged
     // time interval may be elapsed or property may be changed
@@ -124,7 +124,7 @@ ArduinoCloudProperty<String> & ArduinoCloudThing::addProperty(String & property,
   }
 }
 
-void ArduinoCloudThing::decode(uint8_t *payload, size_t length) {
+void ArduinoCloudThing::decode(uint8_t const * const payload, size_t const length) {
 
     CborError err;
     CborParser parser;

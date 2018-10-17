@@ -1,25 +1,21 @@
 #ifndef ARDUINO_CLOUD_THING_H_
 #define ARDUINO_CLOUD_THING_H_
 
-#include <Client.h>
-#include <Stream.h>
-
 #include "ArduinoCloudProperty.hpp"
 #include "ArduinoCloudPropertyContainer.hpp"
 
 #include "lib/LinkedList/LinkedList.h"
 
-enum boolStatus {
-    ON = true,
-    OFF = false,
-};
+/* Constants for backwards compatibility */
 
-enum times {
-    SECONDS = 1,
-    MINUTES = 60,
-    HOURS = 3600,
-    DAYS = 86400,
-};
+static bool ON  = true;
+static bool OFF = false;
+
+static long const ON_CHANGE = -1;
+static long const SECONDS   = 1;
+static long const MINUTES   = 60;
+static long const HOURS     = 3600;
+static long const DAYS      = 86400;
 
 class ArduinoCloudThing {
     public:
@@ -32,17 +28,16 @@ class ArduinoCloudThing {
         ArduinoCloudProperty<String> & addProperty(String & property, String const & name, Permission const permission);
 
         // poll should return > 0 if something has changed
-        int poll(uint8_t* data, size_t size);
+        int poll(uint8_t * data, size_t const size);
         // decode a CBOR payload received from the Cloud.
-        void decode(uint8_t * payload, size_t length);
+        void decode(uint8_t const * const payload, size_t const length);
 
     private:
-        void update();
 
-        bool status = OFF;
-        char uuid[33];
-
+        bool                          _status = OFF;
+        char                          _uuid[33];
         ArduinoCloudPropertyContainer _property_cont;
+
 };
 
 #endif /* ARDUINO_CLOUD_THING_H_ */
