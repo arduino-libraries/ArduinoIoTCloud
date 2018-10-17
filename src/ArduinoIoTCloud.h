@@ -7,6 +7,12 @@
 
 #include "CloudSerial.h"
 
+typedef enum {
+  READ      = 0x01,
+  WRITE     = 0x02,
+  READWRITE = READ | WRITE
+} permissionType;
+
 // Declaration of the struct for the mqtt connection options
 typedef struct {
   int keepAlive;
@@ -44,10 +50,18 @@ public:
   // Clean up existing Mqtt connection, create a new one and initialize it
   int reconnect(Client& net);
 
-  #define addProperty( v, ...) addPropertyReal(v, #v, __VA_ARGS__)
+  template<typename T, typename N=T> void addProperty(T & property, String name, permissionType permission_type = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, N minDelta = N(0)) {
+    Permission permission = Permission::ReadWrite;
+    if     (permission_type == READ ) permission = Permission::Read;
+    else if(permission_type == WRITE) permission = Permission::Write;
+    else                              permission = Permission::ReadWrite;
 
-  template<typename T, typename N=T> void addPropertyReal(T& property, String name, permissionType _permission = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, N minDelta = N(0)) {
-    Thing.addPropertyReal(property, name, _permission, seconds, fn, (T)minDelta);
+    if(seconds == ON_CHANGE) {
+      Thing.addProperty(property, name, permission).publishOnChange((T)minDelta).onUpdate(fn);
+    }
+    else {
+      Thing.addProperty(property, name, permission).publishEvery(seconds);
+    }
   }
 
 protected:
