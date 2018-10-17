@@ -49,7 +49,7 @@ bool ArduinoCloudProperty<T>::shouldBeUpdated() const {
   if(!_has_been_updated_once) return true;
 
   if     (_update_policy == UpdatePolicy::OnChange) {
-    return (isValueDifferent(_property, _shadow_property) && ((millis() - _last_updated) > (_min_time_between_updates_milliseconds)));
+    return (isValueDifferent(_property, _shadow_property) && ((millis() - _last_updated) >= (_min_time_between_updates_milliseconds)));
   }
   else if(_update_policy == UpdatePolicy::TimeInterval) {
     return ((millis() - _last_updated) > (_update_interval_sec * 1000));
