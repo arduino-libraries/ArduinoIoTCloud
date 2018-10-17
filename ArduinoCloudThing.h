@@ -27,8 +27,8 @@ class ArduinoCloudThing {
         ArduinoCloudProperty<float>  & addProperty(float  & property, String const & name, Permission const permission);
         ArduinoCloudProperty<String> & addProperty(String & property, String const & name, Permission const permission);
 
-        // poll should return > 0 if something has changed
-        int poll(uint8_t * data, size_t const size);
+        // encode return > 0 if a property has changed and encodes the changed properties in CBOR format into the provided buffer
+        int encode(uint8_t * data, size_t const size);
         // decode a CBOR payload received from the Cloud.
         void decode(uint8_t const * const payload, size_t const length);
 

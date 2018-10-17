@@ -47,7 +47,7 @@ void ArduinoCloudThing::begin() {
 }
 
 
-int ArduinoCloudThing::poll(uint8_t * data, size_t const size) {
+int ArduinoCloudThing::encode(uint8_t * data, size_t const size) {
 
     // check if backing storage and cloud has diverged
     // time interval may be elapsed or property may be changed
