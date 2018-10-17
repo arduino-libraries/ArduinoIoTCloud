@@ -129,7 +129,6 @@ void ArduinoCloudThing::decode(uint8_t const * const payload, size_t const lengt
     CborError err;
     CborParser parser;
     CborValue recursedMap, propValue, dataArray;
-    int propId;
     String propName;
     Type propType;
 
