@@ -61,7 +61,7 @@ public:
       Thing.addProperty(property, name, permission).publishOnChange((T)minDelta).onUpdate(fn);
     }
     else {
-      Thing.addProperty(property, name, permission).publishEvery(seconds);
+      Thing.addProperty(property, name, permission).publishEvery(seconds).onUpdate(fn);
     }
   }
 
