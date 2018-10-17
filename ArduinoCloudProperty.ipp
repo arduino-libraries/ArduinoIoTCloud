@@ -16,11 +16,11 @@ ArduinoCloudProperty<T>::ArduinoCloudProperty(T & property, String const & name,
 }
 
 template <typename T>
-bool ArduinoCloudProperty<T>::writeByCloud(T const val) {
-  if(!isWriteableByCloud()) return false;
-  _property = val;
-  /* _shadow_property is not updated so there will be an update the next time around */
-  return true;
+void ArduinoCloudProperty<T>::writeByCloud(T const val) {
+  if(isWriteableByCloud()) {
+    _property = val;
+    /* _shadow_property is not updated so there will be an update the next time around */
+  }
 }
 
 template <typename T>

@@ -26,7 +26,7 @@ public:
 
   ArduinoCloudProperty(T & property, String const & name, Permission const permission);
 
-  bool writeByCloud(T const val);
+  void writeByCloud(T const val);
 
   /* Composable configuration of the ArduinoCloudProperty class */
   ArduinoCloudProperty<T> & onUpdate       (UpdateCallbackFunc func);

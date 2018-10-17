@@ -221,19 +221,27 @@ void ArduinoCloudThing::decode(uint8_t const * const payload, size_t const lengt
                         double val;
                         // get the value of the property as a double
                         cbor_value_get_double(&propValue, &val);
-                        float_property->writeByCloud(static_cast<float>(val));
+                        if(float_property->isWriteableByCloud()) {
+                          float_property->writeByCloud(static_cast<float>(val));
+                        }
                     } else if (propValue.type == CborIntegerType) {
                         int val;
                         cbor_value_get_int(&propValue, &val);
-                        float_property->writeByCloud(static_cast<float>(val));
+                        if(float_property->isWriteableByCloud()) {
+                          float_property->writeByCloud(static_cast<float>(val));
+                        }
                     } else if (propValue.type == CborFloatType) {
                         float val;
                         cbor_value_get_float(&propValue, &val);
-                        float_property->writeByCloud(val);
+                        if(float_property->isWriteableByCloud()) {
+                          float_property->writeByCloud(val);
+                        }
                     } else if (propValue.type == CborHalfFloatType) {
                         float val;
                         cbor_value_get_half_float(&propValue, &val);
-                        float_property->writeByCloud(val);
+                        if(float_property->isWriteableByCloud()) {
+                          float_property->writeByCloud(val);
+                        }
                     }
                     float_property->execCallbackOnChange();
                 } else if (propType == Type::Int && !cbor_value_map_find_value(&recursedMap, "v", &propValue)) {
@@ -241,35 +249,47 @@ void ArduinoCloudThing::decode(uint8_t const * const payload, size_t const lengt
                     if (propValue.type == CborIntegerType) {
                         int val;
                         cbor_value_get_int(&propValue, &val);
-                        int_property->writeByCloud(val);
+                        if(int_property->isWriteableByCloud()) {
+                          int_property->writeByCloud(val);
+                        }
                     } else if (propValue.type == CborDoubleType) {
                         // If a double value is received, a cast to int is performed(so it is still accepted)
                         double val;
                         cbor_value_get_double(&propValue, &val);
-                        int_property->writeByCloud(static_cast<int>(val));
+                        if(int_property->isWriteableByCloud()) {
+                          int_property->writeByCloud(static_cast<int>(val));
+                        }
                     } else if (propValue.type == CborFloatType) {
                         float val;
                         cbor_value_get_float(&propValue, &val);
-                        int_property->writeByCloud(static_cast<int>(val));
+                        if(int_property->isWriteableByCloud()) {
+                          int_property->writeByCloud(static_cast<int>(val));
+                        }
                     } else if (propValue.type == CborHalfFloatType) {
                         float val;
                         cbor_value_get_half_float(&propValue, &val);
-                        int_property->writeByCloud(static_cast<int>(val));
+                        if(int_property->isWriteableByCloud()) {
+                          int_property->writeByCloud(static_cast<int>(val));
+                        }
                     }
                     int_property->execCallbackOnChange();
                 } else if (propType == Type::Bool && !cbor_value_map_find_value(&recursedMap, "vb", &propValue)) {
                     if (propValue.type == CborBooleanType) {
                         bool val;
                         cbor_value_get_boolean(&propValue, &val);
-                        bool_property->writeByCloud(val);
-                        bool_property->execCallbackOnChange();
+                        if(bool_property->isWriteableByCloud()) {
+                          bool_property->writeByCloud(val);
+                          bool_property->execCallbackOnChange();
+                        }
                     }
                 } else if (propType == Type::String && !cbor_value_map_find_value(&recursedMap, "vs", &propValue)){
                     if (propValue.type == CborTextStringType) {
                         char *val; size_t valSize;
                         err = cbor_value_dup_text_string(&propValue, &val, &valSize, &propValue);
-                        string_property->writeByCloud(static_cast<char *>(val));
-                        string_property->execCallbackOnChange();
+                        if(string_property->isWriteableByCloud()) {
+                          string_property->writeByCloud(static_cast<char *>(val));
+                          string_property->execCallbackOnChange();
+                        }
                         free(val);
                     }
                 }
