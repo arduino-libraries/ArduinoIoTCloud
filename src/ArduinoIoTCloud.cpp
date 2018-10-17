@@ -150,7 +150,7 @@ void ArduinoIoTCloudClass::update(int const reconnectionMaxRetries, int const re
   _mqttClient.loop();
 
   uint8_t data[MQTT_BUFFER_SIZE];
-  int const length = Thing.poll(data, sizeof(data));
+  int const length = Thing.encode(data, sizeof(data));
   if (length > 0) {
     writeProperties(data, length);
   }
