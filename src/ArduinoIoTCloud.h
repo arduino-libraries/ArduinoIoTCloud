@@ -50,24 +50,26 @@ public:
   // Clean up existing Mqtt connection, create a new one and initialize it
   int reconnect(Client& net);
 
+  #define addProperty( v, ...) addPropertyReal(v, #v, __VA_ARGS__)
+
   template<typename T, typename N=T>
-  void addProperty(T & property, String name, permissionType permission_type = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, N minDelta = N(0)) {
+  void addPropertyReal(T & property, String name, permissionType permission_type = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, N minDelta = N(0)) {
     Permission permission = Permission::ReadWrite;
     if     (permission_type == READ ) permission = Permission::Read;
     else if(permission_type == WRITE) permission = Permission::Write;
     else                              permission = Permission::ReadWrite;
 
     if(seconds == ON_CHANGE) {
-      Thing.addProperty(property, name, permission).publishOnChange((T)minDelta).onUpdate(fn);
+      Thing.addPropertyReal(property, name, permission).publishOnChange((T)minDelta).onUpdate(fn);
     }
     else {
-      Thing.addProperty(property, name, permission).publishEvery(seconds).onUpdate(fn);
+      Thing.addPropertyReal(property, name, permission).publishEvery(seconds).onUpdate(fn);
     }
   }
 
   template <typename T>
-  ArduinoCloudProperty<T> addProperty(T & property, String const & name, Permission const permission) {
-    return Thing.addProperty(property, name, permission);
+  ArduinoCloudProperty<T> addPropertyReal(T & property, String const & name, Permission const permission) {
+    return Thing.addPropertyReal(property, name, permission);
   }
 
 protected:
