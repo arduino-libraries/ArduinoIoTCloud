@@ -43,7 +43,7 @@ ArduinoCloudThing::ArduinoCloudThing() {
 
 void ArduinoCloudThing::begin() {
     _status = ON;
-    addProperty(_status, "status", Permission::Read);
+    addPropertyReal(_status, "status", Permission::Read);
 }
 
 
@@ -80,7 +80,7 @@ int ArduinoCloudThing::encode(uint8_t * data, size_t const size) {
     return num_changed_properties;
 }
 
-ArduinoCloudProperty<bool> & ArduinoCloudThing::addProperty(bool & property, String const & name, Permission const permission) {
+ArduinoCloudProperty<bool> & ArduinoCloudThing::addPropertyReal(bool & property, String const & name, Permission const permission) {
   if(_property_cont.isPropertyInContainer(Type::Bool, name)) {
     return (*_property_cont.getPropertyBool(name));
   }
@@ -91,7 +91,7 @@ ArduinoCloudProperty<bool> & ArduinoCloudThing::addProperty(bool & property, Str
   }
 }
 
-ArduinoCloudProperty<int> & ArduinoCloudThing::addProperty(int & property, String const & name, Permission const permission) {
+ArduinoCloudProperty<int> & ArduinoCloudThing::addPropertyReal(int & property, String const & name, Permission const permission) {
   if(_property_cont.isPropertyInContainer(Type::Int, name)) {
     return (*_property_cont.getPropertyInt(name));
   }
@@ -102,7 +102,7 @@ ArduinoCloudProperty<int> & ArduinoCloudThing::addProperty(int & property, Strin
   }
 }
 
-ArduinoCloudProperty<float> & ArduinoCloudThing::addProperty(float & property, String const & name, Permission const permission) {
+ArduinoCloudProperty<float> & ArduinoCloudThing::addPropertyReal(float & property, String const & name, Permission const permission) {
   if(_property_cont.isPropertyInContainer(Type::Float, name)) {
     return (*_property_cont.getPropertyFloat(name));
   }
@@ -113,7 +113,7 @@ ArduinoCloudProperty<float> & ArduinoCloudThing::addProperty(float & property, S
   }
 }
 
-ArduinoCloudProperty<String> & ArduinoCloudThing::addProperty(String & property, String const & name, Permission const permission) {
+ArduinoCloudProperty<String> & ArduinoCloudThing::addPropertyReal(String & property, String const & name, Permission const permission) {
   if(_property_cont.isPropertyInContainer(Type::String, name)) {
     return (*_property_cont.getPropertyString(name));
   }

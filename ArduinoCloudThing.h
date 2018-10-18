@@ -22,10 +22,10 @@ class ArduinoCloudThing {
         ArduinoCloudThing();
         void begin();
 
-        ArduinoCloudProperty<bool>   & addProperty(bool   & property, String const & name, Permission const permission);
-        ArduinoCloudProperty<int>    & addProperty(int    & property, String const & name, Permission const permission);
-        ArduinoCloudProperty<float>  & addProperty(float  & property, String const & name, Permission const permission);
-        ArduinoCloudProperty<String> & addProperty(String & property, String const & name, Permission const permission);
+        ArduinoCloudProperty<bool>   & addPropertyReal(bool   & property, String const & name, Permission const permission);
+        ArduinoCloudProperty<int>    & addPropertyReal(int    & property, String const & name, Permission const permission);
+        ArduinoCloudProperty<float>  & addPropertyReal(float  & property, String const & name, Permission const permission);
+        ArduinoCloudProperty<String> & addPropertyReal(String & property, String const & name, Permission const permission);
 
         // encode return > 0 if a property has changed and encodes the changed properties in CBOR format into the provided buffer
         int encode(uint8_t * data, size_t const size);
