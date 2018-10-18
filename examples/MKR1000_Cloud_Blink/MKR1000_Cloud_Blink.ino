@@ -80,7 +80,7 @@ void setup() {
 
   Serial.println("Successfully connected to Arduino Cloud :)");
 
-  ArduinoCloud.addProperty(position, "position", READ, 10*SECONDS, onPositionUpdate);
+  ArduinoCloud.addProperty(position, READ, 10*SECONDS, onPositionUpdate);
 
   CloudSerial.begin(9600);
   CloudSerial.print("I'm ready for blinking!\n");
