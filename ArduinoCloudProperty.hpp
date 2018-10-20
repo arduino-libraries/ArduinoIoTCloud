@@ -30,7 +30,7 @@ public:
 
   /* Composable configuration of the ArduinoCloudProperty class */
   ArduinoCloudProperty<T> & onUpdate       (UpdateCallbackFunc func);
-  ArduinoCloudProperty<T> & publishOnChange(T const min_delta_property, unsigned long const min_time_between_updates_milliseconds = 0);
+  ArduinoCloudProperty<T> & publishOnChange(T const min_delta_property, unsigned long const min_time_between_updates_millis = 0);
   ArduinoCloudProperty<T> & publishEvery   (unsigned long const seconds);
 
   inline String name              () const { return _name; }
@@ -54,10 +54,10 @@ private:
   bool               _has_been_updated_once;
   /* Variables used for update_policy OnChange */
   T                  _min_delta_property;
-  unsigned long      _min_time_between_updates_milliseconds;
+  unsigned long      _min_time_between_updates_millis;
   /* Variables used for update policy TimeInterval */
-  unsigned long      _last_updated,
-                     _update_interval_sec;
+  unsigned long      _last_updated_millis,
+                     _update_interval_millis;
 
   void appendValue(CborEncoder * mapEncoder) const;
   bool isValueDifferent(T const lhs, T const rhs) const;

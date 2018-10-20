@@ -9,9 +9,9 @@ ArduinoCloudProperty<T>::ArduinoCloudProperty(T & property, String const & name,
   _update_policy(UpdatePolicy::OnChange),
   _has_been_updated_once(false),
   _min_delta_property(T(0)),
-  _min_time_between_updates_milliseconds(0),
-  _last_updated(0),
-  _update_interval_sec(0)
+  _min_time_between_updates_millis(0),
+  _last_updated_millis(0),
+  _update_interval_millis(0)
 {
 }
 
@@ -30,17 +30,17 @@ ArduinoCloudProperty<T> & ArduinoCloudProperty<T>::onUpdate(UpdateCallbackFunc f
 }
 
 template <typename T>
-ArduinoCloudProperty<T> & ArduinoCloudProperty<T>::publishOnChange(T const min_delta_property, unsigned long const min_time_between_updates_milliseconds) {
+ArduinoCloudProperty<T> & ArduinoCloudProperty<T>::publishOnChange(T const min_delta_property, unsigned long const min_time_between_updates_millis) {
   _update_policy = UpdatePolicy::OnChange;
   _min_delta_property = min_delta_property;
-  _min_time_between_updates_milliseconds = min_time_between_updates_milliseconds;
+  _min_time_between_updates_millis = min_time_between_updates_millis;
   return (*this);
 }
 
 template <typename T>
 ArduinoCloudProperty<T> & ArduinoCloudProperty<T>::publishEvery(unsigned long const seconds) {
   _update_policy = UpdatePolicy::TimeInterval;
-  _update_interval_sec = seconds;
+  _update_interval_millis = (seconds * 1000);
   return (*this);
 }
 
@@ -49,10 +49,10 @@ bool ArduinoCloudProperty<T>::shouldBeUpdated() const {
   if(!_has_been_updated_once) return true;
 
   if     (_update_policy == UpdatePolicy::OnChange) {
-    return (isValueDifferent(_property, _shadow_property) && ((millis() - _last_updated) >= (_min_time_between_updates_milliseconds)));
+    return (isValueDifferent(_property, _shadow_property) && ((millis() - _last_updated_millis) >= (_min_time_between_updates_millis)));
   }
   else if(_update_policy == UpdatePolicy::TimeInterval) {
-    return ((millis() - _last_updated) > (_update_interval_sec * 1000));
+    return ((millis() - _last_updated_millis) >= _update_interval_millis);
   }
   else {
     return false;
@@ -81,7 +81,7 @@ void ArduinoCloudProperty<T>::append(CborEncoder * encoder) {
 
     _shadow_property = _property;
     _has_been_updated_once = true;
-    _last_updated = millis();
+    _last_updated_millis = millis();
   }
 }
 
