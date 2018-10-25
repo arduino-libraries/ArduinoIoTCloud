@@ -52,10 +52,10 @@ private:
 
   UpdatePolicy       _update_policy;
   bool               _has_been_updated_once;
-  /* Variables used for update_policy OnChange */
+  /* Variables used for UpdatePolicy::OnChange */
   T                  _min_delta_property;
   unsigned long      _min_time_between_updates_millis;
-  /* Variables used for update policy TimeInterval */
+  /* Variables used for UpdatePolicy::TimeInterval */
   unsigned long      _last_updated_millis,
                      _update_interval_millis;
 
