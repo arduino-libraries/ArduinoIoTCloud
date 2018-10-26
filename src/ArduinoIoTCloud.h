@@ -52,6 +52,8 @@ public:
 
   #define addProperty( v, ...) addPropertyReal(v, #v, __VA_ARGS__)
 
+  static unsigned long const DEFAULT_MIN_TIME_BETWEEN_UPDATES_MILLIS = 100; /* Data rate throttled to 10 Hz */
+
   template<typename T, typename N=T>
   void addPropertyReal(T & property, String name, permissionType permission_type = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, N minDelta = N(0)) {
     Permission permission = Permission::ReadWrite;
@@ -60,7 +62,7 @@ public:
     else                              permission = Permission::ReadWrite;
 
     if(seconds == ON_CHANGE) {
-      Thing.addPropertyReal(property, name, permission).publishOnChange((T)minDelta).onUpdate(fn);
+      Thing.addPropertyReal(property, name, permission).publishOnChange((T)minDelta, DEFAULT_MIN_TIME_BETWEEN_UPDATES_MILLIS).onUpdate(fn);
     }
     else {
       Thing.addPropertyReal(property, name, permission).publishEvery(seconds).onUpdate(fn);
