@@ -19,6 +19,7 @@ ArduinoIoTCloudClass::~ArduinoIoTCloudClass()
 {
   if (_bearSslClient) {
     delete _bearSslClient;
+    _bearSslClient = NULL;
   }
 }
 
