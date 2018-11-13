@@ -50,6 +50,8 @@ public:
   // Clean up existing Mqtt connection, create a new one and initialize it
   int reconnect(Client& net);
 
+  inline void setThingId(String const thing_id) { _thing_id = thing_id; };
+
   #define addProperty( v, ...) addPropertyReal(v, #v, __VA_ARGS__)
 
   static unsigned long const DEFAULT_MIN_TIME_BETWEEN_UPDATES_MILLIS = 100; /* Data rate throttled to 10 Hz */
@@ -87,8 +89,9 @@ private:
   static void onMessage(MQTTClient *client, char topic[], char bytes[], int const length);
   void handleMessage(char topic[], char bytes[], int const length);
 
-  String _id;
-  String _brokerAddress;
+  String _id,
+         _thing_id,
+         _brokerAddress;
   ArduinoCloudThing Thing;
   BearSSLClient* _bearSslClient;
   MQTTClient _mqttClient;
