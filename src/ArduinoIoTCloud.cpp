@@ -11,7 +11,7 @@ const static int thingIdSlot                               = 12;
 ArduinoIoTCloudClass::ArduinoIoTCloudClass() :
   _thing_id     (""),
   _bearSslClient(NULL),
-  _mqttClient   (MQTT_BUFFER_SIZE)
+  _mqttClient   (MQTT_RECEIVE_BUFFER_SIZE)
 {
 }
 
@@ -158,7 +158,7 @@ void ArduinoIoTCloudClass::update(int const reconnectionMaxRetries, int const re
   // MTTQClient connected!, poll() used to retrieve data from MQTT broker
   _mqttClient.loop();
 
-  uint8_t data[MQTT_BUFFER_SIZE];
+  uint8_t data[MQTT_RECEIVE_BUFFER_SIZE];
   int const length = Thing.encode(data, sizeof(data));
   if (length > 0) {
     writeProperties(data, length);
