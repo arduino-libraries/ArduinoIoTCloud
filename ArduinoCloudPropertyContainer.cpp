@@ -1,4 +1,12 @@
+/******************************************************************************
+ * INCLUDE
+ ******************************************************************************/
+
 #include "ArduinoCloudPropertyContainer.hpp"
+
+/******************************************************************************
+ * PUBLIC MEMBER FUNCTIONS
+ ******************************************************************************/
 
 bool ArduinoCloudPropertyContainer::isPropertyInContainer(Type const type, String const & name) {
   if      (type == Type::Bool  ) return isPropertyInList(_bool_property_list,   name);

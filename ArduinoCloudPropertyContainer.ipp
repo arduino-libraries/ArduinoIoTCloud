@@ -1,3 +1,6 @@
+/******************************************************************************
+ * PRIVATE MEMBER FUNCTIONS
+ ******************************************************************************/
 
 template <typename T>
 bool ArduinoCloudPropertyContainer::isPropertyInList(LinkedList<ArduinoCloudProperty<T> *> & list, String const & name) {

@@ -1,10 +1,18 @@
 #ifndef ARDUINO_CLOUD_PROPERTY_CONTAINER_NEW_H_
 #define ARDUINO_CLOUD_PROPERTY_CONTAINER_NEW_H_
 
+/******************************************************************************
+ * INCLUDE
+ ******************************************************************************/
+
 #include "ArduinoCloudProperty.hpp"
 
 #include "lib/tinycbor/cbor-lib.h"
 #include "lib/LinkedList/LinkedList.h"
+
+/******************************************************************************
+ * CLASS DECLARATION
+ ******************************************************************************/
 
 class ArduinoCloudPropertyContainer {
 public:
@@ -43,6 +51,10 @@ private:
   void appendChangedProperties(LinkedList<ArduinoCloudProperty<T> *> & list, CborEncoder * arrayEncoder);
 
 };
+
+/******************************************************************************
+ * TEMPLATE IMPLEMENTATION
+ ******************************************************************************/
 
 #include "ArduinoCloudPropertyContainer.ipp"
 

@@ -1,6 +1,27 @@
+/******************************************************************************
+ * INCLUDE
+ ******************************************************************************/
+
 #include <Arduino.h>
 
 #include <ArduinoCloudThing.h>
+
+#include <math.h>
+
+/******************************************************************************
+ * PRIVATE FREE FUNCTIONS
+ ******************************************************************************/
+
+/* Source Idea from https://tools.ietf.org/html/rfc7049 : Page: 50 */ 
+double convertCborHalfFloatToDouble(uint16_t const half_val) {
+  int exp = (half_val >> 10) & 0x1f;
+  int mant = half_val & 0x3ff;
+  double val;
+  if (exp == 0) val = ldexp(mant, -24);
+  else if (exp != 31) val = ldexp(mant + 1024, exp - 25);
+  else val = mant == 0 ? INFINITY : NAN;
+  return half_val & 0x8000 ? -val : val;
+}
 
 #if defined(DEBUG_MEMORY) && defined(ARDUINO_ARCH_SAMD)
 extern "C" char *sbrk(int i);
@@ -25,6 +46,10 @@ static void utox8(uint32_t val, char* s) {
 #define Serial DebugSerial
 #endif
 
+/******************************************************************************
+ * CTOR/DTOR
+ ******************************************************************************/
+
 ArduinoCloudThing::ArduinoCloudThing() {
 #ifdef ARDUINO_ARCH_SAMD
     #define SERIAL_NUMBER_WORD_0    *(volatile uint32_t*)(0x0080A00C)
@@ -40,6 +65,9 @@ ArduinoCloudThing::ArduinoCloudThing() {
 #endif
 }
 
+/******************************************************************************
+ * PUBLIC MEMBER FUNCTIONS
+ ******************************************************************************/
 
 void ArduinoCloudThing::begin() {
     _status = ON;
@@ -236,10 +264,10 @@ void ArduinoCloudThing::decode(uint8_t const * const payload, size_t const lengt
                           float_property->writeByCloud(val);
                         }
                     } else if (propValue.type == CborHalfFloatType) {
-                        float val;
+                        uint16_t val;
                         cbor_value_get_half_float(&propValue, &val);
                         if(float_property->isWriteableByCloud()) {
-                          float_property->writeByCloud(val);
+                          float_property->writeByCloud(static_cast<float>(convertCborHalfFloatToDouble(val)));
                         }
                     }
                     float_property->execCallbackOnChange();
