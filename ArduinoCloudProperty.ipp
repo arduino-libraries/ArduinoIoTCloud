@@ -1,3 +1,6 @@
+/******************************************************************************
+ * CTOR/DTOR
+ ******************************************************************************/
 
 template <typename T>
 ArduinoCloudProperty<T>::ArduinoCloudProperty(T & property, String const & name, Permission const permission)
@@ -14,6 +17,10 @@ ArduinoCloudProperty<T>::ArduinoCloudProperty(T & property, String const & name,
   _update_interval_millis(0)
 {
 }
+
+/******************************************************************************
+ * PUBLIC MEMBER FUNCTIONS
+ ******************************************************************************/
 
 template <typename T>
 void ArduinoCloudProperty<T>::writeByCloud(T const val) {
@@ -74,7 +81,7 @@ void ArduinoCloudProperty<T>::append(CborEncoder * encoder) {
     CborEncoder mapEncoder;
 
     cbor_encoder_create_map(encoder, &mapEncoder, CborIndefiniteLength);
-    cbor_encode_text_stringz(&mapEncoder, "n");
+    cbor_encode_int(&mapEncoder, static_cast<int>(CborIntegerMapKey::Name));
     cbor_encode_text_stringz(&mapEncoder, _name.c_str());
     appendValue(&mapEncoder);
     cbor_encoder_close_container(encoder, &mapEncoder);
@@ -85,27 +92,31 @@ void ArduinoCloudProperty<T>::append(CborEncoder * encoder) {
   }
 }
 
+/******************************************************************************
+ * PRIVATE MEMBER FUNCTIONS 
+ ******************************************************************************/
+
 template <>
 inline void ArduinoCloudProperty<bool>::appendValue(CborEncoder * mapEncoder) const {
-  cbor_encode_text_stringz(mapEncoder, "vb");
+  cbor_encode_int    (mapEncoder, static_cast<int>(CborIntegerMapKey::BooleanValue));
   cbor_encode_boolean(mapEncoder, _property);
 }
 
 template <>
 inline void ArduinoCloudProperty<int>::appendValue(CborEncoder * mapEncoder) const {
-  cbor_encode_text_stringz(mapEncoder, "v");
+  cbor_encode_int(mapEncoder, static_cast<int>(CborIntegerMapKey::Value));
   cbor_encode_int(mapEncoder, _property);
 }
 
 template <>
 inline void ArduinoCloudProperty<float>::appendValue(CborEncoder * mapEncoder) const {
-  cbor_encode_text_stringz(mapEncoder, "v");
+  cbor_encode_int  (mapEncoder, static_cast<int>(CborIntegerMapKey::Value));
   cbor_encode_float(mapEncoder, _property);
 }
 
 template <>
 inline void ArduinoCloudProperty<String>::appendValue(CborEncoder * mapEncoder) const {
-  cbor_encode_text_stringz(mapEncoder, "vs");
+  cbor_encode_int         (mapEncoder, static_cast<int>(CborIntegerMapKey::StringValue));
   cbor_encode_text_stringz(mapEncoder, _property.c_str());
 }
 

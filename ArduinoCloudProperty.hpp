@@ -1,9 +1,17 @@
 #ifndef ARDUINO_CLOUD_PROPERTY_HPP_
 #define ARDUINO_CLOUD_PROPERTY_HPP_
 
+/******************************************************************************
+ * INCLUDE
+ ******************************************************************************/
+
 #include <Arduino.h>
 
 #include "lib/tinycbor/cbor-lib.h"
+
+/******************************************************************************
+ * TYPEDEF
+ ******************************************************************************/
 
 enum class Permission {
   Read, Write, ReadWrite
@@ -17,8 +25,31 @@ enum class UpdatePolicy {
   OnChange, TimeInterval
 };
 
+/* Source: https://tools.ietf.org/html/rfc8428#section-6 */
+enum class CborIntegerMapKey : int
+{
+   BaseVersion  = -1, /* bver */
+   BaseName     = -2, /* bn   */
+   BaseTime     = -3, /* bt   */
+   BaseUnit     = -4, /* bu   */
+   BaseValue    = -5, /* bv   */
+   BaseSum      = -6, /* bs   */
+   Name         =  0, /* n    */
+   Unit         =  1, /* u    */
+   Value        =  2, /* v    */
+   StringValue  =  3, /* vs   */
+   BooleanValue =  4, /* vb   */
+   Sum          =  5, /* s    */
+   Time         =  6, /* t    */
+   UpdateTime   =  7, /* ut   */
+   DataValue    =  8  /* vd   */
+};
+
 typedef void(*UpdateCallbackFunc)(void);
 
+/******************************************************************************
+ * CLASS DECLARATION
+ ******************************************************************************/
 
 template <typename T>
 class ArduinoCloudProperty {
@@ -64,8 +95,16 @@ private:
 
 };
 
+/******************************************************************************
+ * PROTOTYPE FREE FUNCTIONs
+ ******************************************************************************/
+
 template <typename T>
 inline bool operator == (ArduinoCloudProperty<T> const & lhs, ArduinoCloudProperty<T> const & rhs) { return (lhs.name() == rhs.name()); }
+
+/******************************************************************************
+ * TEMPLATE IMPLEMENTATION
+ ******************************************************************************/
 
 #include "ArduinoCloudProperty.ipp"
 
