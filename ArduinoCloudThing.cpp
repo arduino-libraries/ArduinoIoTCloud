@@ -12,7 +12,7 @@
  * PRIVATE FREE FUNCTIONS
  ******************************************************************************/
 
-/* Source Idea from https://tools.ietf.org/html/rfc7049 : Page: 50 */ 
+/* Source Idea from https://tools.ietf.org/html/rfc7049 : Page: 50 */
 double convertCborHalfFloatToDouble(uint16_t const half_val) {
   int exp = (half_val >> 10) & 0x1f;
   int mant = half_val & 0x3ff;
@@ -293,10 +293,10 @@ void ArduinoCloudThing::decode(uint8_t const * const payload, size_t const lengt
                           int_property->writeByCloud(static_cast<int>(val));
                         }
                     } else if (propValue.type == CborHalfFloatType) {
-                        float val;
+                        uint16_t val;
                         cbor_value_get_half_float(&propValue, &val);
                         if(int_property->isWriteableByCloud()) {
-                          int_property->writeByCloud(static_cast<int>(val));
+                          int_property->writeByCloud(static_cast<int>(convertCborHalfFloatToDouble(val)));
                         }
                     }
                     int_property->execCallbackOnChange();
