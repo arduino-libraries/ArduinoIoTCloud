@@ -71,15 +71,13 @@ int ArduinoIoTCloudClass::begin(Client& net, String brokerAddress)
 void ArduinoIoTCloudClass::mqttClientBegin(Client& net)
 {
   // MQTT topics definition
+  _stdoutTopic  = "/a/d/" + _id + "/s/o";
+  _stdinTopic   = "/a/d/" + _id + "/s/i";
   if(_thing_id == "") {
-    _stdoutTopic  = "/a/d/" + _id + "/s/o";
-    _stdinTopic   = "/a/d/" + _id + "/s/i";
     _dataTopicIn  = "/a/d/" + _id + "/e/i";
     _dataTopicOut = "/a/d/" + _id + "/e/o";
   }
   else {
-    _stdoutTopic  = "/a/t/" + _thing_id + "/s/o";
-    _stdinTopic   = "/a/t/" + _thing_id + "/s/i";
     _dataTopicIn  = "/a/t/" + _thing_id + "/e/i";
     _dataTopicOut = "/a/t/" + _thing_id + "/e/o";
   }
