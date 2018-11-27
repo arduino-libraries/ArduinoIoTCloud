@@ -52,6 +52,9 @@ public:
 
   inline void setThingId(String const thing_id) { _thing_id = thing_id; };
 
+  inline String getThingId() { return _thing_id; };
+  inline String getDeviceId() { return _id; };
+
   #define addProperty( v, ...) addPropertyReal(v, #v, __VA_ARGS__)
 
   static unsigned long const DEFAULT_MIN_TIME_BETWEEN_UPDATES_MILLIS = 100; /* Data rate throttled to 10 Hz */
