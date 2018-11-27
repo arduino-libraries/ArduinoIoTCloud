@@ -52,8 +52,8 @@ public:
 
   inline void setThingId(String const thing_id) { _thing_id = thing_id; };
 
-  inline String getThingId() { return _thing_id; };
-  inline String getDeviceId() { return _id; };
+  inline String getThingId()  const { return _thing_id; };
+  inline String getDeviceId() const { return _id; };
 
   #define addProperty( v, ...) addPropertyReal(v, #v, __VA_ARGS__)
 
