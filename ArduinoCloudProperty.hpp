@@ -13,6 +13,15 @@
  * TYPEDEF
  ******************************************************************************/
 
+/******************************************************************************
+ * TYPEDEF
+ ******************************************************************************/
+
+enum class CloudProtocol {
+  V1, /* [{"n": "test", "vb": true}] */
+  V2  /* [{0: "test", 4: true}]      */
+};
+
 enum class Permission {
   Read, Write, ReadWrite
 };
@@ -71,7 +80,7 @@ public:
   bool shouldBeUpdated        () const;
   void execCallbackOnChange   ();
 
-  void append                 (CborEncoder * encoder);
+  void append                 (CborEncoder * encoder, CloudProtocol const cloud_protocol);
 
 private:
 
@@ -90,7 +99,7 @@ private:
   unsigned long      _last_updated_millis,
                      _update_interval_millis;
 
-  void appendValue(CborEncoder * mapEncoder) const;
+  void appendValue(CborEncoder * mapEncoder, CloudProtocol const cloud_protocol) const;
   bool isValueDifferent(T const lhs, T const rhs) const;
 
 };

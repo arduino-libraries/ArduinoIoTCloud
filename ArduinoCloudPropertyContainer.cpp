@@ -27,9 +27,9 @@ int ArduinoCloudPropertyContainer::getNumOfChangedProperties() {
   return num_changes_properties;
 }
 
-void ArduinoCloudPropertyContainer::appendChangedProperties(CborEncoder * arrayEncoder) {
-  appendChangedProperties<bool>  (_bool_property_list,   arrayEncoder);
-  appendChangedProperties<int>   (_int_property_list,    arrayEncoder);
-  appendChangedProperties<float> (_float_property_list,  arrayEncoder);
-  appendChangedProperties<String>(_string_property_list, arrayEncoder);
+void ArduinoCloudPropertyContainer::appendChangedProperties(CborEncoder * arrayEncoder, CloudProtocol const cloud_protocol) {
+  appendChangedProperties<bool>  (_bool_property_list,   arrayEncoder, cloud_protocol);
+  appendChangedProperties<int>   (_int_property_list,    arrayEncoder, cloud_protocol);
+  appendChangedProperties<float> (_float_property_list,  arrayEncoder, cloud_protocol);
+  appendChangedProperties<String>(_string_property_list, arrayEncoder, cloud_protocol);
 }

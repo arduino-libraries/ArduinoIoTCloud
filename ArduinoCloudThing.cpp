@@ -171,7 +171,7 @@ int ArduinoCloudThing::encode(uint8_t * data, size_t const size) {
             return -1;
         }
 
-        _property_cont.appendChangedProperties(&arrayEncoder);
+        _property_cont.appendChangedProperties(&arrayEncoder, _cloud_protocol);
 
         err = cbor_encoder_close_container(&encoder, &arrayEncoder);
 
