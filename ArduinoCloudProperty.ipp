@@ -107,7 +107,8 @@ inline void ArduinoCloudProperty<bool>::appendValue(CborEncoder * mapEncoder, Cl
 
 template <>
 inline void ArduinoCloudProperty<int>::appendValue(CborEncoder * mapEncoder, CloudProtocol const cloud_protocol) const {
-  cbor_encode_int(mapEncoder, static_cast<int>(CborIntegerMapKey::Value));
+  if     (cloud_protocol == CloudProtocol::V1) cbor_encode_text_stringz(mapEncoder, "v");
+  else if(cloud_protocol == CloudProtocol::V2) cbor_encode_int         (mapEncoder, static_cast<int>(CborIntegerMapKey::Value));    
   cbor_encode_int(mapEncoder, _property);
 }
 
