@@ -11,6 +11,15 @@
 #include "lib/LinkedList/LinkedList.h"
 
 /******************************************************************************
+ * TYPEDEF
+ ******************************************************************************/
+
+enum class CloudProtocol {
+  V1, /* [{"n": "test", "vb": true}] */
+  V2  /* [{0: "test", 4: true}]      */
+};
+
+/******************************************************************************
  * CONSTANTS
  ******************************************************************************/
 
@@ -29,7 +38,7 @@ static long const DAYS      = 86400;
 
 class ArduinoCloudThing {
     public:
-        ArduinoCloudThing();
+        ArduinoCloudThing(CloudProtocol const cloud_protocol = CloudProtocol::V1);
         void begin();
 
         ArduinoCloudProperty<bool>   & addPropertyReal(bool   & property, String const & name, Permission const permission);
@@ -44,6 +53,7 @@ class ArduinoCloudThing {
 
     private:
 
+        CloudProtocol           const _cloud_protocol;
         bool                          _status = OFF;
         char                          _uuid[33];
         ArduinoCloudPropertyContainer _property_cont;

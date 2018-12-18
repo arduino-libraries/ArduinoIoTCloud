@@ -2,7 +2,7 @@
  * INCLUDE
  ******************************************************************************/
 
-//#include <Arduino.h>
+#include <Arduino.h>
 
 #include <ArduinoCloudThing.h>
 
@@ -46,11 +46,89 @@ static void utox8(uint32_t val, char* s) {
 #define Serial DebugSerial
 #endif
 
+void extractProperty(ArduinoCloudProperty<int> * int_property, CborValue * cbor_value)
+{
+  if (cbor_value->type == CborIntegerType) {
+    int val = 0;
+    cbor_value_get_int(cbor_value, &val);
+    if(int_property->isWriteableByCloud()) {
+      int_property->writeByCloud(val);
+    }
+  } else if (cbor_value->type == CborDoubleType) {
+    double val = 0.0;
+    cbor_value_get_double(cbor_value, &val);
+    if(int_property->isWriteableByCloud()) {
+      int_property->writeByCloud(static_cast<int>(val));
+    }
+  } else if (cbor_value->type == CborFloatType) {
+    float val = 0.0f;
+    cbor_value_get_float(cbor_value, &val);
+    if(int_property->isWriteableByCloud()) {
+      int_property->writeByCloud(static_cast<int>(val));
+    }
+  } else if (cbor_value->type == CborHalfFloatType) {
+    uint16_t val = 0;
+    cbor_value_get_half_float(cbor_value, &val);
+    if(int_property->isWriteableByCloud()) {
+      int_property->writeByCloud(static_cast<int>(convertCborHalfFloatToDouble(val)));
+    }
+  }
+}
+
+void extractProperty(ArduinoCloudProperty<float> * float_property, CborValue * cbor_value) {
+  if (cbor_value->type == CborDoubleType) {
+    double val = 0.0;
+    cbor_value_get_double(cbor_value, &val);
+    if(float_property->isWriteableByCloud()) {
+      float_property->writeByCloud(static_cast<float>(val));
+    }
+  } else if (cbor_value->type == CborIntegerType) {
+    int val = 0;
+    cbor_value_get_int(cbor_value, &val);
+    if(float_property->isWriteableByCloud()) {
+      float_property->writeByCloud(static_cast<float>(val));
+    }
+  } else if (cbor_value->type == CborFloatType) {
+    float val = 0.0f;
+    cbor_value_get_float(cbor_value, &val);
+    if(float_property->isWriteableByCloud()) {
+      float_property->writeByCloud(val);
+    }
+  } else if (cbor_value->type == CborHalfFloatType) {
+    uint16_t val = 0;
+    cbor_value_get_half_float(cbor_value, &val);
+    if(float_property->isWriteableByCloud()) {
+      float_property->writeByCloud(static_cast<float>(convertCborHalfFloatToDouble(val)));
+    }
+  }
+}
+
+void extractProperty(ArduinoCloudProperty<bool> * bool_property, CborValue * cbor_value) {
+  bool val = false;
+  if(cbor_value_get_boolean(cbor_value, &val) == CborNoError) {
+    if(bool_property->isWriteableByCloud()) {
+      bool_property->writeByCloud(val);
+    }
+  }
+}
+
+void extractProperty(ArduinoCloudProperty<String> * string_property, CborValue * cbor_value) {
+  char * val      = 0;
+  size_t val_size = 0;
+  if(cbor_value_dup_text_string(cbor_value, &val, &val_size, cbor_value) == CborNoError) {
+    if(string_property->isWriteableByCloud()) {
+      string_property->writeByCloud(static_cast<char *>(val));
+    }
+    free(val);
+  }
+}
+
 /******************************************************************************
  * CTOR/DTOR
  ******************************************************************************/
 
-ArduinoCloudThing::ArduinoCloudThing() {
+ArduinoCloudThing::ArduinoCloudThing(CloudProtocol const cloud_protocol)
+: _cloud_protocol(cloud_protocol) {
 #ifdef ARDUINO_ARCH_SAMD
     #define SERIAL_NUMBER_WORD_0    *(volatile uint32_t*)(0x0080A00C)
     #define SERIAL_NUMBER_WORD_1    *(volatile uint32_t*)(0x0080A040)
@@ -196,7 +274,6 @@ void ArduinoCloudThing::decode(uint8_t const * const payload, size_t const lengt
           next_state = ParserState::Error;
 
           if(cbor_value_get_type(&recursed_map) == CborMapType) {
-            recursed_map_save = recursed_map;
             if(cbor_value_enter_container(&recursed_map_save, &recursed_map) == CborNoError) {
               next_state = ParserState::PropertyNameLabel;
             }
@@ -262,104 +339,37 @@ void ArduinoCloudThing::decode(uint8_t const * const payload, size_t const lengt
 
             /* INT PROPERTY ******************************************************/
             if(int_property) {
-              if (recursed_map.type == CborIntegerType) {
-                  int val = 0;
-                  cbor_value_get_int(&recursed_map, &val);
-                  if(int_property->isWriteableByCloud()) {
-                    int_property->writeByCloud(val);
-                  }
-              } else if (recursed_map.type == CborDoubleType) {
-                  double val = 0.0;
-                  cbor_value_get_double(&recursed_map, &val);
-                  if(int_property->isWriteableByCloud()) {
-                    int_property->writeByCloud(static_cast<int>(val));
-                  }
-              } else if (recursed_map.type == CborFloatType) {
-                  float val = 0.0f;
-                  cbor_value_get_float(&recursed_map, &val);
-                  if(int_property->isWriteableByCloud()) {
-                    int_property->writeByCloud(static_cast<int>(val));
-                  }
-              } else if (recursed_map.type == CborHalfFloatType) {
-                  uint16_t val = 0;
-                  cbor_value_get_half_float(&recursed_map, &val);
-                  if(int_property->isWriteableByCloud()) {
-                    int_property->writeByCloud(static_cast<int>(convertCborHalfFloatToDouble(val)));
-                  }
-              }
+              extractProperty(int_property, &recursed_map);
               int_property->execCallbackOnChange();
             }
-
             /* FLOAT PROPERTY ****************************************************/
             if(float_property) {
-              if (recursed_map.type == CborDoubleType) {
-                  double val = 0.0;
-                  cbor_value_get_double(&recursed_map, &val);
-                  if(float_property->isWriteableByCloud()) {
-                    float_property->writeByCloud(static_cast<float>(val));
-                  }
-              } else if (recursed_map.type == CborIntegerType) {
-                  int val = 0;
-                  cbor_value_get_int(&recursed_map, &val);
-                  if(float_property->isWriteableByCloud()) {
-                    float_property->writeByCloud(static_cast<float>(val));
-                  }
-              } else if (recursed_map.type == CborFloatType) {
-                  float val = 0.0f;
-                  cbor_value_get_float(&recursed_map, &val);
-                  if(float_property->isWriteableByCloud()) {
-                    float_property->writeByCloud(val);
-                  }
-              } else if (recursed_map.type == CborHalfFloatType) {
-                  uint16_t val = 0;
-                  cbor_value_get_half_float(&recursed_map, &val);
-                  if(float_property->isWriteableByCloud()) {
-                    float_property->writeByCloud(static_cast<float>(convertCborHalfFloatToDouble(val)));
-                  }
-              }
+              extractProperty(float_property, &recursed_map);
               float_property->execCallbackOnChange();
             }
           }
-
           /* BOOL PROPERTY *******************************************************/
           if(property_value_type == CborIntegerMapKey::BooleanValue) {
             ArduinoCloudProperty<bool> * bool_property = _property_cont.getPropertyBool(property_name);
-            if(bool_property)
-            {
-              bool val = false;
-              if(cbor_value_get_boolean(&recursed_map, &val) == CborNoError) {
-                if(bool_property->isWriteableByCloud()) {
-                  bool_property->writeByCloud(val);
-                  bool_property->execCallbackOnChange();
-                }
-              }
+            if(bool_property) {
+              extractProperty(bool_property, &recursed_map);
+              bool_property->execCallbackOnChange();
             }
           }
           /* STRING PROPERTY *****************************************************/
           if(property_value_type == CborIntegerMapKey::StringValue) {
             ArduinoCloudProperty<String> * string_property = _property_cont.getPropertyString(property_name);
-            if(string_property)
-            {
-              char * val      = 0;
-              size_t val_size = 0;
-              if(cbor_value_dup_text_string(&recursed_map, &val, &val_size, &recursed_map) == CborNoError) {
-                if(string_property->isWriteableByCloud()) {
-                  string_property->writeByCloud(static_cast<char *>(val));
-                  string_property->execCallbackOnChange();
-                }
-                free(val);
-              }
+            if(string_property) {
+              extractProperty(string_property, &recursed_map);
+              string_property->execCallbackOnChange();
             }
           }
 
 
           if(cbor_value_advance(&recursed_map) == CborNoError) {
             next_state = ParserState::LeavePropertyMap;
+            /* FIXME: EXTRACING A STRING PROPERTY AUTOMATICALLY ADVANCES ... */
           }
-
-          /* TODO */
-
-
         }
         break;
         /* ParserState::LeavePropertyMap *****************************************/
