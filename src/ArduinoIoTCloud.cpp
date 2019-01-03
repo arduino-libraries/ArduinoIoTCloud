@@ -11,12 +11,17 @@ const static int thingIdSlot                               = 12;
 ArduinoIoTCloudClass::ArduinoIoTCloudClass() :
   _thing_id     (""),
   _bearSslClient(NULL),
-  _mqttClient   (MQTT_RECEIVE_BUFFER_SIZE)
+  _mqttClient   (NULL)
 {
 }
 
 ArduinoIoTCloudClass::~ArduinoIoTCloudClass()
 {
+  if (_mqttClient) {
+    delete _mqttClient;
+    _mqttClient = NULL;
+  }
+
   if (_bearSslClient) {
     delete _bearSslClient;
     _bearSslClient = NULL;
@@ -58,9 +63,10 @@ int ArduinoIoTCloudClass::begin(Client& net, String brokerAddress)
   }
   _bearSslClient = new BearSSLClient(net);
   _bearSslClient->setEccSlot(keySlot, ECCX08Cert.bytes(), ECCX08Cert.length());
+  _mqttClient = new MQTTClient(*_bearSslClient);
 
   // Begin function for the MQTTClient
-  mqttClientBegin(*_bearSslClient);
+  mqttClientBegin();
 
   Thing.begin();
 
@@ -68,7 +74,7 @@ int ArduinoIoTCloudClass::begin(Client& net, String brokerAddress)
 }
 
 // private class method used to initialize mqttClient class member. (called in the begin class method)
-void ArduinoIoTCloudClass::mqttClientBegin(Client& net)
+void ArduinoIoTCloudClass::mqttClientBegin()
 {
   // MQTT topics definition
   _stdoutTopic  = "/a/d/" + _id + "/s/o";
@@ -83,29 +89,30 @@ void ArduinoIoTCloudClass::mqttClientBegin(Client& net)
   }
 
   // use onMessage as callback for received mqtt messages
-  _mqttClient.onMessageAdvanced(ArduinoIoTCloudClass::onMessage);
-  _mqttClient.begin(_brokerAddress.c_str(), 8883, net);
-
-  // Set MQTT connection options
-  _mqttClient.setOptions(mqttOpt.keepAlive, mqttOpt.cleanSession, mqttOpt.timeout);
+  _mqttClient->onMessage(ArduinoIoTCloudClass::onMessage);
+  _mqttClient->setKeepAliveInterval(30 * 1000);
+  _mqttClient->setConnectionTimeout(1500);
+  _mqttClient->setId(_id.c_str());
 }
 
 int ArduinoIoTCloudClass::connect()
 {
   // Username: device id
   // Password: empty
-  if (!_mqttClient.connect(_id.c_str())) {
+  if (!_mqttClient->connect(_brokerAddress.c_str(), 8883)) {
     return 0;
   }
-  _mqttClient.subscribe(_stdinTopic);
-  _mqttClient.subscribe(_dataTopicIn);
+  _mqttClient->subscribe(_stdinTopic);
+  _mqttClient->subscribe(_dataTopicIn);
 
   return 1;
 }
 
 bool ArduinoIoTCloudClass::disconnect()
 {
-  return _mqttClient.disconnect();
+  _mqttClient->stop();
+
+  return true;
 }
 
 void ArduinoIoTCloudClass::poll()
@@ -127,10 +134,8 @@ bool ArduinoIoTCloudClass::mqttReconnect(int const maxRetries, int const timeout
 
   // Check for MQTT broker connection, of if maxReties limit is reached
   // if MQTTClient is connected , simply do nothing and retun true
-  while(!_mqttClient.connected() && (retries++ < maxRetries) && (millis() - start < timeout)) {
-
-    // Get last MTTQClient error, (a common error may be a buffer overflow)
-    lwmqtt_err_t err = _mqttClient.lastError();
+  while(!_mqttClient->connected() && (retries++ < maxRetries) && (millis() - start < timeout)) {
+    // int connectError = _mqttClient->connectError();
 
     // try establish the MQTT broker connection
     connect();
@@ -154,31 +159,22 @@ void ArduinoIoTCloudClass::update(int const reconnectionMaxRetries, int const re
     return;
 
   // MTTQClient connected!, poll() used to retrieve data from MQTT broker
-  _mqttClient.loop();
+  _mqttClient->poll();
 
-  uint8_t data[MQTT_RECEIVE_BUFFER_SIZE];
+  uint8_t data[MQTT_TRANSMIT_BUFFER_SIZE];
   int const length = Thing.encode(data, sizeof(data));
   if (length > 0) {
     writeProperties(data, length);
   }
 }
 
-int ArduinoIoTCloudClass::reconnect(Client& net)
+int ArduinoIoTCloudClass::reconnect(Client& /*net*/)
 {
   // check if MQTT client is still connected
-  if (_mqttClient.connected()) {
-    while(!_mqttClient.disconnect());
+  if (_mqttClient->connected()) {
+    _mqttClient->stop();
   }
 
-  // Re-initialize _bearSslClient
-  if (_bearSslClient) {
-      delete _bearSslClient;
-    }
-  _bearSslClient = new BearSSLClient(net);
-  _bearSslClient->setEccSlot(keySlot, ECCX08Cert.bytes(), ECCX08Cert.length());
-
-  // Initialize again the MQTTClient, otherwise it would not be able to receive messages through its callback
-  mqttClientBegin(*_bearSslClient);
   // Connect to the broker
   return connect();
 }
@@ -190,26 +186,59 @@ void ArduinoIoTCloudClass::onGetTime(unsigned long(*callback)(void))
 
 int ArduinoIoTCloudClass::connected()
 {
-  return _mqttClient.connected();
+  return _mqttClient->connected();
 }
 
-int ArduinoIoTCloudClass::writeProperties(const byte data[], int const length)
+int ArduinoIoTCloudClass::writeProperties(const byte data[], int length)
 {
-  return _mqttClient.publish(_dataTopicOut.c_str(), (const char*)data, length);
+  if (!_mqttClient->beginMessage(_dataTopicOut, length, false, 0)) {
+    return 0;
+  }
+
+  if (!_mqttClient->write(data, length)) {
+    return 0;
+  }
+
+  if (!_mqttClient->endMessage()) {
+    return 0;
+  }
+
+  return 1;
 }
 
-int ArduinoIoTCloudClass::writeStdout(const byte data[], int const length)
+int ArduinoIoTCloudClass::writeStdout(const byte data[], int length)
 {
-  return _mqttClient.publish(_stdoutTopic.c_str(), (const char*)data, length);
+  if (!_mqttClient->beginMessage(_stdoutTopic, length, false, 0)) {
+    return 0;
+  }
+
+  if (!_mqttClient->write(data, length)) {
+    return 0;
+  }
+
+  if (!_mqttClient->endMessage()) {
+    return 0;
+  }
+
+  return 1;
 }
 
-void ArduinoIoTCloudClass::onMessage(MQTTClient* /*client*/, char topic[], char bytes[], int const length)
+void ArduinoIoTCloudClass::onMessage(int length)
 {
-  ArduinoCloud.handleMessage(topic, bytes, length);
+  ArduinoCloud.handleMessage(length);
 }
 
-void ArduinoIoTCloudClass::handleMessage(char topic[], char bytes[], int const length)
+void ArduinoIoTCloudClass::handleMessage(int length)
 {
+  String topic = _mqttClient->messageTopic();
+
+  byte bytes[length];
+  int index = 0;
+
+  for (int i = 0; i < length; i++) {
+    bytes[i] = _mqttClient->read();
+  }
+
   if (_stdinTopic == topic) {
     CloudSerial.appendStdin((uint8_t*)bytes, length);
   }
