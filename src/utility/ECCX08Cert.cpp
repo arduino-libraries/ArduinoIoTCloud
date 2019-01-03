@@ -323,6 +323,25 @@ int ECCX08CertClass::endReconstruction()
     return 0;
   }
 
+  // dates
+  int year = (compressedCert.dates[0] >> 3) + 2000;
+  int month = ((compressedCert.dates[0] & 0x07) << 1) | (compressedCert.dates[1] >> 7);
+  int day = (compressedCert.dates[1] & 0x7c) >> 2;
+  int hour = ((compressedCert.dates[1] & 0x03) << 3) | (compressedCert.dates[2] >> 5);
+  int expireYears = (compressedCert.dates[2] & 0x1f);
+
+  int datesSize = 30;
+
+  if (year > 2049) {
+    // two more bytes for GeneralizedTime
+    datesSize += 2;
+  }
+
+  if ((year + expireYears) > 2049) {
+    // two more bytes for GeneralizedTime
+    datesSize += 2;
+  }
+
   int serialNumberLen = serialNumberLength(serialNumberAndAuthorityKeyIdentifier.serialNumber);
 
   int issuerLen = issuerOrSubjectLength(_issuerCountryName,
@@ -349,7 +368,7 @@ int ECCX08CertClass::endReconstruction()
   
   int signatureLen = signatureLength(compressedCert.signature);
 
-  int certInfoLen = 5 + serialNumberLen + 12 + issuerHeaderLen + issuerLen + 32 + 
+  int certInfoLen = 5 + serialNumberLen + 12 + issuerHeaderLen + issuerLen + (datesSize + 2) + 
                     subjectHeaderLen + subjectLen + publicKeyLen;
 
   if (authorityKeyIdentifierLen) {
@@ -404,15 +423,8 @@ int ECCX08CertClass::endReconstruction()
                         _issuerCommonName, out);
   out += issuerLen;
 
-  // dates
-  int year = (compressedCert.dates[0] >> 3) + 2000;
-  int month = ((compressedCert.dates[0] & 0x07) << 1) | (compressedCert.dates[1] >> 7);
-  int day = (compressedCert.dates[1] & 0x7c) >> 2;
-  int hour = ((compressedCert.dates[1] & 0x03) << 3) | (compressedCert.dates[2] >> 5);
-  int expireYears = (compressedCert.dates[2] & 0x1f);
- 
   *out++ = ASN1_SEQUENCE;
-  *out++ = 0x1e;
+  *out++ = datesSize;
   out += appendDate(year, month, day, hour, 0, 0, out);
   out += appendDate(year + expireYears, month, day, hour, 0, 0, out);
 
@@ -888,12 +900,23 @@ void ECCX08CertClass::appendSequenceHeader(int length, byte out[])
 
 int ECCX08CertClass::appendDate(int year, int month, int day, int hour, int minute, int second, byte out[])
 {
-  year -= 2000;
+  bool useGeneralizedTime = (year > 2049);
 
-  *out++ = 0x17;
-  *out++ = 0x0d;
-  *out++ = '0' + (year / 10);
-  *out++ = '0' + (year % 10);
+  if (useGeneralizedTime) {
+    *out++ = 0x18;
+    *out++ = 0x0f;
+    *out++ = '0' + (year / 1000);
+    *out++ = '0' + ((year % 1000) / 100);
+    *out++ = '0' + ((year % 100) / 10);
+    *out++ = '0' + (year % 10);
+  } else {
+    year -= 2000;
+
+    *out++ = 0x17;
+    *out++ = 0x0d;
+    *out++ = '0' + (year / 10);
+    *out++ = '0' + (year % 10);
+  }
   *out++ = '0' + (month / 10);
   *out++ = '0' + (month % 10);
   *out++ = '0' + (day / 10);
@@ -906,7 +929,7 @@ int ECCX08CertClass::appendDate(int year, int month, int day, int hour, int minu
   *out++ = '0' + (second % 10);
   *out++ = 0x5a; // UTC
 
-  return 15;
+  return (useGeneralizedTime ? 17 : 15);
 }
 
 int ECCX08CertClass::appendEcdsaWithSHA256(byte out[])
