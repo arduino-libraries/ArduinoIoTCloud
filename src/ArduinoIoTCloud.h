@@ -1,7 +1,7 @@
 #ifndef ARDUINO_IOT_CLOUD_H
 #define ARDUINO_IOT_CLOUD_H
 
-#include <MQTT.h>
+#include <ArduinoMQTT.h>
 #include <ArduinoIoTCloudBearSSL.h>
 #include <ArduinoCloudThing.h>
 
@@ -29,10 +29,9 @@ public:
   int begin(Client& net, String brokerAddress = "mqtts-sa.iot.arduino.cc");
 
   // Class constant declaration
-  static const int MQTT_RECEIVE_BUFFER_SIZE = 256;
+  static const int MQTT_TRANSMIT_BUFFER_SIZE = 256;
   static const int MAX_RETRIES = 5;
   static const int RECONNECTION_TIMEOUT = 2000;
-  const mqttConnectionOptions mqttOpt = {30, false, 1500};
 
   int  connect   ();
   bool disconnect();
@@ -78,23 +77,23 @@ public:
 
 protected:
   friend class CloudSerialClass;
-  int writeStdout(const byte data[], int const length);
-  int writeProperties(const byte data[], int const length);
+  int writeStdout(const byte data[], int length);
+  int writeProperties(const byte data[], int length);
   // Used to initialize MQTTClient
-  void mqttClientBegin(Client& net);
+  void mqttClientBegin();
   // Function in charge of perform MQTT reconnection, basing on class parameters(retries,and timeout)
   bool mqttReconnect(int const maxRetries, int const timeout);
 
 private:
-  static void onMessage(MQTTClient *client, char topic[], char bytes[], int const length);
-  void handleMessage(char topic[], char bytes[], int const length);
+  static void onMessage(int length);
+  void handleMessage(int length);
 
   String _id,
          _thing_id,
          _brokerAddress;
   ArduinoCloudThing Thing;
   BearSSLClient* _bearSslClient;
-  MQTTClient _mqttClient;
+  MQTTClient* _mqttClient;
 
   // Class attribute to define MTTQ topics 2 for stdIn/out and 2 for data, in order to avoid getting previous pupblished payload
   String _stdinTopic;
