@@ -260,12 +260,10 @@ void ArduinoCloudThing::decode(uint8_t const * const payload, size_t const lengt
     Error
   };
   MapParserState current_state = MapParserState::EnterPropertyMap,
-                 next_state    = MapParserState::EnterPropertyMap;
+                 next_state;
 
-  do
+  while(current_state != MapParserState::Complete)
   {
-    current_state = next_state;
-
     switch(current_state) {
     /* MapParserState::EnterPropertyMap *****************************************/
     case MapParserState::EnterPropertyMap: {
@@ -399,5 +397,7 @@ void ArduinoCloudThing::decode(uint8_t const * const payload, size_t const lengt
     }
     break;
     }
-  } while(current_state != next_state && current_state != MapParserState::Complete);
+
+    current_state = next_state;
+  }
 }
