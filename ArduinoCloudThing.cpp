@@ -233,161 +233,171 @@ ArduinoCloudProperty<String> & ArduinoCloudThing::addPropertyReal(String & prope
 void ArduinoCloudThing::decode(uint8_t const * const payload, size_t const length) {
 
   CborParser parser;
-  CborValue  data_array, recursed_map;
+  CborValue  array_iter,
+             map_iter,
+             value_iter;
 
-  if(cbor_parser_init(payload, length, 0, &parser, &data_array) != CborNoError)
+  if(cbor_parser_init(payload, length, 0, &parser, &array_iter) != CborNoError)
     return;
 
-  if(data_array.type != CborArrayType)
+  if(array_iter.type != CborArrayType)
     return;
 
-  if(cbor_value_enter_container(&data_array, &recursed_map) != CborNoError)
+  if(cbor_value_enter_container(&array_iter, &map_iter) != CborNoError)
     return;
 
-  while(!cbor_value_at_end(&data_array)) {
+  String            property_name;
+  CborIntegerMapKey property_value_type;
 
-    String            property_name;
-    CborIntegerMapKey property_value_type;
-    CborValue         recursed_map_save;
+  enum class MapParserState {
+    EnterPropertyMap,
+    PropertyNameLabel,
+    PropertyName,
+    PropertyValueLabel,
+    PropertyValue,
+    LeavePropertyMap,
+    Complete,
+    Error
+  };
+  MapParserState current_state = MapParserState::EnterPropertyMap,
+                 next_state    = MapParserState::EnterPropertyMap;
 
-    enum class ParserState {
-      EnterPropertyMap,
-      PropertyNameLabel,
-      PropertyName,
-      PropertyValueLabel,
-      PropertyValue,
-      LeavePropertyMap,
-      Error
-    };
-    ParserState current_state = ParserState::EnterPropertyMap,
-                next_state    = ParserState::EnterPropertyMap;
+  do
+  {
+    current_state = next_state;
 
-    while (!cbor_value_at_end(&recursed_map)) {
+    switch(current_state) {
+    /* MapParserState::EnterPropertyMap *****************************************/
+    case MapParserState::EnterPropertyMap: {
+      next_state = MapParserState::Error;
 
-      do
-      {
-        current_state = next_state;
-
-        switch(current_state) {
-        /* ParserState::EnterPropertyMap *****************************************/
-        case ParserState::EnterPropertyMap: {
-          next_state = ParserState::Error;
-
-          if(cbor_value_get_type(&recursed_map) == CborMapType) {
-            if(cbor_value_enter_container(&recursed_map_save, &recursed_map) == CborNoError) {
-              next_state = ParserState::PropertyNameLabel;
-            }
-          }
+      if(cbor_value_get_type(&map_iter) == CborMapType) {
+        if(cbor_value_enter_container(&map_iter, &value_iter) == CborNoError) {
+          next_state = MapParserState::PropertyNameLabel;
         }
-        break;
-        /* ParserState::PropertyNameLabel ****************************************/
-        case ParserState::PropertyNameLabel: {
-          next_state = ParserState::Error;
-
-          if(cbor_value_is_text_string(&recursed_map)) {
-            char * val      = 0;
-            size_t val_size = 0;
-            if(cbor_value_dup_text_string(&recursed_map, &val, &val_size, &recursed_map) == CborNoError) {
-              if(strcmp(val, "n") == 0) {
-                next_state = ParserState::PropertyName;
-              }
-              free(val);
-            }
-          }
-        }
-        break;
-        /* ParserState::PropertyName *********************************************/
-        case ParserState::PropertyName: {
-          next_state = ParserState::Error;
-
-          if(cbor_value_is_text_string(&recursed_map)) {
-            char * val      = 0;
-            size_t val_size = 0;
-            if(cbor_value_dup_text_string(&recursed_map, &val, &val_size, &recursed_map) == CborNoError) {
-              property_name = String(val);
-              free(val);
-              next_state = ParserState::PropertyValueLabel;
-            }
-          }
-        }
-        break;
-        /* ParserState::PropertyValueLabel ***************************************/
-        case ParserState::PropertyValueLabel: {
-          next_state = ParserState::Error;
-
-          if(cbor_value_is_text_string(&recursed_map)) {
-            char * val      = 0;
-            size_t val_size = 0;
-            if(cbor_value_dup_text_string(&recursed_map, &val, &val_size, &recursed_map) == CborNoError) {
-                   if(strcmp(val, "v" ) == 0) property_value_type = CborIntegerMapKey::Value;
-              else if(strcmp(val, "vs") == 0) property_value_type = CborIntegerMapKey::StringValue;
-              else if(strcmp(val, "vb") == 0) property_value_type = CborIntegerMapKey::BooleanValue;
-              free(val);
-              next_state = ParserState::PropertyValue;
-            }
-          }
-        }
-        break;
-        /* ParserState::PropertyValue ********************************************/
-        case ParserState::PropertyValue: {
-          next_state = ParserState::Error;
-
-          /* VALUE PROPERTY ******************************************************/
-          if(property_value_type == CborIntegerMapKey::Value) {
-            ArduinoCloudProperty<int>   * int_property   = _property_cont.getPropertyInt  (property_name);
-            ArduinoCloudProperty<float> * float_property = _property_cont.getPropertyFloat(property_name);
-
-            /* INT PROPERTY ******************************************************/
-            if(int_property) {
-              extractProperty(int_property, &recursed_map);
-              int_property->execCallbackOnChange();
-            }
-            /* FLOAT PROPERTY ****************************************************/
-            if(float_property) {
-              extractProperty(float_property, &recursed_map);
-              float_property->execCallbackOnChange();
-            }
-          }
-          /* BOOL PROPERTY *******************************************************/
-          if(property_value_type == CborIntegerMapKey::BooleanValue) {
-            ArduinoCloudProperty<bool> * bool_property = _property_cont.getPropertyBool(property_name);
-            if(bool_property) {
-              extractProperty(bool_property, &recursed_map);
-              bool_property->execCallbackOnChange();
-            }
-          }
-          /* STRING PROPERTY *****************************************************/
-          if(property_value_type == CborIntegerMapKey::StringValue) {
-            ArduinoCloudProperty<String> * string_property = _property_cont.getPropertyString(property_name);
-            if(string_property) {
-              extractProperty(string_property, &recursed_map);
-              string_property->execCallbackOnChange();
-            }
-          }
-
-
-          if(cbor_value_advance(&recursed_map) == CborNoError) {
-            next_state = ParserState::LeavePropertyMap;
-            /* FIXME: EXTRACING A STRING PROPERTY AUTOMATICALLY ADVANCES ... */
-          }
-        }
-        break;
-        /* ParserState::LeavePropertyMap *****************************************/
-        case ParserState::LeavePropertyMap: {
-          next_state = ParserState::Error;
-
-          if(cbor_value_leave_container(&recursed_map_save, &recursed_map) == CborNoError) {
-            next_state = ParserState::EnterPropertyMap;
-          }
-        }
-        break;
-        /* ParserState::Error ****************************************************/
-        case ParserState::Error: {
-          return;
-        }
-        break;
-        }
-      } while(current_state != next_state);
+      }
     }
-  }
+    break;
+    /* MapParserState::PropertyNameLabel ****************************************/
+    case MapParserState::PropertyNameLabel: {
+      next_state = MapParserState::Error;
+
+      if(cbor_value_is_text_string(&value_iter)) {
+        char * val      = 0;
+        size_t val_size = 0;
+        if(cbor_value_dup_text_string(&value_iter, &val, &val_size, &value_iter) == CborNoError) {
+          if(strcmp(val, "n") == 0) {
+            next_state = MapParserState::PropertyName;
+          }
+          free(val);
+        }
+      }
+    }
+    break;
+    /* MapParserState::PropertyName *********************************************/
+    case MapParserState::PropertyName: {
+      next_state = MapParserState::Error;
+
+      if(cbor_value_is_text_string(&value_iter)) {
+        char * val      = 0;
+        size_t val_size = 0;
+        if(cbor_value_dup_text_string(&value_iter, &val, &val_size, &value_iter) == CborNoError) {
+          property_name = String(val);
+          free(val);
+          next_state = MapParserState::PropertyValueLabel;
+        }
+      }
+    }
+    break;
+    /* MapParserState::PropertyValueLabel ***************************************/
+    case MapParserState::PropertyValueLabel: {
+      next_state = MapParserState::Error;
+
+      if(cbor_value_is_text_string(&value_iter)) {
+        char * val      = 0;
+        size_t val_size = 0;
+        if(cbor_value_dup_text_string(&value_iter, &val, &val_size, &value_iter) == CborNoError) {
+               if(strcmp(val, "v" ) == 0) property_value_type = CborIntegerMapKey::Value;
+          else if(strcmp(val, "vs") == 0) property_value_type = CborIntegerMapKey::StringValue;
+          else if(strcmp(val, "vb") == 0) property_value_type = CborIntegerMapKey::BooleanValue;
+          free(val);
+          next_state = MapParserState::PropertyValue;
+        }
+      }
+    }
+    break;
+    /* MapParserState::PropertyValue ********************************************/
+    case MapParserState::PropertyValue: {
+      next_state = MapParserState::Error;
+
+      /* VALUE PROPERTY ******************************************************/
+      if(property_value_type == CborIntegerMapKey::Value) {
+        ArduinoCloudProperty<int>   * int_property   = _property_cont.getPropertyInt  (property_name);
+        ArduinoCloudProperty<float> * float_property = _property_cont.getPropertyFloat(property_name);
+
+        /* INT PROPERTY ******************************************************/
+        if(int_property) {
+          extractProperty(int_property, &value_iter);
+          int_property->execCallbackOnChange();
+        }
+        /* FLOAT PROPERTY ****************************************************/
+        if(float_property) {
+          extractProperty(float_property, &value_iter);
+          float_property->execCallbackOnChange();
+        }
+      }
+      /* BOOL PROPERTY *******************************************************/
+      if(property_value_type == CborIntegerMapKey::BooleanValue) {
+        ArduinoCloudProperty<bool> * bool_property = _property_cont.getPropertyBool(property_name);
+        if(bool_property) {
+          extractProperty(bool_property, &value_iter);
+          bool_property->execCallbackOnChange();
+        }
+      }
+      /* STRING PROPERTY *****************************************************/
+      if(property_value_type == CborIntegerMapKey::StringValue) {
+        ArduinoCloudProperty<String> * string_property = _property_cont.getPropertyString(property_name);
+        if(string_property) {
+          extractProperty(string_property, &value_iter);
+          string_property->execCallbackOnChange();
+        }
+      }
+
+      /* It is not necessary to advance it we have a string property
+       * because extracting it automatically advances the iterator.
+       */
+      if(property_value_type != CborIntegerMapKey::StringValue) {
+        if(cbor_value_advance(&value_iter) == CborNoError) {
+          next_state = MapParserState::LeavePropertyMap;
+        }
+      }
+    }
+    break;
+    /* MapParserState::LeavePropertyMap *****************************************/
+    case MapParserState::LeavePropertyMap: {
+      next_state = MapParserState::Error;
+
+      if(cbor_value_leave_container(&map_iter, &value_iter) == CborNoError) {
+        if(!cbor_value_at_end(&map_iter)) {
+          next_state = MapParserState::EnterPropertyMap;
+        }
+        else {
+          next_state = MapParserState::Complete;
+        }
+
+      }
+    }
+    break;
+    /* MapParserState::Complete ****************************************************/
+    case MapParserState::Complete: {
+      /* Nothing to do */
+    }
+    break;
+    /* MapParserState::Error ****************************************************/
+    case MapParserState::Error: {
+      return;
+    }
+    break;
+    }
+  } while(current_state != next_state && current_state != MapParserState::Complete);
 }
