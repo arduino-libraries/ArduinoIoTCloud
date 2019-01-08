@@ -63,7 +63,7 @@ int ArduinoIoTCloudClass::begin(Client& net, String brokerAddress)
   }
   _bearSslClient = new BearSSLClient(net);
   _bearSslClient->setEccSlot(keySlot, ECCX08Cert.bytes(), ECCX08Cert.length());
-  _mqttClient = new MQTTClient(*_bearSslClient);
+  _mqttClient = new MqttClient(*_bearSslClient);
 
   // Begin function for the MQTTClient
   mqttClientBegin();
