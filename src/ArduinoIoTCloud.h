@@ -1,7 +1,7 @@
 #ifndef ARDUINO_IOT_CLOUD_H
 #define ARDUINO_IOT_CLOUD_H
 
-#include <ArduinoMQTT.h>
+#include <ArduinoMqttClient.h>
 #include <ArduinoIoTCloudBearSSL.h>
 #include <ArduinoCloudThing.h>
 
@@ -93,7 +93,7 @@ private:
          _brokerAddress;
   ArduinoCloudThing Thing;
   BearSSLClient* _bearSslClient;
-  MQTTClient* _mqttClient;
+  MqttClient* _mqttClient;
 
   // Class attribute to define MTTQ topics 2 for stdIn/out and 2 for data, in order to avoid getting previous pupblished payload
   String _stdinTopic;
