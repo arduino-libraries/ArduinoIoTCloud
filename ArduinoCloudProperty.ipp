@@ -121,7 +121,8 @@ inline void ArduinoCloudProperty<float>::appendValue(CborEncoder * mapEncoder, C
 
 template <>
 inline void ArduinoCloudProperty<String>::appendValue(CborEncoder * mapEncoder, CloudProtocol const cloud_protocol) const {
-  cbor_encode_int         (mapEncoder, static_cast<int>(CborIntegerMapKey::StringValue));
+  if     (cloud_protocol == CloudProtocol::V1) cbor_encode_text_stringz(mapEncoder, "vs");
+  else if(cloud_protocol == CloudProtocol::V2) cbor_encode_int         (mapEncoder, static_cast<int>(CborIntegerMapKey::StringValue));
   cbor_encode_text_stringz(mapEncoder, _property.c_str());
 }
 
