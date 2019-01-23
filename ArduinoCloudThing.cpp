@@ -337,11 +337,19 @@ void ArduinoCloudThing::decode(uint8_t const * const payload, size_t const lengt
         if(int_property) {
           extractProperty(int_property, &value_iter);
           int_property->execCallbackOnChange();
+
+          if(cbor_value_advance(&value_iter) == CborNoError) {
+            next_state = MapParserState::LeavePropertyMap;
+          }
         }
         /* FLOAT PROPERTY ****************************************************/
         if(float_property) {
           extractProperty(float_property, &value_iter);
           float_property->execCallbackOnChange();
+
+          if(cbor_value_advance(&value_iter) == CborNoError) {
+            next_state = MapParserState::LeavePropertyMap;
+          }
         }
       }
       /* BOOL PROPERTY *******************************************************/
@@ -350,6 +358,10 @@ void ArduinoCloudThing::decode(uint8_t const * const payload, size_t const lengt
         if(bool_property) {
           extractProperty(bool_property, &value_iter);
           bool_property->execCallbackOnChange();
+
+          if(cbor_value_advance(&value_iter) == CborNoError) {
+            next_state = MapParserState::LeavePropertyMap;
+          }
         }
       }
       /* STRING PROPERTY *****************************************************/
@@ -358,14 +370,10 @@ void ArduinoCloudThing::decode(uint8_t const * const payload, size_t const lengt
         if(string_property) {
           extractProperty(string_property, &value_iter);
           string_property->execCallbackOnChange();
-        }
-      }
 
-      /* It is not necessary to advance it we have a string property
-       * because extracting it automatically advances the iterator.
-       */
-      if(property_value_type != CborIntegerMapKey::StringValue) {
-        if(cbor_value_advance(&value_iter) == CborNoError) {
+          /* It is not necessary to advance it we have a string property
+           * because extracting it automatically advances the iterator.
+           */
           next_state = MapParserState::LeavePropertyMap;
         }
       }
