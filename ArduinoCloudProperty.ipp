@@ -11,7 +11,7 @@ ArduinoCloudProperty<T>::ArduinoCloudProperty(T & property, String const & name,
   _update_callback_func(NULL),
   _update_policy(UpdatePolicy::OnChange),
   _has_been_updated_once(false),
-  _min_delta_property(T(0)),
+  _min_delta_property(getInitialMinDeltaPropertyValue()),
   _min_time_between_updates_millis(0),
   _last_updated_millis(0),
   _update_interval_millis(0)
@@ -144,4 +144,24 @@ inline bool ArduinoCloudProperty<float>::isValueDifferent(float const lhs, float
 template <>
 inline bool ArduinoCloudProperty<String>::isValueDifferent(String const lhs, String const rhs) const {
   return (lhs != rhs);
+}
+
+template <>
+inline bool ArduinoCloudProperty<bool>::getInitialMinDeltaPropertyValue() const {
+  return false;
+}
+
+template <>
+inline int ArduinoCloudProperty<int>::getInitialMinDeltaPropertyValue() const {
+  return 0;
+}
+
+template <>
+inline float ArduinoCloudProperty<float>::getInitialMinDeltaPropertyValue() const {
+  return 0.0f;
+}
+
+template <>
+inline String ArduinoCloudProperty<String>::getInitialMinDeltaPropertyValue() const {
+  return String("");
 }

@@ -102,6 +102,8 @@ private:
   void appendValue(CborEncoder * mapEncoder, CloudProtocol const cloud_protocol) const;
   bool isValueDifferent(T const lhs, T const rhs) const;
 
+  T getInitialMinDeltaPropertyValue() const;
+
 };
 
 /******************************************************************************
