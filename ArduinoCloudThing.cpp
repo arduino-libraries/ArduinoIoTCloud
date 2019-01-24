@@ -280,14 +280,29 @@ void ArduinoCloudThing::decode(uint8_t const * const payload, size_t const lengt
     case MapParserState::PropertyNameLabel: {
       next_state = MapParserState::Error;
 
-      if(cbor_value_is_text_string(&value_iter)) {
-        char * val      = 0;
-        size_t val_size = 0;
-        if(cbor_value_dup_text_string(&value_iter, &val, &val_size, &value_iter) == CborNoError) {
-          if(strcmp(val, "n") == 0) {
-            next_state = MapParserState::PropertyName;
+      if(_cloud_protocol == CloudProtocol::V1) {
+        if(cbor_value_is_text_string(&value_iter)) {
+          char * val      = 0;
+          size_t val_size = 0;
+          if(cbor_value_dup_text_string(&value_iter, &val, &val_size, &value_iter) == CborNoError) {
+            if(strcmp(val, "n") == 0) {
+              next_state = MapParserState::PropertyName;
+            }
+            free(val);
           }
-          free(val);
+        }
+      }
+
+      if(_cloud_protocol == CloudProtocol::V2) {
+        if(cbor_value_is_integer(&value_iter)) {
+          int val = 0;
+          if(cbor_value_get_int(&value_iter, &val) == CborNoError) {
+            if(val == static_cast<int>(CborIntegerMapKey::Name)) {
+              if(cbor_value_advance(&value_iter) == CborNoError) {
+                next_state = MapParserState::PropertyName;
+              }
+            }
+          }
         }
       }
     }
@@ -311,15 +326,31 @@ void ArduinoCloudThing::decode(uint8_t const * const payload, size_t const lengt
     case MapParserState::PropertyValueLabel: {
       next_state = MapParserState::Error;
 
-      if(cbor_value_is_text_string(&value_iter)) {
-        char * val      = 0;
-        size_t val_size = 0;
-        if(cbor_value_dup_text_string(&value_iter, &val, &val_size, &value_iter) == CborNoError) {
-               if(strcmp(val, "v" ) == 0) property_value_type = CborIntegerMapKey::Value;
-          else if(strcmp(val, "vs") == 0) property_value_type = CborIntegerMapKey::StringValue;
-          else if(strcmp(val, "vb") == 0) property_value_type = CborIntegerMapKey::BooleanValue;
-          free(val);
-          next_state = MapParserState::PropertyValue;
+      if(_cloud_protocol == CloudProtocol::V1) {
+        if(cbor_value_is_text_string(&value_iter)) {
+          char * val      = 0;
+          size_t val_size = 0;
+          if(cbor_value_dup_text_string(&value_iter, &val, &val_size, &value_iter) == CborNoError) {
+            if     (strcmp(val, "v" ) == 0) property_value_type = CborIntegerMapKey::Value;
+            else if(strcmp(val, "vs") == 0) property_value_type = CborIntegerMapKey::StringValue;
+            else if(strcmp(val, "vb") == 0) property_value_type = CborIntegerMapKey::BooleanValue;
+            free(val);
+            next_state = MapParserState::PropertyValue;
+          }
+        }
+      }
+
+      if(_cloud_protocol == CloudProtocol::V2) {
+        if(cbor_value_is_integer(&value_iter)) {
+          int val = 0;
+          if(cbor_value_get_int(&value_iter, &val) == CborNoError) {
+            if     (val == static_cast<int>(CborIntegerMapKey::Value       )) property_value_type = CborIntegerMapKey::Value;
+            else if(val == static_cast<int>(CborIntegerMapKey::StringValue )) property_value_type = CborIntegerMapKey::StringValue;
+            else if(val == static_cast<int>(CborIntegerMapKey::BooleanValue)) property_value_type = CborIntegerMapKey::BooleanValue;
+            if(cbor_value_advance(&value_iter) == CborNoError) {
+              next_state = MapParserState::PropertyValue;
+            }
+          }
         }
       }
     }
