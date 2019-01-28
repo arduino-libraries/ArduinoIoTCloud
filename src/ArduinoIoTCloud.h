@@ -4,6 +4,7 @@
 #include <ArduinoMqttClient.h>
 #include <ArduinoIoTCloudBearSSL.h>
 #include <ArduinoCloudThing.h>
+#include "ConnectionManager.h"
 
 #include "CloudSerial.h"
 
@@ -20,13 +21,15 @@ typedef struct {
   int timeout;
 } mqttConnectionOptions;
 
+extern ConnectionManager *ArduinoIoTPreferredConnection;
+
 class ArduinoIoTCloudClass {
 
 public:
   ArduinoIoTCloudClass();
   ~ArduinoIoTCloudClass();
 
-  int begin(Client& net, String brokerAddress = "mqtts-sa.iot.arduino.cc");
+  int begin(ConnectionManager *connection = ArduinoIoTPreferredConnection, String brokerAddress = "mqtts-sa.iot.arduino.cc");
 
   // Class constant declaration
   static const int MQTT_TRANSMIT_BUFFER_SIZE = 256;
@@ -41,9 +44,6 @@ public:
 
   // defined for users who want to specify max reconnections reties and timeout between them
   void update(int const reconnectionMaxRetries, int const reconnectionTimeoutMs);
-  // It must be a user defined function, in order to avoid ArduinoCloud include specific WiFi file
-  // in this case this library is independent from the WiFi one
-  void onGetTime(unsigned long(*)(void));
 
   int connected();
   // Clean up existing Mqtt connection, create a new one and initialize it
@@ -88,6 +88,7 @@ protected:
   bool mqttReconnect(int const maxRetries, int const timeout);
 
 private:
+  ConnectionManager *connection;
   static void onMessage(int length);
   void handleMessage(int length);
 

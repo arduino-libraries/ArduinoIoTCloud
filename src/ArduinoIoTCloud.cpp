@@ -8,6 +8,13 @@ const static int compressedCertSlot                        = 10;
 const static int serialNumberAndAuthorityKeyIdentifierSlot = 11;
 const static int thingIdSlot                               = 12;
 
+static ConnectionManager *getTimeConnection = NULL;
+
+static unsigned long getTime() {
+  if (!getTimeConnection) return 0;
+  return getTimeConnection->getTime();
+}
+
 ArduinoIoTCloudClass::ArduinoIoTCloudClass() :
   _thing_id     (""),
   _bearSslClient(NULL),
@@ -28,8 +35,10 @@ ArduinoIoTCloudClass::~ArduinoIoTCloudClass()
   }
 }
 
-int ArduinoIoTCloudClass::begin(Client& net, String brokerAddress)
+int ArduinoIoTCloudClass::begin(ConnectionManager *c, String brokerAddress)
 {
+  connection = c;
+
   // store the broker address as class member
   _brokerAddress = brokerAddress;
 
@@ -61,9 +70,14 @@ int ArduinoIoTCloudClass::begin(Client& net, String brokerAddress)
   if (_bearSslClient) {
     delete _bearSslClient;
   }
-  _bearSslClient = new BearSSLClient(net);
+  _bearSslClient = new BearSSLClient(connection->getClient());
   _bearSslClient->setEccSlot(keySlot, ECCX08Cert.bytes(), ECCX08Cert.length());
   _mqttClient = new MqttClient(*_bearSslClient);
+
+  // Bind ArduinoBearSSL callback using static "non-method" function
+  getTimeConnection = connection;
+  ArduinoBearSSL.onGetTime(getTime);
+  // TODO: Find a better way to allow callback into object method
 
   // Begin function for the MQTTClient
   mqttClientBegin();
@@ -134,7 +148,7 @@ bool ArduinoIoTCloudClass::mqttReconnect(int const maxRetries, int const timeout
 
   // Check for MQTT broker connection, of if maxReties limit is reached
   // if MQTTClient is connected , simply do nothing and retun true
-  while(!_mqttClient->connected() && (retries++ < maxRetries) && (millis() - start < timeout)) {
+  while (!_mqttClient->connected() && (retries++ < maxRetries) && (millis() - start < timeout)) {
     // int connectError = _mqttClient->connectError();
 
     // try establish the MQTT broker connection
@@ -177,11 +191,6 @@ int ArduinoIoTCloudClass::reconnect(Client& /*net*/)
 
   // Connect to the broker
   return connect();
-}
-
-void ArduinoIoTCloudClass::onGetTime(unsigned long(*callback)(void))
-{
-  ArduinoBearSSL.onGetTime(callback);
 }
 
 int ArduinoIoTCloudClass::connected()
