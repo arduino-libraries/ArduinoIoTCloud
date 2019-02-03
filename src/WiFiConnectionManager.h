@@ -15,14 +15,14 @@ private:
   void iotConnectionCheck();
   void changeConnectionState(NetworkConnectionState _newState);
 
-  const int CHECK_INTERVAL_IDLE = 500;
-  const int CHECK_INTERVAL_INIT = 500;
+  const int CHECK_INTERVAL_IDLE = 100;
+  const int CHECK_INTERVAL_INIT = 100;
   const int CHECK_INTERVAL_CONNECTING = 500;
   const int CHECK_INTERVAL_GETTIME = 100;
   const int CHECK_INTERVAL_CONNECTED = 10000;
   const int CHECK_INTERVAL_RETRYING = 5000;
   const int CHECK_INTERVAL_DISCONNECTED = 1000;
-  const int CHECK_INTERVAL_ERROR = 1000;
+  const int CHECK_INTERVAL_ERROR = 500;
 
   const char *ssid, *pass;
   unsigned long lastConnectionTickTime, lastNetworkStep;
