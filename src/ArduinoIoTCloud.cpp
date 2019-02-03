@@ -38,6 +38,12 @@ ArduinoIoTCloudClass::~ArduinoIoTCloudClass()
 int ArduinoIoTCloudClass::begin(ConnectionManager *c, String brokerAddress)
 {
   connection = c;
+  Client &connectionClient = c->getClient();
+  return begin(connectionClient, brokerAddress);
+}
+
+int ArduinoIoTCloudClass::begin(Client& net, String brokerAddress)
+{
 
   // store the broker address as class member
   _brokerAddress = brokerAddress;

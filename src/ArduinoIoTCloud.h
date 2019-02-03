@@ -46,7 +46,7 @@ public:
   ~ArduinoIoTCloudClass();
 
   int begin(ConnectionManager *connection = ArduinoIoTPreferredConnection, String brokerAddress = "mqtts-sa.iot.arduino.cc");
-
+  int begin(Client& net, String brokerAddress);
   // Class constant declaration
   static const int MQTT_TRANSMIT_BUFFER_SIZE = 256;
   static const int MAX_RETRIES = 5;
