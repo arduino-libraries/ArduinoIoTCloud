@@ -182,9 +182,8 @@ void ArduinoIoTCloudClass::update(int const reconnectionMaxRetries, int const re
   }
 }
 
-int ArduinoIoTCloudClass::reconnect(Client& /*net*/)
+int ArduinoIoTCloudClass::reconnect()
 {
-  // check if MQTT client is still connected
   if (_mqttClient->connected()) {
     _mqttClient->stop();
   }
@@ -253,6 +252,63 @@ void ArduinoIoTCloudClass::handleMessage(int length)
   }
   if (_dataTopicIn == topic) {
     Thing.decode((uint8_t*)bytes, length);
+  }
+}
+
+void ArduinoIoTCloudClass::connectionCheck() {
+  connection->check();
+  if (connection->getStatus() != CONNECTION_STATE_CONNECTED) {
+    iotStatus = IOT_STATUS_CLOUD_DISCONNECTED;
+    return;
+  }
+  char msgBuffer[120];
+  int arduinoIoTConnectionAttempt;
+
+  switch (iotStatus) {
+    case IOT_STATUS_IDLE:
+      if (!begin(connection)) {
+        debugMessage("Error Starting Arduino Cloud\nTrying again in a few seconds", 0);
+        iotStatus = IOT_STATUS_CLOUD_ERROR;
+        return;
+      }
+      // TODO: Controlla bene che non serva
+      //ArduinoCloud.onGetTime(getTime);
+      iotStatus = IOT_STATUS_CLOUD_CONNECTING;
+      break;
+    case IOT_STATUS_CLOUD_ERROR:
+      debugMessage("Cloud Error. Retrying...", 0);
+      break;
+    case IOT_STATUS_CLOUD_CONNECTED:
+      debugMessage("connected to Arduino IoT Cloud", 2);
+      break;
+    case IOT_STATUS_CLOUD_DISCONNECTED:
+      iotStatus = IOT_STATUS_CLOUD_RECONNECTING;
+      break;
+    case IOT_STATUS_CLOUD_RECONNECTING:
+      debugMessage("IoT Cloud reconnecting...", 1);
+      //wifiClient.stop();
+      arduinoIoTConnectionAttempt = reconnect();
+      *msgBuffer = 0;
+      sprintf(msgBuffer, "ArduinoCloud.reconnect(): %d", arduinoIoTConnectionAttempt);
+      debugMessage(msgBuffer, 1);
+      if (arduinoIoTConnectionAttempt) {
+        CloudSerial.begin(9600);
+        CloudSerial.println("Hello from Cloud Serial!");
+        iotStatus = IOT_STATUS_CLOUD_CONNECTED;
+      }
+      break;
+    case IOT_STATUS_CLOUD_CONNECTING:
+      debugMessage("IoT Cloud connecting...", 3);
+      arduinoIoTConnectionAttempt = connect();
+      *msgBuffer = 0;
+      sprintf(msgBuffer, "ArduinoCloud.connect(): %d", arduinoIoTConnectionAttempt);
+      debugMessage(msgBuffer, 2);
+      if (arduinoIoTConnectionAttempt) {
+        CloudSerial.begin(9600);
+        CloudSerial.println("Hello from Cloud Serial!");
+        iotStatus = IOT_STATUS_CLOUD_CONNECTED;
+      }
+      break;
   }
 }
 

@@ -9,7 +9,6 @@ public:
   virtual void init();
   virtual void check();
   virtual Client &getClient() { return networkClient; };
-  virtual ArduinoIoTConnectionStatus status() { return IOT_STATUS_IDLE; };
 
   GSMClient networkClient;
   GSM gsmAccess;

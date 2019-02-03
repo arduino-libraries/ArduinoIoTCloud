@@ -23,6 +23,22 @@ typedef struct {
 
 extern ConnectionManager *ArduinoIoTPreferredConnection;
 
+enum ArduinoIoTConnectionStatus {
+  IOT_STATUS_IDLE,/* only at start */
+  IOT_STATUS_CLOUD_IDLE,
+  IOT_STATUS_CLOUD_CONNECTING,
+  IOT_STATUS_CLOUD_CONNECTED,
+  IOT_STATUS_CLOUD_DISCONNECTED,
+  IOT_STATUS_CLOUD_RECONNECTING,
+  IOT_STATUS_CLOUD_ERROR,
+  IOT_STATUS_NETWORK_IDLE,
+  IOT_STATUS_NETWORK_CONNECTED,
+  IOT_STATUS_NETWORK_CONNECTING,
+  IOT_STATUS_NETWORK_DISCONNECTED,
+  IOT_STATUS_NETWORK_ERROR,
+  IOT_STATUS_ERROR_GENERIC
+};
+
 class ArduinoIoTCloudClass {
 
 public:
@@ -47,7 +63,7 @@ public:
 
   int connected();
   // Clean up existing Mqtt connection, create a new one and initialize it
-  int reconnect(Client& net);
+  int reconnect();
 
   inline void setThingId(String const thing_id) { _thing_id = thing_id; };
 
@@ -78,6 +94,8 @@ public:
     return Thing.addPropertyReal(property, name, permission);
   }
 
+  void connectionCheck();
+
 protected:
   friend class CloudSerialClass;
   int writeStdout(const byte data[], int length);
@@ -87,7 +105,10 @@ protected:
   // Function in charge of perform MQTT reconnection, basing on class parameters(retries,and timeout)
   bool mqttReconnect(int const maxRetries, int const timeout);
 
+  ArduinoIoTConnectionStatus getIoTStatus() { return iotStatus; }
+
 private:
+  ArduinoIoTConnectionStatus iotStatus = IOT_STATUS_IDLE;
   ConnectionManager *connection;
   static void onMessage(int length);
   void handleMessage(int length);
