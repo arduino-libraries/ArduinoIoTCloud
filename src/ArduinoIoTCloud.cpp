@@ -137,7 +137,10 @@ void ArduinoIoTCloudClass::poll()
 void ArduinoIoTCloudClass::update()
 {
   // If user call update() without parameters use the default ones
-  update(MAX_RETRIES, RECONNECTION_TIMEOUT);
+  if(iotStatus == IOT_STATUS_CLOUD_CONNECTED){
+    update(MAX_RETRIES, RECONNECTION_TIMEOUT);
+  }
+  
 }
 
 bool ArduinoIoTCloudClass::mqttReconnect(int const maxRetries, int const timeout)
@@ -258,7 +261,8 @@ void ArduinoIoTCloudClass::handleMessage(int length)
 void ArduinoIoTCloudClass::connectionCheck() {
   connection->check();
   if (connection->getStatus() != CONNECTION_STATE_CONNECTED) {
-    iotStatus = IOT_STATUS_CLOUD_DISCONNECTED;
+    if(iotStatus == IOT_STATUS_CLOUD_CONNECTED)
+      iotStatus = IOT_STATUS_CLOUD_DISCONNECTED;
     return;
   }
   char msgBuffer[120];
@@ -279,7 +283,7 @@ void ArduinoIoTCloudClass::connectionCheck() {
       debugMessage("Cloud Error. Retrying...", 0);
       break;
     case IOT_STATUS_CLOUD_CONNECTED:
-      debugMessage("connected to Arduino IoT Cloud", 2);
+      debugMessage("connected to Arduino IoT Cloud", 3);
       break;
     case IOT_STATUS_CLOUD_DISCONNECTED:
       iotStatus = IOT_STATUS_CLOUD_RECONNECTING;
@@ -298,7 +302,7 @@ void ArduinoIoTCloudClass::connectionCheck() {
       }
       break;
     case IOT_STATUS_CLOUD_CONNECTING:
-      debugMessage("IoT Cloud connecting...", 3);
+      debugMessage("IoT Cloud connecting...", 1);
       arduinoIoTConnectionAttempt = connect();
       *msgBuffer = 0;
       sprintf(msgBuffer, "ArduinoCloud.connect(): %d", arduinoIoTConnectionAttempt);
