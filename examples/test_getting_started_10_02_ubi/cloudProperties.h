@@ -1,7 +1,7 @@
-#include <GSMConnectionManager.h>
+#include <WiFiConnectionManager.h>
 
-ConnectionManager *ArduinoIoTPreferredConnection = new GSMConnectionManager(
-  SECRET_GSMPIN, SECRET_GPRSAPN, SECRET_GPRSLOGIN, SECRET_GPRSPWD);
+ConnectionManager *ArduinoIoTPreferredConnection = new WiFiConnectionManager(
+  SECRET_SSID, SECRET_PASS);
 
 void onLedSwitchChange();
 void onIntValueChange();

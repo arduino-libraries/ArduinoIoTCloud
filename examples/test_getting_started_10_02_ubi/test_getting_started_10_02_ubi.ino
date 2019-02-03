@@ -71,13 +71,11 @@ void loop() {
   checkNetworkConnection();
 }
 
-ConnectionManager *conn = new GSMConnectionManager("", "", "", "");
-
 void initConnection() {
   ArduinoIoTPreferredConnection->init();
 
   // begin of the ArduinoIoTCloud
-  if (!ArduinoCloud.begin(conn)) {
+  if (!ArduinoCloud.begin()) {
     Serial.println("Starting Arduino Cloud failed!");
     while (true);
   }
@@ -107,7 +105,7 @@ void checkNetworkConnection() {
   Serial.println("..Reconnected to the Nework!");
 
   // Call the reconnect method to clean up the ArduinoCloud connection
-  while (!ArduinoCloud.reconnect(ArduinoIoTPreferredConnection->getClient())) {
+  while (!ArduinoCloud.reconnect()) {
     delay(ARDUINO_IOT_CLOUD_CONNECTION_TIMEOUT);
   }
 
