@@ -159,10 +159,7 @@ void ArduinoIoTCloudClass::poll()
 void ArduinoIoTCloudClass::update()
 {
   // If user call update() without parameters use the default ones
-  if(iotStatus == IOT_STATUS_CLOUD_CONNECTED){
-    update(MAX_RETRIES, RECONNECTION_TIMEOUT);
-  }
-  
+  update(MAX_RETRIES, RECONNECTION_TIMEOUT);
 }
 
 bool ArduinoIoTCloudClass::mqttReconnect(int const maxRetries, int const timeout)
@@ -189,6 +186,10 @@ bool ArduinoIoTCloudClass::mqttReconnect(int const maxRetries, int const timeout
 
 void ArduinoIoTCloudClass::update(int const reconnectionMaxRetries, int const reconnectionTimeoutMs)
 {
+  connectionCheck();
+  if(iotStatus != IOT_STATUS_CLOUD_CONNECTED){
+    return;
+  }
   // Method's argument controls
   int const maxRetries = (reconnectionMaxRetries > 0) ? reconnectionMaxRetries : MAX_RETRIES;
   int const timeout    = (reconnectionTimeoutMs  > 0) ? reconnectionTimeoutMs  : RECONNECTION_TIMEOUT;
