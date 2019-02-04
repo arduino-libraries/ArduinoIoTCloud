@@ -252,84 +252,15 @@ void ArduinoCloudThing::decode(uint8_t const * const payload, size_t const lengt
                     base_time = 0.0;
   CborIntegerMapKey property_value_type;
 
-  enum class MapParserState {
-    EnterMap,
-    MapKey,
-    BaseName,
-    BaseTime,
-    Time,
-    Name,
-    PropertyType,
-    PropertyValue,
-    LeaveMap,
-    Complete,
-    Error
-  };
   MapParserState current_state = MapParserState::EnterMap,
                  next_state;
 
   while(current_state != MapParserState::Complete)
   {
     switch(current_state) {
-    /* MapParserState::EnterMap *****************************************/
-    case MapParserState::EnterMap: {
-      next_state = MapParserState::Error;
-
-      if(cbor_value_get_type(&map_iter) == CborMapType) {
-        if(cbor_value_enter_container(&map_iter, &value_iter) == CborNoError) {
-          next_state = MapParserState::MapKey;
-        }
-      }
-    }
-    break;
-    /* MapParserState::MapKey ****************************************/
-    case MapParserState::MapKey: {
-      next_state = MapParserState::Error;
-
-      if(_cloud_protocol == CloudProtocol::V1) {
-        if(cbor_value_is_text_string(&value_iter)) {
-          char * val      = 0;
-          size_t val_size = 0;
-          if(cbor_value_dup_text_string(&value_iter, &val, &val_size, &value_iter) == CborNoError) {
-            if     (strcmp(val, "n" ) == 0) { next_state = MapParserState::Name;     }
-            else if(strcmp(val, "bn") == 0) { next_state = MapParserState::BaseName; }
-            else if(strcmp(val, "bt") == 0) { next_state = MapParserState::BaseTime; }
-            else if(strcmp(val, "t" ) == 0) { next_state = MapParserState::Time;     }
-            free(val);
-          }
-        }
-      }
-
-      if(_cloud_protocol == CloudProtocol::V2) {
-        if(cbor_value_is_integer(&value_iter)) {
-          int val = 0;
-          if(cbor_value_get_int(&value_iter, &val) == CborNoError) {
-            if(cbor_value_advance(&value_iter) == CborNoError) {
-              if     (val == static_cast<int>(CborIntegerMapKey::Name    )) { next_state = MapParserState::Name;     }
-              else if(val == static_cast<int>(CborIntegerMapKey::BaseName)) { next_state = MapParserState::BaseName; }
-              else if(val == static_cast<int>(CborIntegerMapKey::BaseTime)) { next_state = MapParserState::BaseTime; }
-              else if(val == static_cast<int>(CborIntegerMapKey::Time    )) { next_state = MapParserState::Time;     }
-            }
-          }
-        }
-      }
-    }
-    break;
-    /* MapParserState::BaseName *****************************************/
-    case MapParserState::BaseName: {
-      next_state = MapParserState::Error;
-
-      if(cbor_value_is_text_string(&value_iter)) {
-        char * val      = 0;
-        size_t val_size = 0;
-        if(cbor_value_dup_text_string(&value_iter, &val, &val_size, &value_iter) == CborNoError) {
-          base_name = String(val);
-          free(val);
-          next_state = MapParserState::MapKey;
-        }
-      }
-    }
-    break;
+    case MapParserState::EnterMap: next_state = handle_EnterMap(&map_iter, &value_iter ); break;
+    case MapParserState::MapKey  : next_state = handle_MapKey  (&value_iter            ); break;
+    case MapParserState::BaseName: next_state = handle_BaseName(&value_iter, &base_name); break;
 
     /* MapParserState::BaseTime *****************************************/
     case MapParserState::BaseTime: {
@@ -493,4 +424,70 @@ void ArduinoCloudThing::decode(uint8_t const * const payload, size_t const lengt
 
     current_state = next_state;
   }
+}
+
+/******************************************************************************
+ * PRIVATE MEMBER FUNCTIONS
+ ******************************************************************************/
+
+ArduinoCloudThing::MapParserState ArduinoCloudThing::handle_EnterMap(CborValue * map_iter, CborValue * value_iter) {
+  MapParserState next_state = MapParserState::Error;
+
+  if(cbor_value_get_type(map_iter) == CborMapType) {
+    if(cbor_value_enter_container(map_iter, value_iter) == CborNoError) {
+      next_state = MapParserState::MapKey;
+    }
+  }
+
+  return next_state;
+}
+
+ArduinoCloudThing::MapParserState ArduinoCloudThing::handle_MapKey(CborValue * value_iter) {
+  MapParserState next_state = MapParserState::Error;
+
+  if(_cloud_protocol == CloudProtocol::V1) {
+    if(cbor_value_is_text_string(value_iter)) {
+      char * val      = 0;
+      size_t val_size = 0;
+      if(cbor_value_dup_text_string(value_iter, &val, &val_size, value_iter) == CborNoError) {
+        if     (strcmp(val, "n" ) == 0) { next_state = MapParserState::Name;     }
+        else if(strcmp(val, "bn") == 0) { next_state = MapParserState::BaseName; }
+        else if(strcmp(val, "bt") == 0) { next_state = MapParserState::BaseTime; }
+        else if(strcmp(val, "t" ) == 0) { next_state = MapParserState::Time;     }
+        free(val);
+      }
+    }
+  }
+
+  if(_cloud_protocol == CloudProtocol::V2) {
+    if(cbor_value_is_integer(value_iter)) {
+      int val = 0;
+      if(cbor_value_get_int(value_iter, &val) == CborNoError) {
+        if(cbor_value_advance(value_iter) == CborNoError) {
+          if     (val == static_cast<int>(CborIntegerMapKey::Name    )) { next_state = MapParserState::Name;     }
+          else if(val == static_cast<int>(CborIntegerMapKey::BaseName)) { next_state = MapParserState::BaseName; }
+          else if(val == static_cast<int>(CborIntegerMapKey::BaseTime)) { next_state = MapParserState::BaseTime; }
+          else if(val == static_cast<int>(CborIntegerMapKey::Time    )) { next_state = MapParserState::Time;     }
+        }
+      }
+    }
+  }
+
+  return next_state;
+}
+
+ArduinoCloudThing::MapParserState ArduinoCloudThing::handle_BaseName(CborValue * value_iter, String * base_name) {
+  MapParserState next_state = MapParserState::Error;
+
+  if(cbor_value_is_text_string(value_iter)) {
+    char * val      = 0;
+    size_t val_size = 0;
+    if(cbor_value_dup_text_string(value_iter, &val, &val_size, value_iter) == CborNoError) {
+      *base_name = String(val);
+      free(val);
+      next_state = MapParserState::MapKey;
+    }
+  }
+
+  return next_state;
 }
