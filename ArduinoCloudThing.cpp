@@ -246,38 +246,42 @@ void ArduinoCloudThing::decode(uint8_t const * const payload, size_t const lengt
   if(cbor_value_enter_container(&array_iter, &map_iter) != CborNoError)
     return;
 
-  String            property_name;
+  String            base_name,
+                    property_name;
   CborIntegerMapKey property_value_type;
 
   enum class MapParserState {
-    EnterPropertyMap,
-    PropertyNameLabel,
+    EnterMap,
+    MapKey,
+    BaseName,
+    BaseTime,
+    Time,
     PropertyName,
-    PropertyValueLabel,
+    PropertyType,
     PropertyValue,
-    LeavePropertyMap,
+    LeaveMap,
     Complete,
     Error
   };
-  MapParserState current_state = MapParserState::EnterPropertyMap,
+  MapParserState current_state = MapParserState::EnterMap,
                  next_state;
 
   while(current_state != MapParserState::Complete)
   {
     switch(current_state) {
-    /* MapParserState::EnterPropertyMap *****************************************/
-    case MapParserState::EnterPropertyMap: {
+    /* MapParserState::EnterMap *****************************************/
+    case MapParserState::EnterMap: {
       next_state = MapParserState::Error;
 
       if(cbor_value_get_type(&map_iter) == CborMapType) {
         if(cbor_value_enter_container(&map_iter, &value_iter) == CborNoError) {
-          next_state = MapParserState::PropertyNameLabel;
+          next_state = MapParserState::MapKey;
         }
       }
     }
     break;
-    /* MapParserState::PropertyNameLabel ****************************************/
-    case MapParserState::PropertyNameLabel: {
+    /* MapParserState::MapKey ****************************************/
+    case MapParserState::MapKey: {
       next_state = MapParserState::Error;
 
       if(_cloud_protocol == CloudProtocol::V1) {
@@ -285,9 +289,10 @@ void ArduinoCloudThing::decode(uint8_t const * const payload, size_t const lengt
           char * val      = 0;
           size_t val_size = 0;
           if(cbor_value_dup_text_string(&value_iter, &val, &val_size, &value_iter) == CborNoError) {
-            if(strcmp(val, "n") == 0) {
-              next_state = MapParserState::PropertyName;
-            }
+            if     (strcmp(val, "n" ) == 0) { next_state = MapParserState::PropertyName; }
+            else if(strcmp(val, "bn") == 0) { next_state = MapParserState::BaseName;     }
+            else if(strcmp(val, "bt") == 0) { next_state = MapParserState::BaseTime;     }
+            else if(strcmp(val, "t" ) == 0) { next_state = MapParserState::Time;         }
             free(val);
           }
         }
@@ -297,14 +302,42 @@ void ArduinoCloudThing::decode(uint8_t const * const payload, size_t const lengt
         if(cbor_value_is_integer(&value_iter)) {
           int val = 0;
           if(cbor_value_get_int(&value_iter, &val) == CborNoError) {
-            if(val == static_cast<int>(CborIntegerMapKey::Name)) {
-              if(cbor_value_advance(&value_iter) == CborNoError) {
-                next_state = MapParserState::PropertyName;
-              }
+            if(cbor_value_advance(&value_iter) == CborNoError) {
+              if     (val == static_cast<int>(CborIntegerMapKey::Name    )) { next_state = MapParserState::PropertyName; }
+              else if(val == static_cast<int>(CborIntegerMapKey::BaseName)) { next_state = MapParserState::BaseName;     }
+              else if(val == static_cast<int>(CborIntegerMapKey::BaseTime)) { next_state = MapParserState::BaseTime;     }
+              else if(val == static_cast<int>(CborIntegerMapKey::Time    )) { next_state = MapParserState::Time;         }
             }
           }
         }
       }
+    }
+    break;
+    /* MapParserState::BaseName *****************************************/
+    case MapParserState::BaseName: {
+      next_state = MapParserState::Error;
+
+      if(cbor_value_is_text_string(&value_iter)) {
+        char * val      = 0;
+        size_t val_size = 0;
+        if(cbor_value_dup_text_string(&value_iter, &val, &val_size, &value_iter) == CborNoError) {
+          base_name = String(val);
+          free(val);
+          next_state = MapParserState::MapKey;
+        }
+      }
+    }
+    break;
+
+    /* MapParserState::BaseTime *****************************************/
+    case MapParserState::BaseTime: {
+      /* TODO */
+    }
+    break;
+
+    /* MapParserState::Time *****************************************/
+    case MapParserState::Time : {
+      /* TODO */
     }
     break;
     /* MapParserState::PropertyName *********************************************/
@@ -317,13 +350,13 @@ void ArduinoCloudThing::decode(uint8_t const * const payload, size_t const lengt
         if(cbor_value_dup_text_string(&value_iter, &val, &val_size, &value_iter) == CborNoError) {
           property_name = String(val);
           free(val);
-          next_state = MapParserState::PropertyValueLabel;
+          next_state = MapParserState::PropertyType;
         }
       }
     }
     break;
-    /* MapParserState::PropertyValueLabel ***************************************/
-    case MapParserState::PropertyValueLabel: {
+    /* MapParserState::PropertyType ***************************************/
+    case MapParserState::PropertyType: {
       next_state = MapParserState::Error;
 
       if(_cloud_protocol == CloudProtocol::V1) {
@@ -370,7 +403,7 @@ void ArduinoCloudThing::decode(uint8_t const * const payload, size_t const lengt
           int_property->execCallbackOnChange();
 
           if(cbor_value_advance(&value_iter) == CborNoError) {
-            next_state = MapParserState::LeavePropertyMap;
+            next_state = MapParserState::LeaveMap;
           }
         }
         /* FLOAT PROPERTY ****************************************************/
@@ -379,7 +412,7 @@ void ArduinoCloudThing::decode(uint8_t const * const payload, size_t const lengt
           float_property->execCallbackOnChange();
 
           if(cbor_value_advance(&value_iter) == CborNoError) {
-            next_state = MapParserState::LeavePropertyMap;
+            next_state = MapParserState::LeaveMap;
           }
         }
       }
@@ -391,7 +424,7 @@ void ArduinoCloudThing::decode(uint8_t const * const payload, size_t const lengt
           bool_property->execCallbackOnChange();
 
           if(cbor_value_advance(&value_iter) == CborNoError) {
-            next_state = MapParserState::LeavePropertyMap;
+            next_state = MapParserState::LeaveMap;
           }
         }
       }
@@ -405,18 +438,18 @@ void ArduinoCloudThing::decode(uint8_t const * const payload, size_t const lengt
           /* It is not necessary to advance it we have a string property
            * because extracting it automatically advances the iterator.
            */
-          next_state = MapParserState::LeavePropertyMap;
+          next_state = MapParserState::LeaveMap;
         }
       }
     }
     break;
-    /* MapParserState::LeavePropertyMap *****************************************/
-    case MapParserState::LeavePropertyMap: {
+    /* MapParserState::LeaveMap *****************************************/
+    case MapParserState::LeaveMap: {
       next_state = MapParserState::Error;
 
       if(cbor_value_leave_container(&map_iter, &value_iter) == CborNoError) {
         if(!cbor_value_at_end(&map_iter)) {
-          next_state = MapParserState::EnterPropertyMap;
+          next_state = MapParserState::EnterMap;
         }
         else {
           next_state = MapParserState::Complete;
