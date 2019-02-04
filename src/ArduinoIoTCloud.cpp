@@ -46,6 +46,7 @@ int ArduinoIoTCloudClass::begin(ConnectionManager *c, String brokerAddress)
 int ArduinoIoTCloudClass::begin(Client& net, String brokerAddress)
 {
 
+  _net = &net;
   // store the broker address as class member
   _brokerAddress = brokerAddress;
 
@@ -80,15 +81,19 @@ int ArduinoIoTCloudClass::begin(Client& net, String brokerAddress)
   if(connection != NULL){
     _bearSslClient = new BearSSLClient(connection->getClient());
   }else{
-    _bearSslClient = new BearSSLClient(net);
+    _bearSslClient = new BearSSLClient(*_net);
   }
   
   _bearSslClient->setEccSlot(keySlot, ECCX08Cert.bytes(), ECCX08Cert.length());
   _mqttClient = new MqttClient(*_bearSslClient);
 
   // Bind ArduinoBearSSL callback using static "non-method" function
-  getTimeConnection = connection;
-  ArduinoBearSSL.onGetTime(getTime);
+  if(connection != NULL){
+    getTimeConnection = connection;
+    ArduinoBearSSL.onGetTime(getTime);
+  }
+  
+  
   // TODO: Find a better way to allow callback into object method
 
   // Begin function for the MQTTClient
@@ -97,6 +102,11 @@ int ArduinoIoTCloudClass::begin(Client& net, String brokerAddress)
   Thing.begin();
 
   return 1;
+}
+
+void ArduinoIoTCloudClass::onGetTime(unsigned long(*callback)(void))
+{
+  ArduinoBearSSL.onGetTime(callback);
 }
 
 // private class method used to initialize mqttClient class member. (called in the begin class method)
@@ -197,7 +207,7 @@ void ArduinoIoTCloudClass::update(int const reconnectionMaxRetries, int const re
   }
 }
 
-int ArduinoIoTCloudClass::reconnect()
+int ArduinoIoTCloudClass::reconnect(Client& /* net */)
 {
   if (_mqttClient->connected()) {
     _mqttClient->stop();
@@ -285,13 +295,20 @@ void ArduinoIoTCloudClass::connectionCheck() {
 
   switch (iotStatus) {
     case IOT_STATUS_IDLE:
-      if (!begin(connection)) {
-        debugMessage("Error Starting Arduino Cloud\nTrying again in a few seconds", 0);
-        iotStatus = IOT_STATUS_CLOUD_ERROR;
-        return;
+      if(connection == NULL){
+        if(!begin(*_net)){
+          debugMessage("Error Starting Arduino Cloud\nTrying again in a few seconds", 0);
+          iotStatus = IOT_STATUS_CLOUD_ERROR;
+          return;
+        }
+      }else{
+        if (!begin(connection)) {
+          debugMessage("Error Starting Arduino Cloud\nTrying again in a few seconds", 0);
+          iotStatus = IOT_STATUS_CLOUD_ERROR;
+          return;
+        }
       }
-      // TODO: Controlla bene che non serva
-      //ArduinoCloud.onGetTime(getTime);
+      
       iotStatus = IOT_STATUS_CLOUD_CONNECTING;
       break;
     case IOT_STATUS_CLOUD_ERROR:
@@ -306,7 +323,7 @@ void ArduinoIoTCloudClass::connectionCheck() {
     case IOT_STATUS_CLOUD_RECONNECTING:
       debugMessage("IoT Cloud reconnecting...", 1);
       //wifiClient.stop();
-      arduinoIoTConnectionAttempt = reconnect();
+      arduinoIoTConnectionAttempt = reconnect(*_net);
       *msgBuffer = 0;
       sprintf(msgBuffer, "ArduinoCloud.reconnect(): %d", arduinoIoTConnectionAttempt);
       debugMessage(msgBuffer, 1);

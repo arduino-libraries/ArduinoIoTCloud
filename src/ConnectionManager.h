@@ -33,32 +33,6 @@ protected:
   NetworkConnectionState netConnectionState = CONNECTION_STATE_IDLE;
 };
 
-// Network Connection Status
-//int networkStatus = NETWORK_IDLE_STATUS;
-
-// ********* NETWORK LAYER **********
-// max network layer connection retries
-#define NETWORK_LAYER_CONNECTION_RETRIES 6
-// ms to wait between each retry
-#define NETWORK_LAYER_CONNECTION_TIMEOUT 10000
-// ms to wait between each retry
-#define NETWORK_LAYER_RECONNECTION_TIMEOUT 2000
-
-// TODO: remove references to ArduinoIoTCloud
-// ********** CLOUD LAYER *********** 
-// max arduino cloud connection retries
-#define ARDUINO_IOT_CLOUD_CONNECTION_RETRIES 30
-// max wifi connection retries
-#define ARDUINO_IOT_CLOUD_CONNECTION_TIMEOUT 3000
-
-// === NETWORK CONNECTION MANAGEMENT ===
-// last time when the Network Connection was checked
-//unsigned long lastNetworkCheck = 0;
-// time interval to check the Network Connection
-//static const unsigned long NETWORK_CONNECTION_INTERVAL = 30000;
-// timeout between each network connection retry
-//static const unsigned long NETWORK_CONNECTION_TIMEOUT = 2000;
-
 #ifdef ARDUINO_SAMD_MKR1000
 #include <WiFi101.h>
 #define BOARD_HAS_WIFI
@@ -82,9 +56,6 @@ protected:
 #define NETWORK_IDLE_STATUS GSM3_NetworkStatus_t::IDLE
 #define NETWORK_CONNECTED GSM3_NetworkStatus_t::GPRS_READY
 #endif
-
-// TODO: remove references to ArduinoIoTCloud
-#include <ArduinoIoTCloud.h>
 
 inline void debugMessage(char *_msg, uint8_t _debugLevel) {
   if (_debugLevel <= ARDUINO_CLOUD_DEBUG_LEVEL) {

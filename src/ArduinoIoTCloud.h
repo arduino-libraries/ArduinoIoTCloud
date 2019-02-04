@@ -41,11 +41,14 @@ public:
   ~ArduinoIoTCloudClass();
 
   int begin(ConnectionManager *connection = ArduinoIoTPreferredConnection, String brokerAddress = "mqtts-sa.iot.arduino.cc");
-  int begin(Client& net, String brokerAddress);
+  int begin(Client& net, String brokerAddress = "mqtts-sa.iot.arduino.cc");
   // Class constant declaration
   static const int MQTT_TRANSMIT_BUFFER_SIZE = 256;
   static const int MAX_RETRIES = 5;
   static const int RECONNECTION_TIMEOUT = 2000;
+
+
+  void onGetTime(unsigned long(*callback)(void));
 
   int  connect   ();
   bool disconnect();
@@ -58,7 +61,7 @@ public:
 
   int connected();
   // Clean up existing Mqtt connection, create a new one and initialize it
-  int reconnect();
+  int reconnect(Client& /* net */);
 
   inline void setThingId(String const thing_id) { _thing_id = thing_id; };
 
@@ -121,6 +124,7 @@ private:
   String _dataTopicOut;
   String _dataTopicIn;
   String _otaTopic;
+  Client *_net;
 };
 
 extern ArduinoIoTCloudClass ArduinoCloud;

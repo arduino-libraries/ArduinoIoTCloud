@@ -9,12 +9,10 @@ public:
   virtual void init();
   virtual void check();
   virtual Client &getClient() { return wifiClient; };
-  // TODO: remove references to ArduinoIoTCloud
-  virtual ArduinoIoTConnectionStatus status() { return IOT_STATUS_IDLE; };
+  
 
 private:
-  // TODO: remove references to ArduinoIoTCloud
-  void iotConnectionCheck();
+  
   void changeConnectionState(NetworkConnectionState _newState);
 
   const int CHECK_INTERVAL_IDLE = 100;
@@ -65,8 +63,7 @@ void WiFiConnectionManager::changeConnectionState(NetworkConnectionState _newSta
       break;
     case CONNECTION_STATE_DISCONNECTED:
       newInterval = CHECK_INTERVAL_DISCONNECTED;
-      // TODO: Riportare in ArduinoIoTCloud
-      //iotStatus = IOT_STATUS_CLOUD_DISCONNECTED;
+      
       break;
   }
   connectionTickTimeInterval = newInterval;
@@ -96,7 +93,7 @@ void WiFiConnectionManager::check() {
         }
         *msgBuffer = 0;
         sprintf(msgBuffer, "WiFi Firmware v. %s", WiFi.firmwareVersion());
-        debugMessage(msgBuffer, 3);
+        debugMessage(msgBuffer, 0);
         changeConnectionState(CONNECTION_STATE_CONNECTING);
         break;
       case CONNECTION_STATE_CONNECTING:
