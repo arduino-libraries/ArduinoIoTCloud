@@ -248,6 +248,8 @@ void ArduinoCloudThing::decode(uint8_t const * const payload, size_t const lengt
 
   String            base_name,
                     property_name;
+  double            time = 0.0,
+                    base_time = 0.0;
   CborIntegerMapKey property_value_type;
 
   enum class MapParserState {
@@ -256,7 +258,7 @@ void ArduinoCloudThing::decode(uint8_t const * const payload, size_t const lengt
     BaseName,
     BaseTime,
     Time,
-    PropertyName,
+    Name,
     PropertyType,
     PropertyValue,
     LeaveMap,
@@ -289,10 +291,10 @@ void ArduinoCloudThing::decode(uint8_t const * const payload, size_t const lengt
           char * val      = 0;
           size_t val_size = 0;
           if(cbor_value_dup_text_string(&value_iter, &val, &val_size, &value_iter) == CborNoError) {
-            if     (strcmp(val, "n" ) == 0) { next_state = MapParserState::PropertyName; }
-            else if(strcmp(val, "bn") == 0) { next_state = MapParserState::BaseName;     }
-            else if(strcmp(val, "bt") == 0) { next_state = MapParserState::BaseTime;     }
-            else if(strcmp(val, "t" ) == 0) { next_state = MapParserState::Time;         }
+            if     (strcmp(val, "n" ) == 0) { next_state = MapParserState::Name;     }
+            else if(strcmp(val, "bn") == 0) { next_state = MapParserState::BaseName; }
+            else if(strcmp(val, "bt") == 0) { next_state = MapParserState::BaseTime; }
+            else if(strcmp(val, "t" ) == 0) { next_state = MapParserState::Time;     }
             free(val);
           }
         }
@@ -303,10 +305,10 @@ void ArduinoCloudThing::decode(uint8_t const * const payload, size_t const lengt
           int val = 0;
           if(cbor_value_get_int(&value_iter, &val) == CborNoError) {
             if(cbor_value_advance(&value_iter) == CborNoError) {
-              if     (val == static_cast<int>(CborIntegerMapKey::Name    )) { next_state = MapParserState::PropertyName; }
-              else if(val == static_cast<int>(CborIntegerMapKey::BaseName)) { next_state = MapParserState::BaseName;     }
-              else if(val == static_cast<int>(CborIntegerMapKey::BaseTime)) { next_state = MapParserState::BaseTime;     }
-              else if(val == static_cast<int>(CborIntegerMapKey::Time    )) { next_state = MapParserState::Time;         }
+              if     (val == static_cast<int>(CborIntegerMapKey::Name    )) { next_state = MapParserState::Name;     }
+              else if(val == static_cast<int>(CborIntegerMapKey::BaseName)) { next_state = MapParserState::BaseName; }
+              else if(val == static_cast<int>(CborIntegerMapKey::BaseTime)) { next_state = MapParserState::BaseTime; }
+              else if(val == static_cast<int>(CborIntegerMapKey::Time    )) { next_state = MapParserState::Time;     }
             }
           }
         }
@@ -331,17 +333,36 @@ void ArduinoCloudThing::decode(uint8_t const * const payload, size_t const lengt
 
     /* MapParserState::BaseTime *****************************************/
     case MapParserState::BaseTime: {
-      /* TODO */
+      next_state = MapParserState::Error;
+
+      if(cbor_value_is_double(&value_iter)) {
+        double val = 0.0;
+        if(cbor_value_get_double(&value_iter, &val) == CborNoError) {
+          base_time = val;
+          if(cbor_value_advance(&value_iter) == CborNoError) {
+            next_state = MapParserState::MapKey;
+          }
+        }
+      }
     }
     break;
-
     /* MapParserState::Time *****************************************/
     case MapParserState::Time : {
-      /* TODO */
+      next_state = MapParserState::Error;
+
+      if(cbor_value_is_double(&value_iter)) {
+        double val = 0.0;
+        if(cbor_value_get_double(&value_iter, &val) == CborNoError) {
+          time = val;
+          if(cbor_value_advance(&value_iter) == CborNoError) {
+            next_state = MapParserState::MapKey;
+          }
+        }
+      }
     }
     break;
-    /* MapParserState::PropertyName *********************************************/
-    case MapParserState::PropertyName: {
+    /* MapParserState::Name *********************************************/
+    case MapParserState::Name: {
       next_state = MapParserState::Error;
 
       if(cbor_value_is_text_string(&value_iter)) {
