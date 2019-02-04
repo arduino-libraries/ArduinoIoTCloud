@@ -77,7 +77,12 @@ int ArduinoIoTCloudClass::begin(Client& net, String brokerAddress)
   if (_bearSslClient) {
     delete _bearSslClient;
   }
-  _bearSslClient = new BearSSLClient(connection->getClient());
+  if(connection != NULL){
+    _bearSslClient = new BearSSLClient(connection->getClient());
+  }else{
+    _bearSslClient = new BearSSLClient(net);
+  }
+  
   _bearSslClient->setEccSlot(keySlot, ECCX08Cert.bytes(), ECCX08Cert.length());
   _mqttClient = new MqttClient(*_bearSslClient);
 

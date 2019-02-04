@@ -44,6 +44,7 @@ protected:
 // ms to wait between each retry
 #define NETWORK_LAYER_RECONNECTION_TIMEOUT 2000
 
+// TODO: remove references to ArduinoIoTCloud
 // ********** CLOUD LAYER *********** 
 // max arduino cloud connection retries
 #define ARDUINO_IOT_CLOUD_CONNECTION_RETRIES 30
@@ -82,6 +83,7 @@ protected:
 #define NETWORK_CONNECTED GSM3_NetworkStatus_t::GPRS_READY
 #endif
 
+// TODO: remove references to ArduinoIoTCloud
 #include <ArduinoIoTCloud.h>
 
 inline void debugMessage(char *_msg, uint8_t _debugLevel) {

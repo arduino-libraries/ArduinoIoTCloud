@@ -9,9 +9,11 @@ public:
   virtual void init();
   virtual void check();
   virtual Client &getClient() { return wifiClient; };
+  // TODO: remove references to ArduinoIoTCloud
   virtual ArduinoIoTConnectionStatus status() { return IOT_STATUS_IDLE; };
 
 private:
+  // TODO: remove references to ArduinoIoTCloud
   void iotConnectionCheck();
   void changeConnectionState(NetworkConnectionState _newState);
 
