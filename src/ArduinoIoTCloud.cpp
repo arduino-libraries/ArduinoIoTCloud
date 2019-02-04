@@ -18,7 +18,8 @@ static unsigned long getTime() {
 ArduinoIoTCloudClass::ArduinoIoTCloudClass() :
   _thing_id     (""),
   _bearSslClient(NULL),
-  _mqttClient   (NULL)
+  _mqttClient   (NULL),
+  connection    (NULL)
 {
 }
 
@@ -265,12 +266,15 @@ void ArduinoIoTCloudClass::handleMessage(int length)
 }
 
 void ArduinoIoTCloudClass::connectionCheck() {
-  connection->check();
-  if (connection->getStatus() != CONNECTION_STATE_CONNECTED) {
-    if(iotStatus == IOT_STATUS_CLOUD_CONNECTED)
-      iotStatus = IOT_STATUS_CLOUD_DISCONNECTED;
-    return;
+  if(connection != NULL){
+    connection->check();
+    if (connection->getStatus() != CONNECTION_STATE_CONNECTED) {
+      if(iotStatus == IOT_STATUS_CLOUD_CONNECTED)
+        iotStatus = IOT_STATUS_CLOUD_DISCONNECTED;
+      return;
+    }
   }
+  
   char msgBuffer[120];
   int arduinoIoTConnectionAttempt;
 
