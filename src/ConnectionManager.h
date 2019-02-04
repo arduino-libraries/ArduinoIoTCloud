@@ -3,7 +3,7 @@
 #define CONNECTION_MANAGER_H_INCLUDED
 
 #ifndef ARDUINO_CLOUD_DEBUG_LEVEL
-#define ARDUINO_CLOUD_DEBUG_LEVEL 3
+#define ARDUINO_CLOUD_DEBUG_LEVEL 0
 #endif
 
 #include <Client.h>
@@ -31,7 +31,9 @@ public:
 protected:
   unsigned long lastValidTimestamp = 0;
   NetworkConnectionState netConnectionState = CONNECTION_STATE_IDLE;
+
 };
+
 
 #ifdef ARDUINO_SAMD_MKR1000
 #include <WiFi101.h>
@@ -57,8 +59,9 @@ protected:
 #define NETWORK_CONNECTED GSM3_NetworkStatus_t::GPRS_READY
 #endif
 
+static int debugMessageLevel = ARDUINO_CLOUD_DEBUG_LEVEL;
 inline void debugMessage(char *_msg, uint8_t _debugLevel) {
-  if (_debugLevel <= ARDUINO_CLOUD_DEBUG_LEVEL) {
+  if (_debugLevel <= debugMessageLevel) {
     char prepend[20];
     sprintf(prepend, "\n[ %d ] ", millis());
     Serial.print(prepend);
@@ -66,4 +69,7 @@ inline void debugMessage(char *_msg, uint8_t _debugLevel) {
   }
 }
 
+inline void setDebugMessageLevel(uint8_t _debugLevel){
+  debugMessageLevel = _debugLevel;
+}
 #endif
