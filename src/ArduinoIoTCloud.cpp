@@ -40,7 +40,8 @@ int ArduinoIoTCloudClass::begin(ConnectionManager *c, String brokerAddress)
 {
   connection = c;
   Client &connectionClient = c->getClient();
-  return begin(connectionClient, brokerAddress);
+  _brokerAddress = brokerAddress;
+  return begin(connectionClient, _brokerAddress);
 }
 
 int ArduinoIoTCloudClass::begin(Client& net, String brokerAddress)
@@ -49,7 +50,6 @@ int ArduinoIoTCloudClass::begin(Client& net, String brokerAddress)
   _net = &net;
   // store the broker address as class member
   _brokerAddress = brokerAddress;
-
   byte thingIdBytes[72];
 
   if (!ECCX08.begin()) {
@@ -296,13 +296,13 @@ void ArduinoIoTCloudClass::connectionCheck() {
   switch (iotStatus) {
     case IOT_STATUS_IDLE:
       if(connection == NULL){
-        if(!begin(*_net)){
+        if(!begin(*_net, _brokerAddress)){
           debugMessage("Error Starting Arduino Cloud\nTrying again in a few seconds", 0);
           iotStatus = IOT_STATUS_CLOUD_ERROR;
           return;
         }
       }else{
-        if (!begin(connection)) {
+        if (!begin(connection, _brokerAddress)) {
           debugMessage("Error Starting Arduino Cloud\nTrying again in a few seconds", 0);
           iotStatus = IOT_STATUS_CLOUD_ERROR;
           return;
