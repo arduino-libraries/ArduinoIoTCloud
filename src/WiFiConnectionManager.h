@@ -103,8 +103,14 @@ void WiFiConnectionManager::check() {
           return;
         }
         *msgBuffer = 0;
-        sprintf(msgBuffer, "WiFi Firmware v. %s", WiFi.firmwareVersion());
+        sprintf(msgBuffer, "Current WiFi Firmware: %s", WiFi.firmwareVersion());
         debugMessage(msgBuffer, 0);
+        if(strcmp(WiFi.firmwareVersion(), WIFI_FIRMWARE_VERSION_REQUIRED) != 0){
+          *msgBuffer = 0;
+          sprintf(msgBuffer, "Latest WiFi Firmware: %s", WIFI_FIRMWARE_VERSION_REQUIRED);
+          debugMessage(msgBuffer, 0);
+          debugMessage("Please update to latest version for optimal performance.", 0);
+        }
         changeConnectionState(CONNECTION_STATE_CONNECTING);
         break;
       case CONNECTION_STATE_CONNECTING:
