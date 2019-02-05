@@ -77,7 +77,7 @@ public:
   inline bool   isReadableByCloud () const { return (_permission == Permission::Read ) || (_permission == Permission::ReadWrite); }
   inline bool   isWriteableByCloud() const { return (_permission == Permission::Write) || (_permission == Permission::ReadWrite); }
 
-  bool shouldBeUpdated        () const;
+  bool shouldBeUpdated        ();
   void execCallbackOnChange   ();
 
   void append                 (CborEncoder * encoder, CloudProtocol const cloud_protocol);
@@ -91,7 +91,8 @@ private:
   UpdateCallbackFunc _update_callback_func;
 
   UpdatePolicy       _update_policy;
-  bool               _has_been_updated_once;
+  bool               _has_been_updated_once,
+                     _has_been_modified_in_callback;
   /* Variables used for UpdatePolicy::OnChange */
   T                  _min_delta_property;
   unsigned long      _min_time_between_updates_millis;

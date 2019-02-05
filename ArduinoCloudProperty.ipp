@@ -11,6 +11,7 @@ ArduinoCloudProperty<T>::ArduinoCloudProperty(T & property, String const & name,
   _update_callback_func(NULL),
   _update_policy(UpdatePolicy::OnChange),
   _has_been_updated_once(false),
+  _has_been_modified_in_callback(false),
   _min_delta_property(getInitialMinDeltaPropertyValue()),
   _min_time_between_updates_millis(0),
   _last_updated_millis(0),
@@ -52,8 +53,13 @@ ArduinoCloudProperty<T> & ArduinoCloudProperty<T>::publishEvery(unsigned long co
 }
 
 template <typename T>
-bool ArduinoCloudProperty<T>::shouldBeUpdated() const {
+bool ArduinoCloudProperty<T>::shouldBeUpdated() {
   if(!_has_been_updated_once) return true;
+
+  if(_has_been_modified_in_callback) {
+    _has_been_modified_in_callback = false;
+    return true;
+  }
 
   if     (_update_policy == UpdatePolicy::OnChange) {
     return (isValueDifferent(_property, _shadow_property) && ((millis() - _last_updated_millis) >= (_min_time_between_updates_millis)));
@@ -71,6 +77,10 @@ void ArduinoCloudProperty<T>::execCallbackOnChange() {
   if(isValueDifferent(_property, _shadow_property)) {
     if(_update_callback_func != NULL) {
       _update_callback_func();
+    }
+
+    if(!isValueDifferent(_property, _shadow_property)) {
+      _has_been_modified_in_callback = true;
     }
   }
 }
