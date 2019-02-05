@@ -55,13 +55,15 @@ private:
   enum class MapParserState {
     EnterMap,
     MapKey,
+    UndefinedKey,
+    BaseVersion,
     BaseName,
     BaseTime,
-    Time,
     Name,
     Value,
     StringValue,
     BooleanValue,
+    Time,
     LeaveMap,
     Complete,
     Error
@@ -94,6 +96,7 @@ private:
   };
 
   typedef struct {
+    MapEntry<int>    base_version;
     MapEntry<String> base_name;
     MapEntry<double> base_time;
     MapEntry<String> name;
@@ -106,13 +109,15 @@ private:
 
   MapParserState handle_EnterMap     (CborValue * map_iter, CborValue * value_iter);
   MapParserState handle_MapKey       (CborValue * value_iter);
+  MapParserState handle_UndefinedKey (CborValue * value_iter);
+  MapParserState handle_BaseVersion  (CborValue * value_iter, MapData * map_data);
   MapParserState handle_BaseName     (CborValue * value_iter, MapData * map_data);
   MapParserState handle_BaseTime     (CborValue * value_iter, MapData * map_data);
-  MapParserState handle_Time         (CborValue * value_iter, MapData * map_data);
   MapParserState handle_Name         (CborValue * value_iter, MapData * map_data);
   MapParserState handle_Value        (CborValue * value_iter, MapData * map_data);
   MapParserState handle_StringValue  (CborValue * value_iter, MapData * map_data);
   MapParserState handle_BooleanValue (CborValue * value_iter, MapData * map_data);
+  MapParserState handle_Time         (CborValue * value_iter, MapData * map_data);
   MapParserState handle_LeaveMap     (CborValue * map_iter, CborValue * value_iter, MapData const * const map_data);
 
   static double convertCborHalfFloatToDouble(uint16_t const half_val);

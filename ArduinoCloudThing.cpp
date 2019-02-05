@@ -165,18 +165,20 @@ void ArduinoCloudThing::decode(uint8_t const * const payload, size_t const lengt
   while(current_state != MapParserState::Complete) {
 
     switch(current_state) {
-    case MapParserState::EnterMap     : next_state = handle_EnterMap     (&map_iter, &value_iter                              ); break;
-    case MapParserState::MapKey       : next_state = handle_MapKey       (&value_iter                                         ); break;
-    case MapParserState::BaseName     : next_state = handle_BaseName     (&value_iter, &map_data                             ); break;
-    case MapParserState::BaseTime     : next_state = handle_BaseTime     (&value_iter, &map_data                             ); break;
-    case MapParserState::Time         : next_state = handle_Time         (&value_iter, &map_data                                  ); break;
-    case MapParserState::Name         : next_state = handle_Name         (&value_iter, &map_data                                  ); break;
-    case MapParserState::Value        : next_state = handle_Value        (&value_iter, &map_data); break;
-    case MapParserState::StringValue  : next_state = handle_StringValue  (&value_iter, &map_data             ); break;
+    case MapParserState::EnterMap     : next_state = handle_EnterMap     (&map_iter, &value_iter            ); break;
+    case MapParserState::MapKey       : next_state = handle_MapKey       (&value_iter                       ); break;
+    case MapParserState::UndefinedKey : next_state = handle_UndefinedKey (&value_iter                       ); break;
+    case MapParserState::BaseVersion  : next_state = handle_BaseVersion  (&value_iter, &map_data            ); break;
+    case MapParserState::BaseName     : next_state = handle_BaseName     (&value_iter, &map_data            ); break;
+    case MapParserState::BaseTime     : next_state = handle_BaseTime     (&value_iter, &map_data            ); break;
+    case MapParserState::Time         : next_state = handle_Time         (&value_iter, &map_data            ); break;
+    case MapParserState::Name         : next_state = handle_Name         (&value_iter, &map_data            ); break;
+    case MapParserState::Value        : next_state = handle_Value        (&value_iter, &map_data            ); break;
+    case MapParserState::StringValue  : next_state = handle_StringValue  (&value_iter, &map_data            ); break;
     case MapParserState::BooleanValue : next_state = handle_BooleanValue (&value_iter, &map_data            ); break;
-    case MapParserState::LeaveMap     : next_state = handle_LeaveMap     (&map_iter, &value_iter, &map_data                              ); break;
-    case MapParserState::Complete     : /* Nothing to do */                                                                      break;
-    case MapParserState::Error        : return;                                                                                  break;
+    case MapParserState::LeaveMap     : next_state = handle_LeaveMap     (&map_iter, &value_iter, &map_data); break;
+    case MapParserState::Complete     : /* Nothing to do */                                                   break;
+    case MapParserState::Error        : return;                                                               break;
     }
 
     current_state = next_state;
@@ -211,13 +213,15 @@ ArduinoCloudThing::MapParserState ArduinoCloudThing::handle_MapKey(CborValue * v
         char * val      = 0;
         size_t val_size = 0;
         if(cbor_value_dup_text_string(value_iter, &val, &val_size, value_iter) == CborNoError) {
-          if     (strcmp(val, "n" ) == 0) next_state = MapParserState::Name;
-          else if(strcmp(val, "v" ) == 0) next_state = MapParserState::Value;
-          else if(strcmp(val, "vs") == 0) next_state = MapParserState::StringValue;
-          else if(strcmp(val, "vb") == 0) next_state = MapParserState::BooleanValue;
-          else if(strcmp(val, "bn") == 0) next_state = MapParserState::BaseName;
-          else if(strcmp(val, "bt") == 0) next_state = MapParserState::BaseTime;
-          else if(strcmp(val, "t" ) == 0) next_state = MapParserState::Time;
+          if     (strcmp(val, "n"   ) == 0) next_state = MapParserState::Name;
+          else if(strcmp(val, "bver") == 0) next_state = MapParserState::BaseVersion;
+          else if(strcmp(val, "bn"  ) == 0) next_state = MapParserState::BaseName;
+          else if(strcmp(val, "bt"  ) == 0) next_state = MapParserState::BaseTime;
+          else if(strcmp(val, "v"   ) == 0) next_state = MapParserState::Value;
+          else if(strcmp(val, "vs"  ) == 0) next_state = MapParserState::StringValue;
+          else if(strcmp(val, "vb"  ) == 0) next_state = MapParserState::BooleanValue;
+          else if(strcmp(val, "t"   ) == 0) next_state = MapParserState::Time;
+          else                              next_state = MapParserState::UndefinedKey;
           free(val);
         }
       }
@@ -229,16 +233,40 @@ ArduinoCloudThing::MapParserState ArduinoCloudThing::handle_MapKey(CborValue * v
         if(cbor_value_get_int(value_iter, &val) == CborNoError) {
           if(cbor_value_advance(value_iter) == CborNoError) {
             if     (val == static_cast<int>(CborIntegerMapKey::Name        )) next_state = MapParserState::Name;
+            else if(val == static_cast<int>(CborIntegerMapKey::BaseVersion )) next_state = MapParserState::BaseVersion;
+            else if(val == static_cast<int>(CborIntegerMapKey::BaseName    )) next_state = MapParserState::BaseName;
+            else if(val == static_cast<int>(CborIntegerMapKey::BaseTime    )) next_state = MapParserState::BaseTime;
             else if(val == static_cast<int>(CborIntegerMapKey::Value       )) next_state = MapParserState::Value;
             else if(val == static_cast<int>(CborIntegerMapKey::StringValue )) next_state = MapParserState::StringValue;
             else if(val == static_cast<int>(CborIntegerMapKey::BooleanValue)) next_state = MapParserState::BooleanValue;
-            else if(val == static_cast<int>(CborIntegerMapKey::BaseName    )) next_state = MapParserState::BaseName;
-            else if(val == static_cast<int>(CborIntegerMapKey::BaseTime    )) next_state = MapParserState::BaseTime;
             else if(val == static_cast<int>(CborIntegerMapKey::Time        )) next_state = MapParserState::Time;
+            else                                                              next_state = MapParserState::UndefinedKey;
           }
         }
       }
     }
+  }
+
+  return next_state;
+}
+
+ArduinoCloudThing::MapParserState ArduinoCloudThing::handle_UndefinedKey(CborValue * value_iter) {
+  MapParserState next_state = MapParserState::Error;
+
+  if(cbor_value_advance(value_iter) == CborNoError) {
+    next_state = MapParserState::MapKey;
+  }
+
+  return next_state;
+}
+
+ArduinoCloudThing::MapParserState ArduinoCloudThing::handle_BaseVersion(CborValue * value_iter, MapData * map_data) {
+  MapParserState next_state = MapParserState::Error;
+
+  /* TODO: Parse BaseVersion */
+
+  if(cbor_value_advance(value_iter) == CborNoError) {
+    next_state = MapParserState::MapKey;
   }
 
   return next_state;
@@ -267,22 +295,6 @@ ArduinoCloudThing::MapParserState ArduinoCloudThing::handle_BaseTime(CborValue *
     double val = 0.0;
     if(cbor_value_get_double(value_iter, &val) == CborNoError) {
       map_data->base_time.set(val);
-      if(cbor_value_advance(value_iter) == CborNoError) {
-        next_state = MapParserState::MapKey;
-      }
-    }
-  }
-
-  return next_state;
-}
-
-ArduinoCloudThing::MapParserState ArduinoCloudThing::handle_Time(CborValue * value_iter, MapData * map_data) {
-  MapParserState next_state = MapParserState::Error;
-
-  if(cbor_value_is_double(value_iter)) {
-    double val = 0.0;
-    if(cbor_value_get_double(value_iter, &val) == CborNoError) {
-      map_data->time.set(val);
       if(cbor_value_advance(value_iter) == CborNoError) {
         next_state = MapParserState::MapKey;
       }
@@ -367,6 +379,22 @@ ArduinoCloudThing::MapParserState ArduinoCloudThing::handle_BooleanValue(CborVal
     map_data->bool_val.set(val);
     if(cbor_value_advance(value_iter) == CborNoError) {
       next_state = MapParserState::MapKey;
+    }
+  }
+
+  return next_state;
+}
+
+ArduinoCloudThing::MapParserState ArduinoCloudThing::handle_Time(CborValue * value_iter, MapData * map_data) {
+  MapParserState next_state = MapParserState::Error;
+
+  if(cbor_value_is_double(value_iter)) {
+    double val = 0.0;
+    if(cbor_value_get_double(value_iter, &val) == CborNoError) {
+      map_data->time.set(val);
+      if(cbor_value_advance(value_iter) == CborNoError) {
+        next_state = MapParserState::MapKey;
+      }
     }
   }
 
