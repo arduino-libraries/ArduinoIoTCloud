@@ -18,7 +18,7 @@ private:
   const int CHECK_INTERVAL_IDLE = 100;
   const int CHECK_INTERVAL_INIT = 100;
   const int CHECK_INTERVAL_CONNECTING = 500;
-  const int CHECK_INTERVAL_GETTIME = 1000;
+  const int CHECK_INTERVAL_GETTIME = 100;
   const int CHECK_INTERVAL_CONNECTED = 10000;
   const int CHECK_INTERVAL_RETRYING = 5000;
   const int CHECK_INTERVAL_DISCONNECTED = 1000;
@@ -46,28 +46,39 @@ void WiFiConnectionManager::init() {
 }
 
 void WiFiConnectionManager::changeConnectionState(NetworkConnectionState _newState) {
-  netConnectionState = _newState;
+  char msgBuffer[120];
   int newInterval = CHECK_INTERVAL_IDLE;
   switch (_newState) {
     case CONNECTION_STATE_INIT:
       newInterval = CHECK_INTERVAL_INIT;
       break;
     case CONNECTION_STATE_CONNECTING:
+      *msgBuffer = 0;
+      sprintf(msgBuffer, "Connecting to \"%s\"", ssid);
+      debugMessage(msgBuffer, 2);
       newInterval = CHECK_INTERVAL_CONNECTING;
       break;
     case CONNECTION_STATE_GETTIME:
       newInterval = CHECK_INTERVAL_GETTIME;
+      debugMessage("Acquiring Time from Network", 3);
       break;
     case CONNECTION_STATE_CONNECTED:
       newInterval = CHECK_INTERVAL_CONNECTED;
       break;
     case CONNECTION_STATE_DISCONNECTED:
+      *msgBuffer = 0;
+      sprintf(msgBuffer, "WiFi.status(): %d", WiFi.status());
+      debugMessage(msgBuffer, 4);
+      *msgBuffer = 0;
+      sprintf(msgBuffer, "Connection to \"%s\" lost.", ssid);
+      debugMessage(msgBuffer, 0);
+      debugMessage("Attempting reconnection", 0);
       newInterval = CHECK_INTERVAL_DISCONNECTED;
-      
       break;
   }
   connectionTickTimeInterval = newInterval;
   lastConnectionTickTime = millis();
+  netConnectionState = _newState;
 }
 
 void WiFiConnectionManager::check() {
@@ -97,14 +108,10 @@ void WiFiConnectionManager::check() {
         changeConnectionState(CONNECTION_STATE_CONNECTING);
         break;
       case CONNECTION_STATE_CONNECTING:
-        *msgBuffer = 0;
-        sprintf(msgBuffer, "Connecting to \"%s\"", ssid);
-        debugMessage(msgBuffer, 2);
-
         networkStatus = WiFi.begin(ssid, pass);
         *msgBuffer = 0;
         sprintf(msgBuffer, "WiFi.status(): %d", networkStatus);
-        debugMessage(msgBuffer, 2);
+        debugMessage(msgBuffer, 4);
         if (networkStatus != NETWORK_CONNECTED) {
           *msgBuffer = 0;
           sprintf(msgBuffer, "Connection to \"%s\" failed", ssid);
@@ -124,14 +131,16 @@ void WiFiConnectionManager::check() {
         }
         break;
       case CONNECTION_STATE_GETTIME:
-        debugMessage("Acquiring Time from Network", 3);
+        
         unsigned long networkTime;
         networkTime = WiFi.getTime();
-        *msgBuffer = 0;
-        sprintf(msgBuffer, "Network Time: %u", networkTime);
-        debugMessage(msgBuffer, 3);
+        
+        debugMessage(".", 3, false, false);
         if(networkTime > lastValidTimestamp){
           lastValidTimestamp = networkTime;
+          *msgBuffer = 0;
+          sprintf(msgBuffer, "Network Time: %u", networkTime);
+          debugMessage(msgBuffer, 3);
           changeConnectionState(CONNECTION_STATE_CONNECTED);
         }
         break;
@@ -140,26 +149,20 @@ void WiFiConnectionManager::check() {
         networkStatus = WiFi.status();
         *msgBuffer = 0;
         sprintf(msgBuffer, "WiFi.status(): %d", networkStatus);
-        debugMessage(msgBuffer, 2);
+        debugMessage(msgBuffer, 4);
         if (networkStatus != WL_CONNECTED) {
           changeConnectionState(CONNECTION_STATE_DISCONNECTED);
           return;
         }
         *msgBuffer = 0;
         sprintf(msgBuffer, "Connected to \"%s\"", ssid);
-        debugMessage(msgBuffer, 2);
+        debugMessage(msgBuffer, 4);
         break;
       case CONNECTION_STATE_DISCONNECTED:
         //WiFi.disconnect();
         WiFi.end();
 
-        *msgBuffer = 0;
-        sprintf(msgBuffer, "DISC | WiFi.status(): %d", WiFi.status());
-        debugMessage(msgBuffer, 1);
-        *msgBuffer = 0;
-        sprintf(msgBuffer, "Connection to \"%s\" lost.", ssid);
-        debugMessage(msgBuffer, 0);
-        debugMessage("Attempting reconnection", 1);
+        
         changeConnectionState(CONNECTION_STATE_CONNECTING);
         //wifiClient.stop();
         break;

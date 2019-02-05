@@ -60,12 +60,18 @@ protected:
 #endif
 
 static int debugMessageLevel = ARDUINO_CLOUD_DEBUG_LEVEL;
-inline void debugMessage(char *_msg, uint8_t _debugLevel) {
+inline void debugMessage(char *_msg, uint8_t _debugLevel, bool _timestamp = true, bool _newline = true) {
   if (_debugLevel <= debugMessageLevel) {
     char prepend[20];
     sprintf(prepend, "\n[ %d ] ", millis());
-    Serial.print(prepend);
-    Serial.println(_msg);
+    if(_timestamp)
+      Serial.print(prepend);
+    if(_newline){
+      Serial.println(_msg);
+    }else{
+      Serial.print(_msg);
+    }
+    
   }
 }
 
