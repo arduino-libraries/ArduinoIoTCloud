@@ -59,22 +59,63 @@ private:
     BaseTime,
     Time,
     Name,
-    PropertyType,
-    PropertyValue,
+    Value,
+    StringValue,
+    BooleanValue,
     LeaveMap,
     Complete,
     Error
   };
 
+  template <typename T>
+  class MapEntry {
+  public:
+
+    MapEntry() : _is_set(false) { }
+
+    void set(T const & entry) {
+      _entry = entry;
+      _is_set = true;
+    }
+
+    bool isSet() const {
+      return _is_set;
+    }
+
+    T const get() const {
+      return _entry;
+    }
+
+  private:
+
+    T    _entry;
+    bool _is_set;
+
+  };
+
+  typedef struct {
+    MapEntry<String> base_name;
+    MapEntry<double> base_time;
+    MapEntry<String> name;
+    MapEntry<int>    int_val;
+    MapEntry<float>  float_val;
+    MapEntry<String> str_val;
+    MapEntry<bool>   bool_val;
+    MapEntry<double> time;
+  } MapData;
+
   MapParserState handle_EnterMap     (CborValue * map_iter, CborValue * value_iter);
   MapParserState handle_MapKey       (CborValue * value_iter);
-  MapParserState handle_BaseName     (CborValue * value_iter, String * base_name);
-  MapParserState handle_BaseTime     (CborValue * value_iter, double * base_time);
-  MapParserState handle_Time         (CborValue * value_iter, double * time);
-  MapParserState handle_PropertyName (CborValue * value_iter, String * property_name);
-  MapParserState handle_PropertyType (CborValue * value_iter, CborIntegerMapKey * property_type);
-  MapParserState handle_PropertyValue(CborValue * value_iter, String const & property_name, CborIntegerMapKey const property_type);
-  MapParserState handle_LeaveMap     (CborValue * map_iter, CborValue * value_iter);
+  MapParserState handle_BaseName     (CborValue * value_iter, MapData * map_data);
+  MapParserState handle_BaseTime     (CborValue * value_iter, MapData * map_data);
+  MapParserState handle_Time         (CborValue * value_iter, MapData * map_data);
+  MapParserState handle_Name         (CborValue * value_iter, MapData * map_data);
+  MapParserState handle_Value        (CborValue * value_iter, MapData * map_data);
+  MapParserState handle_StringValue  (CborValue * value_iter, MapData * map_data);
+  MapParserState handle_BooleanValue (CborValue * value_iter, MapData * map_data);
+  MapParserState handle_LeaveMap     (CborValue * map_iter, CborValue * value_iter, MapData const * const map_data);
+
+  static double convertCborHalfFloatToDouble(uint16_t const half_val);
 
 };
 

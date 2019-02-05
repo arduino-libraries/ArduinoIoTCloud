@@ -9,16 +9,6 @@
 #include <math.h>
 
 /******************************************************************************
- * PRIVATE FREE FUNCTION PROTOTYPES
- ******************************************************************************/
-
-double convertCborHalfFloatToDouble(uint16_t const half_val);
-void   extractProperty             (ArduinoCloudProperty<int>    * int_property,    CborValue * cbor_value);
-void   extractProperty             (ArduinoCloudProperty<float>  * float_property,  CborValue * cbor_value);
-void   extractProperty             (ArduinoCloudProperty<bool>   * bool_property,   CborValue * cbor_value);
-void   extractProperty             (ArduinoCloudProperty<String> * string_property, CborValue * cbor_value);
-
-/******************************************************************************
  * DEBUG FUNCTIONS
  ******************************************************************************/
 
@@ -77,35 +67,35 @@ void ArduinoCloudThing::begin() {
 
 int ArduinoCloudThing::encode(uint8_t * data, size_t const size) {
 
-    // check if backing storage and cloud has diverged
-    // time interval may be elapsed or property may be changed
-    int const num_changed_properties = _property_cont.getNumOfChangedProperties();
+  // check if backing storage and cloud has diverged
+  // time interval may be elapsed or property may be changed
+  int const num_changed_properties = _property_cont.getNumOfChangedProperties();
 
-    if (num_changed_properties > 0) {
-        CborError err;
-        CborEncoder encoder, arrayEncoder;
+  if (num_changed_properties > 0) {
+      CborError err;
+      CborEncoder encoder, arrayEncoder;
 
-        cbor_encoder_init(&encoder, data, size, 0);
-        // create a cbor array containing the property that should be updated.
-        err = cbor_encoder_create_array(&encoder, &arrayEncoder, num_changed_properties);
-        if (err) {
-            //Serial.println(cbor_error_string(err));
-            return -1;
-        }
+      cbor_encoder_init(&encoder, data, size, 0);
+      // create a cbor array containing the property that should be updated.
+      err = cbor_encoder_create_array(&encoder, &arrayEncoder, num_changed_properties);
+      if (err) {
+          //Serial.println(cbor_error_string(err));
+          return -1;
+      }
 
-        _property_cont.appendChangedProperties(&arrayEncoder, _cloud_protocol);
+      _property_cont.appendChangedProperties(&arrayEncoder, _cloud_protocol);
 
-        err = cbor_encoder_close_container(&encoder, &arrayEncoder);
+      err = cbor_encoder_close_container(&encoder, &arrayEncoder);
 
-        // return the number of byte of the CBOR encoded array
-        return cbor_encoder_get_buffer_size(&encoder, data);
-    }
+      // return the number of byte of the CBOR encoded array
+      return cbor_encoder_get_buffer_size(&encoder, data);
+  }
 
 #if defined(DEBUG_MEMORY) && defined(ARDUINO_ARCH_SAMD)
-    PrintFreeRam();
+  PrintFreeRam();
 #endif
-    // If nothing has to be sent, return diff, that is 0 in this case
-    return num_changed_properties;
+  // If nothing has to be sent, return diff, that is 0 in this case
+  return num_changed_properties;
 }
 
 ArduinoCloudProperty<bool> & ArduinoCloudThing::addPropertyReal(bool & property, String const & name, Permission const permission) {
@@ -168,29 +158,25 @@ void ArduinoCloudThing::decode(uint8_t const * const payload, size_t const lengt
   if(cbor_value_enter_container(&array_iter, &map_iter) != CborNoError)
     return;
 
-  String            base_name,
-                    property_name;
-  double            time = 0.0,
-                    base_time = 0.0;
-  CborIntegerMapKey property_type;
-
+  MapData        map_data;
   MapParserState current_state = MapParserState::EnterMap,
                  next_state;
 
   while(current_state != MapParserState::Complete) {
 
     switch(current_state) {
-    case MapParserState::EnterMap     : next_state = handle_EnterMap     (&map_iter, &value_iter                   ); break;
-    case MapParserState::MapKey       : next_state = handle_MapKey       (&value_iter                              ); break;
-    case MapParserState::BaseName     : next_state = handle_BaseName     (&value_iter, &base_name                  ); break;
-    case MapParserState::BaseTime     : next_state = handle_BaseTime     (&value_iter, &base_time                  ); break;
-    case MapParserState::Time         : next_state = handle_Time         (&value_iter, &time                       ); break;
-    case MapParserState::Name         : next_state = handle_PropertyName (&value_iter, &property_name              ); break;
-    case MapParserState::PropertyType : next_state = handle_PropertyType (&value_iter, &property_type              ); break;
-    case MapParserState::PropertyValue: next_state = handle_PropertyValue(&value_iter, property_name, property_type); break;
-    case MapParserState::LeaveMap     : next_state = handle_LeaveMap     (&map_iter, &value_iter                   ); break;
-    case MapParserState::Complete     : /* Nothing to do */                                                           break;
-    case MapParserState::Error        : return;                                                                       break;
+    case MapParserState::EnterMap     : next_state = handle_EnterMap     (&map_iter, &value_iter                              ); break;
+    case MapParserState::MapKey       : next_state = handle_MapKey       (&value_iter                                         ); break;
+    case MapParserState::BaseName     : next_state = handle_BaseName     (&value_iter, &map_data                             ); break;
+    case MapParserState::BaseTime     : next_state = handle_BaseTime     (&value_iter, &map_data                             ); break;
+    case MapParserState::Time         : next_state = handle_Time         (&value_iter, &map_data                                  ); break;
+    case MapParserState::Name         : next_state = handle_Name         (&value_iter, &map_data                                  ); break;
+    case MapParserState::Value        : next_state = handle_Value        (&value_iter, &map_data); break;
+    case MapParserState::StringValue  : next_state = handle_StringValue  (&value_iter, &map_data             ); break;
+    case MapParserState::BooleanValue : next_state = handle_BooleanValue (&value_iter, &map_data            ); break;
+    case MapParserState::LeaveMap     : next_state = handle_LeaveMap     (&map_iter, &value_iter, &map_data                              ); break;
+    case MapParserState::Complete     : /* Nothing to do */                                                                      break;
+    case MapParserState::Error        : return;                                                                                  break;
     }
 
     current_state = next_state;
@@ -216,29 +202,40 @@ ArduinoCloudThing::MapParserState ArduinoCloudThing::handle_EnterMap(CborValue *
 ArduinoCloudThing::MapParserState ArduinoCloudThing::handle_MapKey(CborValue * value_iter) {
   MapParserState next_state = MapParserState::Error;
 
-  if(_cloud_protocol == CloudProtocol::V1) {
-    if(cbor_value_is_text_string(value_iter)) {
-      char * val      = 0;
-      size_t val_size = 0;
-      if(cbor_value_dup_text_string(value_iter, &val, &val_size, value_iter) == CborNoError) {
-        if     (strcmp(val, "n" ) == 0) { next_state = MapParserState::Name;     }
-        else if(strcmp(val, "bn") == 0) { next_state = MapParserState::BaseName; }
-        else if(strcmp(val, "bt") == 0) { next_state = MapParserState::BaseTime; }
-        else if(strcmp(val, "t" ) == 0) { next_state = MapParserState::Time;     }
-        free(val);
+  if(cbor_value_at_end(value_iter)) {
+    next_state = MapParserState::LeaveMap;
+  }
+  else {
+    if(_cloud_protocol == CloudProtocol::V1) {
+      if(cbor_value_is_text_string(value_iter)) {
+        char * val      = 0;
+        size_t val_size = 0;
+        if(cbor_value_dup_text_string(value_iter, &val, &val_size, value_iter) == CborNoError) {
+          if     (strcmp(val, "n" ) == 0) next_state = MapParserState::Name;
+          else if(strcmp(val, "v" ) == 0) next_state = MapParserState::Value;
+          else if(strcmp(val, "vs") == 0) next_state = MapParserState::StringValue;
+          else if(strcmp(val, "vb") == 0) next_state = MapParserState::BooleanValue;
+          else if(strcmp(val, "bn") == 0) next_state = MapParserState::BaseName;
+          else if(strcmp(val, "bt") == 0) next_state = MapParserState::BaseTime;
+          else if(strcmp(val, "t" ) == 0) next_state = MapParserState::Time;
+          free(val);
+        }
       }
     }
-  }
 
-  if(_cloud_protocol == CloudProtocol::V2) {
-    if(cbor_value_is_integer(value_iter)) {
-      int val = 0;
-      if(cbor_value_get_int(value_iter, &val) == CborNoError) {
-        if(cbor_value_advance(value_iter) == CborNoError) {
-          if     (val == static_cast<int>(CborIntegerMapKey::Name    )) { next_state = MapParserState::Name;     }
-          else if(val == static_cast<int>(CborIntegerMapKey::BaseName)) { next_state = MapParserState::BaseName; }
-          else if(val == static_cast<int>(CborIntegerMapKey::BaseTime)) { next_state = MapParserState::BaseTime; }
-          else if(val == static_cast<int>(CborIntegerMapKey::Time    )) { next_state = MapParserState::Time;     }
+    if(_cloud_protocol == CloudProtocol::V2) {
+      if(cbor_value_is_integer(value_iter)) {
+        int val = 0;
+        if(cbor_value_get_int(value_iter, &val) == CborNoError) {
+          if(cbor_value_advance(value_iter) == CborNoError) {
+            if     (val == static_cast<int>(CborIntegerMapKey::Name        )) next_state = MapParserState::Name;
+            else if(val == static_cast<int>(CborIntegerMapKey::Value       )) next_state = MapParserState::Value;
+            else if(val == static_cast<int>(CborIntegerMapKey::StringValue )) next_state = MapParserState::StringValue;
+            else if(val == static_cast<int>(CborIntegerMapKey::BooleanValue)) next_state = MapParserState::BooleanValue;
+            else if(val == static_cast<int>(CborIntegerMapKey::BaseName    )) next_state = MapParserState::BaseName;
+            else if(val == static_cast<int>(CborIntegerMapKey::BaseTime    )) next_state = MapParserState::BaseTime;
+            else if(val == static_cast<int>(CborIntegerMapKey::Time        )) next_state = MapParserState::Time;
+          }
         }
       }
     }
@@ -247,14 +244,14 @@ ArduinoCloudThing::MapParserState ArduinoCloudThing::handle_MapKey(CborValue * v
   return next_state;
 }
 
-ArduinoCloudThing::MapParserState ArduinoCloudThing::handle_BaseName(CborValue * value_iter, String * base_name) {
+ArduinoCloudThing::MapParserState ArduinoCloudThing::handle_BaseName(CborValue * value_iter, MapData * map_data) {
   MapParserState next_state = MapParserState::Error;
 
   if(cbor_value_is_text_string(value_iter)) {
     char * val      = 0;
     size_t val_size = 0;
     if(cbor_value_dup_text_string(value_iter, &val, &val_size, value_iter) == CborNoError) {
-      *base_name = String(val);
+      map_data->base_name.set(String(val));
       free(val);
       next_state = MapParserState::MapKey;
     }
@@ -263,13 +260,13 @@ ArduinoCloudThing::MapParserState ArduinoCloudThing::handle_BaseName(CborValue *
   return next_state;
 }
 
-ArduinoCloudThing::MapParserState ArduinoCloudThing::handle_BaseTime(CborValue * value_iter, double * base_time) {
+ArduinoCloudThing::MapParserState ArduinoCloudThing::handle_BaseTime(CborValue * value_iter, MapData * map_data) {
   MapParserState next_state = MapParserState::Error;
 
   if(cbor_value_is_double(value_iter)) {
     double val = 0.0;
     if(cbor_value_get_double(value_iter, &val) == CborNoError) {
-      *base_time = val;
+      map_data->base_time.set(val);
       if(cbor_value_advance(value_iter) == CborNoError) {
         next_state = MapParserState::MapKey;
       }
@@ -279,13 +276,13 @@ ArduinoCloudThing::MapParserState ArduinoCloudThing::handle_BaseTime(CborValue *
   return next_state;
 }
 
-ArduinoCloudThing::MapParserState ArduinoCloudThing::handle_Time(CborValue * value_iter, double * time) {
+ArduinoCloudThing::MapParserState ArduinoCloudThing::handle_Time(CborValue * value_iter, MapData * map_data) {
   MapParserState next_state = MapParserState::Error;
 
   if(cbor_value_is_double(value_iter)) {
     double val = 0.0;
     if(cbor_value_get_double(value_iter, &val) == CborNoError) {
-      *time = val;
+      map_data->time.set(val);
       if(cbor_value_advance(value_iter) == CborNoError) {
         next_state = MapParserState::MapKey;
       }
@@ -295,114 +292,132 @@ ArduinoCloudThing::MapParserState ArduinoCloudThing::handle_Time(CborValue * val
   return next_state;
 }
 
-ArduinoCloudThing::MapParserState ArduinoCloudThing::handle_PropertyName(CborValue * value_iter, String * property_name) {
+ArduinoCloudThing::MapParserState ArduinoCloudThing::handle_Name(CborValue * value_iter, MapData * map_data) {
   MapParserState next_state = MapParserState::Error;
 
   if(cbor_value_is_text_string(value_iter)) {
     char * val      = 0;
     size_t val_size = 0;
     if(cbor_value_dup_text_string(value_iter, &val, &val_size, value_iter) == CborNoError) {
-      *property_name = String(val);
+      map_data->name.set(val);
       free(val);
-      next_state = MapParserState::PropertyType;
+      next_state = MapParserState::MapKey;
     }
   }
 
   return next_state;
 }
 
-ArduinoCloudThing::MapParserState ArduinoCloudThing::handle_PropertyType(CborValue * value_iter, CborIntegerMapKey * property_type) {
+ArduinoCloudThing::MapParserState ArduinoCloudThing::handle_Value(CborValue * value_iter, MapData * map_data) {
   MapParserState next_state = MapParserState::Error;
 
-  if(_cloud_protocol == CloudProtocol::V1) {
-    if(cbor_value_is_text_string(value_iter)) {
-      char * val      = 0;
-      size_t val_size = 0;
-      if(cbor_value_dup_text_string(value_iter, &val, &val_size, value_iter) == CborNoError) {
-        if     (strcmp(val, "v" ) == 0) *property_type = CborIntegerMapKey::Value;
-        else if(strcmp(val, "vs") == 0) *property_type = CborIntegerMapKey::StringValue;
-        else if(strcmp(val, "vb") == 0) *property_type = CborIntegerMapKey::BooleanValue;
-        free(val);
-        next_state = MapParserState::PropertyValue;
-      }
+  if (value_iter->type == CborIntegerType) {
+    int val = 0;
+    if(cbor_value_get_int(value_iter, &val) == CborNoError) {
+      map_data->int_val.set(val);
+    }
+  }
+  else if (value_iter->type == CborDoubleType) {
+    double val = 0.0;
+    if(cbor_value_get_double(value_iter, &val) == CborNoError) {
+      map_data->float_val.set(static_cast<float>(val));
+    }
+  }
+  else if (value_iter->type == CborFloatType) {
+    float val = 0.0f;
+    if(cbor_value_get_float(value_iter, &val) == CborNoError) {
+      map_data->float_val.set(val);
+    }
+  }
+  else if (value_iter->type == CborHalfFloatType) {
+    uint16_t val = 0;
+    if(cbor_value_get_half_float(value_iter, &val) == CborNoError) {
+      map_data->float_val.set(static_cast<float>(convertCborHalfFloatToDouble(val)));
     }
   }
 
-  if(_cloud_protocol == CloudProtocol::V2) {
-    if(cbor_value_is_integer(value_iter)) {
-      int val = 0;
-      if(cbor_value_get_int(value_iter, &val) == CborNoError) {
-        if     (val == static_cast<int>(CborIntegerMapKey::Value       )) *property_type = CborIntegerMapKey::Value;
-        else if(val == static_cast<int>(CborIntegerMapKey::StringValue )) *property_type = CborIntegerMapKey::StringValue;
-        else if(val == static_cast<int>(CborIntegerMapKey::BooleanValue)) *property_type = CborIntegerMapKey::BooleanValue;
-        if(cbor_value_advance(value_iter) == CborNoError) {
-          next_state = MapParserState::PropertyValue;
-        }
-      }
+  if(cbor_value_advance(value_iter) == CborNoError) {
+    next_state = MapParserState::MapKey;
+  }
+
+  return next_state;
+}
+
+ArduinoCloudThing::MapParserState ArduinoCloudThing::handle_StringValue(CborValue * value_iter, MapData * map_data) {
+  MapParserState next_state = MapParserState::Error;
+
+  if(cbor_value_is_text_string(value_iter)) {
+    char * val      = 0;
+    size_t val_size = 0;
+    if(cbor_value_dup_text_string(value_iter, &val, &val_size, value_iter) == CborNoError) {
+      map_data->str_val.set(String(val));
+      free(val);
+      next_state = MapParserState::MapKey;
     }
   }
 
   return next_state;
 }
 
-ArduinoCloudThing::MapParserState ArduinoCloudThing::handle_PropertyValue(CborValue * value_iter, String const & property_name, CborIntegerMapKey const property_type) {
+ArduinoCloudThing::MapParserState ArduinoCloudThing::handle_BooleanValue(CborValue * value_iter, MapData * map_data) {
   MapParserState next_state = MapParserState::Error;
 
-  /* VALUE PROPERTY ******************************************************/
-  if(property_type == CborIntegerMapKey::Value) {
-    ArduinoCloudProperty<int>   * int_property   = _property_cont.getPropertyInt  (property_name);
-    ArduinoCloudProperty<float> * float_property = _property_cont.getPropertyFloat(property_name);
-
-    /* INT PROPERTY ******************************************************/
-    if(int_property) {
-      extractProperty(int_property, value_iter);
-      int_property->execCallbackOnChange();
-
-      if(cbor_value_advance(value_iter) == CborNoError) {
-        next_state = MapParserState::LeaveMap;
-      }
-    }
-    /* FLOAT PROPERTY ****************************************************/
-    if(float_property) {
-      extractProperty(float_property, value_iter);
-      float_property->execCallbackOnChange();
-
-      if(cbor_value_advance(value_iter) == CborNoError) {
-        next_state = MapParserState::LeaveMap;
-      }
-    }
-  }
-  /* BOOL PROPERTY *******************************************************/
-  if(property_type == CborIntegerMapKey::BooleanValue) {
-    ArduinoCloudProperty<bool> * bool_property = _property_cont.getPropertyBool(property_name);
-    if(bool_property) {
-      extractProperty(bool_property, value_iter);
-      bool_property->execCallbackOnChange();
-
-      if(cbor_value_advance(value_iter) == CborNoError) {
-        next_state = MapParserState::LeaveMap;
-      }
-    }
-  }
-  /* STRING PROPERTY *****************************************************/
-  if(property_type == CborIntegerMapKey::StringValue) {
-    ArduinoCloudProperty<String> * string_property = _property_cont.getPropertyString(property_name);
-    if(string_property) {
-      extractProperty(string_property, value_iter);
-      string_property->execCallbackOnChange();
-
-      /* It is not necessary to advance it we have a string property
-       * because extracting it automatically advances the iterator.
-       */
-      next_state = MapParserState::LeaveMap;
+  bool val = false;
+  if(cbor_value_get_boolean(value_iter, &val) == CborNoError) {
+    map_data->bool_val.set(val);
+    if(cbor_value_advance(value_iter) == CborNoError) {
+      next_state = MapParserState::MapKey;
     }
   }
 
   return next_state;
 }
 
-ArduinoCloudThing::MapParserState ArduinoCloudThing::handle_LeaveMap(CborValue * map_iter, CborValue * value_iter) {
+ArduinoCloudThing::MapParserState ArduinoCloudThing::handle_LeaveMap(CborValue * map_iter, CborValue * value_iter, MapData const * const map_data) {
   MapParserState next_state = MapParserState::Error;
+
+  /* Update the property containers depending on the parsed data */
+
+  if(map_data->name.isSet())
+  {
+    /* Value (Integer) */
+    if(map_data->int_val.isSet()) {
+      ArduinoCloudProperty<int>* int_property = _property_cont.getPropertyInt(map_data->name.get());
+      if(int_property && int_property->isWriteableByCloud()) {
+        int_property->writeByCloud(map_data->int_val.get());
+        int_property->execCallbackOnChange();
+      }
+    }
+
+    /* Value (float) */
+    if(map_data->float_val.isSet()) {
+      ArduinoCloudProperty<float>* float_property = _property_cont.getPropertyFloat(map_data->name.get());
+      if(float_property && float_property->isWriteableByCloud()) {
+        float_property->writeByCloud(map_data->float_val.get());
+        float_property->execCallbackOnChange();
+      }
+    }
+
+    /* Value (String) */
+    if(map_data->str_val.isSet()) {
+      ArduinoCloudProperty<String>* string_property = _property_cont.getPropertyString(map_data->name.get());
+      if(string_property && string_property->isWriteableByCloud()) {
+        string_property->writeByCloud(map_data->str_val.get());
+        string_property->execCallbackOnChange();
+      }
+    }
+
+    /* Value (bool) */
+    if(map_data->bool_val.isSet()) {
+      ArduinoCloudProperty<bool>* bool_property = _property_cont.getPropertyBool(map_data->name.get());
+      if(bool_property && bool_property->isWriteableByCloud()) {
+        bool_property->writeByCloud(map_data->bool_val.get());
+        bool_property->execCallbackOnChange();
+      }
+    }
+  }
+
+  /* Transition into the next map if available, otherwise finish */
 
   if(cbor_value_leave_container(map_iter, value_iter) == CborNoError) {
     if(!cbor_value_at_end(map_iter)) {
@@ -416,12 +431,8 @@ ArduinoCloudThing::MapParserState ArduinoCloudThing::handle_LeaveMap(CborValue *
   return next_state;
 }
 
-/******************************************************************************
- * PRIVATE FREE FUNCTIONS
- ******************************************************************************/
-
 /* Source Idea from https://tools.ietf.org/html/rfc7049 : Page: 50 */
-double convertCborHalfFloatToDouble(uint16_t const half_val) {
+double ArduinoCloudThing::convertCborHalfFloatToDouble(uint16_t const half_val) {
   int exp = (half_val >> 10) & 0x1f;
   int mant = half_val & 0x3ff;
   double val;
@@ -430,80 +441,3 @@ double convertCborHalfFloatToDouble(uint16_t const half_val) {
   else val = mant == 0 ? INFINITY : NAN;
   return half_val & 0x8000 ? -val : val;
 }
-
-void extractProperty(ArduinoCloudProperty<int> * int_property, CborValue * cbor_value) {
-  if (cbor_value->type == CborIntegerType) {
-    int val = 0;
-    cbor_value_get_int(cbor_value, &val);
-    if(int_property->isWriteableByCloud()) {
-      int_property->writeByCloud(val);
-    }
-  } else if (cbor_value->type == CborDoubleType) {
-    double val = 0.0;
-    cbor_value_get_double(cbor_value, &val);
-    if(int_property->isWriteableByCloud()) {
-      int_property->writeByCloud(static_cast<int>(val));
-    }
-  } else if (cbor_value->type == CborFloatType) {
-    float val = 0.0f;
-    cbor_value_get_float(cbor_value, &val);
-    if(int_property->isWriteableByCloud()) {
-      int_property->writeByCloud(static_cast<int>(val));
-    }
-  } else if (cbor_value->type == CborHalfFloatType) {
-    uint16_t val = 0;
-    cbor_value_get_half_float(cbor_value, &val);
-    if(int_property->isWriteableByCloud()) {
-      int_property->writeByCloud(static_cast<int>(convertCborHalfFloatToDouble(val)));
-    }
-  }
-}
-
-void extractProperty(ArduinoCloudProperty<float> * float_property, CborValue * cbor_value) {
-  if (cbor_value->type == CborDoubleType) {
-    double val = 0.0;
-    cbor_value_get_double(cbor_value, &val);
-    if(float_property->isWriteableByCloud()) {
-      float_property->writeByCloud(static_cast<float>(val));
-    }
-  } else if (cbor_value->type == CborIntegerType) {
-    int val = 0;
-    cbor_value_get_int(cbor_value, &val);
-    if(float_property->isWriteableByCloud()) {
-      float_property->writeByCloud(static_cast<float>(val));
-    }
-  } else if (cbor_value->type == CborFloatType) {
-    float val = 0.0f;
-    cbor_value_get_float(cbor_value, &val);
-    if(float_property->isWriteableByCloud()) {
-      float_property->writeByCloud(val);
-    }
-  } else if (cbor_value->type == CborHalfFloatType) {
-    uint16_t val = 0;
-    cbor_value_get_half_float(cbor_value, &val);
-    if(float_property->isWriteableByCloud()) {
-      float_property->writeByCloud(static_cast<float>(convertCborHalfFloatToDouble(val)));
-    }
-  }
-}
-
-void extractProperty(ArduinoCloudProperty<bool> * bool_property, CborValue * cbor_value) {
-  bool val = false;
-  if(cbor_value_get_boolean(cbor_value, &val) == CborNoError) {
-    if(bool_property->isWriteableByCloud()) {
-      bool_property->writeByCloud(val);
-    }
-  }
-}
-
-void extractProperty(ArduinoCloudProperty<String> * string_property, CborValue * cbor_value) {
-  char * val      = 0;
-  size_t val_size = 0;
-  if(cbor_value_dup_text_string(cbor_value, &val, &val_size, cbor_value) == CborNoError) {
-    if(string_property->isWriteableByCloud()) {
-      string_property->writeByCloud(static_cast<char *>(val));
-    }
-    free(val);
-  }
-}
-
