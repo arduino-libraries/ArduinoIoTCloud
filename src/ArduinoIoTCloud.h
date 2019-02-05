@@ -4,6 +4,7 @@
 #include <ArduinoMqttClient.h>
 #include <ArduinoIoTCloudBearSSL.h>
 #include <ArduinoCloudThing.h>
+#include "ConnectionManager.h"
 
 #include "CloudSerial.h"
 
@@ -20,18 +21,34 @@ typedef struct {
   int timeout;
 } mqttConnectionOptions;
 
+extern ConnectionManager *ArduinoIoTPreferredConnection;
+
+enum ArduinoIoTConnectionStatus {
+  IOT_STATUS_IDLE,/* only at start */
+  IOT_STATUS_CLOUD_IDLE,
+  IOT_STATUS_CLOUD_CONNECTING,
+  IOT_STATUS_CLOUD_CONNECTED,
+  IOT_STATUS_CLOUD_DISCONNECTED,
+  IOT_STATUS_CLOUD_RECONNECTING,
+  IOT_STATUS_CLOUD_ERROR,
+  IOT_STATUS_ERROR_GENERIC
+};
+
 class ArduinoIoTCloudClass {
 
 public:
   ArduinoIoTCloudClass();
   ~ArduinoIoTCloudClass();
 
+  int begin(ConnectionManager *connection = ArduinoIoTPreferredConnection, String brokerAddress = "mqtts-sa.iot.arduino.cc");
   int begin(Client& net, String brokerAddress = "mqtts-sa.iot.arduino.cc");
-
   // Class constant declaration
   static const int MQTT_TRANSMIT_BUFFER_SIZE = 256;
   static const int MAX_RETRIES = 5;
   static const int RECONNECTION_TIMEOUT = 2000;
+
+
+  void onGetTime(unsigned long(*callback)(void));
 
   int  connect   ();
   bool disconnect();
@@ -41,13 +58,10 @@ public:
 
   // defined for users who want to specify max reconnections reties and timeout between them
   void update(int const reconnectionMaxRetries, int const reconnectionTimeoutMs);
-  // It must be a user defined function, in order to avoid ArduinoCloud include specific WiFi file
-  // in this case this library is independent from the WiFi one
-  void onGetTime(unsigned long(*)(void));
 
   int connected();
   // Clean up existing Mqtt connection, create a new one and initialize it
-  int reconnect(Client& net);
+  int reconnect(Client& /* net */);
 
   inline void setThingId(String const thing_id) { _thing_id = thing_id; };
 
@@ -78,6 +92,8 @@ public:
     return Thing.addPropertyReal(property, name, permission);
   }
 
+  void connectionCheck();
+
 protected:
   friend class CloudSerialClass;
   int writeStdout(const byte data[], int length);
@@ -87,7 +103,11 @@ protected:
   // Function in charge of perform MQTT reconnection, basing on class parameters(retries,and timeout)
   bool mqttReconnect(int const maxRetries, int const timeout);
 
+  ArduinoIoTConnectionStatus getIoTStatus() { return iotStatus; }
+
 private:
+  ArduinoIoTConnectionStatus iotStatus = IOT_STATUS_IDLE;
+  ConnectionManager *connection;
   static void onMessage(int length);
   void handleMessage(int length);
 
@@ -104,6 +124,7 @@ private:
   String _dataTopicOut;
   String _dataTopicIn;
   String _otaTopic;
+  Client *_net;
 };
 
 extern ArduinoIoTCloudClass ArduinoCloud;
