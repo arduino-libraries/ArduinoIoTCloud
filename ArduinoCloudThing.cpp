@@ -165,17 +165,17 @@ void ArduinoCloudThing::decode(uint8_t const * const payload, size_t const lengt
   while(current_state != MapParserState::Complete) {
 
     switch(current_state) {
-    case MapParserState::EnterMap     : next_state = handle_EnterMap     (&map_iter, &value_iter            ); break;
-    case MapParserState::MapKey       : next_state = handle_MapKey       (&value_iter                       ); break;
-    case MapParserState::UndefinedKey : next_state = handle_UndefinedKey (&value_iter                       ); break;
-    case MapParserState::BaseVersion  : next_state = handle_BaseVersion  (&value_iter, &map_data            ); break;
-    case MapParserState::BaseName     : next_state = handle_BaseName     (&value_iter, &map_data            ); break;
-    case MapParserState::BaseTime     : next_state = handle_BaseTime     (&value_iter, &map_data            ); break;
-    case MapParserState::Time         : next_state = handle_Time         (&value_iter, &map_data            ); break;
-    case MapParserState::Name         : next_state = handle_Name         (&value_iter, &map_data            ); break;
-    case MapParserState::Value        : next_state = handle_Value        (&value_iter, &map_data            ); break;
-    case MapParserState::StringValue  : next_state = handle_StringValue  (&value_iter, &map_data            ); break;
-    case MapParserState::BooleanValue : next_state = handle_BooleanValue (&value_iter, &map_data            ); break;
+    case MapParserState::EnterMap     : next_state = handle_EnterMap     (&map_iter, &value_iter, &map_data); break;
+    case MapParserState::MapKey       : next_state = handle_MapKey       (&value_iter                      ); break;
+    case MapParserState::UndefinedKey : next_state = handle_UndefinedKey (&value_iter                      ); break;
+    case MapParserState::BaseVersion  : next_state = handle_BaseVersion  (&value_iter, &map_data           ); break;
+    case MapParserState::BaseName     : next_state = handle_BaseName     (&value_iter, &map_data           ); break;
+    case MapParserState::BaseTime     : next_state = handle_BaseTime     (&value_iter, &map_data           ); break;
+    case MapParserState::Time         : next_state = handle_Time         (&value_iter, &map_data           ); break;
+    case MapParserState::Name         : next_state = handle_Name         (&value_iter, &map_data           ); break;
+    case MapParserState::Value        : next_state = handle_Value        (&value_iter, &map_data           ); break;
+    case MapParserState::StringValue  : next_state = handle_StringValue  (&value_iter, &map_data           ); break;
+    case MapParserState::BooleanValue : next_state = handle_BooleanValue (&value_iter, &map_data           ); break;
     case MapParserState::LeaveMap     : next_state = handle_LeaveMap     (&map_iter, &value_iter, &map_data); break;
     case MapParserState::Complete     : /* Nothing to do */                                                   break;
     case MapParserState::Error        : return;                                                               break;
@@ -189,11 +189,12 @@ void ArduinoCloudThing::decode(uint8_t const * const payload, size_t const lengt
  * PRIVATE MEMBER FUNCTIONS
  ******************************************************************************/
 
-ArduinoCloudThing::MapParserState ArduinoCloudThing::handle_EnterMap(CborValue * map_iter, CborValue * value_iter) {
+ArduinoCloudThing::MapParserState ArduinoCloudThing::handle_EnterMap(CborValue * map_iter, CborValue * value_iter, MapData * map_data) {
   MapParserState next_state = MapParserState::Error;
 
   if(cbor_value_get_type(map_iter) == CborMapType) {
     if(cbor_value_enter_container(map_iter, value_iter) == CborNoError) {
+      resetMapData(map_data);
       next_state = MapParserState::MapKey;
     }
   }
@@ -461,6 +462,18 @@ ArduinoCloudThing::MapParserState ArduinoCloudThing::handle_LeaveMap(CborValue *
   }
 
   return next_state;
+}
+
+void ArduinoCloudThing::resetMapData(MapData * map_data) {
+  map_data->base_version.reset();
+  map_data->base_name.reset   ();
+  map_data->base_time.reset   ();
+  map_data->name.reset        ();
+  map_data->int_val.reset     ();
+  map_data->float_val.reset   ();
+  map_data->str_val.reset     ();
+  map_data->bool_val.reset    ();
+  map_data->time.reset        ();
 }
 
 /* Source Idea from https://tools.ietf.org/html/rfc7049 : Page: 50 */

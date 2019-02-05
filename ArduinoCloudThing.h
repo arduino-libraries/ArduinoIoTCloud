@@ -76,8 +76,10 @@ private:
     MapEntry() : _is_set(false) { }
 
     inline void    set  (T const & entry) { _entry = entry; _is_set = true; }
+    inline T const get  () const { return _entry; }
+
     inline bool    isSet() const { return _is_set; }
-    inline T const get  () const { return _entry;  }
+    inline bool    reset()       { _is_set = false; }
 
   private:
 
@@ -98,7 +100,7 @@ private:
     MapEntry<double> time;
   } MapData;
 
-  MapParserState handle_EnterMap     (CborValue * map_iter, CborValue * value_iter);
+  MapParserState handle_EnterMap     (CborValue * map_iter, CborValue * value_iter, MapData * map_data);
   MapParserState handle_MapKey       (CborValue * value_iter);
   MapParserState handle_UndefinedKey (CborValue * value_iter);
   MapParserState handle_BaseVersion  (CborValue * value_iter, MapData * map_data);
@@ -111,6 +113,7 @@ private:
   MapParserState handle_Time         (CborValue * value_iter, MapData * map_data);
   MapParserState handle_LeaveMap     (CborValue * map_iter, CborValue * value_iter, MapData const * const map_data);
 
+  static void   resetMapData                (MapData * map_data);
   static double convertCborHalfFloatToDouble(uint16_t const half_val);
 
 };
