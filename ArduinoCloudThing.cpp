@@ -296,13 +296,6 @@ ArduinoCloudThing::MapParserState ArduinoCloudThing::handle_BaseName(CborValue *
 ArduinoCloudThing::MapParserState ArduinoCloudThing::handle_BaseTime(CborValue * value_iter, MapData * map_data) {
   MapParserState next_state = MapParserState::Error;
 
-  if(cbor_value_is_double(value_iter)) {
-    double val = 0.0;
-    if(cbor_value_get_double(value_iter, &val) == CborNoError) {
-      map_data->base_time.set(val);
-    }
-  }
-
   if(cbor_value_is_integer(value_iter)) {
     int val = 0;
     if(cbor_value_get_int(value_iter, &val) == CborNoError) {
@@ -310,7 +303,26 @@ ArduinoCloudThing::MapParserState ArduinoCloudThing::handle_BaseTime(CborValue *
     }
   }
 
-  /* TODO: Check for half float / float */
+  if(cbor_value_is_double(value_iter)) {
+    double val = 0.0;
+    if(cbor_value_get_double(value_iter, &val) == CborNoError) {
+      map_data->base_time.set(val);
+    }
+  }
+
+  if(cbor_value_is_float(value_iter)) {
+    float val = 0.0;
+    if(cbor_value_get_float(value_iter, &val) == CborNoError) {
+      map_data->base_time.set(static_cast<double>(val));
+    }
+  }
+
+  if(cbor_value_is_half_float(value_iter)) {
+    uint16_t val = 0;
+    if(cbor_value_get_half_float(value_iter, &val) == CborNoError) {
+      map_data->base_time.set(static_cast<double>(convertCborHalfFloatToDouble(val)));
+    }
+  }
 
   if(cbor_value_advance(value_iter) == CborNoError) {
     next_state = MapParserState::MapKey;
@@ -403,13 +415,6 @@ ArduinoCloudThing::MapParserState ArduinoCloudThing::handle_BooleanValue(CborVal
 ArduinoCloudThing::MapParserState ArduinoCloudThing::handle_Time(CborValue * value_iter, MapData * map_data) {
   MapParserState next_state = MapParserState::Error;
 
-  if(cbor_value_is_double(value_iter)) {
-    double val = 0.0;
-    if(cbor_value_get_double(value_iter, &val) == CborNoError) {
-      map_data->time.set(val);
-    }
-  }
-
   if(cbor_value_is_integer(value_iter)) {
     int val = 0;
     if(cbor_value_get_int(value_iter, &val) == CborNoError) {
@@ -417,7 +422,26 @@ ArduinoCloudThing::MapParserState ArduinoCloudThing::handle_Time(CborValue * val
     }
   }
 
-  /* TODO: Check for half float / float */
+  if(cbor_value_is_double(value_iter)) {
+    double val = 0.0;
+    if(cbor_value_get_double(value_iter, &val) == CborNoError) {
+      map_data->time.set(val);
+    }
+  }
+
+  if(cbor_value_is_float(value_iter)) {
+    float val = 0.0;
+    if(cbor_value_get_float(value_iter, &val) == CborNoError) {
+      map_data->time.set(static_cast<double>(val));
+    }
+  }
+
+  if(cbor_value_is_half_float(value_iter)) {
+    uint16_t val = 0;
+    if(cbor_value_get_half_float(value_iter, &val) == CborNoError) {
+      map_data->time.set(static_cast<double>(convertCborHalfFloatToDouble(val)));
+    }
+  }
 
   if(cbor_value_advance(value_iter) == CborNoError) {
     next_state = MapParserState::MapKey;
