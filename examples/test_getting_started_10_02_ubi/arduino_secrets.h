@@ -1,6 +1,0 @@
-#define SECRET_SSID ""
-#define SECRET_PASS ""
-#define SECRET_GSMPIN ""
-#define SECRET_GPRSAPN ""
-#define SECRET_GPRSLOGIN ""
-#define SECRET_GPRSPWD ""
