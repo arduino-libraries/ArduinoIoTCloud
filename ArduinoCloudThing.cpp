@@ -300,10 +300,18 @@ ArduinoCloudThing::MapParserState ArduinoCloudThing::handle_BaseTime(CborValue *
     double val = 0.0;
     if(cbor_value_get_double(value_iter, &val) == CborNoError) {
       map_data->base_time.set(val);
-      if(cbor_value_advance(value_iter) == CborNoError) {
-        next_state = MapParserState::MapKey;
-      }
     }
+  }
+
+  if(cbor_value_is_integer(value_iter)) {
+    int val = 0;
+    if(cbor_value_get_int(value_iter, &val) == CborNoError) {
+      map_data->base_time.set(static_cast<double>(val));
+    }
+  }
+
+  if(cbor_value_advance(value_iter) == CborNoError) {
+    next_state = MapParserState::MapKey;
   }
 
   return next_state;
