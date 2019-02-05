@@ -9,19 +9,18 @@
 #include <math.h>
 
 /******************************************************************************
- * PRIVATE FREE FUNCTIONS
+ * PRIVATE FREE FUNCTION PROTOTYPES
  ******************************************************************************/
 
-/* Source Idea from https://tools.ietf.org/html/rfc7049 : Page: 50 */
-double convertCborHalfFloatToDouble(uint16_t const half_val) {
-  int exp = (half_val >> 10) & 0x1f;
-  int mant = half_val & 0x3ff;
-  double val;
-  if (exp == 0) val = ldexp(mant, -24);
-  else if (exp != 31) val = ldexp(mant + 1024, exp - 25);
-  else val = mant == 0 ? INFINITY : NAN;
-  return half_val & 0x8000 ? -val : val;
-}
+double convertCborHalfFloatToDouble(uint16_t const half_val);
+void   extractProperty             (ArduinoCloudProperty<int>    * int_property,    CborValue * cbor_value);
+void   extractProperty             (ArduinoCloudProperty<float>  * float_property,  CborValue * cbor_value);
+void   extractProperty             (ArduinoCloudProperty<bool>   * bool_property,   CborValue * cbor_value);
+void   extractProperty             (ArduinoCloudProperty<String> * string_property, CborValue * cbor_value);
+
+/******************************************************************************
+ * DEBUG FUNCTIONS
+ ******************************************************************************/
 
 #if defined(DEBUG_MEMORY) && defined(ARDUINO_ARCH_SAMD)
 extern "C" char *sbrk(int i);
@@ -45,83 +44,6 @@ static void utox8(uint32_t val, char* s) {
 #ifdef ARDUINO_ARCH_MRAA
 #define Serial DebugSerial
 #endif
-
-void extractProperty(ArduinoCloudProperty<int> * int_property, CborValue * cbor_value)
-{
-  if (cbor_value->type == CborIntegerType) {
-    int val = 0;
-    cbor_value_get_int(cbor_value, &val);
-    if(int_property->isWriteableByCloud()) {
-      int_property->writeByCloud(val);
-    }
-  } else if (cbor_value->type == CborDoubleType) {
-    double val = 0.0;
-    cbor_value_get_double(cbor_value, &val);
-    if(int_property->isWriteableByCloud()) {
-      int_property->writeByCloud(static_cast<int>(val));
-    }
-  } else if (cbor_value->type == CborFloatType) {
-    float val = 0.0f;
-    cbor_value_get_float(cbor_value, &val);
-    if(int_property->isWriteableByCloud()) {
-      int_property->writeByCloud(static_cast<int>(val));
-    }
-  } else if (cbor_value->type == CborHalfFloatType) {
-    uint16_t val = 0;
-    cbor_value_get_half_float(cbor_value, &val);
-    if(int_property->isWriteableByCloud()) {
-      int_property->writeByCloud(static_cast<int>(convertCborHalfFloatToDouble(val)));
-    }
-  }
-}
-
-void extractProperty(ArduinoCloudProperty<float> * float_property, CborValue * cbor_value) {
-  if (cbor_value->type == CborDoubleType) {
-    double val = 0.0;
-    cbor_value_get_double(cbor_value, &val);
-    if(float_property->isWriteableByCloud()) {
-      float_property->writeByCloud(static_cast<float>(val));
-    }
-  } else if (cbor_value->type == CborIntegerType) {
-    int val = 0;
-    cbor_value_get_int(cbor_value, &val);
-    if(float_property->isWriteableByCloud()) {
-      float_property->writeByCloud(static_cast<float>(val));
-    }
-  } else if (cbor_value->type == CborFloatType) {
-    float val = 0.0f;
-    cbor_value_get_float(cbor_value, &val);
-    if(float_property->isWriteableByCloud()) {
-      float_property->writeByCloud(val);
-    }
-  } else if (cbor_value->type == CborHalfFloatType) {
-    uint16_t val = 0;
-    cbor_value_get_half_float(cbor_value, &val);
-    if(float_property->isWriteableByCloud()) {
-      float_property->writeByCloud(static_cast<float>(convertCborHalfFloatToDouble(val)));
-    }
-  }
-}
-
-void extractProperty(ArduinoCloudProperty<bool> * bool_property, CborValue * cbor_value) {
-  bool val = false;
-  if(cbor_value_get_boolean(cbor_value, &val) == CborNoError) {
-    if(bool_property->isWriteableByCloud()) {
-      bool_property->writeByCloud(val);
-    }
-  }
-}
-
-void extractProperty(ArduinoCloudProperty<String> * string_property, CborValue * cbor_value) {
-  char * val      = 0;
-  size_t val_size = 0;
-  if(cbor_value_dup_text_string(cbor_value, &val, &val_size, cbor_value) == CborNoError) {
-    if(string_property->isWriteableByCloud()) {
-      string_property->writeByCloud(static_cast<char *>(val));
-    }
-    free(val);
-  }
-}
 
 /******************************************************************************
  * CTOR/DTOR
@@ -148,8 +70,8 @@ ArduinoCloudThing::ArduinoCloudThing(CloudProtocol const cloud_protocol)
  ******************************************************************************/
 
 void ArduinoCloudThing::begin() {
-    _status = ON;
-    addPropertyReal(_status, "status", Permission::Read);
+  _status = ON;
+  addPropertyReal(_status, "status", Permission::Read);
 }
 
 
@@ -493,3 +415,95 @@ ArduinoCloudThing::MapParserState ArduinoCloudThing::handle_LeaveMap(CborValue *
 
   return next_state;
 }
+
+/******************************************************************************
+ * PRIVATE FREE FUNCTIONS
+ ******************************************************************************/
+
+/* Source Idea from https://tools.ietf.org/html/rfc7049 : Page: 50 */
+double convertCborHalfFloatToDouble(uint16_t const half_val) {
+  int exp = (half_val >> 10) & 0x1f;
+  int mant = half_val & 0x3ff;
+  double val;
+  if (exp == 0) val = ldexp(mant, -24);
+  else if (exp != 31) val = ldexp(mant + 1024, exp - 25);
+  else val = mant == 0 ? INFINITY : NAN;
+  return half_val & 0x8000 ? -val : val;
+}
+
+void extractProperty(ArduinoCloudProperty<int> * int_property, CborValue * cbor_value) {
+  if (cbor_value->type == CborIntegerType) {
+    int val = 0;
+    cbor_value_get_int(cbor_value, &val);
+    if(int_property->isWriteableByCloud()) {
+      int_property->writeByCloud(val);
+    }
+  } else if (cbor_value->type == CborDoubleType) {
+    double val = 0.0;
+    cbor_value_get_double(cbor_value, &val);
+    if(int_property->isWriteableByCloud()) {
+      int_property->writeByCloud(static_cast<int>(val));
+    }
+  } else if (cbor_value->type == CborFloatType) {
+    float val = 0.0f;
+    cbor_value_get_float(cbor_value, &val);
+    if(int_property->isWriteableByCloud()) {
+      int_property->writeByCloud(static_cast<int>(val));
+    }
+  } else if (cbor_value->type == CborHalfFloatType) {
+    uint16_t val = 0;
+    cbor_value_get_half_float(cbor_value, &val);
+    if(int_property->isWriteableByCloud()) {
+      int_property->writeByCloud(static_cast<int>(convertCborHalfFloatToDouble(val)));
+    }
+  }
+}
+
+void extractProperty(ArduinoCloudProperty<float> * float_property, CborValue * cbor_value) {
+  if (cbor_value->type == CborDoubleType) {
+    double val = 0.0;
+    cbor_value_get_double(cbor_value, &val);
+    if(float_property->isWriteableByCloud()) {
+      float_property->writeByCloud(static_cast<float>(val));
+    }
+  } else if (cbor_value->type == CborIntegerType) {
+    int val = 0;
+    cbor_value_get_int(cbor_value, &val);
+    if(float_property->isWriteableByCloud()) {
+      float_property->writeByCloud(static_cast<float>(val));
+    }
+  } else if (cbor_value->type == CborFloatType) {
+    float val = 0.0f;
+    cbor_value_get_float(cbor_value, &val);
+    if(float_property->isWriteableByCloud()) {
+      float_property->writeByCloud(val);
+    }
+  } else if (cbor_value->type == CborHalfFloatType) {
+    uint16_t val = 0;
+    cbor_value_get_half_float(cbor_value, &val);
+    if(float_property->isWriteableByCloud()) {
+      float_property->writeByCloud(static_cast<float>(convertCborHalfFloatToDouble(val)));
+    }
+  }
+}
+
+void extractProperty(ArduinoCloudProperty<bool> * bool_property, CborValue * cbor_value) {
+  bool val = false;
+  if(cbor_value_get_boolean(cbor_value, &val) == CborNoError) {
+    if(bool_property->isWriteableByCloud()) {
+      bool_property->writeByCloud(val);
+    }
+  }
+}
+
+void extractProperty(ArduinoCloudProperty<String> * string_property, CborValue * cbor_value) {
+  char * val      = 0;
+  size_t val_size = 0;
+  if(cbor_value_dup_text_string(cbor_value, &val, &val_size, cbor_value) == CborNoError) {
+    if(string_property->isWriteableByCloud()) {
+      string_property->writeByCloud(static_cast<char *>(val));
+    }
+    free(val);
+  }
+}
+
