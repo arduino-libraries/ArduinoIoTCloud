@@ -263,10 +263,14 @@ ArduinoCloudThing::MapParserState ArduinoCloudThing::handle_UndefinedKey(CborVal
 ArduinoCloudThing::MapParserState ArduinoCloudThing::handle_BaseVersion(CborValue * value_iter, MapData * map_data) {
   MapParserState next_state = MapParserState::Error;
 
-  /* TODO: Parse BaseVersion */
-
-  if(cbor_value_advance(value_iter) == CborNoError) {
-    next_state = MapParserState::MapKey;
+  if(cbor_value_is_integer(value_iter)) {
+    int val = 0;
+    if(cbor_value_get_int(value_iter, &val) == CborNoError) {
+      map_data->base_version.set(val);
+      if(cbor_value_advance(value_iter) == CborNoError) {
+        next_state = MapParserState::MapKey;
+      }
+    }
   }
 
   return next_state;
@@ -323,25 +327,25 @@ ArduinoCloudThing::MapParserState ArduinoCloudThing::handle_Name(CborValue * val
 ArduinoCloudThing::MapParserState ArduinoCloudThing::handle_Value(CborValue * value_iter, MapData * map_data) {
   MapParserState next_state = MapParserState::Error;
 
-  if (value_iter->type == CborIntegerType) {
+  if(value_iter->type == CborIntegerType) {
     int val = 0;
     if(cbor_value_get_int(value_iter, &val) == CborNoError) {
       map_data->int_val.set(val);
     }
   }
-  else if (value_iter->type == CborDoubleType) {
+  else if(value_iter->type == CborDoubleType) {
     double val = 0.0;
     if(cbor_value_get_double(value_iter, &val) == CborNoError) {
       map_data->float_val.set(static_cast<float>(val));
     }
   }
-  else if (value_iter->type == CborFloatType) {
+  else if(value_iter->type == CborFloatType) {
     float val = 0.0f;
     if(cbor_value_get_float(value_iter, &val) == CborNoError) {
       map_data->float_val.set(val);
     }
   }
-  else if (value_iter->type == CborHalfFloatType) {
+  else if(value_iter->type == CborHalfFloatType) {
     uint16_t val = 0;
     if(cbor_value_get_half_float(value_iter, &val) == CborNoError) {
       map_data->float_val.set(static_cast<float>(convertCborHalfFloatToDouble(val)));

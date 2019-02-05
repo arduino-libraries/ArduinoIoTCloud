@@ -75,18 +75,9 @@ private:
 
     MapEntry() : _is_set(false) { }
 
-    void set(T const & entry) {
-      _entry = entry;
-      _is_set = true;
-    }
-
-    bool isSet() const {
-      return _is_set;
-    }
-
-    T const get() const {
-      return _entry;
-    }
+    inline void    set  (T const & entry) { _entry = entry; _is_set = true; }
+    inline bool    isSet() const { return _is_set; }
+    inline T const get  () const { return _entry;  }
 
   private:
 
