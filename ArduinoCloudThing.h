@@ -66,9 +66,16 @@ private:
     Error
   };
 
-  MapParserState handle_EnterMap(CborValue * map_iter, CborValue * value_iter);
-  MapParserState handle_MapKey  (CborValue * value_iter);
-  MapParserState handle_BaseName(CborValue * value_iter, String * base_name);
+  MapParserState handle_EnterMap     (CborValue * map_iter, CborValue * value_iter);
+  MapParserState handle_MapKey       (CborValue * value_iter);
+  MapParserState handle_BaseName     (CborValue * value_iter, String * base_name);
+  MapParserState handle_BaseTime     (CborValue * value_iter, double * base_time);
+  MapParserState handle_Time         (CborValue * value_iter, double * time);
+  MapParserState handle_PropertyName (CborValue * value_iter, String * property_name);
+  MapParserState handle_PropertyType (CborValue * value_iter, CborIntegerMapKey * property_type);
+  MapParserState handle_PropertyValue(CborValue * value_iter, String const & property_name, CborIntegerMapKey const property_type);
+  MapParserState handle_LeaveMap     (CborValue * map_iter, CborValue * value_iter);
+
 };
 
 #endif /* ARDUINO_CLOUD_THING_H_ */
