@@ -310,6 +310,8 @@ ArduinoCloudThing::MapParserState ArduinoCloudThing::handle_BaseTime(CborValue *
     }
   }
 
+  /* TODO: Check for half float / float */
+
   if(cbor_value_advance(value_iter) == CborNoError) {
     next_state = MapParserState::MapKey;
   }
@@ -339,25 +341,25 @@ ArduinoCloudThing::MapParserState ArduinoCloudThing::handle_Value(CborValue * va
   if(value_iter->type == CborIntegerType) {
     int val = 0;
     if(cbor_value_get_int(value_iter, &val) == CborNoError) {
-      map_data->int_val.set(val);
+      map_data->val.set(static_cast<float>(val));
     }
   }
   else if(value_iter->type == CborDoubleType) {
     double val = 0.0;
     if(cbor_value_get_double(value_iter, &val) == CborNoError) {
-      map_data->float_val.set(static_cast<float>(val));
+      map_data->val.set(static_cast<float>(val));
     }
   }
   else if(value_iter->type == CborFloatType) {
     float val = 0.0f;
     if(cbor_value_get_float(value_iter, &val) == CborNoError) {
-      map_data->float_val.set(val);
+      map_data->val.set(val);
     }
   }
   else if(value_iter->type == CborHalfFloatType) {
     uint16_t val = 0;
     if(cbor_value_get_half_float(value_iter, &val) == CborNoError) {
-      map_data->float_val.set(static_cast<float>(convertCborHalfFloatToDouble(val)));
+      map_data->val.set(static_cast<float>(convertCborHalfFloatToDouble(val)));
     }
   }
 
@@ -405,10 +407,20 @@ ArduinoCloudThing::MapParserState ArduinoCloudThing::handle_Time(CborValue * val
     double val = 0.0;
     if(cbor_value_get_double(value_iter, &val) == CborNoError) {
       map_data->time.set(val);
-      if(cbor_value_advance(value_iter) == CborNoError) {
-        next_state = MapParserState::MapKey;
-      }
     }
+  }
+
+  if(cbor_value_is_integer(value_iter)) {
+    int val = 0;
+    if(cbor_value_get_int(value_iter, &val) == CborNoError) {
+      map_data->time.set(static_cast<double>(val));
+    }
+  }
+
+  /* TODO: Check for half float / float */
+
+  if(cbor_value_advance(value_iter) == CborNoError) {
+    next_state = MapParserState::MapKey;
   }
 
   return next_state;
@@ -421,20 +433,18 @@ ArduinoCloudThing::MapParserState ArduinoCloudThing::handle_LeaveMap(CborValue *
 
   if(map_data->name.isSet())
   {
-    /* Value (Integer) */
-    if(map_data->int_val.isSet()) {
-      ArduinoCloudProperty<int>* int_property = _property_cont.getPropertyInt(map_data->name.get());
+    /* Value (Integer/Float/Double/Half-Float) */
+    if(map_data->val.isSet()) {
+      ArduinoCloudProperty<int>   * int_property   = _property_cont.getPropertyInt  (map_data->name.get());
+      ArduinoCloudProperty<float> * float_property = _property_cont.getPropertyFloat(map_data->name.get());
+
       if(int_property && int_property->isWriteableByCloud()) {
-        int_property->writeByCloud(map_data->int_val.get());
+        int_property->writeByCloud(static_cast<int>(map_data->val.get())); /* Val is internally stored as float */
         int_property->execCallbackOnChange();
       }
-    }
 
-    /* Value (float) */
-    if(map_data->float_val.isSet()) {
-      ArduinoCloudProperty<float>* float_property = _property_cont.getPropertyFloat(map_data->name.get());
       if(float_property && float_property->isWriteableByCloud()) {
-        float_property->writeByCloud(map_data->float_val.get());
+        float_property->writeByCloud(map_data->val.get());
         float_property->execCallbackOnChange();
       }
     }
@@ -477,8 +487,7 @@ void ArduinoCloudThing::resetMapData(MapData * map_data) {
   map_data->base_name.reset   ();
   map_data->base_time.reset   ();
   map_data->name.reset        ();
-  map_data->int_val.reset     ();
-  map_data->float_val.reset   ();
+  map_data->val.reset         ();
   map_data->str_val.reset     ();
   map_data->bool_val.reset    ();
   map_data->time.reset        ();

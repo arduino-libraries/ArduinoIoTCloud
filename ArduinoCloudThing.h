@@ -93,8 +93,7 @@ private:
     MapEntry<String> base_name;
     MapEntry<double> base_time;
     MapEntry<String> name;
-    MapEntry<int>    int_val;
-    MapEntry<float>  float_val;
+    MapEntry<float>  val;
     MapEntry<String> str_val;
     MapEntry<bool>   bool_val;
     MapEntry<double> time;
