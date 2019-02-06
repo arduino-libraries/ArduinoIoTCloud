@@ -321,7 +321,7 @@ void ArduinoIoTCloudClass::connectionCheck() {
       setIoTConnectionState(IOT_STATUS_CLOUD_RECONNECTING);
       break;
     case IOT_STATUS_CLOUD_CONNECTED:
-      debugMessage(".", 4, false, false);
+      debugMessage(".", 4, false, true);
       break;
     case IOT_STATUS_CLOUD_DISCONNECTED:
       setIoTConnectionState(IOT_STATUS_CLOUD_RECONNECTING);
