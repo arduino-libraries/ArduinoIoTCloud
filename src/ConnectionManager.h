@@ -9,7 +9,6 @@
 #include <Client.h>
 
 enum NetworkConnectionState {
-  CONNECTION_STATE_IDLE,
   CONNECTION_STATE_INIT,
   CONNECTION_STATE_CONNECTING,
   CONNECTION_STATE_CONNECTED,
@@ -30,7 +29,7 @@ public:
 
 protected:
   unsigned long lastValidTimestamp = 0;
-  NetworkConnectionState netConnectionState = CONNECTION_STATE_IDLE;
+  NetworkConnectionState netConnectionState = CONNECTION_STATE_INIT;
 
 };
 
