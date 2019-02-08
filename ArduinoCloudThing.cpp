@@ -224,6 +224,9 @@ ArduinoCloudThing::MapParserState ArduinoCloudThing::handle_MapKey(CborValue * v
 
   if(cbor_value_at_end(value_iter)) {
     next_state = MapParserState::LeaveMap;
+    // If the key is a string means that the Map use the string keys (protocol V1)
+    // https://tools.ietf.org/html/rfc8428#section-4.3
+    // example [{"n": "temperature", "v": 25}]
   } else if(cbor_value_is_text_string(value_iter)) {
         char * val      = 0;
         size_t val_size = 0;
@@ -239,6 +242,8 @@ ArduinoCloudThing::MapParserState ArduinoCloudThing::handle_MapKey(CborValue * v
           else                              next_state = MapParserState::UndefinedKey;
           free(val);
         }
+        // If the key is a number means that the Map use the CBOR Label (protocol V2)
+        // example [{0: "temperature", 2: 25}]
   } else if (cbor_value_is_integer(value_iter)) {
         int val = 0;
         if(cbor_value_get_int(value_iter, &val) == CborNoError) {
