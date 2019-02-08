@@ -20,6 +20,11 @@
 #include "CloudSerial.h"
 #include "ArduinoIoTCloud.h"
 
+#ifdef ARDUINO_ARCH_SAMD
+  #include <RTCZero.h>
+  RTCZero rtc;
+#endif
+
 const static int keySlot                                   = 0;
 const static int compressedCertSlot                        = 10;
 const static int serialNumberAndAuthorityKeyIdentifierSlot = 11;
@@ -37,11 +42,20 @@ static unsigned long getTime() {
   return time;
 }
 
+static unsigned long getTimestamp() {
+  #ifdef ARDUINO_ARCH_SAMD
+    return rtc.getEpoch();
+  #else
+    return 0;
+  #endif
+}
+
 ArduinoIoTCloudClass::ArduinoIoTCloudClass() :
   _thing_id     (""),
   _bearSslClient(NULL),
   _mqttClient   (NULL),
-  connection    (NULL)
+  connection    (NULL),
+  _lastSyncRequestTickTime(0)
 {
 }
 
@@ -64,6 +78,9 @@ int ArduinoIoTCloudClass::begin(ConnectionManager *c, String brokerAddress, uint
   Client &connectionClient = c->getClient();
   _brokerAddress = brokerAddress;
   _brokerPort = brokerPort;
+  #ifdef ARDUINO_ARCH_SAMD
+    rtc.begin();
+  #endif
   return begin(connectionClient, _brokerAddress, _brokerPort);
 }
 
@@ -148,6 +165,8 @@ void ArduinoIoTCloudClass::mqttClientBegin()
   else {
     _dataTopicIn  = "/a/t/" + _thing_id + "/e/i";
     _dataTopicOut = "/a/t/" + _thing_id + "/e/o";
+    _shadowTopicIn  = "/a/t/" + _thing_id + "/shadow/i";
+    _shadowTopicOut = "/a/t/" + _thing_id + "/shadow/o";
   }
 
   // use onMessage as callback for received mqtt messages
@@ -166,6 +185,10 @@ int ArduinoIoTCloudClass::connect()
   }
   _mqttClient->subscribe(_stdinTopic);
   _mqttClient->subscribe(_dataTopicIn);
+  _mqttClient->subscribe(_shadowTopicIn);
+
+  syncStatus = SYNC_STATUS_WAIT_FOR_CLOUD_VALUES;
+  _lastSyncRequestTickTime = 0;
 
   return 1;
 }
@@ -182,14 +205,18 @@ void ArduinoIoTCloudClass::poll()
   update();
 }
 
-void ArduinoIoTCloudClass::update()
+void ArduinoIoTCloudClass::update(void (*callback)(void))
 {
   // If user call update() without parameters use the default ones
-  update(MAX_RETRIES, RECONNECTION_TIMEOUT);
+  update(MAX_RETRIES, RECONNECTION_TIMEOUT, callback);
 }
 
 void ArduinoIoTCloudClass::update(int const reconnectionMaxRetries, int const reconnectionTimeoutMs)
 {
+  unsigned long timestamp = getTimestamp(); 
+  //check if a property is changed 
+  if(timestamp) Thing.updateTimestampOnChangedProperties(timestamp);
+    
   connectionCheck();
   if(iotStatus != IOT_STATUS_CLOUD_CONNECTED){
     return;
@@ -198,11 +225,30 @@ void ArduinoIoTCloudClass::update(int const reconnectionMaxRetries, int const re
   // MTTQClient connected!, poll() used to retrieve data from MQTT broker
   _mqttClient->poll();
 
-  uint8_t data[MQTT_TRANSMIT_BUFFER_SIZE];
-  int const length = Thing.encode(data, sizeof(data));
-  if (length > 0) {
-    writeProperties(data, length);
-  }
+  switch (syncStatus) {
+    case SYNC_STATUS_SYNCHRONIZED:
+      sendPropertiesToCloud();
+      break;
+    case SYNC_STATUS_WAIT_FOR_CLOUD_VALUES:
+      if (millis() - _lastSyncRequestTickTime > TIMEOUT_FOR_LASTVALUES_SYNC) {
+        requestLastValue();
+        _lastSyncRequestTickTime = millis();
+      }
+      break;
+    case SYNC_STATUS_VALUES_PROCESSED:
+      if(callback != NULL)
+        (*callback)();
+      syncStatus = SYNC_STATUS_SYNCHRONIZED;
+      break;
+  }  
+}
+
+void ArduinoIoTCloudClass::sendPropertiesToCloud() {
+    uint8_t data[MQTT_TRANSMIT_BUFFER_SIZE];
+    int const length = Thing.encode(data, sizeof(data));
+    if (length > 0) {
+      writeProperties(data, length);
+    }
 }
 
 int ArduinoIoTCloudClass::reconnect(Client& /* net */)
@@ -254,6 +300,23 @@ int ArduinoIoTCloudClass::writeStdout(const byte data[], int length)
   return 1;
 }
 
+int ArduinoIoTCloudClass::writeShadowOut(const byte data[], int length)
+{
+  if (!_mqttClient->beginMessage(_shadowTopicOut, length, false, 0)) {
+    return 0;
+  }
+
+  if (!_mqttClient->write(data, length)) {
+    return 0;
+  }
+
+  if (!_mqttClient->endMessage()) {
+    return 0;
+  }
+
+  return 1;
+}
+
 void ArduinoIoTCloudClass::onMessage(int length)
 {
   ArduinoCloud.handleMessage(length);
@@ -276,6 +339,19 @@ void ArduinoIoTCloudClass::handleMessage(int length)
   if (_dataTopicIn == topic) {
     Thing.decode((uint8_t*)bytes, length);
   }
+  if ((_shadowTopicIn == topic) && syncStatus == SYNC_STATUS_WAIT_FOR_CLOUD_VALUES) {
+    Thing.decode((uint8_t*)bytes, length, true);
+    sendPropertiesToCloud();
+    syncStatus = SYNC_STATUS_VALUES_PROCESSED;
+  }
+}
+
+void ArduinoIoTCloudClass::requestLastValue()
+{
+    // Send the getLastValues CBOR message to the cloud
+    // [{0: "r:m", 3: "getLastValues"}] = 81 A2 00 63 72 3A 6D 03 6D 67 65 74 4C 61 73 74 56 61 6C 75 65 73
+    const uint8_t data[] =  { 0x81, 0xA2, 0x00, 0x63, 0x72, 0x3A, 0x6D, 0x03, 0x6D, 0x67, 0x65, 0x74, 0x4C, 0x61, 0x73, 0x74, 0x56, 0x61, 0x6C, 0x75, 0x65, 0x73 };
+    writeShadowOut(data, sizeof data);
 }
 
 void ArduinoIoTCloudClass::connectionCheck()
@@ -332,6 +408,11 @@ void ArduinoIoTCloudClass::connectionCheck()
         CloudSerial.begin(9600);
         CloudSerial.println("Hello from Cloud Serial!");
       }
+      #ifdef ARDUINO_ARCH_SAMD
+        unsigned long epoch = getTime();
+        if (epoch!=0)
+          rtc.setEpoch(epoch);
+      #endif
       break;
   }
 }
