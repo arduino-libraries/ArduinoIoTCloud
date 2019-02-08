@@ -47,7 +47,7 @@ static long const DAYS      = 86400;
 class ArduinoCloudThing {
 
 public:
-  ArduinoCloudThing(CloudProtocol const cloud_protocol = CloudProtocol::V1);
+  ArduinoCloudThing(CloudProtocol const cloud_protocol = CloudProtocol::V2);
 
   void begin();
 
