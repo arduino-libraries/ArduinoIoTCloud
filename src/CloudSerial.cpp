@@ -38,35 +38,35 @@ void CloudSerialClass::end()
 
 int CloudSerialClass::available()
 {
-  ArduinoCloud.update();
+  ArduinoCloud.update(CLOUDSERIAL_SYNC);
 
   return _rxBuffer.available();
 }
 
 int CloudSerialClass::availableForWrite()
 {
-  ArduinoCloud.update();
+  ArduinoCloud.update(CLOUDSERIAL_SYNC);
 
   return _txBuffer.availableForStore();
 }
 
 int CloudSerialClass::peek()
 {
-  ArduinoCloud.update();
+  ArduinoCloud.update(CLOUDSERIAL_SYNC);
 
   return _rxBuffer.peek();
 }
 
 int CloudSerialClass::read()
 {
-  ArduinoCloud.update();
+  ArduinoCloud.update(CLOUDSERIAL_SYNC);
 
   return _rxBuffer.read_char();
 }
 
 void CloudSerialClass::flush()
 {
-  ArduinoCloud.update();
+  ArduinoCloud.update(CLOUDSERIAL_SYNC);
 
   byte out[CLOUD_SERIAL_TX_BUFFER_SIZE];
   int length = 0;
@@ -91,7 +91,7 @@ size_t CloudSerialClass::write(const uint8_t data)
 
 CloudSerialClass::operator bool()
 {
-  ArduinoCloud.update();
+  ArduinoCloud.update(CLOUDSERIAL_SYNC);
 
   return ArduinoCloud.connected();
 }

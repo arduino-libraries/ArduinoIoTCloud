@@ -20,6 +20,11 @@
 #include "CloudSerial.h"
 #include "ArduinoIoTCloud.h"
 
+#ifdef ARDUINO_ARCH_SAMD
+  #include <RTCZero.h>
+  RTCZero rtc;
+#endif
+
 const static int keySlot                                   = 0;
 const static int compressedCertSlot                        = 10;
 const static int serialNumberAndAuthorityKeyIdentifierSlot = 11;
@@ -32,11 +37,31 @@ static unsigned long getTime() {
   return getTimeConnection->getTime();
 }
 
+static unsigned long getTimestamp() {
+  #ifdef ARDUINO_ARCH_SAMD
+    unsigned long epoch = getTime();
+    if (epoch!=0){
+      rtc.setEpoch(epoch);
+      return epoch;
+    } else {
+      return rtc.getEpoch();
+    }
+  #else
+    return 0;
+  #endif
+}
+
 ArduinoIoTCloudClass::ArduinoIoTCloudClass() :
   _thing_id     (""),
   _bearSslClient(NULL),
   _mqttClient   (NULL),
-  connection    (NULL)
+  _firstReconnectionUpdate(false),
+  _propertiesSynchronized(true),
+  _syncCallback(NULL),
+  _mode(PROPERTIES_SYNC_FORCE_DEVICE),
+  _check_lastValues_sync(MAX_CHECK_LASTVALUES_SYNC),
+  connection    (NULL),
+  _callGetLastValueCallback(false)
 {
 }
 
@@ -58,6 +83,9 @@ int ArduinoIoTCloudClass::begin(ConnectionManager *c, String brokerAddress)
   connection = c;
   Client &connectionClient = c->getClient();
   _brokerAddress = brokerAddress;
+  #ifdef ARDUINO_ARCH_SAMD
+    rtc.begin();
+  #endif
   return begin(connectionClient, _brokerAddress);
 }
 
@@ -139,6 +167,8 @@ void ArduinoIoTCloudClass::mqttClientBegin()
   else {
     _dataTopicIn  = "/a/t/" + _thing_id + "/e/i";
     _dataTopicOut = "/a/t/" + _thing_id + "/e/o";
+    _shadowTopicIn  = "/a/t/" + _thing_id + "/shadow/i";
+    _shadowTopicOut = "/a/t/" + _thing_id + "/shadow/o";
   }
 
   // use onMessage as callback for received mqtt messages
@@ -157,6 +187,10 @@ int ArduinoIoTCloudClass::connect()
   }
   _mqttClient->subscribe(_stdinTopic);
   _mqttClient->subscribe(_dataTopicIn);
+  _mqttClient->subscribe(_shadowTopicIn);
+
+  // setting the flag of first connectio/reconnection
+  _firstReconnectionUpdate = true;
 
   return 1;
 }
@@ -173,10 +207,10 @@ void ArduinoIoTCloudClass::poll()
   update();
 }
 
-void ArduinoIoTCloudClass::update()
+void ArduinoIoTCloudClass::update(int mode, void (*callback)(void))
 {
   // If user call update() without parameters use the default ones
-  update(MAX_RETRIES, RECONNECTION_TIMEOUT);
+  update(MAX_RETRIES, RECONNECTION_TIMEOUT, mode, callback);
 }
 
 bool ArduinoIoTCloudClass::mqttReconnect(int const maxRetries, int const timeout)
@@ -201,8 +235,13 @@ bool ArduinoIoTCloudClass::mqttReconnect(int const maxRetries, int const timeout
   return true;
 }
 
-void ArduinoIoTCloudClass::update(int const reconnectionMaxRetries, int const reconnectionTimeoutMs)
+void ArduinoIoTCloudClass::update(int const reconnectionMaxRetries, int const reconnectionTimeoutMs, int mode, void (*callback)(void))
 {
+  _mode = mode;
+  unsigned long timestamp = getTimestamp(); 
+  //check if a property is changed 
+  if(timestamp) Thing.updateTimestampOnChangedProperties(timestamp);
+    
   connectionCheck();
   if(iotStatus != IOT_STATUS_CLOUD_CONNECTED){
     return;
@@ -218,11 +257,48 @@ void ArduinoIoTCloudClass::update(int const reconnectionMaxRetries, int const re
   // MTTQClient connected!, poll() used to retrieve data from MQTT broker
   _mqttClient->poll();
 
-  uint8_t data[MQTT_TRANSMIT_BUFFER_SIZE];
-  int const length = Thing.encode(data, sizeof(data));
-  if (length > 0) {
-    writeProperties(data, length);
+  //if getLastValues response is not reeceived after MAX_CHECK_LASTVALUES_SYNC attempts, resend getLastValues request
+  if(!_propertiesSynchronized) {
+    if(_check_lastValues_sync--){
+      _firstReconnectionUpdate = true;
+      _propertiesSynchronized = true;
+    }
+  } 
+
+  if(((_mode == PROPERTIES_SYNC_FORCE_CLOUD) || (_mode == PROPERTIES_SYNC_AUTO)) && _firstReconnectionUpdate){
+    // get the last values of the shadow_properties from MQTT broker
+    getLastValues();
+    // properties will be not synchronized until the OnMessage callback will be activated on _shadowTopicIn
+    _firstReconnectionUpdate = false;
+    _propertiesSynchronized = false;
+    _check_lastValues_sync = MAX_CHECK_LASTVALUES_SYNC;
+    // store callback pointer to the function to be called after the sync process end
+    _syncCallback = callback;
+  } 
+
+  if(_mode == PROPERTIES_SYNC_FORCE_DEVICE){
+    _firstReconnectionUpdate = false;
+  } 
+
+  // If in the properties are synchronized or the synch mode is PROPERTIES_SYNC_FORCE_DEVICE, send values to MQTT broker
+  if((_propertiesSynchronized) && !(_mode == CLOUDSERIAL_SYNC)){
+    uint8_t data[MQTT_TRANSMIT_BUFFER_SIZE];
+    int const length = Thing.encode(data, sizeof(data));
+    if (length > 0) {
+      writeProperties(data, length);
+    }
   }
+
+  if(_callGetLastValueCallback) {
+    if(_syncCallback != NULL) {
+      (*_syncCallback)();
+    }
+    _callGetLastValueCallback = false;
+  }
+}
+
+bool ArduinoIoTCloudClass::getLastValuesSyncStatus() {
+  return _propertiesSynchronized;
 }
 
 int ArduinoIoTCloudClass::reconnect(Client& /* net */)
@@ -274,6 +350,23 @@ int ArduinoIoTCloudClass::writeStdout(const byte data[], int length)
   return 1;
 }
 
+int ArduinoIoTCloudClass::writeShadowOut(const byte data[], int length)
+{
+  if (!_mqttClient->beginMessage(_shadowTopicOut, length, false, 0)) {
+    return 0;
+  }
+
+  if (!_mqttClient->write(data, length)) {
+    return 0;
+  }
+
+  if (!_mqttClient->endMessage()) {
+    return 0;
+  }
+
+  return 1;
+}
+
 void ArduinoIoTCloudClass::onMessage(int length)
 {
   ArduinoCloud.handleMessage(length);
@@ -296,6 +389,23 @@ void ArduinoIoTCloudClass::handleMessage(int length)
   if (_dataTopicIn == topic) {
     Thing.decode((uint8_t*)bytes, length);
   }
+  if ((_shadowTopicIn == topic) && !_propertiesSynchronized) {
+
+    Thing.decode((uint8_t*)bytes, length, _mode);
+    // set the flag to let know the update cycle that the properties are synchronized and the sync have been made followinf the _mode rules
+    _propertiesSynchronized = true;
+    // delay execution of LastValueCallback at the end of the update() cycle
+    _callGetLastValueCallback = true;
+  }
+}
+
+void ArduinoIoTCloudClass::getLastValues()
+{
+    uint8_t data[MQTT_TRANSMIT_BUFFER_SIZE];
+    int const length = Thing.getLastValues(data, sizeof(data));
+    if (length > 0) {
+      writeShadowOut(data, length);
+    }
 }
 
 void ArduinoIoTCloudClass::connectionCheck() {

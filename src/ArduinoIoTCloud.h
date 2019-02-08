@@ -63,6 +63,7 @@ public:
   static const int MQTT_TRANSMIT_BUFFER_SIZE = 256;
   static const int MAX_RETRIES = 5;
   static const int RECONNECTION_TIMEOUT = 2000;
+  static const int MAX_CHECK_LASTVALUES_SYNC = 20;
 
 
   void onGetTime(unsigned long(*callback)(void));
@@ -71,10 +72,12 @@ public:
   bool disconnect();
 
   void poll() __attribute__((deprecated)); /* Attention: Function is deprecated - use 'update' instead */
-  void update();
+  void update(int mode = PROPERTIES_SYNC_FORCE_DEVICE, void (*callback)(void) = NULL);
 
   // defined for users who want to specify max reconnections reties and timeout between them
-  void update(int const reconnectionMaxRetries, int const reconnectionTimeoutMs);
+  void update(int const reconnectionMaxRetries, int const reconnectionTimeoutMs, int mode = PROPERTIES_SYNC_FORCE_DEVICE, void (*callback)(void) = NULL);
+  // get the status of synchronization after getLastValues request
+  bool getLastValuesSyncStatus();
 
   int connected();
   // Clean up existing Mqtt connection, create a new one and initialize it
@@ -115,10 +118,14 @@ protected:
   friend class CloudSerialClass;
   int writeStdout(const byte data[], int length);
   int writeProperties(const byte data[], int length);
+  int writeShadowOut(const byte data[], int length);
+
   // Used to initialize MQTTClient
   void mqttClientBegin();
   // Function in charge of perform MQTT reconnection, basing on class parameters(retries,and timeout)
   bool mqttReconnect(int const maxRetries, int const timeout);
+  // Used to retrieve ast values from _shadowTopicIn
+  void getLastValues();
 
   ArduinoIoTConnectionStatus getIoTStatus() { return iotStatus; }
 
@@ -134,14 +141,25 @@ private:
   ArduinoCloudThing Thing;
   BearSSLClient* _bearSslClient;
   MqttClient* _mqttClient;
+  int    _mode,
+         _check_lastValues_sync;
+  bool   _callGetLastValueCallback;
+
 
   // Class attribute to define MTTQ topics 2 for stdIn/out and 2 for data, in order to avoid getting previous pupblished payload
   String _stdinTopic;
   String _stdoutTopic;
+  String _shadowTopicOut;
+  String _shadowTopicIn;
   String _dataTopicOut;
   String _dataTopicIn;
   String _otaTopic;
   Client *_net;
+
+  // Used to synchronize properties
+  bool _firstReconnectionUpdate;
+  bool _propertiesSynchronized;
+  void (*_syncCallback)(void);
 };
 
 extern ArduinoIoTCloudClass ArduinoCloud;
