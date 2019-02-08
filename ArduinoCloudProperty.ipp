@@ -152,7 +152,7 @@ void ArduinoCloudProperty<T>::append(CborEncoder * encoder) {
 }
 
 template <typename T>
-boolean ArduinoCloudProperty<T>::isChangedLocally() {
+bool ArduinoCloudProperty<T>::isChangedLocally() {
   return isValueDifferent(_property, _local_shadow_property);
 }
 
