@@ -16,6 +16,7 @@ public:
 private:
   
   void changeConnectionState(NetworkConnectionState _newState);
+  void sendNTPpacket(const char * address, uint8_t* packetBuffer);
 
   const int CHECK_INTERVAL_IDLE = 100;
   const int CHECK_INTERVAL_INIT = 100;
@@ -30,6 +31,7 @@ private:
   uint8_t* mac;
   int ss_pin;
   EthernetClient ethClient;
+  EthernetUDP Udp;
   int connectionTickTimeInterval;
 };
 
@@ -37,16 +39,14 @@ private:
 static const unsigned long NETWORK_CONNECTION_INTERVAL = 30000;
 #endif
 
-EthConnectionManager::EthConnectionManager(uint8_t *mac, int ss_pin = 10) :
+EthConnectionManager::EthConnectionManager(uint8_t *mac, int ss_pin = -1) :
   mac(mac),
   ss_pin(ss_pin),
   lastConnectionTickTime(millis()),
   connectionTickTimeInterval(CHECK_INTERVAL_IDLE) {
 }
 
-#include <EthernetUdp.h>
-
-void sendNTPpacket(const char * address, uint8_t* packetBuffer, EthernetUDP* udp) {
+void EthConnectionManager::sendNTPpacket(const char * address, uint8_t* packetBuffer) {
   const int NTP_PACKET_SIZE = 48;
   memset(packetBuffer, 0, NTP_PACKET_SIZE);
   packetBuffer[0] = 0b11100011;
@@ -57,21 +57,28 @@ void sendNTPpacket(const char * address, uint8_t* packetBuffer, EthernetUDP* udp
   packetBuffer[13]  = 0x4E;
   packetBuffer[14]  = 49;
   packetBuffer[15]  = 52;
-  udp->beginPacket(address, 123);
-  udp->write(packetBuffer, NTP_PACKET_SIZE);
-  udp->endPacket();
+  Udp.beginPacket(address, 123);
+  Udp.write(packetBuffer, NTP_PACKET_SIZE);
+  Udp.endPacket();
 }
 
 unsigned long EthConnectionManager::getTime() {
+
   unsigned int localPort = 8888;
-  const char timeServer[] = "time.nist.gov";
+  const char timeServer[] = "time.apple.com";
   const int NTP_PACKET_SIZE = 48;
   uint8_t packetBuffer[NTP_PACKET_SIZE];
-  EthernetUDP Udp;
 
   Udp.begin(localPort);
-  sendNTPpacket(timeServer, packetBuffer, &Udp);
-  while (!Udp.parsePacket()) {}
+  sendNTPpacket(timeServer, packetBuffer);
+  long start = millis();
+  while (!Udp.parsePacket() && (millis() - start < 1000))  {
+
+  }
+  if (millis() - start >= 1000) {
+    //timeout reached
+    return 0;
+  }
   Udp.read(packetBuffer, NTP_PACKET_SIZE);
 
   unsigned long highWord = word(packetBuffer[40], packetBuffer[41]);
@@ -121,7 +128,11 @@ void EthConnectionManager::check() {
         changeConnectionState(CONNECTION_STATE_INIT);
         break;
       case CONNECTION_STATE_INIT:
-        Ethernet.init(ss_pin);
+        if (ss_pin == -1) {
+          networkStatus = Ethernet.begin(mac);
+        } else {
+          networkStatus = Ethernet.begin(mac, ss_pin);
+        }
         networkStatus = Ethernet.hardwareStatus();
         *msgBuffer = 0;
         sprintf(msgBuffer, "Eth hardware status(): %d", networkStatus);
@@ -153,8 +164,11 @@ void EthConnectionManager::check() {
         *msgBuffer = 0;
         sprintf(msgBuffer, "Connecting via dhcp");
         debugMessage(msgBuffer, 2);
-
-        networkStatus = Ethernet.begin(mac, ss_pin);
+        if (ss_pin == -1) {
+          networkStatus = Ethernet.begin(mac);
+        } else {
+          networkStatus = Ethernet.begin(mac, ss_pin);
+        }
         *msgBuffer = 0;
         sprintf(msgBuffer, "Ethernet.status(): %d", networkStatus);
         debugMessage(msgBuffer, 2);
