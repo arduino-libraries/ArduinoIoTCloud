@@ -224,10 +224,7 @@ ArduinoCloudThing::MapParserState ArduinoCloudThing::handle_MapKey(CborValue * v
 
   if(cbor_value_at_end(value_iter)) {
     next_state = MapParserState::LeaveMap;
-  }
-  else {
-    if(_cloud_protocol == CloudProtocol::V1) {
-      if(cbor_value_is_text_string(value_iter)) {
+  } else if(cbor_value_is_text_string(value_iter)) {
         char * val      = 0;
         size_t val_size = 0;
         if(cbor_value_dup_text_string(value_iter, &val, &val_size, value_iter) == CborNoError) {
@@ -242,11 +239,7 @@ ArduinoCloudThing::MapParserState ArduinoCloudThing::handle_MapKey(CborValue * v
           else                              next_state = MapParserState::UndefinedKey;
           free(val);
         }
-      }
-    }
-
-    if(_cloud_protocol == CloudProtocol::V2) {
-      if(cbor_value_is_integer(value_iter)) {
+  } else if (cbor_value_is_integer(value_iter)) {
         int val = 0;
         if(cbor_value_get_int(value_iter, &val) == CborNoError) {
           if(cbor_value_advance(value_iter) == CborNoError) {
@@ -261,10 +254,7 @@ ArduinoCloudThing::MapParserState ArduinoCloudThing::handle_MapKey(CborValue * v
             else                                                              next_state = MapParserState::UndefinedKey;
           }
         }
-      }
-    }
   }
-
   return next_state;
 }
 
