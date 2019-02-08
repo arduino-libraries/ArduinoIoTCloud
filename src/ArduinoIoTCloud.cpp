@@ -39,13 +39,7 @@ static unsigned long getTime() {
 
 static unsigned long getTimestamp() {
   #ifdef ARDUINO_ARCH_SAMD
-    unsigned long epoch = getTime();
-    if (epoch!=0){
-      rtc.setEpoch(epoch);
-      return epoch;
-    } else {
-      return rtc.getEpoch();
-    }
+    return rtc.getEpoch();
   #else
     return 0;
   #endif
@@ -59,9 +53,9 @@ ArduinoIoTCloudClass::ArduinoIoTCloudClass() :
   _propertiesSynchronized(true),
   _syncCallback(NULL),
   _mode(PROPERTIES_SYNC_FORCE_DEVICE),
-  _check_lastValues_sync(MAX_CHECK_LASTVALUES_SYNC),
   connection    (NULL),
-  _callGetLastValueCallback(false)
+  _callGetLastValueCallback(false),
+  _lastSyncRequestTickTime(0)
 {
 }
 
@@ -189,7 +183,7 @@ int ArduinoIoTCloudClass::connect()
   _mqttClient->subscribe(_dataTopicIn);
   _mqttClient->subscribe(_shadowTopicIn);
 
-  // setting the flag of first connectio/reconnection
+   // setting the flag of first connection/reconnection
   _firstReconnectionUpdate = true;
 
   return 1;
@@ -257,9 +251,8 @@ void ArduinoIoTCloudClass::update(int const reconnectionMaxRetries, int const re
   // MTTQClient connected!, poll() used to retrieve data from MQTT broker
   _mqttClient->poll();
 
-  //if getLastValues response is not reeceived after MAX_CHECK_LASTVALUES_SYNC attempts, resend getLastValues request
   if(!_propertiesSynchronized) {
-    if(_check_lastValues_sync--){
+    if (millis() - _lastSyncRequestTickTime > TIMEOUT_FOR_LASTVALUES_SYNC) {
       _firstReconnectionUpdate = true;
       _propertiesSynchronized = true;
     }
@@ -268,10 +261,10 @@ void ArduinoIoTCloudClass::update(int const reconnectionMaxRetries, int const re
   if(((_mode == PROPERTIES_SYNC_FORCE_CLOUD) || (_mode == PROPERTIES_SYNC_AUTO)) && _firstReconnectionUpdate){
     // get the last values of the shadow_properties from MQTT broker
     getLastValues();
+    _lastSyncRequestTickTime = millis();
     // properties will be not synchronized until the OnMessage callback will be activated on _shadowTopicIn
     _firstReconnectionUpdate = false;
     _propertiesSynchronized = false;
-    _check_lastValues_sync = MAX_CHECK_LASTVALUES_SYNC;
     // store callback pointer to the function to be called after the sync process end
     _syncCallback = callback;
   } 
@@ -480,6 +473,11 @@ void ArduinoIoTCloudClass::connectionCheck() {
         CloudSerial.begin(9600);
         CloudSerial.println("Hello from Cloud Serial!");
       }
+      #ifdef ARDUINO_ARCH_SAMD
+        unsigned long epoch = getTime();
+        if (epoch!=0)
+          rtc.setEpoch(epoch);
+      #endif
       break;
   }
 }

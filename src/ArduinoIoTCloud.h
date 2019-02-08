@@ -63,7 +63,7 @@ public:
   static const int MQTT_TRANSMIT_BUFFER_SIZE = 256;
   static const int MAX_RETRIES = 5;
   static const int RECONNECTION_TIMEOUT = 2000;
-  static const int MAX_CHECK_LASTVALUES_SYNC = 20;
+  static const int TIMEOUT_FOR_LASTVALUES_SYNC = 10000;
 
 
   void onGetTime(unsigned long(*callback)(void));
@@ -142,7 +142,7 @@ private:
   BearSSLClient* _bearSslClient;
   MqttClient* _mqttClient;
   int    _mode,
-         _check_lastValues_sync;
+         _lastSyncRequestTickTime;
   bool   _callGetLastValueCallback;
 
 
