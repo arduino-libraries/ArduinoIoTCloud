@@ -60,3 +60,18 @@ void ArduinoCloudPropertyContainer::appendChangedProperties(LinkedList<ArduinoCl
     }
   }
 }
+
+template <typename T>
+int ArduinoCloudPropertyContainer::updateTimestampOnChangedProperties(LinkedList<ArduinoCloudProperty<T> *> & list, unsigned long changeEventTime) {
+  int num_changes_properties = 0;
+
+  for (int i = 0; i < list.size(); i++) {
+    ArduinoCloudProperty<T> * p = list.get(i);
+    if (p->isChangedLocally() && p->isReadableByCloud()) {
+      p->updateTime(changeEventTime);
+    }
+  }
+
+  return num_changes_properties;
+}
+

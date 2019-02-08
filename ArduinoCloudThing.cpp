@@ -80,6 +80,9 @@ void ArduinoCloudThing::begin() {
   addPropertyReal(_status, "status", Permission::Read);
 }
 
+int ArduinoCloudThing::updateTimestampOnChangedProperties(unsigned long changeEventTime) {
+  return _property_cont.updateTimestampOnChangedProperties(changeEventTime);
+}
 
 int ArduinoCloudThing::encode(uint8_t * data, size_t const size) {
 
@@ -157,7 +160,9 @@ ArduinoCloudProperty<String> & ArduinoCloudThing::addPropertyReal(String & prope
   }
 }
 
-void ArduinoCloudThing::decode(uint8_t const * const payload, size_t const length) {
+void ArduinoCloudThing::decode(uint8_t const * const payload, size_t const length, bool syncMessage) {
+
+  _syncMessage = syncMessage;
 
   CborParser parser;
   CborValue  array_iter,
@@ -209,7 +214,7 @@ ArduinoCloudThing::MapParserState ArduinoCloudThing::handle_EnterMap(CborValue *
 
   if(cbor_value_get_type(map_iter) == CborMapType) {
     if(cbor_value_enter_container(map_iter, value_iter) == CborNoError) {
-      map_data->reset();
+      resetMapDataNotBase(map_data);
       next_state = MapParserState::MapKey;
     }
   }
@@ -404,6 +409,14 @@ ArduinoCloudThing::MapParserState ArduinoCloudThing::handle_Time(CborValue * val
 ArduinoCloudThing::MapParserState ArduinoCloudThing::handle_LeaveMap(CborValue * map_iter, CborValue * value_iter, CborMapData const * const map_data) {
   MapParserState next_state = MapParserState::Error;
 
+  //computer the cloud event change time
+  unsigned long cloudChangeEventTime = 0;
+  if(map_data->base_time.isSet()){
+    cloudChangeEventTime = (unsigned long)(map_data->base_time.get());
+  }
+  if(map_data->time.isSet()){
+    cloudChangeEventTime += (unsigned long)map_data->time.get();
+  }
   /* Update the property containers depending on the parsed data */
 
   if(map_data->name.isSet())
@@ -414,13 +427,25 @@ ArduinoCloudThing::MapParserState ArduinoCloudThing::handle_LeaveMap(CborValue *
       ArduinoCloudProperty<float> * float_property = _property_cont.getPropertyFloat(map_data->name.get());
 
       if(int_property && int_property->isWriteableByCloud()) {
-        int_property->writeByCloud(static_cast<int>(map_data->val.get())); /* Val is internally stored as float */
-        int_property->execCallbackOnChange();
+        if(_syncMessage){
+          int_property->setLastCloudChangeTimestamp(cloudChangeEventTime);
+          int_property->setCloudShadowValue(map_data->val.get());  
+          int_property->execCallbackOnSync();
+        } else {
+          int_property->writeByCloud(map_data->val.get());
+          int_property->execCallbackOnChange();
+        }
       }
 
       if(float_property && float_property->isWriteableByCloud()) {
-        float_property->writeByCloud(map_data->val.get());
-        float_property->execCallbackOnChange();
+        if(_syncMessage){
+          float_property->setLastCloudChangeTimestamp(cloudChangeEventTime);
+          float_property->setCloudShadowValue(map_data->val.get());  
+          float_property->execCallbackOnSync();
+        } else {
+          float_property->writeByCloud(map_data->val.get());
+          float_property->execCallbackOnChange();
+        }
       }
     }
 
@@ -428,8 +453,14 @@ ArduinoCloudThing::MapParserState ArduinoCloudThing::handle_LeaveMap(CborValue *
     if(map_data->str_val.isSet()) {
       ArduinoCloudProperty<String>* string_property = _property_cont.getPropertyString(map_data->name.get());
       if(string_property && string_property->isWriteableByCloud()) {
-        string_property->writeByCloud(map_data->str_val.get());
-        string_property->execCallbackOnChange();
+        if(_syncMessage){
+          string_property->setLastCloudChangeTimestamp(cloudChangeEventTime);
+          string_property->setCloudShadowValue(map_data->str_val.get());  
+          string_property->execCallbackOnSync();
+        } else {
+          string_property->writeByCloud(map_data->str_val.get());
+          string_property->execCallbackOnChange();
+        }
       }
     }
 
@@ -437,8 +468,14 @@ ArduinoCloudThing::MapParserState ArduinoCloudThing::handle_LeaveMap(CborValue *
     if(map_data->bool_val.isSet()) {
       ArduinoCloudProperty<bool>* bool_property = _property_cont.getPropertyBool(map_data->name.get());
       if(bool_property && bool_property->isWriteableByCloud()) {
-        bool_property->writeByCloud(map_data->bool_val.get());
-        bool_property->execCallbackOnChange();
+        if(_syncMessage){
+          bool_property->setLastCloudChangeTimestamp(cloudChangeEventTime);
+          bool_property->setCloudShadowValue(map_data->bool_val.get());  
+          bool_property->execCallbackOnSync();
+        } else {
+          bool_property->writeByCloud(map_data->bool_val.get());
+          bool_property->execCallbackOnChange();
+        }
       }
     }
   }
@@ -460,8 +497,8 @@ ArduinoCloudThing::MapParserState ArduinoCloudThing::handle_LeaveMap(CborValue *
 bool ArduinoCloudThing::ifNumericConvertToDouble(CborValue * value_iter, double * numeric_val) {
 
   if(cbor_value_is_integer(value_iter)) {
-    int val = 0;
-    if(cbor_value_get_int(value_iter, &val) == CborNoError) {
+    uint64_t val = 0;
+    if(cbor_value_get_uint64(value_iter, &val) == CborNoError) {
       *numeric_val = static_cast<double>(val);
       return true;
     }
@@ -489,6 +526,14 @@ bool ArduinoCloudThing::ifNumericConvertToDouble(CborValue * value_iter, double 
   }
 
   return false;
+}
+
+void ArduinoCloudThing::resetMapDataNotBase(CborMapData * map_data) {
+  map_data->name.reset        ();
+  map_data->val.reset         ();
+  map_data->str_val.reset     ();
+  map_data->bool_val.reset    ();
+  map_data->time.reset        ();
 }
 
 /* Source Idea from https://tools.ietf.org/html/rfc7049 : Page: 50 */

@@ -41,6 +41,31 @@ static long const HOURS     = 3600;
 static long const DAYS      = 86400;
 
 /******************************************************************************
+ * SYNCHRONIZATION CALLBACKS
+ ******************************************************************************/
+
+#define AUTO_SYNC onAutoSync
+template<typename T>
+void onAutoSync(ArduinoCloudProperty<T> property) {
+  if( property.getLastCloudChangeTimestamp() > property.getLastLocalChangeTimestamp()){
+    property.setPropertyValue(property.getCloudShadowValue());
+    property.forceCallbackOnChange();
+  }
+}
+
+#define FORCE_CLOUD_SYNC onForceCloudSync
+template<typename T>
+void onForceCloudSync(ArduinoCloudProperty<T> property) {
+  property.setPropertyValue(property.getCloudShadowValue());
+  property.forceCallbackOnChange();
+}
+
+#define FORCE_DEVICE_SYNC onForceDeviceSync // The device property value is already the correct one. The cloud property value will be synchronized at the next update cycle.
+template<typename T>
+void onForceDeviceSync(ArduinoCloudProperty<T> property) {
+}
+
+/******************************************************************************
  * CLASS DECLARATION
  ******************************************************************************/
 
@@ -56,10 +81,13 @@ public:
   ArduinoCloudProperty<float>  & addPropertyReal(float  & property, String const & name, Permission const permission);
   ArduinoCloudProperty<String> & addPropertyReal(String & property, String const & name, Permission const permission);
 
+  // compute the timestamp of the local properties changes 
+  int updateTimestampOnChangedProperties(unsigned long changeEventTime);
   /* encode return > 0 if a property has changed and encodes the changed properties in CBOR format into the provided buffer */
   int encode(uint8_t * data, size_t const size);
+  int encode(ArduinoCloudPropertyContainer *property_cont, uint8_t * data, size_t const size);
   /* decode a CBOR payload received from the cloud */
-  void decode(uint8_t const * const payload, size_t const length);
+  void decode(uint8_t const * const payload, size_t const length, bool syncMessage = false);
 
 
 private:
@@ -67,6 +95,7 @@ private:
   bool                          _status = OFF;
   char                          _uuid[33];
   ArduinoCloudPropertyContainer _property_cont;
+  bool                          _syncMessage;
 
   enum class MapParserState {
     EnterMap,
@@ -107,18 +136,6 @@ private:
   class CborMapData {
 
   public:
-
-    void reset() {
-      base_version.reset();
-      base_name.reset   ();
-      base_time.reset   ();
-      name.reset        ();
-      val.reset         ();
-      str_val.reset     ();
-      bool_val.reset    ();
-      time.reset        ();
-    }
-
     MapEntry<int>    base_version;
     MapEntry<String> base_name;
     MapEntry<double> base_time;
@@ -142,6 +159,7 @@ private:
   MapParserState handle_Time         (CborValue * value_iter, CborMapData * map_data);
   MapParserState handle_LeaveMap     (CborValue * map_iter, CborValue * value_iter, CborMapData const * const map_data);
 
+  static void   resetMapDataNotBase         (CborMapData * map_data);
   static bool   ifNumericConvertToDouble    (CborValue * value_iter, double * numeric_val);
   static double convertCborHalfFloatToDouble(uint16_t const half_val);
 

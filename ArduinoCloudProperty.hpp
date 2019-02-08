@@ -82,6 +82,7 @@ public:
 
   /* Composable configuration of the ArduinoCloudProperty class */
   ArduinoCloudProperty<T> & onUpdate       (UpdateCallbackFunc func);
+  ArduinoCloudProperty<T> & onSync         (void (*func)(ArduinoCloudProperty<T> property));
   ArduinoCloudProperty<T> & publishOnChange(T const min_delta_property, unsigned long const min_time_between_updates_millis = 0);
   ArduinoCloudProperty<T> & publishEvery   (unsigned long const seconds);
 
@@ -91,26 +92,48 @@ public:
 
   bool shouldBeUpdated        ();
   void execCallbackOnChange   ();
-
+  void execCallbackOnSync     ();
+  void forceCallbackOnChange  ();
+  void setPreviousCloudChangeTimestamp  (unsigned long cloudChangeTime);
+  void setLastCloudChangeTimestamp      (unsigned long cloudChangeTime);
+  void setLastLocalChangeTimestamp      (unsigned long localChangeTime);
+  unsigned long getPreviousCloudChangeTimestamp();
+  unsigned long getLastCloudChangeTimestamp();
+  unsigned long getLastLocalChangeTimestamp();
+  void setPropertyValue       (T const val);
+  void setCloudShadowValue    (T const val);
+  T    getCloudShadowValue    ();
+  void setLocalShadowValue    (T const val);
+  T    getLocalShadowValue    ();         
+  void updateTime             (unsigned long changeEventTime);
+  bool isChangedLocally       ();
   void append                 (CborEncoder * encoder);
 
 private:
 
   T                & _property,
-                     _shadow_property;
+                     _cloud_shadow_property,
+                     _local_shadow_property;
   String             _name;
   Permission         _permission;
   UpdateCallbackFunc _update_callback_func;
+  void               (*_sync_callback_func)(ArduinoCloudProperty<T> property);
 
   UpdatePolicy       _update_policy;
   bool               _has_been_updated_once,
-                     _has_been_modified_in_callback;
+                     _has_been_modified_in_callback;  
   /* Variables used for UpdatePolicy::OnChange */
   T                  _min_delta_property;
   unsigned long      _min_time_between_updates_millis;
   /* Variables used for UpdatePolicy::TimeInterval */
   unsigned long      _last_updated_millis,
                      _update_interval_millis;
+  /* Variables used for reconnection sync*/
+  unsigned long      _last_change_timestamp;
+  unsigned long      _last_local_change_timestamp;
+  unsigned long      _last_cloud_change_timestamp;
+  unsigned long      _previous_cloud_change_timestamp;
+        
 
   void appendValue(CborEncoder * mapEncoder) const;
   bool isValueDifferent(T const lhs, T const rhs) const;

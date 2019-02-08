@@ -36,6 +36,7 @@ public:
 
   bool isPropertyInContainer    (Type const type, String const & name);
   int  getNumOfChangedProperties();
+  int  updateTimestampOnChangedProperties(unsigned long changeEventTime);
   void appendChangedProperties  (CborEncoder * arrayEncoder);
 
   inline ArduinoCloudProperty<bool>   * getPropertyBool  (String const & name) { return getProperty(_bool_property_list,   name); }
@@ -63,6 +64,9 @@ private:
 
   template <typename T>
   int getNumOfChangedProperties(LinkedList<ArduinoCloudProperty<T> *> & list);
+  
+  template <typename T>
+  int updateTimestampOnChangedProperties(LinkedList<ArduinoCloudProperty<T> *> & list, unsigned long changeEventTime);
 
   template <typename T>
   void appendChangedProperties(LinkedList<ArduinoCloudProperty<T> *> & list, CborEncoder * arrayEncoder);
