@@ -103,16 +103,14 @@ void ArduinoCloudProperty<T>::execCallbackOnChange() {
 }
 
 template <typename T>
-void ArduinoCloudProperty<T>::append(CborEncoder * encoder, CloudProtocol const cloud_protocol) {
+void ArduinoCloudProperty<T>::append(CborEncoder * encoder) {
   if (isReadableByCloud()) {
     CborEncoder mapEncoder;
 
-    cbor_encoder_create_map(encoder, &mapEncoder, CborIndefiniteLength);
-    
-    if     (cloud_protocol == CloudProtocol::V1) cbor_encode_text_stringz(&mapEncoder, "n");
-    else if(cloud_protocol == CloudProtocol::V2) cbor_encode_int         (&mapEncoder, static_cast<int>(CborIntegerMapKey::Name));    
-    cbor_encode_text_stringz(&mapEncoder, _name.c_str());
-    appendValue(&mapEncoder, cloud_protocol);
+    cbor_encoder_create_map     (encoder, &mapEncoder, CborIndefiniteLength);
+    cbor_encode_int             (&mapEncoder, static_cast<int>(CborIntegerMapKey::Name));    
+    cbor_encode_text_stringz    (&mapEncoder, _name.c_str());
+    appendValue                 (&mapEncoder);
     cbor_encoder_close_container(encoder, &mapEncoder);
 
     _shadow_property = _property;
@@ -126,30 +124,26 @@ void ArduinoCloudProperty<T>::append(CborEncoder * encoder, CloudProtocol const 
  ******************************************************************************/
 
 template <>
-inline void ArduinoCloudProperty<bool>::appendValue(CborEncoder * mapEncoder, CloudProtocol const cloud_protocol) const {
-  if     (cloud_protocol == CloudProtocol::V1) cbor_encode_text_stringz(mapEncoder, "vb");
-  else if(cloud_protocol == CloudProtocol::V2) cbor_encode_int         (mapEncoder, static_cast<int>(CborIntegerMapKey::BooleanValue));    
+inline void ArduinoCloudProperty<bool>::appendValue(CborEncoder * mapEncoder) const {
+  cbor_encode_int    (mapEncoder, static_cast<int>(CborIntegerMapKey::BooleanValue));    
   cbor_encode_boolean(mapEncoder, _property);
 }
 
 template <>
-inline void ArduinoCloudProperty<int>::appendValue(CborEncoder * mapEncoder, CloudProtocol const cloud_protocol) const {
-  if     (cloud_protocol == CloudProtocol::V1) cbor_encode_text_stringz(mapEncoder, "v");
-  else if(cloud_protocol == CloudProtocol::V2) cbor_encode_int         (mapEncoder, static_cast<int>(CborIntegerMapKey::Value));    
+inline void ArduinoCloudProperty<int>::appendValue(CborEncoder * mapEncoder) const {
+  cbor_encode_int(mapEncoder, static_cast<int>(CborIntegerMapKey::Value));    
   cbor_encode_int(mapEncoder, _property);
 }
 
 template <>
-inline void ArduinoCloudProperty<float>::appendValue(CborEncoder * mapEncoder, CloudProtocol const cloud_protocol) const {
-  if     (cloud_protocol == CloudProtocol::V1) cbor_encode_text_stringz(mapEncoder, "v");
-  else if(cloud_protocol == CloudProtocol::V2) cbor_encode_int         (mapEncoder, static_cast<int>(CborIntegerMapKey::Value));    
+inline void ArduinoCloudProperty<float>::appendValue(CborEncoder * mapEncoder) const {
+  cbor_encode_int  (mapEncoder, static_cast<int>(CborIntegerMapKey::Value));    
   cbor_encode_float(mapEncoder, _property);
 }
 
 template <>
-inline void ArduinoCloudProperty<String>::appendValue(CborEncoder * mapEncoder, CloudProtocol const cloud_protocol) const {
-  if     (cloud_protocol == CloudProtocol::V1) cbor_encode_text_stringz(mapEncoder, "vs");
-  else if(cloud_protocol == CloudProtocol::V2) cbor_encode_int         (mapEncoder, static_cast<int>(CborIntegerMapKey::StringValue));
+inline void ArduinoCloudProperty<String>::appendValue(CborEncoder * mapEncoder) const {
+  cbor_encode_int         (mapEncoder, static_cast<int>(CborIntegerMapKey::StringValue));
   cbor_encode_text_stringz(mapEncoder, _property.c_str());
 }
 

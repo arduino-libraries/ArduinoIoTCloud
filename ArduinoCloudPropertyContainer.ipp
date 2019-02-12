@@ -52,11 +52,11 @@ int ArduinoCloudPropertyContainer::getNumOfChangedProperties(LinkedList<ArduinoC
 }
 
 template <typename T>
-void ArduinoCloudPropertyContainer::appendChangedProperties(LinkedList<ArduinoCloudProperty<T> *> & list, CborEncoder * arrayEncoder, CloudProtocol const cloud_protocol) {
+void ArduinoCloudPropertyContainer::appendChangedProperties(LinkedList<ArduinoCloudProperty<T> *> & list, CborEncoder * arrayEncoder) {
   for (int i = 0; i < list.size(); i++) {
     ArduinoCloudProperty<T> * p = list.get(i);
     if (p->shouldBeUpdated() && p->isReadableByCloud()) {
-      p->append(arrayEncoder, cloud_protocol);
+      p->append(arrayEncoder);
     }
   }
 }

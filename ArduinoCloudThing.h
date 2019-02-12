@@ -47,7 +47,7 @@ static long const DAYS      = 86400;
 class ArduinoCloudThing {
 
 public:
-  ArduinoCloudThing(CloudProtocol const cloud_protocol = CloudProtocol::V2);
+  ArduinoCloudThing();
 
   void begin();
 
@@ -64,7 +64,6 @@ public:
 
 private:
 
-  CloudProtocol           const _cloud_protocol;
   bool                          _status = OFF;
   char                          _uuid[33];
   ArduinoCloudPropertyContainer _property_cont;
@@ -96,7 +95,7 @@ private:
     inline T const get  () const { return _entry; }
 
     inline bool    isSet() const { return _is_set; }
-    inline bool    reset()       { _is_set = false; }
+    inline void    reset()       { _is_set = false; }
 
   private:
 

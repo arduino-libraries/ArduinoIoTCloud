@@ -56,8 +56,7 @@ static void utox8(uint32_t val, char* s) {
  * CTOR/DTOR
  ******************************************************************************/
 
-ArduinoCloudThing::ArduinoCloudThing(CloudProtocol const cloud_protocol)
-: _cloud_protocol(cloud_protocol) {
+ArduinoCloudThing::ArduinoCloudThing() {
 #ifdef ARDUINO_ARCH_SAMD
     #define SERIAL_NUMBER_WORD_0    *(volatile uint32_t*)(0x0080A00C)
     #define SERIAL_NUMBER_WORD_1    *(volatile uint32_t*)(0x0080A040)
@@ -100,7 +99,7 @@ int ArduinoCloudThing::encode(uint8_t * data, size_t const size) {
           return -1;
       }
 
-      _property_cont.appendChangedProperties(&arrayEncoder, _cloud_protocol);
+      _property_cont.appendChangedProperties(&arrayEncoder);
 
       err = cbor_encoder_close_container(&encoder, &arrayEncoder);
 
@@ -224,10 +223,12 @@ ArduinoCloudThing::MapParserState ArduinoCloudThing::handle_MapKey(CborValue * v
 
   if(cbor_value_at_end(value_iter)) {
     next_state = MapParserState::LeaveMap;
-    // If the key is a string means that the Map use the string keys (protocol V1)
-    // https://tools.ietf.org/html/rfc8428#section-4.3
-    // example [{"n": "temperature", "v": 25}]
-  } else if(cbor_value_is_text_string(value_iter)) {
+  }
+  /* If the key is a string means that the Map use the string keys (protocol V1)
+   * https://tools.ietf.org/html/rfc8428#section-4.3
+   * Example [{"n": "temperature", "v": 25}]
+   */
+  else if(cbor_value_is_text_string(value_iter)) {
         char * val      = 0;
         size_t val_size = 0;
         if(cbor_value_dup_text_string(value_iter, &val, &val_size, value_iter) == CborNoError) {
@@ -242,9 +243,11 @@ ArduinoCloudThing::MapParserState ArduinoCloudThing::handle_MapKey(CborValue * v
           else                              next_state = MapParserState::UndefinedKey;
           free(val);
         }
-        // If the key is a number means that the Map use the CBOR Label (protocol V2)
-        // example [{0: "temperature", 2: 25}]
-  } else if (cbor_value_is_integer(value_iter)) {
+  }
+  /* If the key is a number means that the Map use the CBOR Label (protocol V2)
+   * Example [{0: "temperature", 2: 25}]
+   */
+  else if (cbor_value_is_integer(value_iter)) {
         int val = 0;
         if(cbor_value_get_int(value_iter, &val) == CborNoError) {
           if(cbor_value_advance(value_iter) == CborNoError) {
