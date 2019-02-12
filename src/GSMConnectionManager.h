@@ -46,6 +46,9 @@ private:
   const char *pin, *apn, *login, *pass;
   unsigned long lastConnectionTickTime, lastNetworkStep;
   int connectionTickTimeInterval;
+  GSMUDP Udp;
+  void sendNTPpacket(const char * address, uint8_t* packetBuffer);
+  unsigned long getNTPTime();
 };
 
 static const unsigned long NETWORK_CONNECTION_INTERVAL = 30000;
@@ -59,8 +62,64 @@ GSMConnectionManager::GSMConnectionManager(const char *pin, const char *apn, con
   connectionTickTimeInterval(CHECK_INTERVAL_IDLE) {
 }
 
+void GSMConnectionManager::sendNTPpacket(const char * address, uint8_t* packetBuffer) {
+  const int NTP_PACKET_SIZE = 48;
+  memset(packetBuffer, 0, NTP_PACKET_SIZE);
+  packetBuffer[0] = 0b11100011;
+  packetBuffer[1] = 0;
+  packetBuffer[2] = 6;
+  packetBuffer[3] = 0xEC;
+  packetBuffer[12]  = 49;
+  packetBuffer[13]  = 0x4E;
+  packetBuffer[14]  = 49;
+  packetBuffer[15]  = 52;
+  Udp.beginPacket(address, 123);
+  Udp.write(packetBuffer, NTP_PACKET_SIZE);
+  Udp.endPacket();
+}
+
+unsigned long GSMConnectionManager::getNTPTime() {
+
+  unsigned int localPort = 8888;
+  const char timeServer[] = "time.apple.com";
+  const int NTP_PACKET_SIZE = 48;
+  uint8_t packetBuffer[NTP_PACKET_SIZE];
+
+  Udp.begin(localPort);
+  sendNTPpacket(timeServer, packetBuffer);
+  long start = millis();
+  while (!Udp.parsePacket() && (millis() - start < 10000))  {
+
+  }
+  if (millis() - start >= 1000) {
+    //timeout reached
+    return 0;
+  }
+  Udp.read(packetBuffer, NTP_PACKET_SIZE);
+
+  unsigned long highWord = word(packetBuffer[40], packetBuffer[41]);
+  unsigned long lowWord = word(packetBuffer[42], packetBuffer[43]);
+  unsigned long secsSince1900 = highWord << 16 | lowWord;
+  const unsigned long seventyYears = 2208988800UL;
+  unsigned long epoch = secsSince1900 - seventyYears;
+
+  Udp.stop();
+
+  return epoch;
+}
+
+
 unsigned long GSMConnectionManager::getTime() {
-  return gsmAccess.getTime();
+  unsigned long time = gsmAccess.getTime();
+  // some simcard can return bogus time; in this case request it directly to an ntp server
+  if (time < 1549967573) {
+    Serial.println("Ask time to apple.com");
+    return getNTPTime();
+  } else {
+    Serial.print("Using network provided time: ");
+    Serial.println(time);
+    return time;
+  }
 }
 
 void GSMConnectionManager::init() {
