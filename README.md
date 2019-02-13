@@ -31,7 +31,22 @@ The library is divided into various classes:
 - `CloudSerial` it's similar to [Serial](https://www.arduino.cc/reference/en/language/functions/communication/serial/), but used in combination with the cloud.
 
 ### ConnectionManager
-[todo]
+
+*Connection Manager* is capable of knowing which board is being used through some `ifdef`.
+
+- Instantiate the class with `ConnectionManager *ArduinoIoTPreferredConnection = new WiFiConnectionManager(SECRET_SSID, SECRET_PASS);` if you are using a WiFi board
+
+- `check()` function does all the job. It uses a finite state machine and it's responsible for the connection and reconnection to the Internet. The function is non blocking thanks to *millis*
+
+- `getTime()` function actually return the time from a NTP server. It's used for the connection to the cloud
+
+- `&getClient()` returns the client
+
+- `	getStatus()` returns the network connection status
+
+- `debugMessage(char *_msg, uint8_t _debugLevel)` function used to print debug messages on the serial
+
+- The `setDebugMessageLevel(uint8_t _debugLevel)` function is used to set a debug level. Every debug message comes with a level which goes from 0 to 4. Higher level means higher verbosity. Debug messages with level higher than `_debugLevel` will not been showed.
 
 ### ArduinoIoTCloud
 [todo]
