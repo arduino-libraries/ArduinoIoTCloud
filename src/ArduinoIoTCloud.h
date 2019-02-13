@@ -72,10 +72,10 @@ public:
   bool disconnect();
 
   void poll() __attribute__((deprecated)); /* Attention: Function is deprecated - use 'update' instead */
-  void update(int mode = PROPERTIES_SYNC_FORCE_DEVICE, void (*callback)(void) = NULL);
+  void update(void (*callback)(void) = NULL);
 
   // defined for users who want to specify max reconnections reties and timeout between them
-  void update(int const reconnectionMaxRetries, int const reconnectionTimeoutMs, int mode = PROPERTIES_SYNC_FORCE_DEVICE, void (*callback)(void) = NULL);
+  void update(int const reconnectionMaxRetries, int const reconnectionTimeoutMs, void (*callback)(void) = NULL);
   // get the status of synchronization after getLastValues request
   bool getLastValuesSyncStatus();
 
@@ -95,17 +95,17 @@ public:
 
 
   template<typename T, typename N=T>
-  void addPropertyReal(T & property, String name, permissionType permission_type = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, N minDelta = N(0)) {
+  void addPropertyReal(T & property, String name, permissionType permission_type = READWRITE, int syncMode = PROPERTIES_SYNC_FORCE_DEVICE, void(*synFn)(ArduinoCloudProperty<T> property) = NULL, long seconds = ON_CHANGE, void(*fn)(void) = NULL, N minDelta = N(0)) {
     Permission permission = Permission::ReadWrite;
     if     (permission_type == READ ) permission = Permission::Read;
     else if(permission_type == WRITE) permission = Permission::Write;
     else                              permission = Permission::ReadWrite;
 
     if(seconds == ON_CHANGE) {
-      Thing.addPropertyReal(property, name, permission).publishOnChange((T)minDelta, DEFAULT_MIN_TIME_BETWEEN_UPDATES_MILLIS).onUpdate(fn);
+      Thing.addPropertyReal(property, name, permission, syncMode).publishOnChange((T)minDelta, DEFAULT_MIN_TIME_BETWEEN_UPDATES_MILLIS).onUpdate(fn).onSync(synFn);
     }
     else {
-      Thing.addPropertyReal(property, name, permission).publishEvery(seconds).onUpdate(fn);
+      Thing.addPropertyReal(property, name, permission, syncMode).publishEvery(seconds).onUpdate(fn).onSync(synFn);
     }
   }
 
@@ -129,8 +129,8 @@ protected:
   void mqttClientBegin();
   // Function in charge of perform MQTT reconnection, basing on class parameters(retries,and timeout)
   bool mqttReconnect(int const maxRetries, int const timeout);
-  // Used to retrieve ast values from _shadowTopicIn
-  void getLastValues();
+  // Used to retrieve last values from _shadowTopicIn
+  void requestLastValue();
 
   ArduinoIoTConnectionStatus getIoTStatus() { return iotStatus; }
   void setIoTConnectionState(ArduinoIoTConnectionStatus _newState);
@@ -147,8 +147,7 @@ private:
   ArduinoCloudThing Thing;
   BearSSLClient* _bearSslClient;
   MqttClient* _mqttClient;
-  int    _mode,
-         _lastSyncRequestTickTime;
+  int    _lastSyncRequestTickTime;
   bool   _callGetLastValueCallback;
 
 
