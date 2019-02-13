@@ -26,10 +26,12 @@ public:
   virtual void init();
   virtual void check();
   virtual Client &getClient() { return networkClient; };
+  virtual UDP &getUDP() { return udp; };
 
   GSMClient networkClient;
   GSM gsmAccess;
   GPRS gprs;
+  GSMUDP udp;
 private:
 
   void changeConnectionState(NetworkConnectionState _newState);

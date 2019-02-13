@@ -23,6 +23,8 @@
 #endif
 
 #include <Client.h>
+#include <Udp.h>
+#include "utility/NTPUtils.h"
 
 enum NetworkConnectionState {
   CONNECTION_STATE_INIT,
@@ -40,6 +42,7 @@ public:
   virtual void check() = 0;
   virtual unsigned long getTime() = 0;
   virtual Client &getClient();
+  virtual UDP &getUDP();
 
   virtual NetworkConnectionState getStatus() { return netConnectionState; }
 

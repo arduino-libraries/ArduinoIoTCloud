@@ -25,7 +25,7 @@ public:
   virtual void init();
   virtual void check();
   virtual Client &getClient() { return wifiClient; };
-  
+  virtual UDP &getUDP() { return udp; };
 
 private:
   
