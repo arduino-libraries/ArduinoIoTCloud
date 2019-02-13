@@ -150,6 +150,7 @@ void ArduinoIoTCloudClass::mqttClientBegin()
 
 int ArduinoIoTCloudClass::connect()
 {
+  debugMessage("Connecting to " + _brokerAddress.c_str() + ":8883", 3);
   // Username: device id
   // Password: empty
   if (!_mqttClient->connect(_brokerAddress.c_str(), 8883)) {
