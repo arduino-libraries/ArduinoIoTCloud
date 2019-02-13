@@ -29,7 +29,12 @@ static ConnectionManager *getTimeConnection = NULL;
 
 static unsigned long getTime() {
   if (!getTimeConnection) return 0;
-  return getTimeConnection->getTime();
+  unsigned long time = getTimeConnection->getTime();
+  if (!NTPUtils::isTimeValid(time)) {
+    debugMessage("Bogus NTP time from API, fallback to UDP method", 0);
+    time = NTPUtils(getTimeConnection->getUDP()).getTime();
+  }
+  return time;
 }
 
 ArduinoIoTCloudClass::ArduinoIoTCloudClass() :
