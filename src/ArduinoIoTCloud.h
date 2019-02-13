@@ -95,7 +95,7 @@ public:
 
 
   template<typename T, typename N=T>
-  void addPropertyReal(T & property, String name, permissionType permission_type = READWRITE, int syncMode = PROPERTIES_SYNC_FORCE_DEVICE, void(*synFn)(ArduinoCloudProperty<T> property) = NULL, long seconds = ON_CHANGE, void(*fn)(void) = NULL, N minDelta = N(0)) {
+  void addPropertyReal(T & property, String name, permissionType permission_type = READWRITE, SyncMode syncMode = PROPERTIES_SYNC_FORCE_DEVICE, void(*synFn)(ArduinoCloudProperty<T> property) = NULL, long seconds = ON_CHANGE, void(*fn)(void) = NULL, N minDelta = N(0)) {
     Permission permission = Permission::ReadWrite;
     if     (permission_type == READ ) permission = Permission::Read;
     else if(permission_type == WRITE) permission = Permission::Write;
