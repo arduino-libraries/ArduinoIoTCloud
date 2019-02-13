@@ -49,6 +49,23 @@ The library is divided into various classes:
 - The `setDebugMessageLevel(uint8_t _debugLevel)` function is used to set a debug level. Every debug message comes with a level which goes from 0 to 4. Higher level means higher verbosity. Debug messages with level higher than `_debugLevel` will not been showed.
 
 ### ArduinoIoTCloud
-[todo]
-### CloudSerial
-[todo]
+
+- The `int begin(ConnectionManager *connection = ArduinoIoTPreferredConnection, String brokerAddress = "mqtts-sa.iot.arduino.cc")` function is used to initialize the connection to MQTT broker and to the cloud.
+
+- The `connect()` function is used to connect to the MQTT broker and to the cloud
+
+- `disconnect()` stops the MQTT Client
+
+- The `update()` function checks the connnection with the MQTT broker, retrieve data from it and pushes back data using `writeProperties()`. `update()` is called periodically in the loop of .ino file.
+
+- `connected()` simply returns the current status of the MQTT connection.
+
+- `reconnect(Client&)` clean up existing MQTT connection, create a new one and initialize it by calling `connect()`
+
+- `writeProperties(const byte data[], int length)` writes message to the MQTT Broker
+
+- `setThingId(String const thing_id)` sets the *THING_ID*
+
+- `getThingId()` returns the *THING_ID*
+
+- `connectionCheck()` function is like `check()` from *ConnectionManager*. Uses a finite state machine and it's responsible for the connection to MQTT and the Cloud. It also uses *debugMessage* from *ConnectionManager* to print debug messages
