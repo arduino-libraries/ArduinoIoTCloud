@@ -121,7 +121,7 @@ protected:
   bool mqttReconnect(int const maxRetries, int const timeout);
 
   ArduinoIoTConnectionStatus getIoTStatus() { return iotStatus; }
-
+  void setIoTConnectionState(ArduinoIoTConnectionStatus _newState);
 private:
   ArduinoIoTConnectionStatus iotStatus = IOT_STATUS_IDLE;
   ConnectionManager *connection;
