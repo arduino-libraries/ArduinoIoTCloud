@@ -64,64 +64,8 @@ GSMConnectionManager::GSMConnectionManager(const char *pin, const char *apn, con
   connectionTickTimeInterval(CHECK_INTERVAL_IDLE) {
 }
 
-void GSMConnectionManager::sendNTPpacket(const char * address, uint8_t* packetBuffer) {
-  const int NTP_PACKET_SIZE = 48;
-  memset(packetBuffer, 0, NTP_PACKET_SIZE);
-  packetBuffer[0] = 0b11100011;
-  packetBuffer[1] = 0;
-  packetBuffer[2] = 6;
-  packetBuffer[3] = 0xEC;
-  packetBuffer[12]  = 49;
-  packetBuffer[13]  = 0x4E;
-  packetBuffer[14]  = 49;
-  packetBuffer[15]  = 52;
-  Udp.beginPacket(address, 123);
-  Udp.write(packetBuffer, NTP_PACKET_SIZE);
-  Udp.endPacket();
-}
-
-unsigned long GSMConnectionManager::getNTPTime() {
-
-  unsigned int localPort = 8888;
-  const char timeServer[] = "time.apple.com";
-  const int NTP_PACKET_SIZE = 48;
-  uint8_t packetBuffer[NTP_PACKET_SIZE];
-
-  Udp.begin(localPort);
-  sendNTPpacket(timeServer, packetBuffer);
-  long start = millis();
-  while (!Udp.parsePacket() && (millis() - start < 10000))  {
-
-  }
-  if (millis() - start >= 1000) {
-    //timeout reached
-    return 0;
-  }
-  Udp.read(packetBuffer, NTP_PACKET_SIZE);
-
-  unsigned long highWord = word(packetBuffer[40], packetBuffer[41]);
-  unsigned long lowWord = word(packetBuffer[42], packetBuffer[43]);
-  unsigned long secsSince1900 = highWord << 16 | lowWord;
-  const unsigned long seventyYears = 2208988800UL;
-  unsigned long epoch = secsSince1900 - seventyYears;
-
-  Udp.stop();
-
-  return epoch;
-}
-
-
 unsigned long GSMConnectionManager::getTime() {
-  unsigned long time = gsmAccess.getTime();
-  // some simcard can return bogus time; in this case request it directly to an ntp server
-  if (time < 1549967573) {
-    Serial.println("Ask time to apple.com");
-    return getNTPTime();
-  } else {
-    Serial.print("Using network provided time: ");
-    Serial.println(time);
-    return time;
-  }
+  return gsmAccess.getTime();
 }
 
 void GSMConnectionManager::init() {
@@ -169,11 +113,11 @@ void GSMConnectionManager::check() {
   int networkStatus = 0;
   if (now - lastConnectionTickTime > connectionTickTimeInterval) {
     switch (netConnectionState) {
-      case CONNECTION_STATE_IDLE:
-        init();
-        changeConnectionState(CONNECTION_STATE_INIT);
-        break;
       case CONNECTION_STATE_INIT:
+        init();
+        changeConnectionState(CONNECTION_STATE_CONNECTING);
+        break;
+      case CONNECTION_STATE_CONNECTING:
         // blocking call with 4th parameter == true
         networkStatus = gprs.attachGPRS(apn, login, pass, true);
         *msgBuffer = 0;
@@ -181,13 +125,10 @@ void GSMConnectionManager::check() {
         debugMessage(msgBuffer, 2);
         if (networkStatus == ERROR) {
           debugMessage("GPRS attach failed\nMake sure the antenna is connected", 0);
-          changeConnectionState(CONNECTION_STATE_INIT);
+          changeConnectionState(CONNECTION_STATE_CONNECTING);
           lastConnectionTickTime = now;
           return;
         }
-        changeConnectionState(CONNECTION_STATE_CONNECTING);
-        break;
-      case CONNECTION_STATE_CONNECTING:
         *msgBuffer = 0;
         sprintf(msgBuffer, "Trying to ping external world");
         debugMessage(msgBuffer, 2);
@@ -204,7 +145,7 @@ void GSMConnectionManager::check() {
           *msgBuffer = 0;
           sprintf(msgBuffer, "Retrying in  \"%d\" milliseconds", connectionTickTimeInterval);
           debugMessage(msgBuffer, 2);
-          changeConnectionState(CONNECTION_STATE_INIT);
+          changeConnectionState(CONNECTION_STATE_CONNECTING);
           return;
         } else {
           *msgBuffer = 0;
@@ -231,14 +172,14 @@ void GSMConnectionManager::check() {
         networkStatus = gsmAccess.isAccessAlive();
         *msgBuffer = 0;
         sprintf(msgBuffer, "GPRS.isAccessAlive(): %d", networkStatus);
-        debugMessage(msgBuffer, 2);
+        debugMessage(msgBuffer, 4);
         if (networkStatus != 1) {
           changeConnectionState(CONNECTION_STATE_DISCONNECTED);
           return;
         }
         *msgBuffer = 0;
         sprintf(msgBuffer, "Still connected");
-        debugMessage(msgBuffer, 2);
+        debugMessage(msgBuffer, 4);
         break;
       case CONNECTION_STATE_DISCONNECTED:
         gprs.detachGPRS();
