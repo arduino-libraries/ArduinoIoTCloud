@@ -51,9 +51,11 @@ enum ArduinoIoTConnectionStatus {
   IOT_STATUS_CLOUD_ERROR,
 };
 
-template<typename T, typename N=T>
+#define AUTO_SYNC onAutoSync
+template<typename T>
 void onAutoSync(ArduinoCloudProperty<T> property) {
-  Serial.println("Executing the AUTO sync");
+  Serial.print("Executing the AUTO sync on: ");
+  Serial.println(property.getPropertyName());
   if( property.getLastCloudChangeTimestamp() > property.getLastLocalChangeTimestamp()){
     property.setPropertyValue(property.getCloudShadowValue());
     if( property.getLastCloudChangeTimestamp() > property.getLastCloudSyncTimestamp()){
@@ -62,18 +64,22 @@ void onAutoSync(ArduinoCloudProperty<T> property) {
   }
 }
 
-template<typename T, typename N=T>
+#define FORCE_CLOUD_SYNC onForceCloudSync
+template<typename T>
 void onForceCloudSync(ArduinoCloudProperty<T> property) {
-  Serial.println("Executing the FORCE_CLOUD sync");
+  Serial.print("Executing the FORCE_CLOUD sync on: ");
+  Serial.println(property.getPropertyName());
   property.setPropertyValue(property.getCloudShadowValue());
   if( property.getLastCloudChangeTimestamp() > property.getLastCloudSyncTimestamp()){
     property.forceCallbackOnChange();
   } 
 }
 
-template<typename T, typename N=T>
+#define FORCE_DEVICE_SYNC onForceDeviceSync
+template<typename T>
 void onForceDeviceSync(ArduinoCloudProperty<T> property) {
-  Serial.println("Executing the FORCE_DEVICE sync");
+  Serial.print("Executing the FORCE_DEVICE sync on: ");
+  Serial.println(property.getPropertyName());
 }
 
 class ArduinoIoTCloudClass {
@@ -120,47 +126,26 @@ public:
 
 
   template<typename T, typename N=T>
-  void addPropertyReal(T & property, String name, permissionType permission_type = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, SyncMode syncMode = PROPERTIES_SYNC_FORCE_DEVICE, void(*synFn)(ArduinoCloudProperty<T> property) = NULL, N minDelta = N(0)) {
+  void addPropertyReal(T & property, String name, permissionType permission_type = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, N minDelta = N(0), void(*synFn)(ArduinoCloudProperty<T> property) = FORCE_CLOUD_SYNC) {
     Permission permission = Permission::ReadWrite;
     if     (permission_type == READ ) permission = Permission::Read;
     else if(permission_type == WRITE) permission = Permission::Write;
     else                              permission = Permission::ReadWrite;
     
-    switch (syncMode){
-      case PROPERTIES_SYNC_AUTO:
-          if(seconds == ON_CHANGE) {
-            Thing.addPropertyReal(property, name, permission).publishOnChange((T)minDelta, DEFAULT_MIN_TIME_BETWEEN_UPDATES_MILLIS).onUpdate(fn).onSync(onAutoSync);
-          } else {
-            Thing.addPropertyReal(property, name, permission).publishEvery(seconds).onUpdate(fn).onSync(onAutoSync);
-          }
-          break;
-      case PROPERTIES_SYNC_FORCE_CLOUD:
-          if(seconds == ON_CHANGE) {
-            Thing.addPropertyReal(property, name, permission).publishOnChange((T)minDelta, DEFAULT_MIN_TIME_BETWEEN_UPDATES_MILLIS).onUpdate(fn).onSync(onForceCloudSync);
-          } else {
-            Thing.addPropertyReal(property, name, permission).publishEvery(seconds).onUpdate(fn).onSync(onForceCloudSync);
-          }
-          break;
-      case PROPERTIES_SYNC_FORCE_DEVICE:
-          if(seconds == ON_CHANGE) {
-            Thing.addPropertyReal(property, name, permission).publishOnChange((T)minDelta, DEFAULT_MIN_TIME_BETWEEN_UPDATES_MILLIS).onUpdate(fn).onSync(onForceDeviceSync);
-          } else {
-            Thing.addPropertyReal(property, name, permission).publishEvery(seconds).onUpdate(fn).onSync(onForceDeviceSync);
-          }
-          break;
-      case PROPERTIES_SYNC_CUSTOM:
-          if(seconds == ON_CHANGE) {
-            Thing.addPropertyReal(property, name, permission).publishOnChange((T)minDelta, DEFAULT_MIN_TIME_BETWEEN_UPDATES_MILLIS).onUpdate(fn).onSync(synFn);
-          } else {
-            Thing.addPropertyReal(property, name, permission).publishEvery(seconds).onUpdate(fn).onSync(synFn);
-          }
-          break;
-      default:
-      if(seconds == ON_CHANGE) {
-        Thing.addPropertyReal(property, name, permission).publishOnChange((T)minDelta, DEFAULT_MIN_TIME_BETWEEN_UPDATES_MILLIS).onUpdate(fn).onSync(onForceCloudSync);
-      } else {
-        Thing.addPropertyReal(property, name, permission).publishEvery(seconds).onUpdate(fn).onSync(onForceCloudSync);
-      }
+    SyncMode syncMode = PROPERTIES_SYNC_FORCE_CLOUD;
+    if (synFn == (void(*)(ArduinoCloudProperty<T> property))AUTO_SYNC)
+      syncMode = PROPERTIES_SYNC_AUTO;
+    else if (synFn == (void(*)(ArduinoCloudProperty<T> property))FORCE_CLOUD_SYNC)
+      syncMode = PROPERTIES_SYNC_FORCE_CLOUD;
+    else if (synFn == (void(*)(ArduinoCloudProperty<T> property))FORCE_DEVICE_SYNC)
+      syncMode = PROPERTIES_SYNC_FORCE_DEVICE;
+    else
+        syncMode = PROPERTIES_SYNC_CUSTOM;
+
+    if(seconds == ON_CHANGE) {
+      Thing.addPropertyReal(property, name, permission).publishOnChange((T)minDelta, DEFAULT_MIN_TIME_BETWEEN_UPDATES_MILLIS).onUpdate(fn).onSync(synFn);
+    } else {
+      Thing.addPropertyReal(property, name, permission).publishEvery(seconds).onUpdate(fn).onSync(synFn);
     }
   }
 
