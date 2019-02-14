@@ -24,9 +24,9 @@ Now the platform is in public beta, feedback is welcome.
 ## ArduinoIoTCloud library
 
 The library is divided into various classes:
-- `ConnectionManager` which is responsable for the connection to the Internet and to the Arduino IoT Cloud through `WiFiConnectionManager` or `GSMConnectionManager`. The selection is done using the type of board used.
+- `ConnectionManager` which is responsable for the connection to the Internet through `WiFiConnectionManager` or `GSMConnectionManager`. The selection is done using the type of board used.
 
-- `ArduinoIoTCloud` it's the leading class. It's responsible for the connection to the MQTT Broker.
+- `ArduinoIoTCloud` it's the leading class. It's responsible for the connection to the MQTT Broker and to the Arduino IoT Cloud.
 
 - `CloudSerial` it's similar to [Serial](https://www.arduino.cc/reference/en/language/functions/communication/serial/), but used in combination with the cloud.
 
@@ -50,22 +50,20 @@ The library is divided into various classes:
 
 ### ArduinoIoTCloud
 
-- The `int begin(ConnectionManager *connection = ArduinoIoTPreferredConnection, String brokerAddress = "mqtts-sa.iot.arduino.cc")` function is used to initialize the connection to MQTT broker and to the cloud.
+- The `begin(ConnectionManager *connection = ArduinoIoTPreferredConnection, String brokerAddress = "mqtts-sa.iot.arduino.cc")` function is used to initialize the connection to the Arduino IoT Cloud through MQTT
 
-- The `connect()` function is used to connect to the MQTT broker and to the cloud
+- The `connect()` function is used to connect to the MQTT broker
 
 - `disconnect()` stops the MQTT Client
 
-- The `update()` function checks the connnection with the MQTT broker, retrieve data from it and pushes back data using `writeProperties()`. `update()` is called periodically in the loop of .ino file.
+- The `update()` function is called periodically in the loop of `.ino` file. It checks the connnection with the MQTT broker, retrieve data from the Cloud and pushes back data using function `writeProperties(const byte data[], int length)`.
 
 - `connected()` simply returns the current status of the MQTT connection.
 
 - `reconnect(Client&)` clean up existing MQTT connection, create a new one and initialize it by calling `connect()`
 
-- `writeProperties(const byte data[], int length)` writes message to the MQTT Broker
-
 - `setThingId(String const thing_id)` sets the *THING_ID*
 
 - `getThingId()` returns the *THING_ID*
 
-- `connectionCheck()` function is like `check()` from *ConnectionManager*. Uses a finite state machine and it's responsible for the connection to MQTT and the Cloud. It also uses *debugMessage* from *ConnectionManager* to print debug messages
+- `connectionCheck()` function is like `check()` from *ConnectionManager*. Uses a finite state machine and it's responsible for the connection to Arduino IoT Cloud. It also uses *debugMessage* from *ConnectionManager* to print debug messages.
