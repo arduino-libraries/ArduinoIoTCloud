@@ -51,6 +51,31 @@ enum ArduinoIoTConnectionStatus {
   IOT_STATUS_CLOUD_ERROR,
 };
 
+template<typename T, typename N=T>
+void onAutoSync(ArduinoCloudProperty<T> property) {
+  Serial.println("Executing the AUTO sync");
+  if( property.getLastCloudChangeTimestamp() > property.getLastLocalChangeTimestamp()){
+    property.setPropertyValue(property.getCloudShadowValue());
+    if( property.getLastCloudChangeTimestamp() > property.getLastCloudSyncTimestamp()){
+      property.forceCallbackOnChange();
+    } 
+  }
+}
+
+template<typename T, typename N=T>
+void onForceCloudSync(ArduinoCloudProperty<T> property) {
+  Serial.println("Executing the FORCE_CLOUD sync");
+  property.setPropertyValue(property.getCloudShadowValue());
+  if( property.getLastCloudChangeTimestamp() > property.getLastCloudSyncTimestamp()){
+    property.forceCallbackOnChange();
+  } 
+}
+
+template<typename T, typename N=T>
+void onForceDeviceSync(ArduinoCloudProperty<T> property) {
+  Serial.println("Executing the FORCE_DEVICE sync");
+}
+
 class ArduinoIoTCloudClass {
 
 public:
@@ -65,11 +90,11 @@ public:
   static const int RECONNECTION_TIMEOUT = 2000;
   static const int TIMEOUT_FOR_LASTVALUES_SYNC = 10000;
 
-
   void onGetTime(unsigned long(*callback)(void));
 
   int  connect   ();
   bool disconnect();
+  void prova();
 
   void poll() __attribute__((deprecated)); /* Attention: Function is deprecated - use 'update' instead */
   void update(void (*callback)(void) = NULL);
@@ -95,17 +120,47 @@ public:
 
 
   template<typename T, typename N=T>
-  void addPropertyReal(T & property, String name, permissionType permission_type = READWRITE, SyncMode syncMode = PROPERTIES_SYNC_FORCE_DEVICE, void(*synFn)(ArduinoCloudProperty<T> property) = NULL, long seconds = ON_CHANGE, void(*fn)(void) = NULL, N minDelta = N(0)) {
+  void addPropertyReal(T & property, String name, permissionType permission_type = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, SyncMode syncMode = PROPERTIES_SYNC_FORCE_DEVICE, void(*synFn)(ArduinoCloudProperty<T> property) = NULL, N minDelta = N(0)) {
     Permission permission = Permission::ReadWrite;
     if     (permission_type == READ ) permission = Permission::Read;
     else if(permission_type == WRITE) permission = Permission::Write;
     else                              permission = Permission::ReadWrite;
-
-    if(seconds == ON_CHANGE) {
-      Thing.addPropertyReal(property, name, permission, syncMode).publishOnChange((T)minDelta, DEFAULT_MIN_TIME_BETWEEN_UPDATES_MILLIS).onUpdate(fn).onSync(synFn);
-    }
-    else {
-      Thing.addPropertyReal(property, name, permission, syncMode).publishEvery(seconds).onUpdate(fn).onSync(synFn);
+    
+    switch (syncMode){
+      case PROPERTIES_SYNC_AUTO:
+          if(seconds == ON_CHANGE) {
+            Thing.addPropertyReal(property, name, permission).publishOnChange((T)minDelta, DEFAULT_MIN_TIME_BETWEEN_UPDATES_MILLIS).onUpdate(fn).onSync(onAutoSync);
+          } else {
+            Thing.addPropertyReal(property, name, permission).publishEvery(seconds).onUpdate(fn).onSync(onAutoSync);
+          }
+          break;
+      case PROPERTIES_SYNC_FORCE_CLOUD:
+          if(seconds == ON_CHANGE) {
+            Thing.addPropertyReal(property, name, permission).publishOnChange((T)minDelta, DEFAULT_MIN_TIME_BETWEEN_UPDATES_MILLIS).onUpdate(fn).onSync(onForceCloudSync);
+          } else {
+            Thing.addPropertyReal(property, name, permission).publishEvery(seconds).onUpdate(fn).onSync(onForceCloudSync);
+          }
+          break;
+      case PROPERTIES_SYNC_FORCE_DEVICE:
+          if(seconds == ON_CHANGE) {
+            Thing.addPropertyReal(property, name, permission).publishOnChange((T)minDelta, DEFAULT_MIN_TIME_BETWEEN_UPDATES_MILLIS).onUpdate(fn).onSync(onForceDeviceSync);
+          } else {
+            Thing.addPropertyReal(property, name, permission).publishEvery(seconds).onUpdate(fn).onSync(onForceDeviceSync);
+          }
+          break;
+      case PROPERTIES_SYNC_CUSTOM:
+          if(seconds == ON_CHANGE) {
+            Thing.addPropertyReal(property, name, permission).publishOnChange((T)minDelta, DEFAULT_MIN_TIME_BETWEEN_UPDATES_MILLIS).onUpdate(fn).onSync(synFn);
+          } else {
+            Thing.addPropertyReal(property, name, permission).publishEvery(seconds).onUpdate(fn).onSync(synFn);
+          }
+          break;
+      default:
+      if(seconds == ON_CHANGE) {
+        Thing.addPropertyReal(property, name, permission).publishOnChange((T)minDelta, DEFAULT_MIN_TIME_BETWEEN_UPDATES_MILLIS).onUpdate(fn).onSync(onForceCloudSync);
+      } else {
+        Thing.addPropertyReal(property, name, permission).publishEvery(seconds).onUpdate(fn).onSync(onForceCloudSync);
+      }
     }
   }
 
