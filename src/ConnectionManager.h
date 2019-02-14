@@ -25,7 +25,6 @@
 #include <Client.h>
 
 enum NetworkConnectionState {
-  CONNECTION_STATE_IDLE,
   CONNECTION_STATE_INIT,
   CONNECTION_STATE_CONNECTING,
   CONNECTION_STATE_CONNECTED,
@@ -46,7 +45,7 @@ public:
 
 protected:
   unsigned long lastValidTimestamp = 0;
-  NetworkConnectionState netConnectionState = CONNECTION_STATE_IDLE;
+  NetworkConnectionState netConnectionState = CONNECTION_STATE_INIT;
 
 };
 
@@ -57,6 +56,7 @@ protected:
 #define NETWORK_HARDWARE_ERROR WL_NO_SHIELD
 #define NETWORK_IDLE_STATUS WL_IDLE_STATUS
 #define NETWORK_CONNECTED WL_CONNECTED
+#define WIFI_FIRMWARE_VERSION_REQUIRED WIFI_FIRMWARE_REQUIRED
 #endif
 
 #ifdef ARDUINO_SAMD_MKRWIFI1010
@@ -65,6 +65,7 @@ protected:
 #define NETWORK_HARDWARE_ERROR WL_NO_MODULE
 #define NETWORK_IDLE_STATUS WL_IDLE_STATUS
 #define NETWORK_CONNECTED WL_CONNECTED
+#define WIFI_FIRMWARE_VERSION_REQUIRED WIFI_FIRMWARE_LATEST_VERSION
 #endif
 
 #ifdef ARDUINO_SAMD_MKRGSM1400
@@ -76,12 +77,18 @@ protected:
 #endif
 
 static int debugMessageLevel = ARDUINO_CLOUD_DEBUG_LEVEL;
-inline void debugMessage(char *_msg, uint8_t _debugLevel) {
+inline void debugMessage(char *_msg, uint8_t _debugLevel, bool _timestamp = true, bool _newline = true) {
   if (_debugLevel <= debugMessageLevel) {
     char prepend[20];
     sprintf(prepend, "\n[ %d ] ", millis());
-    Serial.print(prepend);
-    Serial.println(_msg);
+    if(_timestamp)
+      Serial.print(prepend);
+    if(_newline){
+      Serial.println(_msg);
+    }else{
+      Serial.print(_msg);
+    }
+    
   }
 }
 
