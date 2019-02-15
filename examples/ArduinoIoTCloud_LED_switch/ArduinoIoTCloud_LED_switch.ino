@@ -34,7 +34,7 @@ void setup() {
       
       setDebugMessageLevel(3);
   */
-
+  ArduinoCloud.printDebugInfo();
 }
 
 void loop() {
@@ -51,5 +51,5 @@ void loop() {
 void onLedChange() {
   Serial.print("LED set to ");
   Serial.println(led);
-  digitalWrite(LED_BUILTIN, ledSwitch);
+  digitalWrite(LED_BUILTIN, led);
 }

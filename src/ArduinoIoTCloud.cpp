@@ -53,32 +53,37 @@ ArduinoIoTCloudClass::~ArduinoIoTCloudClass()
   }
 }
 
-int ArduinoIoTCloudClass::begin(ConnectionManager *c, String brokerAddress)
+int ArduinoIoTCloudClass::begin(ConnectionManager *c, String brokerAddress, uint16_t brokerPort)
 {
   connection = c;
   Client &connectionClient = c->getClient();
   _brokerAddress = brokerAddress;
-  return begin(connectionClient, _brokerAddress);
+  _brokerPort = brokerPort;
+  return begin(connectionClient, _brokerAddress, _brokerPort);
 }
 
-int ArduinoIoTCloudClass::begin(Client& net, String brokerAddress)
+int ArduinoIoTCloudClass::begin(Client& net, String brokerAddress, uint16_t brokerPort)
 {
 
   _net = &net;
   // store the broker address as class member
   _brokerAddress = brokerAddress;
+  _brokerPort = brokerPort;
   byte thingIdBytes[72];
 
   if (!ECCX08.begin()) {
+    debugMessage("Cryptography processor failure. Make sure you have a compatible board.", 0);
     return 0;
   }
 
   if (!ECCX08.readSlot(thingIdSlot, thingIdBytes, sizeof(thingIdBytes))) {
+    debugMessage("Cryptography processor read failure.", 0);
     return 0;
   }
   _id = (char*)thingIdBytes;
 
   if (!ECCX08Cert.beginReconstruction(keySlot, compressedCertSlot, serialNumberAndAuthorityKeyIdentifierSlot)) {
+    debugMessage("Cryptography certificate reconstruction failure.", 0);
     return 0;
   }
 
@@ -89,6 +94,7 @@ int ArduinoIoTCloudClass::begin(Client& net, String brokerAddress)
   ECCX08Cert.setIssuerCommonName("Arduino");
 
   if (!ECCX08Cert.endReconstruction()) {
+    debugMessage("Cryptography certificate reconstruction failure.", 0);
     return 0;
   }
 
@@ -117,7 +123,6 @@ int ArduinoIoTCloudClass::begin(Client& net, String brokerAddress)
   mqttClientBegin();
 
   Thing.begin();
-
   return 1;
 }
 
@@ -152,7 +157,7 @@ int ArduinoIoTCloudClass::connect()
 {
   // Username: device id
   // Password: empty
-  if (!_mqttClient->connect(_brokerAddress.c_str(), 8883)) {
+  if (!_mqttClient->connect(_brokerAddress.c_str(), _brokerPort)) {
     return 0;
   }
   _mqttClient->subscribe(_stdinTopic);
@@ -298,15 +303,14 @@ void ArduinoIoTCloudClass::handleMessage(int length)
   }
 }
 
-void ArduinoIoTCloudClass::connectionCheck() {
+void ArduinoIoTCloudClass::connectionCheck()
+{
   if(connection != NULL){
     connection->check();
     
     if (connection->getStatus() != CONNECTION_STATE_CONNECTED) {
       if(iotStatus == IOT_STATUS_CLOUD_CONNECTED){
         setIoTConnectionState(IOT_STATUS_CLOUD_DISCONNECTED);
-      }else{
-        //setIoTConnectionState(IOT_STATUS_CLOUD_CONNECTING);
       }
       return;
     }
@@ -320,9 +324,9 @@ void ArduinoIoTCloudClass::connectionCheck() {
     {
       int connectionAttempt;
       if(connection == NULL){
-        connectionAttempt = begin(*_net, _brokerAddress);
+        connectionAttempt = begin(*_net, _brokerAddress, _brokerPort);
       }else{
-        connectionAttempt = begin(connection, _brokerAddress);
+        connectionAttempt = begin(connection, _brokerAddress, _brokerPort);
       }
       if(!connectionAttempt){
         debugMessage("Error Starting Arduino Cloud\nTrying again in a few seconds", 0);
@@ -331,8 +335,7 @@ void ArduinoIoTCloudClass::connectionCheck() {
       }
       setIoTConnectionState(IOT_STATUS_CLOUD_CONNECTING);
       break;
-    } 
-      
+    }
     case IOT_STATUS_CLOUD_ERROR:
       debugMessage("Cloud Error. Retrying...", 0);
       setIoTConnectionState(IOT_STATUS_CLOUD_RECONNECTING);
@@ -346,7 +349,6 @@ void ArduinoIoTCloudClass::connectionCheck() {
     case IOT_STATUS_CLOUD_RECONNECTING:
       int arduinoIoTReconnectionAttempt;
       arduinoIoTReconnectionAttempt = reconnect(*_net);
-      *msgBuffer = 0;
       sprintf(msgBuffer, "ArduinoCloud.reconnect(): %d", arduinoIoTReconnectionAttempt);
       debugMessage(msgBuffer, 2);
       if (arduinoIoTReconnectionAttempt == 1) {
@@ -356,10 +358,8 @@ void ArduinoIoTCloudClass::connectionCheck() {
       }
       break;
     case IOT_STATUS_CLOUD_CONNECTING:
-      
       int arduinoIoTConnectionAttempt;
       arduinoIoTConnectionAttempt = connect();
-      *msgBuffer = 0;
       sprintf(msgBuffer, "ArduinoCloud.connect(): %d", arduinoIoTConnectionAttempt);
       debugMessage(msgBuffer, 4);
       if (arduinoIoTConnectionAttempt == 1) {
@@ -371,7 +371,8 @@ void ArduinoIoTCloudClass::connectionCheck() {
   }
 }
 
-void ArduinoIoTCloudClass::setIoTConnectionState(ArduinoIoTConnectionStatus _newState){
+void ArduinoIoTCloudClass::setIoTConnectionState(ArduinoIoTConnectionStatus _newState)
+{
   switch(_newState){
     case IOT_STATUS_CLOUD_ERROR:
       debugMessage("Arduino, we have a problem.", 0);
@@ -390,6 +391,18 @@ void ArduinoIoTCloudClass::setIoTConnectionState(ArduinoIoTConnectionStatus _new
       break;
   }
   iotStatus = _newState;
+}
+
+void ArduinoIoTCloudClass::printDebugInfo()
+{
+  char msgBuffer[120];
+  debugMessage("***** Arduino IoT Cloud - configuration info *****", 2);
+  sprintf(msgBuffer, "Device ID: %s", getDeviceId().c_str());
+  debugMessage(msgBuffer, 2);
+  sprintf(msgBuffer, "Thing ID: %s", getThingId().c_str());
+  debugMessage(msgBuffer, 2);
+  sprintf(msgBuffer, "MQTT Broker: %s:%d", _brokerAddress.c_str(), _brokerPort);
+  debugMessage(msgBuffer, 2);
 }
 
 ArduinoIoTCloudClass ArduinoCloud;

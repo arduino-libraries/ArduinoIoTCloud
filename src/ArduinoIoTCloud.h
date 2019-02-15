@@ -25,6 +25,8 @@
 
 #include "CloudSerial.h"
 
+#define DEFAULT_BROKER_ADDRESS "mqtts-sa.iot.arduino.cc"
+#define DEFAULT_BROKER_PORT 8883
 typedef enum {
   READ      = 0x01,
   WRITE     = 0x02,
@@ -57,8 +59,8 @@ public:
   ArduinoIoTCloudClass();
   ~ArduinoIoTCloudClass();
 
-  int begin(ConnectionManager *connection = ArduinoIoTPreferredConnection, String brokerAddress = "mqtts-sa.iot.arduino.cc");
-  int begin(Client& net, String brokerAddress = "mqtts-sa.iot.arduino.cc");
+  int begin(ConnectionManager *connection = ArduinoIoTPreferredConnection, String brokerAddress = DEFAULT_BROKER_ADDRESS, uint16_t brokerPort = DEFAULT_BROKER_PORT);
+  int begin(Client& net, String brokerAddress = DEFAULT_BROKER_ADDRESS, uint16_t brokerPort = DEFAULT_BROKER_PORT);
   // Class constant declaration
   static const int MQTT_TRANSMIT_BUFFER_SIZE = 256;
   static const int MAX_RETRIES = 5;
@@ -89,6 +91,8 @@ public:
 
   static unsigned long const DEFAULT_MIN_TIME_BETWEEN_UPDATES_MILLIS = 100; /* Data rate throttled to 10 Hz */
 
+
+
   template<typename T, typename N=T>
   void addPropertyReal(T & property, String name, permissionType permission_type = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, N minDelta = N(0)) {
     Permission permission = Permission::ReadWrite;
@@ -110,6 +114,9 @@ public:
   }
 
   void connectionCheck();
+  String getBrokerAddress(){ return _brokerAddress; }
+  uint16_t getBrokerPort() { return _brokerPort; }
+  void printDebugInfo();
 
 protected:
   friend class CloudSerialClass;
@@ -131,6 +138,7 @@ private:
   String _id,
          _thing_id,
          _brokerAddress;
+  uint16_t _brokerPort;
   ArduinoCloudThing Thing;
   BearSSLClient* _bearSslClient;
   MqttClient* _mqttClient;
