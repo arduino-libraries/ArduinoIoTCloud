@@ -79,7 +79,7 @@ void EthConnectionManager::changeConnectionState(NetworkConnectionState _newStat
 
 void EthConnectionManager::check() {
   char msgBuffer[120];
-  unsigned long now = millis();
+  unsigned long const now = millis();
   int networkStatus = 0;
   if (now - lastConnectionTickTime > connectionTickTimeInterval) {
     switch (netConnectionState) {
