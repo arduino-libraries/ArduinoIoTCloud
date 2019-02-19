@@ -51,36 +51,11 @@ enum ArduinoIoTConnectionStatus {
   IOT_STATUS_CLOUD_ERROR,
 };
 
-#define AUTO_SYNC onAutoSync
-template<typename T>
-void onAutoSync(ArduinoCloudProperty<T> property) {
-  Serial.print("Executing the AUTO sync on: ");
-  Serial.println(property.getPropertyName());
-  if( property.getLastCloudChangeTimestamp() > property.getLastLocalChangeTimestamp()){
-    property.setPropertyValue(property.getCloudShadowValue());
-    if( property.getLastCloudChangeTimestamp() > property.getLastCloudSyncTimestamp()){
-      property.forceCallbackOnChange();
-    } 
-  }
-}
-
-#define FORCE_CLOUD_SYNC onForceCloudSync
-template<typename T>
-void onForceCloudSync(ArduinoCloudProperty<T> property) {
-  Serial.print("Executing the FORCE_CLOUD sync on: ");
-  Serial.println(property.getPropertyName());
-  property.setPropertyValue(property.getCloudShadowValue());
-  if( property.getLastCloudChangeTimestamp() > property.getLastCloudSyncTimestamp()){
-    property.forceCallbackOnChange();
-  } 
-}
-
-#define FORCE_DEVICE_SYNC onForceDeviceSync
-template<typename T>
-void onForceDeviceSync(ArduinoCloudProperty<T> property) {
-  Serial.print("Executing the FORCE_DEVICE sync on: ");
-  Serial.println(property.getPropertyName());
-}
+enum ArduinoIoTSynchronizationStatus {
+  SYNC_STATUS_SYNCHRONIZED,
+  SYNC_STATUS_WAIT_FOR_CLOUD_VALUES,
+  SYNC_STATUS_VALUES_PROCESSED
+};
 
 class ArduinoIoTCloudClass {
 
@@ -100,15 +75,12 @@ public:
 
   int  connect   ();
   bool disconnect();
-  void prova();
 
   void poll() __attribute__((deprecated)); /* Attention: Function is deprecated - use 'update' instead */
   void update(void (*callback)(void) = NULL);
 
   // defined for users who want to specify max reconnections reties and timeout between them
   void update(int const reconnectionMaxRetries, int const reconnectionTimeoutMs, void (*callback)(void) = NULL);
-  // get the status of synchronization after getLastValues request
-  bool getLastValuesSyncStatus();
 
   int connected();
   // Clean up existing Mqtt connection, create a new one and initialize it
@@ -126,21 +98,11 @@ public:
 
 
   template<typename T, typename N=T>
-  void addPropertyReal(T & property, String name, permissionType permission_type = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, N minDelta = N(0), void(*synFn)(ArduinoCloudProperty<T> property) = FORCE_CLOUD_SYNC) {
+  void addPropertyReal(T & property, String name, permissionType permission_type = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, void(*synFn)(ArduinoCloudProperty<T> property) = FORCE_CLOUD_SYNC, N minDelta = N(0)) {
     Permission permission = Permission::ReadWrite;
     if     (permission_type == READ ) permission = Permission::Read;
     else if(permission_type == WRITE) permission = Permission::Write;
     else                              permission = Permission::ReadWrite;
-    
-    SyncMode syncMode = PROPERTIES_SYNC_FORCE_CLOUD;
-    if (synFn == (void(*)(ArduinoCloudProperty<T> property))AUTO_SYNC)
-      syncMode = PROPERTIES_SYNC_AUTO;
-    else if (synFn == (void(*)(ArduinoCloudProperty<T> property))FORCE_CLOUD_SYNC)
-      syncMode = PROPERTIES_SYNC_FORCE_CLOUD;
-    else if (synFn == (void(*)(ArduinoCloudProperty<T> property))FORCE_DEVICE_SYNC)
-      syncMode = PROPERTIES_SYNC_FORCE_DEVICE;
-    else
-        syncMode = PROPERTIES_SYNC_CUSTOM;
 
     if(seconds == ON_CHANGE) {
       Thing.addPropertyReal(property, name, permission).publishOnChange((T)minDelta, DEFAULT_MIN_TIME_BETWEEN_UPDATES_MILLIS).onUpdate(fn).onSync(synFn);
@@ -179,6 +141,10 @@ private:
   ConnectionManager *connection;
   static void onMessage(int length);
   void handleMessage(int length);
+  ArduinoIoTSynchronizationStatus syncStatus = SYNC_STATUS_SYNCHRONIZED;
+
+  void sendPropertiesToCloud();
+
 
   String _id,
          _thing_id,
@@ -200,11 +166,6 @@ private:
   String _dataTopicIn;
   String _otaTopic;
   Client *_net;
-
-  // Used to synchronize properties
-  bool _firstReconnectionUpdate;
-  bool _propertiesSynchronized;
-  void (*_syncCallback)(void);
 };
 
 extern ArduinoIoTCloudClass ArduinoCloud;
