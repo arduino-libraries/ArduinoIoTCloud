@@ -22,11 +22,12 @@
 template <typename T>
 ArduinoCloudProperty<T>::ArduinoCloudProperty(T & property, String const & name, Permission const permission)
 : _property(property),
-  _shadow_property(property),
+  _cloud_shadow_property(property),
   _local_shadow_property(property),
   _name(name),
   _permission(permission),
   _update_callback_func(NULL),
+  _sync_callback_func(NULL),
   _update_policy(UpdatePolicy::OnChange),
   _has_been_updated_once(false),
   _has_been_modified_in_callback(false),
@@ -34,8 +35,9 @@ ArduinoCloudProperty<T>::ArduinoCloudProperty(T & property, String const & name,
   _min_time_between_updates_millis(0),
   _last_updated_millis(0),
   _update_interval_millis(0),
-  _local_change_timestamp(0),
-  _last_change_timestamp(0)
+  _last_local_change_timestamp(0),
+  _last_cloud_change_timestamp(0),
+  _previous_cloud_change_timestamp(0)
 {
 }
 
@@ -47,13 +49,19 @@ template <typename T>
 void ArduinoCloudProperty<T>::writeByCloud(T const val) {
   if(isWriteableByCloud()) {
     _property = val;
-    /* _shadow_property and local_shadow_property are not updated so there will be an update the next time around */
+    /* _cloud_shadow_property and local_shadow_property are not updated so there will be an update the next time around */
   }
 }
 
 template <typename T>
 ArduinoCloudProperty<T> & ArduinoCloudProperty<T>::onUpdate(UpdateCallbackFunc func) {
   _update_callback_func = func;
+  return (*this);
+}
+
+template <typename T>
+ArduinoCloudProperty<T> & ArduinoCloudProperty<T>::onSync(void (*func)(ArduinoCloudProperty<T> property)) {
+  _sync_callback_func = func;
   return (*this);
 }
 
@@ -82,7 +90,7 @@ bool ArduinoCloudProperty<T>::shouldBeUpdated() {
   }
 
   if     (_update_policy == UpdatePolicy::OnChange) {
-    return (isValueDifferent(_property, _shadow_property) && ((millis() - _last_updated_millis) >= (_min_time_between_updates_millis)));
+    return (isValueDifferent(_property, _cloud_shadow_property) && ((millis() - _last_updated_millis) >= (_min_time_between_updates_millis)));
   }
   else if(_update_policy == UpdatePolicy::TimeInterval) {
     return ((millis() - _last_updated_millis) >= _update_interval_millis);
@@ -93,27 +101,6 @@ bool ArduinoCloudProperty<T>::shouldBeUpdated() {
 }
 
 template <typename T>
-bool ArduinoCloudProperty<T>::isAfterLastChange(unsigned long cloudChangeTime) {
-  if(!_has_been_updated_once) return true;
-
-  if(_local_change_timestamp > _last_change_timestamp) {
-    return (cloudChangeTime > _local_change_timestamp);
-  } else {
-    return (cloudChangeTime > _last_change_timestamp);
-  }
-}
-
-template <typename T>
-void ArduinoCloudProperty<T>::setLastChangeTime(unsigned long cloudChangeTime) {
-  if(_local_change_timestamp > _last_change_timestamp) {
-    (cloudChangeTime > _local_change_timestamp) ? _last_change_timestamp = cloudChangeTime : _last_change_timestamp = _local_change_timestamp;
-  } else {
-    if(cloudChangeTime > _last_change_timestamp) _last_change_timestamp = cloudChangeTime;
-  }
-}
-
-
-template <typename T>
 void ArduinoCloudProperty<T>::forceCallbackOnChange() {
   if(_update_callback_func != NULL) {
     _update_callback_func();
@@ -122,14 +109,21 @@ void ArduinoCloudProperty<T>::forceCallbackOnChange() {
 
 template <typename T>
 void ArduinoCloudProperty<T>::execCallbackOnChange() {
-  if(isValueDifferent(_property, _shadow_property)) {
+  if(isValueDifferent(_property, _cloud_shadow_property)) {
     if(_update_callback_func != NULL) {
       _update_callback_func();
     }
     
-    if(!isValueDifferent(_property, _shadow_property)) {
+    if(!isValueDifferent(_property, _cloud_shadow_property)) {
       _has_been_modified_in_callback = true;
     }
+  }
+}
+
+template <typename T>
+void ArduinoCloudProperty<T>::execCallbackOnSync() {
+  if(_sync_callback_func != NULL) {
+    _sync_callback_func(*this);
   }
 }
 
@@ -144,8 +138,8 @@ void ArduinoCloudProperty<T>::append(CborEncoder * encoder) {
     appendValue                 (&mapEncoder);
     cbor_encoder_close_container(encoder, &mapEncoder);
 
-    _shadow_property = _property;
-    _local_shadow_property = _property;
+    _cloud_shadow_property = _property;
+ 
     _has_been_updated_once = true;
     _last_updated_millis = millis();
   }
@@ -160,15 +154,70 @@ template <typename T>
 void ArduinoCloudProperty<T>::updateTime(unsigned long changeEventTime) {
   if (isReadableByCloud()) {
     _local_shadow_property = _property;
-    _local_change_timestamp = changeEventTime;
+    _last_local_change_timestamp = changeEventTime;
   }
 }
 
 template <typename T>
-void ArduinoCloudProperty<T>::setShadowValue(T const val) {
+void ArduinoCloudProperty<T>::setPropertyValue(T const val) {
   if(isWriteableByCloud()) {
-    _shadow_property = val;
+    _property = val;
   }
+}
+
+template <typename T>
+void ArduinoCloudProperty<T>::setCloudShadowValue(T const val) {
+  if(isWriteableByCloud()) {
+    _cloud_shadow_property = val;
+  }
+}
+
+template <typename T>
+void ArduinoCloudProperty<T>::setLocalShadowValue(T const val) {
+  if(isWriteableByCloud()) {
+    _local_shadow_property = val;
+  }
+}
+
+template <typename T>
+T ArduinoCloudProperty<T>::getCloudShadowValue() {
+  return _cloud_shadow_property;
+}
+
+template <typename T>
+T ArduinoCloudProperty<T>::getLocalShadowValue() {
+  return _local_shadow_property;
+}
+
+template <typename T>
+void ArduinoCloudProperty<T>::setPreviousCloudChangeTimestamp(unsigned long cloudChangeEventTime) {
+  _previous_cloud_change_timestamp = cloudChangeEventTime;
+}
+
+template <typename T>
+void ArduinoCloudProperty<T>::setLastCloudChangeTimestamp(unsigned long cloudChangeEventTime) {
+  _previous_cloud_change_timestamp = _last_cloud_change_timestamp;
+  _last_cloud_change_timestamp = cloudChangeEventTime;
+}
+
+template <typename T>
+void ArduinoCloudProperty<T>::setLastLocalChangeTimestamp(unsigned long localChangeEventTime) {
+  _last_local_change_timestamp = localChangeEventTime;
+}
+
+template <typename T>
+unsigned long ArduinoCloudProperty<T>::getPreviousCloudChangeTimestamp() {
+  return _previous_cloud_change_timestamp;
+}
+
+template <typename T>
+unsigned long ArduinoCloudProperty<T>::getLastCloudChangeTimestamp() {
+  return _last_cloud_change_timestamp;
+}
+
+template <typename T>
+unsigned long ArduinoCloudProperty<T>::getLastLocalChangeTimestamp() {
+  return _last_local_change_timestamp;
 }
 
 
