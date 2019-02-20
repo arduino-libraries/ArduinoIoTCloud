@@ -144,6 +144,14 @@ private:
     MapEntry<String> str_val;
     MapEntry<bool>   bool_val;
     MapEntry<double> time;
+    
+    void resetNotBase() {
+      name.reset        ();
+      val.reset         ();
+      str_val.reset     ();
+      bool_val.reset    ();
+      time.reset        ();
+    }
   };
 
   MapParserState handle_EnterMap     (CborValue * map_iter, CborValue * value_iter, CborMapData * map_data);
@@ -159,7 +167,6 @@ private:
   MapParserState handle_Time         (CborValue * value_iter, CborMapData * map_data);
   MapParserState handle_LeaveMap     (CborValue * map_iter, CborValue * value_iter, CborMapData const * const map_data);
 
-  static void   resetMapDataNotBase         (CborMapData * map_data);
   static bool   ifNumericConvertToDouble    (CborValue * value_iter, double * numeric_val);
   static double convertCborHalfFloatToDouble(uint16_t const half_val);
 

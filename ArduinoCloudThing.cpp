@@ -214,7 +214,7 @@ ArduinoCloudThing::MapParserState ArduinoCloudThing::handle_EnterMap(CborValue *
 
   if(cbor_value_get_type(map_iter) == CborMapType) {
     if(cbor_value_enter_container(map_iter, value_iter) == CborNoError) {
-      resetMapDataNotBase(map_data);
+      map_data->resetNotBase();
       next_state = MapParserState::MapKey;
     }
   }
@@ -526,14 +526,6 @@ bool ArduinoCloudThing::ifNumericConvertToDouble(CborValue * value_iter, double 
   }
 
   return false;
-}
-
-void ArduinoCloudThing::resetMapDataNotBase(CborMapData * map_data) {
-  map_data->name.reset        ();
-  map_data->val.reset         ();
-  map_data->str_val.reset     ();
-  map_data->bool_val.reset    ();
-  map_data->time.reset        ();
 }
 
 /* Source Idea from https://tools.ietf.org/html/rfc7049 : Page: 50 */
