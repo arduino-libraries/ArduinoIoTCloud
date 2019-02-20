@@ -240,15 +240,16 @@ void ArduinoIoTCloudClass::update(int const reconnectionMaxRetries, int const re
         (*callback)();
       syncStatus = SYNC_STATUS_SYNCHRONIZED;
       break;
-  }  
+  }
 }
 
-void ArduinoIoTCloudClass::sendPropertiesToCloud() {
-    uint8_t data[MQTT_TRANSMIT_BUFFER_SIZE];
-    int const length = Thing.encode(data, sizeof(data));
-    if (length > 0) {
-      writeProperties(data, length);
-    }
+void ArduinoIoTCloudClass::sendPropertiesToCloud()
+{
+  uint8_t data[MQTT_TRANSMIT_BUFFER_SIZE];
+  int const length = Thing.encode(data, sizeof(data));
+  if (length > 0) {
+    writeProperties(data, length);
+  }
 }
 
 int ArduinoIoTCloudClass::reconnect(Client& /* net */)
@@ -348,10 +349,10 @@ void ArduinoIoTCloudClass::handleMessage(int length)
 
 void ArduinoIoTCloudClass::requestLastValue()
 {
-    // Send the getLastValues CBOR message to the cloud
-    // [{0: "r:m", 3: "getLastValues"}] = 81 A2 00 63 72 3A 6D 03 6D 67 65 74 4C 61 73 74 56 61 6C 75 65 73
-    const uint8_t data[] =  { 0x81, 0xA2, 0x00, 0x63, 0x72, 0x3A, 0x6D, 0x03, 0x6D, 0x67, 0x65, 0x74, 0x4C, 0x61, 0x73, 0x74, 0x56, 0x61, 0x6C, 0x75, 0x65, 0x73 };
-    writeShadowOut(data, sizeof data);
+  // Send the getLastValues CBOR message to the cloud
+  // [{0: "r:m", 3: "getLastValues"}] = 81 A2 00 63 72 3A 6D 03 6D 67 65 74 4C 61 73 74 56 61 6C 75 65 73
+  const uint8_t data[] =  { 0x81, 0xA2, 0x00, 0x63, 0x72, 0x3A, 0x6D, 0x03, 0x6D, 0x67, 0x65, 0x74, 0x4C, 0x61, 0x73, 0x74, 0x56, 0x61, 0x6C, 0x75, 0x65, 0x73 };
+  writeShadowOut(data, sizeof data);
 }
 
 void ArduinoIoTCloudClass::connectionCheck()
