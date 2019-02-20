@@ -497,8 +497,8 @@ ArduinoCloudThing::MapParserState ArduinoCloudThing::handle_LeaveMap(CborValue *
 bool ArduinoCloudThing::ifNumericConvertToDouble(CborValue * value_iter, double * numeric_val) {
 
   if(cbor_value_is_integer(value_iter)) {
-    uint64_t val = 0;
-    if(cbor_value_get_uint64(value_iter, &val) == CborNoError) {
+    int64_t val = 0;
+    if(cbor_value_get_int64(value_iter, &val) == CborNoError) {
       *numeric_val = static_cast<double>(val);
       return true;
     }
