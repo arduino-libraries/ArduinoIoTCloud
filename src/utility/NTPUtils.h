@@ -1,5 +1,9 @@
 #ifndef __NTP_UTILS__
 #define __NTP_UTILS__
+/*
+	This Utility Class is derived from the example code found here https://www.arduino.cc/en/Tutorial/UdpNTPClient
+	For more information on NPT (Network Time Protocol) you can refer to this WikiPedia article https://en.wikipedia.org/wiki/Network_Time_Protocol
+*/
 
 #include "Udp.h"
 #include <time.h>

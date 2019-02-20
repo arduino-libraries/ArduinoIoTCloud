@@ -1,5 +1,10 @@
 #include "NTPUtils.h"
 #include "Arduino.h"
+/*
+  This Utility Class is derived from the example code found here https://www.arduino.cc/en/Tutorial/UdpNTPClient
+  For more information on NPT (Network Time Protocol) you can refer to this WikiPedia article https://en.wikipedia.org/wiki/Network_Time_Protocol
+*/
+
 
 // could be a constexpr in C++14
 static time_t cvt_TIME(char const *time) {
