@@ -124,7 +124,6 @@ void GSMConnectionManager::changeConnectionState(NetworkConnectionState _newStat
 void GSMConnectionManager::check() {
   char msgBuffer[120];
   unsigned long const now = millis();
-  GSM3_NetworkStatus_t networkStatus = GSM3_NetworkStatus_t::IDLE;
   int gsmAccessAlive;
   if (now - lastConnectionTickTime > connectionTickTimeInterval) {
     switch (netConnectionState) {
@@ -133,6 +132,7 @@ void GSMConnectionManager::check() {
         break;
       case CONNECTION_STATE_CONNECTING:
         /***  Blocking Call when 4th parameter == true   ***/
+        GSM3_NetworkStatus_t networkStatus;
         networkStatus = gprs.attachGPRS(apn, login, pass, true);
         sprintf(msgBuffer, "GPRS.attachGPRS(): %d", networkStatus);
         debugMessage(msgBuffer, 3);

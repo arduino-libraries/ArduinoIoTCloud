@@ -106,7 +106,7 @@ void WiFiConnectionManager::changeConnectionState(NetworkConnectionState _newSta
 
 void WiFiConnectionManager::check() {
   char msgBuffer[120];
-  unsigned long now = millis();
+  unsigned long const now = millis();
   int networkStatus = 0;
   if (now - lastConnectionTickTime > connectionTickTimeInterval) {
     switch (netConnectionState) {
@@ -122,11 +122,11 @@ void WiFiConnectionManager::check() {
         }
         sprintf(msgBuffer, "Current WiFi Firmware: %s", WiFi.firmwareVersion());
         debugMessage(msgBuffer, 0);
-        if(strcmp(WiFi.firmwareVersion(), WIFI_FIRMWARE_VERSION_REQUIRED) != 0){
-  
+        if(WiFi.firmwareVersion() < WIFI_FIRMWARE_VERSION_REQUIRED){
           sprintf(msgBuffer, "Latest WiFi Firmware: %s", WIFI_FIRMWARE_VERSION_REQUIRED);
           debugMessage(msgBuffer, 0);
           debugMessage("Please update to latest version for optimal performance.", 0);
+          delay(5000);
         }
         changeConnectionState(CONNECTION_STATE_CONNECTING);
         break;
@@ -150,7 +150,7 @@ void WiFiConnectionManager::check() {
         break;
       case CONNECTION_STATE_GETTIME:
         unsigned long networkTime;
-        networkTime = WiFi.getTime();
+        networkTime = getTime();
         debugMessage(".", 3, false, false);
         if(networkTime > lastValidTimestamp){
           lastValidTimestamp = networkTime;
