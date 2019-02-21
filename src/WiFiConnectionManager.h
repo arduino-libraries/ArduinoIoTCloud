@@ -16,6 +16,7 @@
  */
 
 #include "ConnectionManager.h"
+#include <WiFiUdp.h>
 
 class WiFiConnectionManager : public ConnectionManager {
 public:
@@ -27,6 +28,8 @@ public:
   virtual Client &getClient() { return wifiClient; };
   virtual UDP &getUDP() { return udp; };
 
+  WiFiUDP udp;
+  
 private:
   
   void changeConnectionState(NetworkConnectionState _newState);
@@ -125,7 +128,7 @@ void WiFiConnectionManager::check() {
         if(WiFi.firmwareVersion() < WIFI_FIRMWARE_VERSION_REQUIRED){
           sprintf(msgBuffer, "Latest WiFi Firmware: %s", WIFI_FIRMWARE_VERSION_REQUIRED);
           debugMessage(msgBuffer, 0);
-          debugMessage("Please update to latest version for optimal performance.", 0);
+          debugMessage("Please update to the latest version for best performance.", 0);
           delay(5000);
         }
         changeConnectionState(CONNECTION_STATE_CONNECTING);

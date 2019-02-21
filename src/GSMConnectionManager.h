@@ -51,7 +51,6 @@ private:
   unsigned long lastConnectionTickTime;
   unsigned long getTimeRetries;
   int connectionTickTimeInterval;
-  GSMUDP Udp;
 
 };
 

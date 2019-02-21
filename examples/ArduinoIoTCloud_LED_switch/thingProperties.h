@@ -1,9 +1,13 @@
 #include <ArduinoIoTCloud.h>
+/* 
+	The following include line is used for WiFi enabled boards (MKR1000, MKR WiFi 1010)
+*/
 #include <WiFiConnectionManager.h>
+/* 
+	If you prefer using a MKR GSM 1400 comment the line above and uncommet the following.
+*/
+//#include <GSMConnectionManager.h>
 
-
-char ssid[] = SECRET_SSID;        // your network SSID (name)
-char pass[] = SECRET_PASS;    // your network password (use for WPA, or use as key for WEP)
 // Your THING_ID
 #define THING_ID "ARDUINO_IOT_CLOUD_THING_ID"
 
@@ -18,4 +22,11 @@ void initProperties() {
   ArduinoCloud.addProperty(potentiometer, READ, ON_CHANGE);
 }
 
+/* 
+	The following include line is used for WiFi enabled boards (MKR1000, MKR WiFi 1010)
+*/
 ConnectionManager *ArduinoIoTPreferredConnection = new WiFiConnectionManager(SECRET_SSID, SECRET_PASS);
+/* 
+	If you prefer using a MKR GSM 1400 comment the line above and uncommet the following.
+*/
+//ConnectionManager *ArduinoIoTPreferredConnection = new GSMConnectionManager(SECRET_PIN, SECRET_APN, SECRET_LOGIN, SECRET_PASS);

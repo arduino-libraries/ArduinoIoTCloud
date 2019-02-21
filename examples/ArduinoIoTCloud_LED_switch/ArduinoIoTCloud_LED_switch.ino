@@ -5,7 +5,11 @@
   When the potentiometer (or sensor) value changes the data is sent to the Cloud.
   When you flip the switch in the Cloud dashboard the onboard LED lights gets turned ON or OFF.
 
-  
+  IMPORTANT:
+  This sketch will work with both WiFi and GSM enabled boards supported by Arduino IoT Cloud.
+  By default settings for WiFi are chosen. If you prefer to use a GSM board take a look at thingProperties.h arduino_secrets.h,
+  to make sure you uncomment what's needed and comment incompatible instructions.
+
 */
 #include "arduino_secrets.h"
 #include "thingProperties.h"
@@ -51,5 +55,5 @@ void loop() {
 void onLedChange() {
   Serial.print("LED set to ");
   Serial.println(led);
-  digitalWrite(LED_BUILTIN, ledSwitch);
+  digitalWrite(LED_BUILTIN, led);
 }
