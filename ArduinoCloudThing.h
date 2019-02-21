@@ -44,7 +44,7 @@ static long const DAYS      = 86400;
  * SYNCHRONIZATION CALLBACKS
  ******************************************************************************/
 
-#define AUTO_SYNC onAutoSync
+#define MOST_RECENT_WINS onAutoSync
 template<typename T>
 void onAutoSync(ArduinoCloudProperty<T> property) {
   if( property.getLastCloudChangeTimestamp() > property.getLastLocalChangeTimestamp()){
@@ -53,14 +53,14 @@ void onAutoSync(ArduinoCloudProperty<T> property) {
   }
 }
 
-#define FORCE_CLOUD_SYNC onForceCloudSync
+#define CLOUD_WINS onForceCloudSync
 template<typename T>
 void onForceCloudSync(ArduinoCloudProperty<T> property) {
   property.setPropertyValue(property.getCloudShadowValue());
   property.forceCallbackOnChange();
 }
 
-#define FORCE_DEVICE_SYNC onForceDeviceSync // The device property value is already the correct one. The cloud property value will be synchronized at the next update cycle.
+#define DEVICE_WINS onForceDeviceSync // The device property value is already the correct one. The cloud property value will be synchronized at the next update cycle.
 template<typename T>
 void onForceDeviceSync(ArduinoCloudProperty<T> property) {
 }
