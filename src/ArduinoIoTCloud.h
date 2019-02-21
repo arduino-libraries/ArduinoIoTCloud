@@ -40,6 +40,8 @@ typedef struct {
   int timeout;
 } mqttConnectionOptions;
 
+typedef void (*CallbackFunc)(void);
+
 extern ConnectionManager *ArduinoIoTPreferredConnection;
 
 enum ArduinoIoTConnectionStatus {
@@ -77,10 +79,10 @@ public:
   bool disconnect();
 
   void poll() __attribute__((deprecated)); /* Attention: Function is deprecated - use 'update' instead */
-  void update(void (*callback)(void) = NULL);
+  void update(CallbackFunc onSyncCompleteCallback = NULL);
 
   // defined for users who want to specify max reconnections reties and timeout between them
-  void update(int const reconnectionMaxRetries, int const reconnectionTimeoutMs, void (*callback)(void) = NULL);
+  void update(int const reconnectionMaxRetries, int const reconnectionTimeoutMs, CallbackFunc onSyncCompleteCallback = NULL);
 
   int connected();
   // Clean up existing Mqtt connection, create a new one and initialize it

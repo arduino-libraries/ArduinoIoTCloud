@@ -206,10 +206,10 @@ void ArduinoIoTCloudClass::poll()
   update();
 }
 
-void ArduinoIoTCloudClass::update(void (*callback)(void))
+void ArduinoIoTCloudClass::update(CallbackFunc onSyncCompleteCallback)
 {
   // If user call update() without parameters use the default ones
-  update(MAX_RETRIES, RECONNECTION_TIMEOUT, callback);
+  update(MAX_RETRIES, RECONNECTION_TIMEOUT, onSyncCompleteCallback);
 }
 
 void ArduinoIoTCloudClass::update(int const reconnectionMaxRetries, int const reconnectionTimeoutMs)
@@ -237,8 +237,8 @@ void ArduinoIoTCloudClass::update(int const reconnectionMaxRetries, int const re
       }
       break;
     case SYNC_STATUS_VALUES_PROCESSED:
-      if(callback != NULL)
-        (*callback)();
+      if(onSyncCompleteCallback != NULL)
+        (*onSyncCompleteCallback)();
       syncStatus = SYNC_STATUS_SYNCHRONIZED;
       break;
   }
