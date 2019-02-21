@@ -93,6 +93,10 @@ void WiFiConnectionManager::changeConnectionState(NetworkConnectionState _newSta
       debugMessage("Attempting reconnection", 0);
       newInterval = CHECK_INTERVAL_DISCONNECTED;
       break;
+    case CONNECTION_STATE_ERROR:
+      debugMessage("WiFi Hardware failure.\nMake sure you are using a WiFi enabled board/shield.", 0);
+      debugMessage("Then reset and retry.", 0);
+      break;
   }
   connectionTickTimeInterval = newInterval;
   lastConnectionTickTime = millis();
@@ -111,8 +115,7 @@ void WiFiConnectionManager::check() {
         sprintf(msgBuffer, "WiFi.status(): %d", networkStatus);
         debugMessage(msgBuffer, 2);
         if (networkStatus == NETWORK_HARDWARE_ERROR) {
-          debugMessage("WiFi Hardware not available\nMake sure you are using a WiFi enabled board/shield", 0);
-          // don't continue:
+          // NO FURTHER ACTION WILL FOLLOW THIS
           changeConnectionState(CONNECTION_STATE_ERROR);
           lastConnectionTickTime = now;
           return;

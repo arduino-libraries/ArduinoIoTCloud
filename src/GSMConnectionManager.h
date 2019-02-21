@@ -113,7 +113,7 @@ void GSMConnectionManager::changeConnectionState(NetworkConnectionState _newStat
       newInterval = CHECK_INTERVAL_DISCONNECTED;
       break;
     case CONNECTION_STATE_ERROR:
-      debugMessage("GPRS attach failed\nMake sure the antenna is connected", 0);
+      debugMessage("GPRS attach failed\nMake sure the antenna is connected and reset your board.", 0);
       break;
   }
   connectionTickTimeInterval = newInterval;
@@ -137,6 +137,7 @@ void GSMConnectionManager::check() {
         sprintf(msgBuffer, "GPRS.attachGPRS(): %d", networkStatus);
         debugMessage(msgBuffer, 3);
         if (networkStatus == GSM3_NetworkStatus_t::ERROR) {
+          // NO FURTHER ACTION WILL FOLLOW THIS
           changeConnectionState(CONNECTION_STATE_ERROR);
           return;
         }
