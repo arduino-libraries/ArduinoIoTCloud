@@ -108,7 +108,7 @@ void GSMConnectionManager::changeConnectionState(NetworkConnectionState _newStat
         debugMessage("Disconnected from Cellular Network", 0);
         debugMessage("Attempting reconnection", 0);
       }else if(netConnectionState == CONNECTION_STATE_GETTIME){
-        debugMessage("Connection to Cellular Network lost during Network Time acquisition.\nAttempting reconnection", 0);
+        debugMessage("Connection to Cellular Network lost during Time acquisition.\nAttempting reconnection", 0);
       }
       newInterval = CHECK_INTERVAL_DISCONNECTED;
       break;
@@ -152,7 +152,7 @@ void GSMConnectionManager::check() {
           debugMessage(msgBuffer, 2);
           return;
         } else {
-          sprintf(msgBuffer, "Connected to GPRS netowrk");
+          sprintf(msgBuffer, "Connected to GPRS Network");
           debugMessage(msgBuffer, 2);
           changeConnectionState(CONNECTION_STATE_GETTIME);
           return;
