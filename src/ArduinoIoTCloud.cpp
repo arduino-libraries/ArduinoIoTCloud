@@ -214,7 +214,7 @@ void ArduinoIoTCloudClass::update(void (*callback)(void))
 
 void ArduinoIoTCloudClass::update(int const reconnectionMaxRetries, int const reconnectionTimeoutMs)
 {
-  unsigned long timestamp = getTimestamp(); 
+  unsigned long const timestamp = getTimestamp(); 
   //check if a property is changed 
   if(timestamp) Thing.updateTimestampOnChangedProperties(timestamp);
     
