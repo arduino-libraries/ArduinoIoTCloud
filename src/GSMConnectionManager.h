@@ -15,6 +15,20 @@
  * a commercial license, send an email to license@arduino.cc.
  */
 
+/*    
+      TODO: REMOVE AFTER FIX [FOR REFERENCE ONLY]
+      enum GSM3_NetworkStatus_t 
+      { 
+        ERROR, 
+        IDLE, 
+        CONNECTING, 
+        GSM_READY, 
+        GPRS_READY, 
+        TRANSPARENT_CONNECTED, 
+        GSM_OFF
+      };
+
+*/
 #include <MKRGSM.h>
 #include "ConnectionManager.h"
 
@@ -45,12 +59,14 @@ private:
   const int CHECK_INTERVAL_DISCONNECTED = 1000;
   const int CHECK_INTERVAL_ERROR = 500;
 
+  const int MAX_GETTIME_RETRY = 30;
+
   const char *pin, *apn, *login, *pass;
   unsigned long lastConnectionTickTime, lastNetworkStep;
+  unsigned long getTimeRetries;
   int connectionTickTimeInterval;
   GSMUDP Udp;
-  void sendNTPpacket(const char * address, uint8_t* packetBuffer);
-  unsigned long getNTPTime();
+
 };
 
 static const unsigned long NETWORK_CONNECTION_INTERVAL = 30000;
@@ -61,7 +77,8 @@ GSMConnectionManager::GSMConnectionManager(const char *pin, const char *apn, con
   login(login),
   pass(pass),
   lastConnectionTickTime(millis()),
-  connectionTickTimeInterval(CHECK_INTERVAL_IDLE) {
+  connectionTickTimeInterval(CHECK_INTERVAL_IDLE),
+  getTimeRetries(MAX_GETTIME_RETRY) {
 }
 
 unsigned long GSMConnectionManager::getTime() {
@@ -71,85 +88,98 @@ unsigned long GSMConnectionManager::getTime() {
 void GSMConnectionManager::init() {
   char msgBuffer[120];
   if (gsmAccess.begin(pin) == GSM_READY) {
-    *msgBuffer = 0;
-    sprintf(msgBuffer, "SIM card ok");
-    debugMessage(msgBuffer, 2);
+    //sprintf(msgBuffer, "SIM card ok");
+    debugMessage("SIM card ok", 2);
     gsmAccess.setTimeout(CHECK_INTERVAL_RETRYING);
+    changeConnectionState(CONNECTION_STATE_CONNECTING);
   } else {
-    *msgBuffer = 0;
-    sprintf(msgBuffer, "SIM not present");
-    debugMessage(msgBuffer, 2);
+    //sprintf(msgBuffer, "SIM not present or wrong PIN");
+    debugMessage("SIM not present or wrong PIN", 0);
     while(1);
   }
 }
 
 void GSMConnectionManager::changeConnectionState(NetworkConnectionState _newState) {
-  netConnectionState = _newState;
+  char msgBuffer[120];
   int newInterval = CHECK_INTERVAL_IDLE;
   switch (_newState) {
     case CONNECTION_STATE_INIT:
       newInterval = CHECK_INTERVAL_INIT;
       break;
     case CONNECTION_STATE_CONNECTING:
+      sprintf(msgBuffer, "Connecting to Cellular Network");
+      debugMessage(msgBuffer, 2);
       newInterval = CHECK_INTERVAL_CONNECTING;
       break;
     case CONNECTION_STATE_GETTIME:
+      debugMessage("Acquiring Time from Network", 3);
       newInterval = CHECK_INTERVAL_GETTIME;
+      getTimeRetries = MAX_GETTIME_RETRY;
       break;
     case CONNECTION_STATE_CONNECTED:
       newInterval = CHECK_INTERVAL_CONNECTED;
       break;
     case CONNECTION_STATE_DISCONNECTED:
+      if(netConnectionState == CONNECTION_STATE_CONNECTED){
+        debugMessage("Disconnected from Cellular Network", 0);
+        debugMessage("Attempting reconnection", 0);
+      }else if(netConnectionState == CONNECTION_STATE_GETTIME){
+        debugMessage("Connection to Cellular Network lost during Network Time acquisition.\nAttempting reconnection", 0);
+      }
       newInterval = CHECK_INTERVAL_DISCONNECTED;
+      break;
+    case CONNECTION_STATE_ERROR:
+      debugMessage("GPRS attach failed\nMake sure the antenna is connected", 0);
       break;
   }
   connectionTickTimeInterval = newInterval;
   lastConnectionTickTime = millis();
+  netConnectionState = _newState;
 }
 
 void GSMConnectionManager::check() {
   char msgBuffer[120];
-  unsigned long now = millis();
-  int networkStatus = 0;
+  unsigned long const now = millis();
+  //int networkStatus = 0;
+  GSM3_NetworkStatus_t networkStatus = GSM3_NetworkStatus_t::IDLE;
+  int gsmAccessAlive;
   if (now - lastConnectionTickTime > connectionTickTimeInterval) {
     switch (netConnectionState) {
       case CONNECTION_STATE_INIT:
         init();
-        changeConnectionState(CONNECTION_STATE_CONNECTING);
         break;
       case CONNECTION_STATE_CONNECTING:
         // blocking call with 4th parameter == true
         networkStatus = gprs.attachGPRS(apn, login, pass, true);
-        *msgBuffer = 0;
+        
         sprintf(msgBuffer, "GPRS.attachGPRS(): %d", networkStatus);
-        debugMessage(msgBuffer, 2);
-        if (networkStatus == ERROR) {
-          debugMessage("GPRS attach failed\nMake sure the antenna is connected", 0);
-          changeConnectionState(CONNECTION_STATE_CONNECTING);
-          lastConnectionTickTime = now;
+        debugMessage(msgBuffer, 3);
+        if (networkStatus == GSM3_NetworkStatus_t::ERROR) {
+          changeConnectionState(CONNECTION_STATE_ERROR);
           return;
         }
-        *msgBuffer = 0;
-        sprintf(msgBuffer, "Trying to ping external world");
-        debugMessage(msgBuffer, 2);
+  
+        //sprintf(msgBuffer, "Sending PING to network server ");
+        debugMessage("Sending PING to outer space...", 2);
 
-        networkStatus = gprs.ping("google.com");
-        *msgBuffer = 0;
-        sprintf(msgBuffer, "GSM.ping(): %d", networkStatus);
+        int pingResult;
+        pingResult = gprs.ping("google.com");
+  
+        sprintf(msgBuffer, "GSM.ping(): %d", pingResult);
         debugMessage(msgBuffer, 2);
-        if (networkStatus < 0) {
-          *msgBuffer = 0;
-          sprintf(msgBuffer, "Ping failed");
-          debugMessage(msgBuffer, 0);
+        if (pingResult < 0) {
+    
+          //sprintf(msgBuffer, "Ping failed");
+          debugMessage("PING failed", 0);
 
-          *msgBuffer = 0;
+    
           sprintf(msgBuffer, "Retrying in  \"%d\" milliseconds", connectionTickTimeInterval);
           debugMessage(msgBuffer, 2);
-          changeConnectionState(CONNECTION_STATE_CONNECTING);
+          //changeConnectionState(CONNECTION_STATE_CONNECTING);
           return;
         } else {
-          *msgBuffer = 0;
-          sprintf(msgBuffer, "Connected!");
+    
+          sprintf(msgBuffer, "Connected to GPRS netowrk");
           debugMessage(msgBuffer, 2);
           changeConnectionState(CONNECTION_STATE_GETTIME);
           return;
@@ -159,38 +189,38 @@ void GSMConnectionManager::check() {
         debugMessage("Acquiring Time from Network", 3);
         unsigned long networkTime;
         networkTime = getTime();
-        *msgBuffer = 0;
-        sprintf(msgBuffer, "Network Time: %u", networkTime);
-        debugMessage(msgBuffer, 3);
+  
+        debugMessage(".", 3, false, false);
         if(networkTime > lastValidTimestamp){
           lastValidTimestamp = networkTime;
+          sprintf(msgBuffer, "Network Time: %u", networkTime);
+          debugMessage(msgBuffer, 3);
           changeConnectionState(CONNECTION_STATE_CONNECTED);
+        }else if(gsmAccess.isAccessAlive() != 1){
+          changeConnectionState(CONNECTION_STATE_DISCONNECTED);
+        }else if (!getTimeRetries--) {
+           changeConnectionState(CONNECTION_STATE_DISCONNECTED);
         }
         break;
       case CONNECTION_STATE_CONNECTED:
         // keep testing connection
-        networkStatus = gsmAccess.isAccessAlive();
-        *msgBuffer = 0;
-        sprintf(msgBuffer, "GPRS.isAccessAlive(): %d", networkStatus);
+        gsmAccessAlive = gsmAccess.isAccessAlive();
+  
+        sprintf(msgBuffer, "GPRS.isAccessAlive(): %d", gsmAccessAlive);
         debugMessage(msgBuffer, 4);
-        if (networkStatus != 1) {
+        if (gsmAccessAlive != 1) {
           changeConnectionState(CONNECTION_STATE_DISCONNECTED);
           return;
         }
-        *msgBuffer = 0;
-        sprintf(msgBuffer, "Still connected");
+  
+        sprintf(msgBuffer, "Connected to Cellular Network");
         debugMessage(msgBuffer, 4);
         break;
       case CONNECTION_STATE_DISCONNECTED:
         gprs.detachGPRS();
 
-        *msgBuffer = 0;
-        sprintf(msgBuffer, "DISC | GPRS.status(): %d", gprs.status());
-        debugMessage(msgBuffer, 1);
-        *msgBuffer = 0;
-        sprintf(msgBuffer, "Connection lost.");
-        debugMessage(msgBuffer, 0);
-        debugMessage("Attempting reconnection", 1);
+  
+        
         changeConnectionState(CONNECTION_STATE_CONNECTING);
         //wifiClient.stop();
         break;
