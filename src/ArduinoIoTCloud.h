@@ -143,7 +143,7 @@ private:
   ConnectionManager *connection;
   static void onMessage(int length);
   void handleMessage(int length);
-  ArduinoIoTSynchronizationStatus syncStatus = ArduinoIoTSynchronizationStatus::SYNC_STATUS_SYNCHRONIZED;
+  ArduinoIoTSynchronizationStatus _syncStatus = ArduinoIoTSynchronizationStatus::SYNC_STATUS_SYNCHRONIZED;
 
   void sendPropertiesToCloud();
 
