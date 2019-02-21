@@ -188,7 +188,7 @@ int ArduinoIoTCloudClass::connect()
   _mqttClient->subscribe(_dataTopicIn);
   _mqttClient->subscribe(_shadowTopicIn);
 
-  syncStatus = SYNC_STATUS_WAIT_FOR_CLOUD_VALUES;
+  syncStatus = ArduinoIoTSynchronizationStatus::SYNC_STATUS_WAIT_FOR_CLOUD_VALUES;
   _lastSyncRequestTickTime = 0;
 
   return 1;
@@ -227,19 +227,19 @@ void ArduinoIoTCloudClass::update(int const reconnectionMaxRetries, int const re
   _mqttClient->poll();
 
   switch (syncStatus) {
-    case SYNC_STATUS_SYNCHRONIZED:
+    case ArduinoIoTSynchronizationStatus::SYNC_STATUS_SYNCHRONIZED:
       sendPropertiesToCloud();
       break;
-    case SYNC_STATUS_WAIT_FOR_CLOUD_VALUES:
+    case ArduinoIoTSynchronizationStatus::SYNC_STATUS_WAIT_FOR_CLOUD_VALUES:
       if (millis() - _lastSyncRequestTickTime > TIMEOUT_FOR_LASTVALUES_SYNC) {
         requestLastValue();
         _lastSyncRequestTickTime = millis();
       }
       break;
-    case SYNC_STATUS_VALUES_PROCESSED:
+    case ArduinoIoTSynchronizationStatus::SYNC_STATUS_VALUES_PROCESSED:
       if(onSyncCompleteCallback != NULL)
         (*onSyncCompleteCallback)();
-      syncStatus = SYNC_STATUS_SYNCHRONIZED;
+      syncStatus = ArduinoIoTSynchronizationStatus::SYNC_STATUS_SYNCHRONIZED;
       break;
   }
 }
@@ -341,10 +341,10 @@ void ArduinoIoTCloudClass::handleMessage(int length)
   if (_dataTopicIn == topic) {
     Thing.decode((uint8_t*)bytes, length);
   }
-  if ((_shadowTopicIn == topic) && syncStatus == SYNC_STATUS_WAIT_FOR_CLOUD_VALUES) {
+  if ((_shadowTopicIn == topic) && syncStatus == ArduinoIoTSynchronizationStatus::SYNC_STATUS_WAIT_FOR_CLOUD_VALUES) {
     Thing.decode((uint8_t*)bytes, length, true);
     sendPropertiesToCloud();
-    syncStatus = SYNC_STATUS_VALUES_PROCESSED;
+    syncStatus = ArduinoIoTSynchronizationStatus::SYNC_STATUS_VALUES_PROCESSED;
   }
 }
 

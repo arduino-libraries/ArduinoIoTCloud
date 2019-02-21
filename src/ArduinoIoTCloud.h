@@ -53,7 +53,7 @@ enum ArduinoIoTConnectionStatus {
   IOT_STATUS_CLOUD_ERROR,
 };
 
-enum ArduinoIoTSynchronizationStatus {
+enum class ArduinoIoTSynchronizationStatus {
   SYNC_STATUS_SYNCHRONIZED,
   SYNC_STATUS_WAIT_FOR_CLOUD_VALUES,
   SYNC_STATUS_VALUES_PROCESSED
@@ -143,7 +143,7 @@ private:
   ConnectionManager *connection;
   static void onMessage(int length);
   void handleMessage(int length);
-  ArduinoIoTSynchronizationStatus syncStatus = SYNC_STATUS_SYNCHRONIZED;
+  ArduinoIoTSynchronizationStatus syncStatus = ArduinoIoTSynchronizationStatus::SYNC_STATUS_SYNCHRONIZED;
 
   void sendPropertiesToCloud();
 
