@@ -15,7 +15,6 @@
  * a commercial license, send an email to license@arduino.cc.
  */
 
-#include <MKRGSM.h>
 #include "ConnectionManager.h"
 
 class GSMConnectionManager : public ConnectionManager {
@@ -32,6 +31,7 @@ public:
   GSM gsmAccess;
   GPRS gprs;
   GSMUDP udp;
+
 private:
 
   void changeConnectionState(NetworkConnectionState _newState);
@@ -39,16 +39,16 @@ private:
   const int CHECK_INTERVAL_IDLE = 100;
   const int CHECK_INTERVAL_INIT = 100;
   const int CHECK_INTERVAL_CONNECTING = 500;
-  const int CHECK_INTERVAL_GETTIME = 1000;
+  const int CHECK_INTERVAL_GETTIME = 666;
   const int CHECK_INTERVAL_CONNECTED = 10000;
   const int CHECK_INTERVAL_RETRYING = 5000;
   const int CHECK_INTERVAL_DISCONNECTED = 1000;
   const int CHECK_INTERVAL_ERROR = 500;
 
-  const int MAX_GETTIME_RETRY = 30;
+  const int MAX_GETTIME_RETRIES = 30;
 
   const char *pin, *apn, *login, *pass;
-  unsigned long lastConnectionTickTime, lastNetworkStep;
+  unsigned long lastConnectionTickTime;
   unsigned long getTimeRetries;
   int connectionTickTimeInterval;
   GSMUDP Udp;
@@ -64,7 +64,7 @@ GSMConnectionManager::GSMConnectionManager(const char *pin, const char *apn, con
   pass(pass),
   lastConnectionTickTime(millis()),
   connectionTickTimeInterval(CHECK_INTERVAL_IDLE),
-  getTimeRetries(MAX_GETTIME_RETRY) {
+  getTimeRetries(MAX_GETTIME_RETRIES) {
 }
 
 unsigned long GSMConnectionManager::getTime() {
@@ -98,7 +98,7 @@ void GSMConnectionManager::changeConnectionState(NetworkConnectionState _newStat
     case CONNECTION_STATE_GETTIME:
       debugMessage("Acquiring Time from Network", 3);
       newInterval = CHECK_INTERVAL_GETTIME;
-      getTimeRetries = MAX_GETTIME_RETRY;
+      getTimeRetries = MAX_GETTIME_RETRIES;
       break;
     case CONNECTION_STATE_CONNECTED:
       newInterval = CHECK_INTERVAL_CONNECTED;
@@ -132,7 +132,7 @@ void GSMConnectionManager::check() {
         init();
         break;
       case CONNECTION_STATE_CONNECTING:
-        // blocking call with 4th parameter == true
+        /***  Blocking Call when 4th parameter == true   ***/
         networkStatus = gprs.attachGPRS(apn, login, pass, true);
         sprintf(msgBuffer, "GPRS.attachGPRS(): %d", networkStatus);
         debugMessage(msgBuffer, 3);
@@ -175,26 +175,20 @@ void GSMConnectionManager::check() {
         }
         break;
       case CONNECTION_STATE_CONNECTED:
-        // keep testing connection
+        /***  keep testing network connection   ***/
         gsmAccessAlive = gsmAccess.isAccessAlive();
-  
         sprintf(msgBuffer, "GPRS.isAccessAlive(): %d", gsmAccessAlive);
         debugMessage(msgBuffer, 4);
         if (gsmAccessAlive != 1) {
           changeConnectionState(CONNECTION_STATE_DISCONNECTED);
           return;
         }
-  
         sprintf(msgBuffer, "Connected to Cellular Network");
         debugMessage(msgBuffer, 4);
         break;
       case CONNECTION_STATE_DISCONNECTED:
         gprs.detachGPRS();
-
-  
-        
         changeConnectionState(CONNECTION_STATE_CONNECTING);
-        //wifiClient.stop();
         break;
     }
     lastConnectionTickTime = now;

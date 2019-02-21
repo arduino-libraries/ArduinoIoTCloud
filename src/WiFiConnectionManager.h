@@ -31,18 +31,19 @@ private:
   
   void changeConnectionState(NetworkConnectionState _newState);
 
+  const int CHECK_INTERVAL_IDLE = 100;
   const int CHECK_INTERVAL_INIT = 100;
   const int CHECK_INTERVAL_CONNECTING = 500;
-  const int CHECK_INTERVAL_GETTIME = 100;
+  const int CHECK_INTERVAL_GETTIME = 666;
   const int CHECK_INTERVAL_CONNECTED = 10000;
   const int CHECK_INTERVAL_RETRYING = 5000;
   const int CHECK_INTERVAL_DISCONNECTED = 1000;
   const int CHECK_INTERVAL_ERROR = 500;
 
-  const int MAX_GETTIME_RETRY = 30;
+  const int MAX_GETTIME_RETRIES = 30;
 
   const char *ssid, *pass;
-  unsigned long lastConnectionTickTime, lastNetworkStep;
+  unsigned long lastConnectionTickTime;
   unsigned long getTimeRetries;
 
   WiFiClient wifiClient;
@@ -54,8 +55,8 @@ static const unsigned long NETWORK_CONNECTION_INTERVAL = 30000;
 WiFiConnectionManager::WiFiConnectionManager(const char *ssid, const char *pass) :
   ssid(ssid), pass(pass),
   lastConnectionTickTime(millis()),
-  connectionTickTimeInterval(CHECK_INTERVAL_INIT),
-  getTimeRetries(MAX_GETTIME_RETRY) {
+  connectionTickTimeInterval(CHECK_INTERVAL_IDLE),
+  getTimeRetries(MAX_GETTIME_RETRIES) {
 }
 
 unsigned long WiFiConnectionManager::getTime() {
@@ -80,7 +81,7 @@ void WiFiConnectionManager::changeConnectionState(NetworkConnectionState _newSta
     case CONNECTION_STATE_GETTIME:
       newInterval = CHECK_INTERVAL_GETTIME;
       debugMessage("Acquiring Time from Network", 3);
-      getTimeRetries = MAX_GETTIME_RETRY;
+      getTimeRetries = MAX_GETTIME_RETRIES;
       break;
     case CONNECTION_STATE_CONNECTED:
       newInterval = CHECK_INTERVAL_CONNECTED;
@@ -111,7 +112,6 @@ void WiFiConnectionManager::check() {
     switch (netConnectionState) {
       case CONNECTION_STATE_INIT:
         networkStatus = WiFi.status();
-
         sprintf(msgBuffer, "WiFi.status(): %d", networkStatus);
         debugMessage(msgBuffer, 2);
         if (networkStatus == NETWORK_HARDWARE_ERROR) {
@@ -120,7 +120,6 @@ void WiFiConnectionManager::check() {
           lastConnectionTickTime = now;
           return;
         }
-
         sprintf(msgBuffer, "Current WiFi Firmware: %s", WiFi.firmwareVersion());
         debugMessage(msgBuffer, 0);
         if(strcmp(WiFi.firmwareVersion(), WIFI_FIRMWARE_VERSION_REQUIRED) != 0){
@@ -133,21 +132,16 @@ void WiFiConnectionManager::check() {
         break;
       case CONNECTION_STATE_CONNECTING:
         networkStatus = WiFi.begin(ssid, pass);
-
         sprintf(msgBuffer, "WiFi.status(): %d", networkStatus);
         debugMessage(msgBuffer, 4);
         if (networkStatus != NETWORK_CONNECTED) {
-  
           sprintf(msgBuffer, "Connection to \"%s\" failed", ssid);
-          debugMessage(msgBuffer, 0);
-
-  
+          debugMessage(msgBuffer, 0);  
           sprintf(msgBuffer, "Retrying in  \"%d\" milliseconds", connectionTickTimeInterval);
           debugMessage(msgBuffer, 2);
           //changeConnectionState(CONNECTION_STATE_CONNECTING);
           return;
         } else {
-  
           sprintf(msgBuffer, "Connected to \"%s\"", ssid);
           debugMessage(msgBuffer, 2);
           changeConnectionState(CONNECTION_STATE_GETTIME);
@@ -155,14 +149,11 @@ void WiFiConnectionManager::check() {
         }
         break;
       case CONNECTION_STATE_GETTIME:
-        
         unsigned long networkTime;
         networkTime = WiFi.getTime();
-        
         debugMessage(".", 3, false, false);
         if(networkTime > lastValidTimestamp){
           lastValidTimestamp = networkTime;
-  
           sprintf(msgBuffer, "Network Time: %u", networkTime);
           debugMessage(msgBuffer, 3);
           changeConnectionState(CONNECTION_STATE_CONNECTED);
@@ -175,24 +166,18 @@ void WiFiConnectionManager::check() {
       case CONNECTION_STATE_CONNECTED:
         // keep testing connection
         networkStatus = WiFi.status();
-
         sprintf(msgBuffer, "WiFi.status(): %d", networkStatus);
         debugMessage(msgBuffer, 4);
         if (networkStatus != WL_CONNECTED) {
           changeConnectionState(CONNECTION_STATE_DISCONNECTED);
           return;
         }
-
         sprintf(msgBuffer, "Connected to \"%s\"", ssid);
         debugMessage(msgBuffer, 4);
         break;
       case CONNECTION_STATE_DISCONNECTED:
-        //WiFi.disconnect();
         WiFi.end();
-
-        
         changeConnectionState(CONNECTION_STATE_CONNECTING);
-        //wifiClient.stop();
         break;
     }
     lastConnectionTickTime = now;
