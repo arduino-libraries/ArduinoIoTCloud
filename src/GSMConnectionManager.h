@@ -15,20 +15,6 @@
  * a commercial license, send an email to license@arduino.cc.
  */
 
-/*    
-      TODO: REMOVE AFTER FIX [FOR REFERENCE ONLY]
-      enum GSM3_NetworkStatus_t 
-      { 
-        ERROR, 
-        IDLE, 
-        CONNECTING, 
-        GSM_READY, 
-        GPRS_READY, 
-        TRANSPARENT_CONNECTED, 
-        GSM_OFF
-      };
-
-*/
 #include <MKRGSM.h>
 #include "ConnectionManager.h"
 
@@ -88,12 +74,10 @@ unsigned long GSMConnectionManager::getTime() {
 void GSMConnectionManager::init() {
   char msgBuffer[120];
   if (gsmAccess.begin(pin) == GSM_READY) {
-    //sprintf(msgBuffer, "SIM card ok");
     debugMessage("SIM card ok", 2);
     gsmAccess.setTimeout(CHECK_INTERVAL_RETRYING);
     changeConnectionState(CONNECTION_STATE_CONNECTING);
   } else {
-    //sprintf(msgBuffer, "SIM not present or wrong PIN");
     debugMessage("SIM not present or wrong PIN", 0);
     while(1);
   }
@@ -140,7 +124,6 @@ void GSMConnectionManager::changeConnectionState(NetworkConnectionState _newStat
 void GSMConnectionManager::check() {
   char msgBuffer[120];
   unsigned long const now = millis();
-  //int networkStatus = 0;
   GSM3_NetworkStatus_t networkStatus = GSM3_NetworkStatus_t::IDLE;
   int gsmAccessAlive;
   if (now - lastConnectionTickTime > connectionTickTimeInterval) {
@@ -151,34 +134,23 @@ void GSMConnectionManager::check() {
       case CONNECTION_STATE_CONNECTING:
         // blocking call with 4th parameter == true
         networkStatus = gprs.attachGPRS(apn, login, pass, true);
-        
         sprintf(msgBuffer, "GPRS.attachGPRS(): %d", networkStatus);
         debugMessage(msgBuffer, 3);
         if (networkStatus == GSM3_NetworkStatus_t::ERROR) {
           changeConnectionState(CONNECTION_STATE_ERROR);
           return;
         }
-  
-        //sprintf(msgBuffer, "Sending PING to network server ");
         debugMessage("Sending PING to outer space...", 2);
-
         int pingResult;
         pingResult = gprs.ping("google.com");
-  
         sprintf(msgBuffer, "GSM.ping(): %d", pingResult);
         debugMessage(msgBuffer, 2);
         if (pingResult < 0) {
-    
-          //sprintf(msgBuffer, "Ping failed");
           debugMessage("PING failed", 0);
-
-    
           sprintf(msgBuffer, "Retrying in  \"%d\" milliseconds", connectionTickTimeInterval);
           debugMessage(msgBuffer, 2);
-          //changeConnectionState(CONNECTION_STATE_CONNECTING);
           return;
         } else {
-    
           sprintf(msgBuffer, "Connected to GPRS netowrk");
           debugMessage(msgBuffer, 2);
           changeConnectionState(CONNECTION_STATE_GETTIME);
@@ -189,7 +161,6 @@ void GSMConnectionManager::check() {
         debugMessage("Acquiring Time from Network", 3);
         unsigned long networkTime;
         networkTime = getTime();
-  
         debugMessage(".", 3, false, false);
         if(networkTime > lastValidTimestamp){
           lastValidTimestamp = networkTime;
