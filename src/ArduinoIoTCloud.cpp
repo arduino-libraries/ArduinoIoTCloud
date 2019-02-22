@@ -310,7 +310,7 @@ void ArduinoIoTCloudClass::connectionCheck()
     
     if (connection->getStatus() != CONNECTION_STATE_CONNECTED) {
       if(iotStatus == IOT_STATUS_CLOUD_CONNECTED){
-        setIoTConnectionState(IOT_STATUS_CLOUD_DISCONNECTED);
+        setIoTConnectionState(IOT_STATUS_CLOUD_RECONNECTING);
       }
       return;
     }
@@ -320,7 +320,7 @@ void ArduinoIoTCloudClass::connectionCheck()
   
 
   switch (iotStatus) {
-    case IOT_STATUS_IDLE:
+    case IOT_STATUS_CLOUD_IDLE:
     {
       int connectionAttempt;
       if(connection == NULL){
@@ -342,9 +342,8 @@ void ArduinoIoTCloudClass::connectionCheck()
       break;
     case IOT_STATUS_CLOUD_CONNECTED:
       debugMessage(".", 4, false, true);
-      break;
-    case IOT_STATUS_CLOUD_DISCONNECTED:
-      setIoTConnectionState(IOT_STATUS_CLOUD_RECONNECTING);
+      if (!_mqttClient->connected())
+        setIoTConnectionState(IOT_STATUS_CLOUD_RECONNECTING);
       break;
     case IOT_STATUS_CLOUD_RECONNECTING:
       int arduinoIoTReconnectionAttempt;
@@ -385,9 +384,6 @@ void ArduinoIoTCloudClass::setIoTConnectionState(ArduinoIoTConnectionStatus _new
       break;
     case IOT_STATUS_CLOUD_CONNECTED:
       debugMessage("Connected to Arduino IoT Cloud", 0);
-      break;
-    case IOT_STATUS_CLOUD_DISCONNECTED:
-      debugMessage("Disconnected from Arduino IoT Cloud", 0);
       break;
   }
   iotStatus = _newState;
