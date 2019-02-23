@@ -18,9 +18,7 @@
 #ifndef CONNECTION_MANAGER_H_INCLUDED
 #define CONNECTION_MANAGER_H_INCLUDED
 
-#ifndef ARDUINO_CLOUD_DEBUG_LEVEL
 #define ARDUINO_CLOUD_DEBUG_LEVEL 2
-#endif
 
 #include <Client.h>
 #include <Udp.h>
@@ -80,7 +78,10 @@ protected:
 #endif
 
 static int debugMessageLevel = ARDUINO_CLOUD_DEBUG_LEVEL;
-inline void debugMessage(char *_msg, uint8_t _debugLevel, bool _timestamp = true, bool _newline = true) {
+inline void debugMessage(char *_msg, int _debugLevel, bool _timestamp = true, bool _newline = true) {
+  if(_debugLevel < 0){
+    return;
+  }
   if (_debugLevel <= debugMessageLevel) {
     char prepend[20];
     sprintf(prepend, "\n[ %d ] ", millis());
@@ -95,7 +96,7 @@ inline void debugMessage(char *_msg, uint8_t _debugLevel, bool _timestamp = true
   }
 }
 
-inline void setDebugMessageLevel(uint8_t _debugLevel){
+inline void setDebugMessageLevel(int _debugLevel){
   debugMessageLevel = _debugLevel;
 }
 #endif

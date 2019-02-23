@@ -156,6 +156,7 @@ void WiFiConnectionManager::check() {
         networkTime = getTime();
         debugMessage(".", 3, false, false);
         if(networkTime > lastValidTimestamp){
+          debugMessage("", 3, false, true);
           lastValidTimestamp = networkTime;
           sprintf(msgBuffer, "Network Time: %u", networkTime);
           debugMessage(msgBuffer, 3);
