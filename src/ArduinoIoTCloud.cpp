@@ -314,11 +314,8 @@ void ArduinoIoTCloudClass::connectionCheck() {
 
   switch (iotStatus) {
     case IOT_STATUS_IDLE:
-    {
       setIoTConnectionState(IOT_STATUS_CLOUD_CONNECTING);
       break;
-    }
-      
     case IOT_STATUS_CLOUD_ERROR:
       debugMessage("Cloud Error. Retrying...", 0);
       setIoTConnectionState(IOT_STATUS_CLOUD_RECONNECTING);
