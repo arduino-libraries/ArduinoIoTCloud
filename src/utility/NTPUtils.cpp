@@ -2,7 +2,7 @@
 #include "Arduino.h"
 /*
   This Utility Class is derived from the example code found here https://www.arduino.cc/en/Tutorial/UdpNTPClient
-  For more information on NPT (Network Time Protocol) you can refer to this WikiPedia article https://en.wikipedia.org/wiki/Network_Time_Protocol
+  For more information on NTP (Network Time Protocol) you can refer to this Wikipedia article https://en.wikipedia.org/wiki/Network_Time_Protocol
 */
 
 
@@ -56,9 +56,7 @@ unsigned long NTPUtils::getTime() {
   Udp.begin(localPort);
   sendNTPpacket(packetBuffer);
   long start = millis();
-  while (!Udp.parsePacket() && (millis() - start < 10000))  {
-
-  }
+  while (!Udp.parsePacket() && (millis() - start < 10000)){}
   if (millis() - start >= 1000) {
     //timeout reached
     return 0;
@@ -72,6 +70,5 @@ unsigned long NTPUtils::getTime() {
   unsigned long epoch = secsSince1900 - seventyYears;
 
   Udp.stop();
-
   return epoch;
 }

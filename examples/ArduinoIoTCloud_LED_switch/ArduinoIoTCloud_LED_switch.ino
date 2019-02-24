@@ -7,7 +7,7 @@
 
   IMPORTANT:
   This sketch will work with both WiFi and GSM enabled boards supported by Arduino IoT Cloud.
-  By default settings for WiFi are chosen. If you prefer to use a GSM board take a look at thingProperties.h arduino_secrets.h,
+  By default, settings for WiFi are chosen. If you prefer to use a GSM board take a look at thingProperties.h arduino_secrets.h,
   to make sure you uncomment what's needed and comment incompatible instructions.
 
 */

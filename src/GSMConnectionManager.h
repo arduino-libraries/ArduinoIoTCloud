@@ -130,7 +130,7 @@ void GSMConnectionManager::check() {
         init();
         break;
       case CONNECTION_STATE_CONNECTING:
-        /***  Blocking Call when 4th parameter == true   ***/
+        // NOTE: Blocking Call when 4th parameter == true
         GSM3_NetworkStatus_t networkStatus;
         networkStatus = gprs.attachGPRS(apn, login, pass, true);
         sprintf(msgBuffer, "GPRS.attachGPRS(): %d", networkStatus);
@@ -174,7 +174,6 @@ void GSMConnectionManager::check() {
         }
         break;
       case CONNECTION_STATE_CONNECTED:
-        /***  keep testing network connection   ***/
         gsmAccessAlive = gsmAccess.isAccessAlive();
         sprintf(msgBuffer, "GPRS.isAccessAlive(): %d", gsmAccessAlive);
         debugMessage(msgBuffer, 4);

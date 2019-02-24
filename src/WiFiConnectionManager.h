@@ -139,7 +139,7 @@ void WiFiConnectionManager::check() {
         debugMessage(msgBuffer, 4);
         if (networkStatus != NETWORK_CONNECTED) {
           sprintf(msgBuffer, "Connection to \"%s\" failed", ssid);
-          debugMessage(msgBuffer, 0);  
+          debugMessage(msgBuffer, 0);
           sprintf(msgBuffer, "Retrying in  \"%d\" milliseconds", connectionTickTimeInterval);
           debugMessage(msgBuffer, 2);
           //changeConnectionState(CONNECTION_STATE_CONNECTING);
