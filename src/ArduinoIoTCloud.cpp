@@ -188,28 +188,6 @@ void ArduinoIoTCloudClass::update()
   update(MAX_RETRIES, RECONNECTION_TIMEOUT);
 }
 
-bool ArduinoIoTCloudClass::mqttReconnect(int const maxRetries, int const timeout)
-{
-  // Counter for reconnection retries
-  int retries = 0;
-  unsigned long start = millis();
-
-  // Check for MQTT broker connection, of if maxReties limit is reached
-  // if MQTTClient is connected , simply do nothing and retun true
-  while (!_mqttClient->connected() && (retries++ < maxRetries) && (millis() - start < timeout)) {
-    // int connectError = _mqttClient->connectError();
-
-    // try establish the MQTT broker connection
-    connect();
-  }
-
-  // It was impossible to establish a connection, return
-  if ((retries == maxRetries) || (millis() - start >= timeout))
-    return false;
-
-  return true;
-}
-
 void ArduinoIoTCloudClass::update(int const reconnectionMaxRetries, int const reconnectionTimeoutMs)
 {
   connectionCheck();
@@ -317,7 +295,7 @@ void ArduinoIoTCloudClass::connectionCheck()
   
 
   switch (iotStatus) {
-    case IOT_STATUS_IDLE:
+    case IOT_STATUS_CLOUD_IDLE:
       setIoTConnectionState(IOT_STATUS_CLOUD_CONNECTING);
       break;
     case IOT_STATUS_CLOUD_ERROR:
@@ -326,6 +304,9 @@ void ArduinoIoTCloudClass::connectionCheck()
       break;
     case IOT_STATUS_CLOUD_CONNECTED:
       debugMessage(".", 4, false, true);
+      if (!_mqttClient->connected()){
+        setIoTConnectionState(IOT_STATUS_CLOUD_DISCONNECTED);
+      }
       break;
     case IOT_STATUS_CLOUD_DISCONNECTED:
       setIoTConnectionState(IOT_STATUS_CLOUD_RECONNECTING);

@@ -130,7 +130,7 @@ protected:
   ArduinoIoTConnectionStatus getIoTStatus() { return iotStatus; }
   void setIoTConnectionState(ArduinoIoTConnectionStatus _newState);
 private:
-  ArduinoIoTConnectionStatus iotStatus = IOT_STATUS_IDLE;
+  ArduinoIoTConnectionStatus iotStatus = IOT_STATUS_CLOUD_IDLE;
   ConnectionManager *connection;
   static void onMessage(int length);
   void handleMessage(int length);
