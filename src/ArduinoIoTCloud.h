@@ -43,14 +43,12 @@ typedef struct {
 extern ConnectionManager *ArduinoIoTPreferredConnection;
 
 enum ArduinoIoTConnectionStatus {
-  IOT_STATUS_IDLE,/* only at start */
   IOT_STATUS_CLOUD_IDLE,
   IOT_STATUS_CLOUD_CONNECTING,
   IOT_STATUS_CLOUD_CONNECTED,
   IOT_STATUS_CLOUD_DISCONNECTED,
   IOT_STATUS_CLOUD_RECONNECTING,
   IOT_STATUS_CLOUD_ERROR,
-  IOT_STATUS_ERROR_GENERIC
 };
 
 class ArduinoIoTCloudClass {
