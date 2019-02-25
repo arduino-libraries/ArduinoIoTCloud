@@ -113,7 +113,6 @@ void ArduinoCloudProperty<T>::execCallbackOnChange() {
     if(_update_callback_func != NULL) {
       _update_callback_func();
     }
-    
     if(!isValueDifferent(_property, _cloud_shadow_property)) {
       _has_been_modified_in_callback = true;
     }

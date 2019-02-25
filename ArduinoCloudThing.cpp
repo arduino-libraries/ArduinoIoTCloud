@@ -409,7 +409,7 @@ ArduinoCloudThing::MapParserState ArduinoCloudThing::handle_Time(CborValue * val
 ArduinoCloudThing::MapParserState ArduinoCloudThing::handle_LeaveMap(CborValue * map_iter, CborValue * value_iter, CborMapData const * const map_data) {
   MapParserState next_state = MapParserState::Error;
 
-  //computer the cloud event change time
+  //compute the cloud event change time
   unsigned long cloudChangeEventTime = 0;
   if(map_data->base_time.isSet()){
     cloudChangeEventTime = (unsigned long)(map_data->base_time.get());
@@ -427,7 +427,7 @@ ArduinoCloudThing::MapParserState ArduinoCloudThing::handle_LeaveMap(CborValue *
       ArduinoCloudProperty<float> * float_property = _property_cont.getPropertyFloat(map_data->name.get());
 
       if(int_property && int_property->isWriteableByCloud()) {
-        if(_syncMessage){
+        if(_syncMessage) {
           int_property->setLastCloudChangeTimestamp(cloudChangeEventTime);
           int_property->setCloudShadowValue(map_data->val.get());  
           int_property->execCallbackOnSync();

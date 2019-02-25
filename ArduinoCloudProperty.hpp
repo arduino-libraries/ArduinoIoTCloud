@@ -121,7 +121,7 @@ private:
 
   UpdatePolicy       _update_policy;
   bool               _has_been_updated_once,
-                     _has_been_modified_in_callback;  
+                     _has_been_modified_in_callback;
   /* Variables used for UpdatePolicy::OnChange */
   T                  _min_delta_property;
   unsigned long      _min_time_between_updates_millis;
