@@ -33,13 +33,7 @@ const static int thingIdSlot                               = 12;
 static ConnectionManager *getTimeConnection = NULL;
 
 static unsigned long getTime() {
-  if (!getTimeConnection) return 0;
-  unsigned long time = getTimeConnection->getTime();
-  if (!NTPUtils::isTimeValid(time)) {
-    debugMessage("Bogus NTP time from API, fallback to UDP method", 0);
-    time = NTPUtils(getTimeConnection->getUDP()).getTime();
-  }
-  return time;
+  return getTimeConnection->getTime();
 }
 
 static unsigned long getTimestamp() {

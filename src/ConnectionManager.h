@@ -38,9 +38,9 @@ class ConnectionManager {
 public:
   virtual void init() = 0;
   virtual void check() = 0;
-  virtual unsigned long getTime() = 0;
+  virtual unsigned long getTime();
   virtual Client &getClient();
-  virtual UDP &getUDP();
+  virtual UDP &getUDP() = 0;
 
   virtual NetworkConnectionState getStatus() { return netConnectionState; }
 
@@ -94,6 +94,10 @@ inline void debugMessage(char *_msg, int _debugLevel, bool _timestamp = true, bo
       Serial.print(_msg);
     }
   }
+}
+
+inline unsigned long ConnectionManager::getTime() {
+    return NTPUtils(this->getUDP()).getTime();
 }
 
 inline void setDebugMessageLevel(int _debugLevel){
