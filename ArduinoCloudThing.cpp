@@ -429,7 +429,7 @@ ArduinoCloudThing::MapParserState ArduinoCloudThing::handle_LeaveMap(CborValue *
       if(int_property && int_property->isWriteableByCloud()) {
         if(_syncMessage) {
           int_property->setLastCloudChangeTimestamp(cloudChangeEventTime);
-          int_property->setCloudShadowValue(map_data->val.get());  
+          int_property->setCloudShadowValue(map_data->val.get());
           int_property->execCallbackOnSync();
         } else {
           int_property->writeByCloud(map_data->val.get());
@@ -438,9 +438,9 @@ ArduinoCloudThing::MapParserState ArduinoCloudThing::handle_LeaveMap(CborValue *
       }
 
       if(float_property && float_property->isWriteableByCloud()) {
-        if(_syncMessage){
+        if(_syncMessage) {
           float_property->setLastCloudChangeTimestamp(cloudChangeEventTime);
-          float_property->setCloudShadowValue(map_data->val.get());  
+          float_property->setCloudShadowValue(map_data->val.get());
           float_property->execCallbackOnSync();
         } else {
           float_property->writeByCloud(map_data->val.get());
@@ -453,9 +453,9 @@ ArduinoCloudThing::MapParserState ArduinoCloudThing::handle_LeaveMap(CborValue *
     if(map_data->str_val.isSet()) {
       ArduinoCloudProperty<String>* string_property = _property_cont.getPropertyString(map_data->name.get());
       if(string_property && string_property->isWriteableByCloud()) {
-        if(_syncMessage){
+        if(_syncMessage) {
           string_property->setLastCloudChangeTimestamp(cloudChangeEventTime);
-          string_property->setCloudShadowValue(map_data->str_val.get());  
+          string_property->setCloudShadowValue(map_data->str_val.get());
           string_property->execCallbackOnSync();
         } else {
           string_property->writeByCloud(map_data->str_val.get());
@@ -468,9 +468,9 @@ ArduinoCloudThing::MapParserState ArduinoCloudThing::handle_LeaveMap(CborValue *
     if(map_data->bool_val.isSet()) {
       ArduinoCloudProperty<bool>* bool_property = _property_cont.getPropertyBool(map_data->name.get());
       if(bool_property && bool_property->isWriteableByCloud()) {
-        if(_syncMessage){
+        if(_syncMessage) {
           bool_property->setLastCloudChangeTimestamp(cloudChangeEventTime);
-          bool_property->setCloudShadowValue(map_data->bool_val.get());  
+          bool_property->setCloudShadowValue(map_data->bool_val.get());
           bool_property->execCallbackOnSync();
         } else {
           bool_property->writeByCloud(map_data->bool_val.get());
