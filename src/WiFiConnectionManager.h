@@ -65,7 +65,7 @@ WiFiConnectionManager::WiFiConnectionManager(const char *ssid, const char *pass)
 unsigned long WiFiConnectionManager::getTime() {
   unsigned long time = ConnectionManager::getTime();
   if (!NTPUtils::isTimeValid(time)) {
-    debugMessage("Bogus NTP time from API, fallback to UDP method", 0);
+    debugMessage("Bogus UDP time from, fallback to Network method", 0);
     time = WiFi.getTime();
   }
   return time;

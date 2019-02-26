@@ -69,7 +69,7 @@ GSMConnectionManager::GSMConnectionManager(const char *pin, const char *apn, con
 unsigned long GSMConnectionManager::getTime() {
   unsigned long time = ConnectionManager::getTime() {
   if (!NTPUtils::isTimeValid(time)) {
-    debugMessage("Bogus NTP time from API, fallback to UDP method", 0);
+    debugMessage("Bogus UDP time from, fallback to Network method", 0);
     time = gsmAccess.getTime();
   }
   return time;
