@@ -21,6 +21,8 @@
 #define ARDUINO_CLOUD_DEBUG_LEVEL 2
 
 #include <Client.h>
+#include <Udp.h>
+#include "utility/NTPUtils.h"
 
 enum NetworkConnectionState {
   CONNECTION_STATE_INIT,
@@ -38,6 +40,7 @@ public:
   virtual void check() = 0;
   virtual unsigned long getTime() = 0;
   virtual Client &getClient();
+  virtual UDP &getUDP();
 
   virtual NetworkConnectionState getStatus() { return netConnectionState; }
 
@@ -82,14 +85,14 @@ inline void debugMessage(char *_msg, int _debugLevel, bool _timestamp = true, bo
   if (_debugLevel <= debugMessageLevel) {
     char prepend[20];
     sprintf(prepend, "\n[ %d ] ", millis());
-    if(_timestamp)
+    if(_timestamp){
       Serial.print(prepend);
+    }
     if(_newline){
       Serial.println(_msg);
     }else{
       Serial.print(_msg);
     }
-    
   }
 }
 

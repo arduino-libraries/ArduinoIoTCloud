@@ -29,7 +29,12 @@ static ConnectionManager *getTimeConnection = NULL;
 
 static unsigned long getTime() {
   if (!getTimeConnection) return 0;
-  return getTimeConnection->getTime();
+  unsigned long time = getTimeConnection->getTime();
+  if (!NTPUtils::isTimeValid(time)) {
+    debugMessage("Bogus NTP time from API, fallback to UDP method", 0);
+    time = NTPUtils(getTimeConnection->getUDP()).getTime();
+  }
+  return time;
 }
 
 ArduinoIoTCloudClass::ArduinoIoTCloudClass() :
@@ -118,7 +123,6 @@ int ArduinoIoTCloudClass::begin(Client& net, String brokerAddress, uint16_t brok
   
   
   // TODO: Find a better way to allow callback into object method
-
   // Begin function for the MQTTClient
   mqttClientBegin();
 
@@ -184,41 +188,12 @@ void ArduinoIoTCloudClass::update()
   update(MAX_RETRIES, RECONNECTION_TIMEOUT);
 }
 
-bool ArduinoIoTCloudClass::mqttReconnect(int const maxRetries, int const timeout)
-{
-  // Counter for reconnection retries
-  int retries = 0;
-  unsigned long start = millis();
-
-  // Check for MQTT broker connection, of if maxReties limit is reached
-  // if MQTTClient is connected , simply do nothing and retun true
-  while (!_mqttClient->connected() && (retries++ < maxRetries) && (millis() - start < timeout)) {
-    // int connectError = _mqttClient->connectError();
-
-    // try establish the MQTT broker connection
-    connect();
-  }
-
-  // It was impossible to establish a connection, return
-  if ((retries == maxRetries) || (millis() - start >= timeout))
-    return false;
-
-  return true;
-}
-
 void ArduinoIoTCloudClass::update(int const reconnectionMaxRetries, int const reconnectionTimeoutMs)
 {
   connectionCheck();
   if(iotStatus != IOT_STATUS_CLOUD_CONNECTED){
     return;
   }
-  // Method's argument controls
-  int const maxRetries = (reconnectionMaxRetries > 0) ? reconnectionMaxRetries : MAX_RETRIES;
-  int const timeout    = (reconnectionTimeoutMs  > 0) ? reconnectionTimeoutMs  : RECONNECTION_TIMEOUT;
-
-  // If the reconnect() culd not establish the connection, return the control to the user sketch
-  if (!mqttReconnect(maxRetries, timeout))
-    return;
 
   // MTTQClient connected!, poll() used to retrieve data from MQTT broker
   _mqttClient->poll();
@@ -320,28 +295,18 @@ void ArduinoIoTCloudClass::connectionCheck()
   
 
   switch (iotStatus) {
-    case IOT_STATUS_IDLE:
-    {
-      int connectionAttempt;
-      if(connection == NULL){
-        connectionAttempt = begin(*_net, _brokerAddress, _brokerPort);
-      }else{
-        connectionAttempt = begin(connection, _brokerAddress, _brokerPort);
-      }
-      if(!connectionAttempt){
-        debugMessage("Error Starting Arduino Cloud\nTrying again in a few seconds", 0);
-        setIoTConnectionState(IOT_STATUS_CLOUD_ERROR);
-        return;
-      }
+    case IOT_STATUS_CLOUD_IDLE:
       setIoTConnectionState(IOT_STATUS_CLOUD_CONNECTING);
       break;
-    }
     case IOT_STATUS_CLOUD_ERROR:
       debugMessage("Cloud Error. Retrying...", 0);
       setIoTConnectionState(IOT_STATUS_CLOUD_RECONNECTING);
       break;
     case IOT_STATUS_CLOUD_CONNECTED:
       debugMessage(".", 4, false, true);
+      if (!_mqttClient->connected()){
+        setIoTConnectionState(IOT_STATUS_CLOUD_DISCONNECTED);
+      }
       break;
     case IOT_STATUS_CLOUD_DISCONNECTED:
       setIoTConnectionState(IOT_STATUS_CLOUD_RECONNECTING);
