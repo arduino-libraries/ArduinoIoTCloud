@@ -156,7 +156,6 @@ private:
   BearSSLClient* _bearSslClient;
   MqttClient* _mqttClient;
   int _lastSyncRequestTickTime;
-  bool _callGetLastValueCallback;
 
 
   // Class attribute to define MTTQ topics 2 for stdIn/out and 2 for data, in order to avoid getting previous pupblished payload
