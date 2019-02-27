@@ -40,7 +40,7 @@ static unsigned long getTimestamp() {
   #ifdef ARDUINO_ARCH_SAMD
     return rtc.getEpoch();
   #else
-    #warning "No RTC available on this architecture - ArduinoIoTCloud will not keep track of local changes timestamps ." 
+    #warning "No RTC available on this architecture - ArduinoIoTCloud will not keep track of local change timestamps ." 
     return 0;
   #endif
 }
@@ -210,7 +210,7 @@ void ArduinoIoTCloudClass::update(int const reconnectionMaxRetries, int const re
 {
   unsigned long const timestamp = getTimestamp(); 
   //check if a property is changed 
-  if(timestamp) Thing.updateTimestampOnChangedProperties(timestamp);
+  if(timestamp != 0) Thing.updateTimestampOnChangedProperties(timestamp);
     
   connectionCheck();
   if(iotStatus != IOT_STATUS_CLOUD_CONNECTED){
@@ -347,7 +347,7 @@ void ArduinoIoTCloudClass::requestLastValue()
   // Send the getLastValues CBOR message to the cloud
   // [{0: "r:m", 3: "getLastValues"}] = 81 A2 00 63 72 3A 6D 03 6D 67 65 74 4C 61 73 74 56 61 6C 75 65 73
   const uint8_t data[] =  { 0x81, 0xA2, 0x00, 0x63, 0x72, 0x3A, 0x6D, 0x03, 0x6D, 0x67, 0x65, 0x74, 0x4C, 0x61, 0x73, 0x74, 0x56, 0x61, 0x6C, 0x75, 0x65, 0x73 };
-  writeShadowOut(data, sizeof data);
+  writeShadowOut(data, sizeof(data));
 }
 
 void ArduinoIoTCloudClass::connectionCheck()
@@ -405,7 +405,7 @@ void ArduinoIoTCloudClass::connectionCheck()
         CloudSerial.println("Hello from Cloud Serial!");
       }
       #ifdef ARDUINO_ARCH_SAMD
-        unsigned long epoch = getTime();
+        unsigned long const epoch = getTime();
         if (epoch!=0)
           rtc.setEpoch(epoch);
       #endif
