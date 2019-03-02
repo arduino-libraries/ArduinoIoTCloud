@@ -23,8 +23,6 @@
 
 #include <ArduinoCloudThing.h>
 
-#include <math.h>
-
 /******************************************************************************
    DEBUG FUNCTIONS
  ******************************************************************************/
@@ -77,83 +75,46 @@ ArduinoCloudThing::ArduinoCloudThing() {
 void ArduinoCloudThing::begin() {
 }
 
-int ArduinoCloudThing::updateTimestampOnChangedProperties(unsigned long changeEventTime) {
-  return _property_cont.updateTimestampOnChangedProperties(changeEventTime);
-}
-
 int ArduinoCloudThing::encode(uint8_t * data, size_t const size) {
-
   // check if backing storage and cloud has diverged
   // time interval may be elapsed or property may be changed
-  int const num_changed_properties = _property_cont.getNumOfChangedProperties();
+  CborEncoder encoder, arrayEncoder;
 
-  if (num_changed_properties > 0) {
-    CborEncoder encoder, arrayEncoder;
+  cbor_encoder_init(&encoder, data, size, 0);
 
-    cbor_encoder_init(&encoder, data, size, 0);
-
-    if (cbor_encoder_create_array(&encoder, &arrayEncoder, num_changed_properties) != CborNoError) {
-      return -1;
-    }
-
-    _property_cont.appendChangedProperties(&arrayEncoder);
-
-    if (cbor_encoder_close_container(&encoder, &arrayEncoder) != CborNoError) {
-      return -1;
-    }
-
-    #if defined(DEBUG_MEMORY) && defined(ARDUINO_ARCH_SAMD)
-    PrintFreeRam();
-    #endif
-    int const bytes_encoded = cbor_encoder_get_buffer_size(&encoder, data);
-    return bytes_encoded;
-  } else {
-    return num_changed_properties;
+  if(cbor_encoder_create_array(&encoder, &arrayEncoder, CborIndefiniteLength) != CborNoError) {
+    return -1;
   }
+
+  if (appendChangedProperties(&arrayEncoder) < 1) {
+    return -1;
+  }
+
+  if(cbor_encoder_close_container(&encoder, &arrayEncoder) != CborNoError) {
+    return -1;
+  }
+
+#if defined(DEBUG_MEMORY) && defined(ARDUINO_ARCH_SAMD)
+PrintFreeRam();
+#endif
+  int const bytes_encoded = cbor_encoder_get_buffer_size(&encoder, data);
+  return bytes_encoded;
 }
 
-ArduinoCloudProperty<bool> & ArduinoCloudThing::addPropertyReal(bool & property, String const & name, Permission const permission) {
-  if (_property_cont.isPropertyInContainer(Type::Bool, name)) {
-    return (*_property_cont.getPropertyBool(name));
-  } else {
-    ArduinoCloudProperty<bool> *property_opj = new ArduinoCloudProperty<bool>(property, name, permission);
-    _property_cont.addProperty(property_opj);
-    return (*property_opj);
+ArduinoCloudProperty& ArduinoCloudThing::addPropertyReal(ArduinoCloudProperty & property, String const & name, Permission const permission) {
+  property.init(name, permission);
+  if(isPropertyInContainer(name)) {
+    return (*getProperty(name));
   }
-}
-
-ArduinoCloudProperty<int> & ArduinoCloudThing::addPropertyReal(int & property, String const & name, Permission const permission) {
-  if (_property_cont.isPropertyInContainer(Type::Int, name)) {
-    return (*_property_cont.getPropertyInt(name));
-  } else {
-    ArduinoCloudProperty<int> * property_opj = new ArduinoCloudProperty<int>(property, name, permission);
-    _property_cont.addProperty(property_opj);
-    return (*property_opj);
-  }
-}
-
-ArduinoCloudProperty<float> & ArduinoCloudThing::addPropertyReal(float & property, String const & name, Permission const permission) {
-  if (_property_cont.isPropertyInContainer(Type::Float, name)) {
-    return (*_property_cont.getPropertyFloat(name));
-  } else {
-    ArduinoCloudProperty<float> * property_opj = new ArduinoCloudProperty<float>(property, name, permission);
-    _property_cont.addProperty(property_opj);
-    return (*property_opj);
-  }
-}
-
-ArduinoCloudProperty<String> & ArduinoCloudThing::addPropertyReal(String & property, String const & name, Permission const permission) {
-  if (_property_cont.isPropertyInContainer(Type::String, name)) {
-    return (*_property_cont.getPropertyString(name));
-  } else {
-    ArduinoCloudProperty<String> * property_opj = new ArduinoCloudProperty<String>(property, name, permission);
-    _property_cont.addProperty(property_opj);
-    return (*property_opj);
+  else {
+    if (property.isPrimitive())
+      _numPrimitivesProperties++;    
+    addProperty(&property);
+    return (property);
   }
 }
 
 void ArduinoCloudThing::decode(uint8_t const * const payload, size_t const length, bool syncMessage) {
-
   _syncMessage = syncMessage;
 
   CborParser parser;
@@ -197,6 +158,47 @@ void ArduinoCloudThing::decode(uint8_t const * const payload, size_t const lengt
     }
 
     current_state = next_state;
+  }
+}
+
+bool ArduinoCloudThing::isPropertyInContainer(String const & name) {
+  for (int i = 0; i < _property_list.size(); i++) {
+    ArduinoCloudProperty * p = _property_list.get(i);
+    if (p->name() == name) return true;
+  }
+  return false;
+}
+
+int ArduinoCloudThing::appendChangedProperties(CborEncoder * arrayEncoder) {
+  int appendedProperties = 0;
+  for (int i = 0; i < _property_list.size(); i++) {
+    ArduinoCloudProperty * p = _property_list.get(i);
+    if (p->shouldBeUpdated() && p->isReadableByCloud()) {
+      p->append(arrayEncoder);
+      appendedProperties++;
+    }
+  }
+  return appendedProperties;
+}
+
+ArduinoCloudProperty * ArduinoCloudThing::getProperty(String const & name) {
+  for (int i = 0; i < _property_list.size(); i++) {
+    ArduinoCloudProperty * p = _property_list.get(i);
+    if (p->name() == name) return p;
+  }
+  return NULL;
+}
+
+void ArduinoCloudThing::updateTimestampOnLocallyChangedProperties() {
+  if (_numPrimitivesProperties == 0) {
+    return;
+  } else {
+    for (int i = 0; i < _property_list.size(); i++) {
+      ArduinoCloudProperty * p = _property_list.get(i);
+      if (p->isPrimitive() && p->isChangedLocally() && p->isReadableByCloud()) {
+        p->updateLocalTimestamp();
+      }
+    }  
   }
 }
 
@@ -404,62 +406,18 @@ ArduinoCloudThing::MapParserState ArduinoCloudThing::handle_LeaveMap(CborValue *
   }
   /* Update the property containers depending on the parsed data */
 
-  if (map_data->name.isSet()) {
-    /* Value (Integer/Float/Double/Half-Float) */
-    if (map_data->val.isSet()) {
-      ArduinoCloudProperty<int>   * int_property   = _property_cont.getPropertyInt(map_data->name.get());
-      ArduinoCloudProperty<float> * float_property = _property_cont.getPropertyFloat(map_data->name.get());
+  if(map_data->name.isSet())
+  {
+    ArduinoCloudProperty* property = getProperty(map_data->name.get());
 
-      if (int_property && int_property->isWriteableByCloud()) {
-        if (_syncMessage) {
-          int_property->setLastCloudChangeTimestamp(cloudChangeEventTime);
-          int_property->setCloudShadowValue(map_data->val.get());
-          int_property->execCallbackOnSync();
-        } else {
-          int_property->writeByCloud(map_data->val.get());
-          int_property->execCallbackOnChange();
-        }
-      }
-
-      if (float_property && float_property->isWriteableByCloud()) {
-        if (_syncMessage) {
-          float_property->setLastCloudChangeTimestamp(cloudChangeEventTime);
-          float_property->setCloudShadowValue(map_data->val.get());
-          float_property->execCallbackOnSync();
-        } else {
-          float_property->writeByCloud(map_data->val.get());
-          float_property->execCallbackOnChange();
-        }
-      }
-    }
-
-    /* Value (String) */
-    if (map_data->str_val.isSet()) {
-      ArduinoCloudProperty<String>* string_property = _property_cont.getPropertyString(map_data->name.get());
-      if (string_property && string_property->isWriteableByCloud()) {
-        if (_syncMessage) {
-          string_property->setLastCloudChangeTimestamp(cloudChangeEventTime);
-          string_property->setCloudShadowValue(map_data->str_val.get());
-          string_property->execCallbackOnSync();
-        } else {
-          string_property->writeByCloud(map_data->str_val.get());
-          string_property->execCallbackOnChange();
-        }
-      }
-    }
-
-    /* Value (bool) */
-    if (map_data->bool_val.isSet()) {
-      ArduinoCloudProperty<bool>* bool_property = _property_cont.getPropertyBool(map_data->name.get());
-      if (bool_property && bool_property->isWriteableByCloud()) {
-        if (_syncMessage) {
-          bool_property->setLastCloudChangeTimestamp(cloudChangeEventTime);
-          bool_property->setCloudShadowValue(map_data->bool_val.get());
-          bool_property->execCallbackOnSync();
-        } else {
-          bool_property->writeByCloud(map_data->bool_val.get());
-          bool_property->execCallbackOnChange();
-        }
+    if(property && property->isWriteableByCloud()) {
+      if(_syncMessage) {
+        property->setLastCloudChangeTimestamp(cloudChangeEventTime);
+        property->setCloudShadowValue(map_data);
+        property->execCallbackOnSync();
+      } else {
+        property->setValue(map_data);
+        property->execCallbackOnChange();
       }
     }
   }
@@ -521,4 +479,19 @@ double ArduinoCloudThing::convertCborHalfFloatToDouble(uint16_t const half_val) 
     val = mant == 0 ? INFINITY : NAN;
   }
   return half_val & 0x8000 ? -val : val;
+}
+
+void onAutoSync(ArduinoCloudProperty & property) {
+  if( property.getLastCloudChangeTimestamp() > property.getLastLocalChangeTimestamp()){
+    property.fromCloudShadow();
+    property.execCallbackOnChange();
+  }
+}
+
+void onForceCloudSync(ArduinoCloudProperty & property) {
+  property.fromCloudShadow();
+  property.execCallbackOnChange();
+}
+
+void onForceDeviceSync(ArduinoCloudProperty & property) {
 }

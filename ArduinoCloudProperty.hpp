@@ -23,7 +23,6 @@
  ******************************************************************************/
 
 #include <Arduino.h>
-
 #include "lib/tinycbor/cbor-lib.h"
 
 /******************************************************************************
@@ -31,21 +30,8 @@
  ******************************************************************************/
 
 /******************************************************************************
-   TYPEDEF
+ * ENUM
  ******************************************************************************/
-
-enum class Permission {
-  Read, Write, ReadWrite
-};
-
-enum class Type {
-  Bool, Int, Float, String
-};
-
-enum class UpdatePolicy {
-  OnChange, TimeInterval
-};
-
 /* Source: https://tools.ietf.org/html/rfc8428#section-6 */
 enum class CborIntegerMapKey : int {
   BaseVersion  = -1, /* bver */
@@ -65,101 +51,125 @@ enum class CborIntegerMapKey : int {
   DataValue    =  8  /* vd   */
 };
 
+template <typename T>
+class MapEntry {
+public:
+
+  MapEntry() : _is_set(false) { }
+
+  inline void    set  (T const & entry) { _entry = entry; _is_set = true; }
+  inline T const get  () const { return _entry; }
+
+  inline bool    isSet() const { return _is_set; }
+  inline void    reset()       { _is_set = false; }
+
+private:
+
+  T    _entry;
+  bool _is_set;
+
+};
+
+class CborMapData {
+
+public:
+  MapEntry<int>    base_version;
+  MapEntry<String> base_name;
+  MapEntry<double> base_time;
+  MapEntry<String> name;
+  MapEntry<float>  val;
+  MapEntry<String> str_val;
+  MapEntry<bool>   bool_val;
+  MapEntry<double> time;
+  
+  void resetNotBase() {
+    name.reset        ();
+    val.reset         ();
+    str_val.reset     ();
+    bool_val.reset    ();
+    time.reset        ();
+  }
+};
+
+enum class Permission {
+  Read, Write, ReadWrite
+};
+
+enum class Type {
+  Bool, Int, Float, String
+};
+
+enum class UpdatePolicy {
+  OnChange, TimeInterval
+};
+
 typedef void(*UpdateCallbackFunc)(void);
 
 /******************************************************************************
    CLASS DECLARATION
  ******************************************************************************/
 
-template <typename T>
 class ArduinoCloudProperty {
-  public:
+public:
+  ArduinoCloudProperty();
+  void init(String const name, Permission const permission);
 
-    ArduinoCloudProperty(T & property, String const & name, Permission const permission);
+  /* Composable configuration of the ArduinoCloudProperty class */
+  ArduinoCloudProperty & onUpdate       (UpdateCallbackFunc func);
+  ArduinoCloudProperty & onSync         (void (*func)(ArduinoCloudProperty &property));
+  ArduinoCloudProperty & publishOnChange(float const min_delta_property, unsigned long const min_time_between_updates_millis = 0);
+  ArduinoCloudProperty & publishEvery   (unsigned long const seconds);
 
-    void writeByCloud(T const val);
+  inline String name              () const { return _name; }
+  inline bool   isReadableByCloud () const { return (_permission == Permission::Read ) || (_permission == Permission::ReadWrite); }
+  inline bool   isWriteableByCloud() const { return (_permission == Permission::Write) || (_permission == Permission::ReadWrite); }
 
-    /* Composable configuration of the ArduinoCloudProperty class */
-    ArduinoCloudProperty<T> & onUpdate(UpdateCallbackFunc func);
-    ArduinoCloudProperty<T> & onSync(void (*func)(ArduinoCloudProperty<T> property));
-    ArduinoCloudProperty<T> & publishOnChange(T const min_delta_property, unsigned long const min_time_between_updates_millis = 0);
-    ArduinoCloudProperty<T> & publishEvery(unsigned long const seconds);
+  bool shouldBeUpdated        ();
+  void execCallbackOnChange   ();
+  void execCallbackOnSync     ();
+  void setLastCloudChangeTimestamp         (unsigned long cloudChangeTime);
+  void setLastLocalChangeTimestamp         (unsigned long localChangeTime);
+  unsigned long getLastCloudChangeTimestamp();
+  unsigned long getLastLocalChangeTimestamp();
 
-    inline String name() const {
-      return _name;
-    }
-    inline bool   isReadableByCloud() const {
-      return (_permission == Permission::Read) || (_permission == Permission::ReadWrite);
-    }
-    inline bool   isWriteableByCloud() const {
-      return (_permission == Permission::Write) || (_permission == Permission::ReadWrite);
-    }
+  void updateLocalTimestamp   ();
+  void append                 (CborEncoder * encoder);
 
-    bool shouldBeUpdated();
-    void execCallbackOnChange();
-    void execCallbackOnSync();
-    void forceCallbackOnChange();
-    void setPreviousCloudChangeTimestamp(unsigned long cloudChangeTime);
-    void setLastCloudChangeTimestamp(unsigned long cloudChangeTime);
-    void setLastLocalChangeTimestamp(unsigned long localChangeTime);
-    unsigned long getPreviousCloudChangeTimestamp();
-    unsigned long getLastCloudChangeTimestamp();
-    unsigned long getLastLocalChangeTimestamp();
-    void setPropertyValue(T const val);
-    void setCloudShadowValue(T const val);
-    T    getCloudShadowValue();
-    void setLocalShadowValue(T const val);
-    T    getLocalShadowValue();
-    void updateTime(unsigned long changeEventTime);
-    bool isChangedLocally();
-    void append(CborEncoder * encoder);
+  virtual bool isDifferentFromCloudShadow() = 0;
+  virtual void toShadow() = 0;
+  virtual void fromCloudShadow() = 0;
+  virtual void appendValue(CborEncoder * mapEncoder) const = 0;
+  virtual void setValue(CborMapData const * const map_data) = 0;
+  virtual void setCloudShadowValue(CborMapData const * const map_data) = 0;
+  virtual bool isPrimitive() { return false; };
+  virtual bool isChangedLocally() { return false; };
+protected:
+  /* Variables used for UpdatePolicy::OnChange */
+  float              _min_delta_property;
+  unsigned long      _min_time_between_updates_millis;
 
-  private:
+private:
+  String             _name;
+  Permission         _permission;
+  UpdateCallbackFunc _update_callback_func;
+  void               (*_sync_callback_func)(ArduinoCloudProperty &property);
 
-    T                & _property,
-    _cloud_shadow_property,
-    _local_shadow_property;
-    String             _name;
-    Permission         _permission;
-    UpdateCallbackFunc _update_callback_func;
-    void (*_sync_callback_func)(ArduinoCloudProperty<T> property);
-
-    UpdatePolicy       _update_policy;
-    bool               _has_been_updated_once,
-                       _has_been_modified_in_callback;
-    /* Variables used for UpdatePolicy::OnChange */
-    T                  _min_delta_property;
-    unsigned long      _min_time_between_updates_millis;
-    /* Variables used for UpdatePolicy::TimeInterval */
-    unsigned long      _last_updated_millis,
-             _update_interval_millis;
-    /* Variables used for reconnection sync*/
-    unsigned long      _last_change_timestamp;
-    unsigned long      _last_local_change_timestamp;
-    unsigned long      _last_cloud_change_timestamp;
-    unsigned long      _previous_cloud_change_timestamp;
-
-
-    void appendValue(CborEncoder * mapEncoder) const;
-    bool isValueDifferent(T const lhs, T const rhs) const;
-
-    T getInitialMinDeltaPropertyValue() const;
-
+  UpdatePolicy       _update_policy;
+  bool               _has_been_updated_once,
+                     _has_been_modified_in_callback;
+  /* Variables used for UpdatePolicy::TimeInterval */
+  unsigned long      _last_updated_millis,
+                     _update_interval_millis;
+  /* Variables used for reconnection sync*/
+  unsigned long      _last_local_change_timestamp;
+  unsigned long      _last_cloud_change_timestamp;
+        
 };
 
 /******************************************************************************
    PROTOTYPE FREE FUNCTIONs
  ******************************************************************************/
 
-template <typename T>
-inline bool operator == (ArduinoCloudProperty<T> const & lhs, ArduinoCloudProperty<T> const & rhs) {
-  return (lhs.name() == rhs.name());
-}
-
-/******************************************************************************
-   TEMPLATE IMPLEMENTATION
- ******************************************************************************/
-
-#include "ArduinoCloudProperty.ipp"
+inline bool operator == (ArduinoCloudProperty const & lhs, ArduinoCloudProperty const & rhs) { return (lhs.name() == rhs.name()); }
 
 #endif /* ARDUINO_CLOUD_PROPERTY_HPP_ */

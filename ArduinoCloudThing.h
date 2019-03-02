@@ -23,9 +23,11 @@
  ******************************************************************************/
 
 #include "ArduinoCloudProperty.hpp"
-#include "ArduinoCloudPropertyContainer.hpp"
-
 #include "lib/LinkedList/LinkedList.h"
+#include "valuetypes/CloudBool.h"
+#include "valuetypes/CloudFloat.h"
+#include "valuetypes/CloudInt.h"
+#include "valuetypes/CloudString.h"
 
 /******************************************************************************
    CONSTANTS
@@ -44,26 +46,12 @@ static long const DAYS      = 86400;
    SYNCHRONIZATION CALLBACKS
  ******************************************************************************/
 
+void onAutoSync(ArduinoCloudProperty & property);
 #define MOST_RECENT_WINS onAutoSync
-template<typename T>
-void onAutoSync(ArduinoCloudProperty<T> property) {
-  if (property.getLastCloudChangeTimestamp() > property.getLastLocalChangeTimestamp()) {
-    property.setPropertyValue(property.getCloudShadowValue());
-    property.forceCallbackOnChange();
-  }
-}
-
+void onForceCloudSync(ArduinoCloudProperty & property);
 #define CLOUD_WINS onForceCloudSync
-template<typename T>
-void onForceCloudSync(ArduinoCloudProperty<T> property) {
-  property.setPropertyValue(property.getCloudShadowValue());
-  property.forceCallbackOnChange();
-}
-
+void onForceDeviceSync(ArduinoCloudProperty & property);
 #define DEVICE_WINS onForceDeviceSync // The device property value is already the correct one. The cloud property value will be synchronized at the next update cycle.
-template<typename T>
-void onForceDeviceSync(ArduinoCloudProperty<T> property) {
-}
 
 /******************************************************************************
    CLASS DECLARATION
@@ -71,112 +59,64 @@ void onForceDeviceSync(ArduinoCloudProperty<T> property) {
 
 class ArduinoCloudThing {
 
-  public:
-    ArduinoCloudThing();
+public:
+  ArduinoCloudThing();
 
-    void begin();
+  void begin();
 
-    ArduinoCloudProperty<bool>   & addPropertyReal(bool   & property, String const & name, Permission const permission);
-    ArduinoCloudProperty<int>    & addPropertyReal(int    & property, String const & name, Permission const permission);
-    ArduinoCloudProperty<float>  & addPropertyReal(float  & property, String const & name, Permission const permission);
-    ArduinoCloudProperty<String> & addPropertyReal(String & property, String const & name, Permission const permission);
+  ArduinoCloudProperty   & addPropertyReal(ArduinoCloudProperty   & property, String const & name, Permission const permission);
 
-    // compute the timestamp of the local properties changes
-    int updateTimestampOnChangedProperties(unsigned long changeEventTime);
-    /* encode return > 0 if a property has changed and encodes the changed properties in CBOR format into the provided buffer */
-    int encode(uint8_t * data, size_t const size);
-    int encode(ArduinoCloudPropertyContainer *property_cont, uint8_t * data, size_t const size);
-    /* decode a CBOR payload received from the cloud */
-    void decode(uint8_t const * const payload, size_t const length, bool syncMessage = false);
+  /* encode return > 0 if a property has changed and encodes the changed properties in CBOR format into the provided buffer */
+  int encode(uint8_t * data, size_t const size);
+  /* decode a CBOR payload received from the cloud */
+  void decode(uint8_t const * const payload, size_t const length, bool syncMessage = false);
 
+  bool isPropertyInContainer              (String const & name);
+  int appendChangedProperties             (CborEncoder * arrayEncoder);
+  inline void addProperty                 (ArduinoCloudProperty   * property_obj) { _property_list.add  (property_obj); }
+  ArduinoCloudProperty * getProperty(String const & name);
+  void updateTimestampOnLocallyChangedProperties();
 
-  private:
+private:
+  LinkedList<ArduinoCloudProperty   *> _property_list;
+/* Keep track of the number of primitive properties in the Thing. If 0 it allows the early exit in updateTimestampOnLocallyChangedProperties() */
+  int                                  _numPrimitivesProperties = 0;
 
-    char                          _uuid[33];
-    ArduinoCloudPropertyContainer _property_cont;
-    bool                          _syncMessage;
+  char                          _uuid[33];
+  bool                          _syncMessage;
 
-    enum class MapParserState {
-      EnterMap,
-      MapKey,
-      UndefinedKey,
-      BaseVersion,
-      BaseName,
-      BaseTime,
-      Name,
-      Value,
-      StringValue,
-      BooleanValue,
-      Time,
-      LeaveMap,
-      Complete,
-      Error
-    };
+  enum class MapParserState {
+    EnterMap,
+    MapKey,
+    UndefinedKey,
+    BaseVersion,
+    BaseName,
+    BaseTime,
+    Name,
+    Value,
+    StringValue,
+    BooleanValue,
+    Time,
+    LeaveMap,
+    Complete,
+    Error
+  };
 
-    template <typename T>
-    class MapEntry {
-      public:
+  MapParserState handle_EnterMap     (CborValue * map_iter, CborValue * value_iter, CborMapData * map_data);
+  MapParserState handle_MapKey       (CborValue * value_iter);
+  MapParserState handle_UndefinedKey (CborValue * value_iter);
+  MapParserState handle_BaseVersion  (CborValue * value_iter, CborMapData * map_data);
+  MapParserState handle_BaseName     (CborValue * value_iter, CborMapData * map_data);
+  MapParserState handle_BaseTime     (CborValue * value_iter, CborMapData * map_data);
+  MapParserState handle_Name         (CborValue * value_iter, CborMapData * map_data);
+  MapParserState handle_Value        (CborValue * value_iter, CborMapData * map_data);
+  MapParserState handle_StringValue  (CborValue * value_iter, CborMapData * map_data);
+  MapParserState handle_BooleanValue (CborValue * value_iter, CborMapData * map_data);
+  MapParserState handle_Time         (CborValue * value_iter, CborMapData * map_data);
+  MapParserState handle_LeaveMap     (CborValue * map_iter, CborValue * value_iter, CborMapData const * const map_data);
 
-        MapEntry() : _is_set(false) { }
-
-        inline void    set(T const & entry) {
-          _entry = entry;
-          _is_set = true;
-        }
-        inline T const get() const {
-          return _entry;
-        }
-
-        inline bool    isSet() const {
-          return _is_set;
-        }
-        inline void    reset()       {
-          _is_set = false;
-        }
-
-      private:
-
-        T    _entry;
-        bool _is_set;
-
-    };
-
-    class CborMapData {
-
-      public:
-        MapEntry<int>    base_version;
-        MapEntry<String> base_name;
-        MapEntry<double> base_time;
-        MapEntry<String> name;
-        MapEntry<float>  val;
-        MapEntry<String> str_val;
-        MapEntry<bool>   bool_val;
-        MapEntry<double> time;
-
-        void resetNotBase() {
-          name.reset();
-          val.reset();
-          str_val.reset();
-          bool_val.reset();
-          time.reset();
-        }
-    };
-
-    MapParserState handle_EnterMap(CborValue * map_iter, CborValue * value_iter, CborMapData * map_data);
-    MapParserState handle_MapKey(CborValue * value_iter);
-    MapParserState handle_UndefinedKey(CborValue * value_iter);
-    MapParserState handle_BaseVersion(CborValue * value_iter, CborMapData * map_data);
-    MapParserState handle_BaseName(CborValue * value_iter, CborMapData * map_data);
-    MapParserState handle_BaseTime(CborValue * value_iter, CborMapData * map_data);
-    MapParserState handle_Name(CborValue * value_iter, CborMapData * map_data);
-    MapParserState handle_Value(CborValue * value_iter, CborMapData * map_data);
-    MapParserState handle_StringValue(CborValue * value_iter, CborMapData * map_data);
-    MapParserState handle_BooleanValue(CborValue * value_iter, CborMapData * map_data);
-    MapParserState handle_Time(CborValue * value_iter, CborMapData * map_data);
-    MapParserState handle_LeaveMap(CborValue * map_iter, CborValue * value_iter, CborMapData const * const map_data);
-
-    static bool   ifNumericConvertToDouble(CborValue * value_iter, double * numeric_val);
-    static double convertCborHalfFloatToDouble(uint16_t const half_val);
+  static bool   ifNumericConvertToDouble    (CborValue * value_iter, double * numeric_val);
+  static double convertCborHalfFloatToDouble(uint16_t const half_val);
 
 };
 
