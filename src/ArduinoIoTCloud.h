@@ -22,10 +22,10 @@
 #include <ArduinoIoTCloudBearSSL.h>
 #include <ArduinoCloudThing.h>
 #include "ConnectionManager.h"
-#include "valuetypes/CloudWrapperBool.h"
-#include "valuetypes/CloudWrapperFloat.h"
-#include "valuetypes/CloudWrapperInt.h"
-#include "valuetypes/CloudWrapperString.h"
+#include "types/CloudWrapperBool.h"
+#include "types/CloudWrapperFloat.h"
+#include "types/CloudWrapperInt.h"
+#include "types/CloudWrapperString.h"
 
 
 #include "CloudSerial.h"
