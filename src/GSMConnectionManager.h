@@ -142,7 +142,7 @@ void GSMConnectionManager::check() {
         }
         debugMessage("Sending PING to outer space...", 2);
         int pingResult;
-        pingResult = gprs.ping("google.com");
+        pingResult = gprs.ping("time.arduino.cc");
         sprintf(msgBuffer, "GSM.ping(): %d", pingResult);
         debugMessage(msgBuffer, 2);
         if (pingResult < 0) {
