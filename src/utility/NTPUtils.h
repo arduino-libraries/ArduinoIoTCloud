@@ -15,7 +15,7 @@ class NTPUtils {
 		unsigned long getTime();
 		static bool isTimeValid(unsigned long time);
 	private:
-		const char* timeServer = "time.apple.com";
+		const char* timeServer = "time.arduino.cc";
   		const int NTP_PACKET_SIZE = 48;
   		UDP& Udp;
 };
