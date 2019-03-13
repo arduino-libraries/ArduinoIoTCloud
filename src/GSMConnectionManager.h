@@ -39,7 +39,7 @@ private:
   const int CHECK_INTERVAL_IDLE = 100;
   const int CHECK_INTERVAL_INIT = 100;
   const int CHECK_INTERVAL_CONNECTING = 500;
-  const int CHECK_INTERVAL_GETTIME = 10;
+  const int CHECK_INTERVAL_GETTIME = 666;
   const int CHECK_INTERVAL_CONNECTED = 10000;
   const int CHECK_INTERVAL_RETRYING = 5000;
   const int CHECK_INTERVAL_DISCONNECTED = 1000;
@@ -67,12 +67,7 @@ GSMConnectionManager::GSMConnectionManager(const char *pin, const char *apn, con
 }
 
 unsigned long GSMConnectionManager::getTime() {
-  unsigned long time = gsmAccess.getTime() {
-  if (!NTPUtils::isTimeValid(time)) {
-    debugMessage("Bogus NTP time from API, fallback to UDP method", 0);
-    time = ConnectionManager::getTime();
-  }
-  return time;
+  return gsmAccess.getTime();
 }
 
 void GSMConnectionManager::init() {
