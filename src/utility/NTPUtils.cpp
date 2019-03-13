@@ -29,7 +29,6 @@ static time_t cvt_TIME(char const *time) {
 NTPUtils::NTPUtils(UDP& Udp) : Udp(Udp) {}
 
 bool NTPUtils::isTimeValid(unsigned long time) {
-    Serial.println("Compile time: " + String(cvt_TIME(__DATE__)));
     return (time > cvt_TIME(__DATE__));
 }
 

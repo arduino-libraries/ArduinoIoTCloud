@@ -38,6 +38,9 @@ static unsigned long getTime() {
   if (!NTPUtils::isTimeValid(time)) {
     debugMessage("Bogus NTP time from API, fallback to UDP method", 0);
     time = NTPUtils(getTimeConnection->getUDP()).getTime();
+    #ifdef ARDUINO_ARCH_SAMD
+        rtc.setEpoch(time);
+    #endif
   }
   return time;
 }
@@ -411,11 +414,6 @@ void ArduinoIoTCloudClass::connectionCheck()
         CloudSerial.begin(9600);
         CloudSerial.println("Hello from Cloud Serial!");
       }
-      #ifdef ARDUINO_ARCH_SAMD
-        unsigned long const epoch = getTime();
-        if (epoch!=0)
-          rtc.setEpoch(epoch);
-      #endif
       break;
   }
 }
