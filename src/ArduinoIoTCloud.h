@@ -87,7 +87,7 @@ public:
 
   #define addProperty( v, ...) addPropertyReal(v, #v, __VA_ARGS__)
 
-  static unsigned long const DEFAULT_MIN_TIME_BETWEEN_UPDATES_MILLIS = 100; /* Data rate throttled to 10 Hz */
+  static unsigned long const DEFAULT_MIN_TIME_BETWEEN_UPDATES_MILLIS = 500; /* Data rate throttled to 2 Hz */
 
 
 
