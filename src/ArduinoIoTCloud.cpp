@@ -38,10 +38,10 @@ static unsigned long getTime() {
   if (!NTPUtils::isTimeValid(time)) {
     debugMessage("Bogus NTP time from API, fallback to UDP method", 0);
     time = NTPUtils(getTimeConnection->getUDP()).getTime();
-    #ifdef ARDUINO_ARCH_SAMD
-        rtc.setEpoch(time);
-    #endif
   }
+  #ifdef ARDUINO_ARCH_SAMD
+    rtc.setEpoch(time);
+  #endif
   return time;
 }
 
