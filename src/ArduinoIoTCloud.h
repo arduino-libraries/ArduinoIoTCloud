@@ -40,6 +40,8 @@ typedef struct {
   int timeout;
 } mqttConnectionOptions;
 
+typedef void (*CallbackFunc)(void);
+
 extern ConnectionManager *ArduinoIoTPreferredConnection;
 
 enum ArduinoIoTConnectionStatus {
@@ -49,6 +51,12 @@ enum ArduinoIoTConnectionStatus {
   IOT_STATUS_CLOUD_DISCONNECTED,
   IOT_STATUS_CLOUD_RECONNECTING,
   IOT_STATUS_CLOUD_ERROR,
+};
+
+enum class ArduinoIoTSynchronizationStatus {
+  SYNC_STATUS_SYNCHRONIZED,
+  SYNC_STATUS_WAIT_FOR_CLOUD_VALUES,
+  SYNC_STATUS_VALUES_PROCESSED
 };
 
 class ArduinoIoTCloudClass {
@@ -63,7 +71,7 @@ public:
   static const int MQTT_TRANSMIT_BUFFER_SIZE = 256;
   static const int MAX_RETRIES = 5;
   static const int RECONNECTION_TIMEOUT = 2000;
-
+  static const int TIMEOUT_FOR_LASTVALUES_SYNC = 10000;
 
   void onGetTime(unsigned long(*callback)(void));
 
@@ -71,10 +79,10 @@ public:
   bool disconnect();
 
   void poll() __attribute__((deprecated)); /* Attention: Function is deprecated - use 'update' instead */
-  void update();
+  void update(CallbackFunc onSyncCompleteCallback = NULL);
 
   // defined for users who want to specify max reconnections reties and timeout between them
-  void update(int const reconnectionMaxRetries, int const reconnectionTimeoutMs);
+  void update(int const reconnectionMaxRetries, int const reconnectionTimeoutMs, CallbackFunc onSyncCompleteCallback = NULL);
 
   int connected();
   // Clean up existing Mqtt connection, create a new one and initialize it
@@ -92,17 +100,16 @@ public:
 
 
   template<typename T, typename N=T>
-  void addPropertyReal(T & property, String name, permissionType permission_type = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, N minDelta = N(0)) {
+  void addPropertyReal(T & property, String name, permissionType permission_type = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, void(*synFn)(ArduinoCloudProperty<T> property) = CLOUD_WINS, N minDelta = N(0)) {
     Permission permission = Permission::ReadWrite;
     if     (permission_type == READ ) permission = Permission::Read;
     else if(permission_type == WRITE) permission = Permission::Write;
     else                              permission = Permission::ReadWrite;
 
     if(seconds == ON_CHANGE) {
-      Thing.addPropertyReal(property, name, permission).publishOnChange((T)minDelta, DEFAULT_MIN_TIME_BETWEEN_UPDATES_MILLIS).onUpdate(fn);
-    }
-    else {
-      Thing.addPropertyReal(property, name, permission).publishEvery(seconds).onUpdate(fn);
+      Thing.addPropertyReal(property, name, permission).publishOnChange((T)minDelta, DEFAULT_MIN_TIME_BETWEEN_UPDATES_MILLIS).onUpdate(fn).onSync(synFn);
+    } else {
+      Thing.addPropertyReal(property, name, permission).publishEvery(seconds).onUpdate(fn).onSync(synFn);
     }
   }
 
@@ -120,10 +127,14 @@ protected:
   friend class CloudSerialClass;
   int writeStdout(const byte data[], int length);
   int writeProperties(const byte data[], int length);
+  int writeShadowOut(const byte data[], int length);
+
   // Used to initialize MQTTClient
   void mqttClientBegin();
   // Function in charge of perform MQTT reconnection, basing on class parameters(retries,and timeout)
   bool mqttReconnect(int const maxRetries, int const timeout);
+  // Used to retrieve last values from _shadowTopicIn
+  void requestLastValue();
 
   ArduinoIoTConnectionStatus getIoTStatus() { return iotStatus; }
   void setIoTConnectionState(ArduinoIoTConnectionStatus _newState);
@@ -132,6 +143,10 @@ private:
   ConnectionManager *connection;
   static void onMessage(int length);
   void handleMessage(int length);
+  ArduinoIoTSynchronizationStatus _syncStatus = ArduinoIoTSynchronizationStatus::SYNC_STATUS_SYNCHRONIZED;
+
+  void sendPropertiesToCloud();
+
 
   String _id,
          _thing_id,
@@ -140,10 +155,14 @@ private:
   ArduinoCloudThing Thing;
   BearSSLClient* _bearSslClient;
   MqttClient* _mqttClient;
+  int _lastSyncRequestTickTime;
+
 
   // Class attribute to define MTTQ topics 2 for stdIn/out and 2 for data, in order to avoid getting previous pupblished payload
   String _stdinTopic;
   String _stdoutTopic;
+  String _shadowTopicOut;
+  String _shadowTopicIn;
   String _dataTopicOut;
   String _dataTopicIn;
   String _otaTopic;
