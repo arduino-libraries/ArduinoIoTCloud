@@ -15,6 +15,9 @@
  * a commercial license, send an email to license@arduino.cc.
  */
 
+#ifndef ETHERNET_CONNECTION_MANAGER_H_
+#define ETHERNET_CONNECTION_MANAGER_H_
+
 /******************************************************************************
  * INCLUDE
  ******************************************************************************/
@@ -41,7 +44,7 @@ public:
 private:
 
   void changeConnectionState(NetworkConnectionState _newState);
-  
+
   const int CHECK_INTERVAL_IDLE = 100;
   const int CHECK_INTERVAL_INIT = 100;
   const int CHECK_INTERVAL_CONNECTING = 500;
@@ -58,3 +61,5 @@ private:
   EthernetUDP udp;
   int connectionTickTimeInterval;
 };
+
+#endif

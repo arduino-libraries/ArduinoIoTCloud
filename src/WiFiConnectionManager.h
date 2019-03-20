@@ -15,6 +15,9 @@
  * a commercial license, send an email to license@arduino.cc.
  */
 
+#ifndef WIFI_CONNECTION_MANAGER_H_
+#define WIFI_CONNECTION_MANAGER_H_
+
 /******************************************************************************
  * INCLUDE
  ******************************************************************************/
@@ -60,3 +63,5 @@ private:
   WiFiClient wifiClient;
   int connectionTickTimeInterval;
 };
+
+#endif /* WIFI_CONNECTION_MANAGER_H_ */

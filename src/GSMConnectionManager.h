@@ -15,6 +15,9 @@
  * a commercial license, send an email to license@arduino.cc.
  */
 
+#ifndef GSM_CONNECTION_MANAGER_H_
+#define GSM_CONNECTION_MANAGER_H_
+
 /******************************************************************************
  * INCLUDE
  ******************************************************************************/
@@ -61,3 +64,5 @@ private:
   int connectionTickTimeInterval;
 
 };
+
+#endif /* GSM_CONNECTION_MANAGER_H_ */

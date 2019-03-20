@@ -15,8 +15,8 @@
  * a commercial license, send an email to license@arduino.cc.
  */
 
-#ifndef CONNECTION_MANAGER_H_INCLUDED
-#define CONNECTION_MANAGER_H_INCLUDED
+#ifndef CONNECTION_MANAGER_H_
+#define CONNECTION_MANAGER_H_
 
 #define ARDUINO_CLOUD_DEBUG_LEVEL 2
 
@@ -99,4 +99,5 @@ inline void debugMessage(char *_msg, int _debugLevel, bool _timestamp = true, bo
 inline void setDebugMessageLevel(int _debugLevel){
   debugMessageLevel = _debugLevel;
 }
-#endif
+
+#endif /* CONNECTION_MANAGER_H_ */
