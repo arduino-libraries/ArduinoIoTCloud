@@ -21,6 +21,8 @@
 
 #include "EthernetConnectionManager.h"
 
+#ifdef BOARD_HAS_ETHERNET /* Only compile if the board has ethernet */
+
 /******************************************************************************
  * CONSTANTS
  ******************************************************************************/
@@ -187,3 +189,5 @@ void EthConnectionManager::changeConnectionState(NetworkConnectionState _newStat
   connectionTickTimeInterval = newInterval;
   lastConnectionTickTime = millis();
 }
+
+#endif /* #ifdef BOARD_HAS_ETHERNET */

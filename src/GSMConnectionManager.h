@@ -24,6 +24,8 @@
 
 #include "ConnectionManager.h"
 
+#ifdef BOARD_HAS_GSM /* Only compile if this is a board with GSM */
+
 /******************************************************************************
  * CLASS DECLARATION
  ******************************************************************************/
@@ -64,5 +66,7 @@ private:
   int connectionTickTimeInterval;
 
 };
+
+#endif /* #ifdef BOARD_HAS_GSM  */
 
 #endif /* GSM_CONNECTION_MANAGER_H_ */

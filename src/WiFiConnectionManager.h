@@ -23,6 +23,9 @@
  ******************************************************************************/
 
 #include "ConnectionManager.h"
+
+#ifdef BOARD_HAS_WIFI /* Only compile if the board has WiFi */
+
 #include <WiFiUdp.h>
 
 /******************************************************************************
@@ -63,5 +66,7 @@ private:
   WiFiClient wifiClient;
   int connectionTickTimeInterval;
 };
+
+#endif /* #ifdef BOARD_HAS_WIFI */
 
 #endif /* WIFI_CONNECTION_MANAGER_H_ */

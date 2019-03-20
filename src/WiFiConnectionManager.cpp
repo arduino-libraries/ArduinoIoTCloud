@@ -21,6 +21,8 @@
 
 #include "WiFiConnectionManager.h"
 
+#ifdef BOARD_HAS_WIFI /* Only compile if the board has WiFi */
+
 /******************************************************************************
  * CONSTANTS
  ******************************************************************************/
@@ -172,3 +174,5 @@ void WiFiConnectionManager::changeConnectionState(NetworkConnectionState _newSta
   lastConnectionTickTime = millis();
   netConnectionState = _newState;
 }
+
+#endif /* #ifdef BOARD_HAS_WIFI */

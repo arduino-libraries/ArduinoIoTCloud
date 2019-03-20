@@ -21,6 +21,8 @@
 
 #include "GSMConnectionManager.h"
 
+#ifdef BOARD_HAS_GSM /* Only compile if this is a board with GSM */
+
 /******************************************************************************
  * CONSTANTS
  ******************************************************************************/
@@ -175,3 +177,5 @@ void GSMConnectionManager::changeConnectionState(NetworkConnectionState _newStat
   lastConnectionTickTime = millis();
   netConnectionState = _newState;
 }
+
+#endif /* #ifdef BOARD_HAS_GSM  */

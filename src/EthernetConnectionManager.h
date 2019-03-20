@@ -24,8 +24,10 @@
 
 #include "ConnectionManager.h"
 
+#define BOARD_HAS_ETHERNET /* FIXME - In current implementation this define is always set -> the compilation is always enabled - is this really necessary? */
+
+#ifdef BOARD_HAS_ETHERNET /* Only compile if the board has ethernet */
 #include <Ethernet.h>
-#define BOARD_HAS_ETHERNET
 
 /******************************************************************************
  * CLASS DECLARATION
@@ -61,5 +63,7 @@ private:
   EthernetUDP udp;
   int connectionTickTimeInterval;
 };
+
+#endif /* #ifdef BOARD_HAS_ETHERNET */
 
 #endif
