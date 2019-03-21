@@ -59,6 +59,7 @@ unsigned long NTPUtils::getTime() {
   while (!Udp.parsePacket() && (millis() - start < 10000)){}
   if (millis() - start >= 1000) {
     //timeout reached
+    Udp.stop();
     return 0;
   }
   Udp.read(packetBuffer, NTP_PACKET_SIZE);
