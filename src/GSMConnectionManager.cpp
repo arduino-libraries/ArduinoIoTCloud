@@ -39,8 +39,7 @@ GSMConnectionManager::GSMConnectionManager(const char *pin, const char *apn, con
   login(login),
   pass(pass),
   lastConnectionTickTime(millis()),
-  connectionTickTimeInterval(CHECK_INTERVAL_IDLE),
-  getTimeRetries(MAX_GETTIME_RETRIES) {
+  connectionTickTimeInterval(CHECK_INTERVAL_IDLE) {
 }
 
 /******************************************************************************
@@ -96,24 +95,8 @@ void GSMConnectionManager::check() {
         } else {
           sprintf(msgBuffer, "Connected to GPRS Network");
           debugMessage(msgBuffer, 2);
-          changeConnectionState(CONNECTION_STATE_GETTIME);
-          return;
-        }
-        break;
-      case CONNECTION_STATE_GETTIME:
-        debugMessage("Acquiring Time from Network", 3);
-        unsigned long networkTime;
-        networkTime = getTime();
-        debugMessage(".", 3, false, false);
-        if(networkTime > lastValidTimestamp){
-          lastValidTimestamp = networkTime;
-          sprintf(msgBuffer, "Network Time: %u", networkTime);
-          debugMessage(msgBuffer, 3);
           changeConnectionState(CONNECTION_STATE_CONNECTED);
-        }else if(gsmAccess.isAccessAlive() != 1){
-          changeConnectionState(CONNECTION_STATE_DISCONNECTED);
-        }else if (!getTimeRetries--) {
-           changeConnectionState(CONNECTION_STATE_DISCONNECTED);
+          return;
         }
         break;
       case CONNECTION_STATE_CONNECTED:
@@ -152,11 +135,6 @@ void GSMConnectionManager::changeConnectionState(NetworkConnectionState _newStat
       debugMessage(msgBuffer, 2);
       newInterval = CHECK_INTERVAL_CONNECTING;
       break;
-    case CONNECTION_STATE_GETTIME:
-      debugMessage("Acquiring Time from Network", 3);
-      newInterval = CHECK_INTERVAL_GETTIME;
-      getTimeRetries = MAX_GETTIME_RETRIES;
-      break;
     case CONNECTION_STATE_CONNECTED:
       newInterval = CHECK_INTERVAL_CONNECTED;
       break;
@@ -164,8 +142,6 @@ void GSMConnectionManager::changeConnectionState(NetworkConnectionState _newStat
       if(netConnectionState == CONNECTION_STATE_CONNECTED){
         debugMessage("Disconnected from Cellular Network", 0);
         debugMessage("Attempting reconnection", 0);
-      }else if(netConnectionState == CONNECTION_STATE_GETTIME){
-        debugMessage("Connection to Cellular Network lost during Time acquisition.\nAttempting reconnection", 0);
       }
       newInterval = CHECK_INTERVAL_DISCONNECTED;
       break;
