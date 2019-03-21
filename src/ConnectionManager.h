@@ -15,14 +15,22 @@
  * a commercial license, send an email to license@arduino.cc.
  */
 
-#ifndef CONNECTION_MANAGER_H_INCLUDED
-#define CONNECTION_MANAGER_H_INCLUDED
+#ifndef CONNECTION_MANAGER_H_
+#define CONNECTION_MANAGER_H_
 
-#define ARDUINO_CLOUD_DEBUG_LEVEL 2
+/******************************************************************************
+ * INCLUDES
+ ******************************************************************************/
 
 #include <Client.h>
 #include <Udp.h>
+
 #include "utility/NTPUtils.h"
+#include "utility/DebugUtils.h"
+
+/******************************************************************************
+ * TYPEDEFS
+ ******************************************************************************/
 
 enum NetworkConnectionState {
   CONNECTION_STATE_INIT,
@@ -33,6 +41,10 @@ enum NetworkConnectionState {
   CONNECTION_STATE_DISCONNECTED,
   CONNECTION_STATE_ERROR
 };
+
+/******************************************************************************
+ * CLASS DECLARATION
+ ******************************************************************************/
 
 class ConnectionManager {
 public:
@@ -49,7 +61,6 @@ protected:
   NetworkConnectionState netConnectionState = CONNECTION_STATE_INIT;
 
 };
-
 
 #ifdef ARDUINO_SAMD_MKR1000
 #include <WiFi101.h>
@@ -77,26 +88,4 @@ protected:
 #define NETWORK_CONNECTED GSM3_NetworkStatus_t::GPRS_READY
 #endif
 
-static int debugMessageLevel = ARDUINO_CLOUD_DEBUG_LEVEL;
-inline void debugMessage(char *_msg, int _debugLevel, bool _timestamp = true, bool _newline = true) {
-  if(_debugLevel < 0){
-    return;
-  }
-  if (_debugLevel <= debugMessageLevel) {
-    char prepend[20];
-    sprintf(prepend, "\n[ %d ] ", millis());
-    if(_timestamp){
-      Serial.print(prepend);
-    }
-    if(_newline){
-      Serial.println(_msg);
-    }else{
-      Serial.print(_msg);
-    }
-  }
-}
-
-inline void setDebugMessageLevel(int _debugLevel){
-  debugMessageLevel = _debugLevel;
-}
-#endif
+#endif /* CONNECTION_MANAGER_H_ */
