@@ -30,6 +30,10 @@ const static int compressedCertSlot                        = 10;
 const static int serialNumberAndAuthorityKeyIdentifierSlot = 11;
 const static int thingIdSlot                               = 12;
 
+const static int CONNECT_SUCCESS                           =  1;
+const static int CONNECT_FAILURE                           =  0;
+const static int CONNECT_FAILURE_SUBSCRIBE                 = -1;
+
 static ConnectionManager *getTimeConnection = NULL;
 
 static unsigned long getTime() {
@@ -185,16 +189,17 @@ int ArduinoIoTCloudClass::connect()
   // Username: device id
   // Password: empty
   if (!_mqttClient->connect(_brokerAddress.c_str(), _brokerPort)) {
-    return 0;
+    return CONNECT_FAILURE;
   }
-  _mqttClient->subscribe(_stdinTopic);
-  _mqttClient->subscribe(_dataTopicIn);
-  _mqttClient->subscribe(_shadowTopicIn);
+
+  if(_mqttClient->subscribe(_stdinTopic   ) == 0) return CONNECT_FAILURE_SUBSCRIBE;
+  if(_mqttClient->subscribe(_dataTopicIn  ) == 0) return CONNECT_FAILURE_SUBSCRIBE;
+  if(_mqttClient->subscribe(_shadowTopicIn) == 0) return CONNECT_FAILURE_SUBSCRIBE;
 
   _syncStatus = ArduinoIoTSynchronizationStatus::SYNC_STATUS_WAIT_FOR_CLOUD_VALUES;
   _lastSyncRequestTickTime = 0;
 
-  return 1;
+  return CONNECT_SUCCESS;
 }
 
 bool ArduinoIoTCloudClass::disconnect()
@@ -405,14 +410,17 @@ void ArduinoIoTCloudClass::connectionCheck()
       }
       break;
     case IOT_STATUS_CLOUD_CONNECTING:
-      int arduinoIoTConnectionAttempt;
-      arduinoIoTConnectionAttempt = connect();
-      sprintf(msgBuffer, "ArduinoCloud.connect(): %d", arduinoIoTConnectionAttempt);
+      int const ret_code_connect = connect();
+      sprintf(msgBuffer, "ArduinoCloud.connect(): %d", ret_code_connect);
       debugMessage(msgBuffer, 4);
-      if (arduinoIoTConnectionAttempt == 1) {
+      if (ret_code_connect == CONNECT_SUCCESS) {
         setIoTConnectionState(IOT_STATUS_CLOUD_CONNECTED);
         CloudSerial.begin(9600);
         CloudSerial.println("Hello from Cloud Serial!");
+      }
+      else if (ret_code_connect == CONNECT_FAILURE_SUBSCRIBE) {
+        sprintf(msgBuffer, "ERROR - Please verify your THING ID");
+        debugMessage(msgBuffer, 0);
       }
       break;
   }
