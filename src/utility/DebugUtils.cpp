@@ -27,7 +27,7 @@
  * GLOBAL VARIABLES
  ******************************************************************************/
 
-static int debugMessageLevel = ARDUINO_IOT_CLOUD_DEFAULT_DEBUG_LEVEL;
+static DebugLevel current_debug_level = ARDUINO_IOT_CLOUD_DEFAULT_DEBUG_LEVEL;
 
 /******************************************************************************
  * PRIVATE PROTOTYPES
@@ -39,12 +39,28 @@ void vDebugMessage(char const * fmt, va_list args);
  * PUBLIC FUNCTIONS
  ******************************************************************************/
 
-void setDebugMessageLevel(int const debugLevel) {
-  debugMessageLevel = debugLevel;
+void setDebugMessageLevel(int const debug_level) {
+  switch(debug_level)
+  {
+    case -1: setDebugMessageLevel(DebugLevel::None                     ); break;
+    case  0: setDebugMessageLevel(DebugLevel::Error                    ); break;
+    case  1: setDebugMessageLevel(DebugLevel::Warning                  ); break;
+    case  2: setDebugMessageLevel(DebugLevel::Info                     ); break;
+    case  3: setDebugMessageLevel(DebugLevel::Debug                    ); break;
+    case  4: setDebugMessageLevel(DebugLevel::Verbose                  ); break;
+    default: setDebugMessageLevel(ARDUINO_IOT_CLOUD_DEFAULT_DEBUG_LEVEL); break;
+  }
 }
 
-void debugMessage(int const debugLevel, char * fmt, ...) {
-  if(debugLevel >= 0 && debugLevel <= debugMessageLevel) {
+void setDebugMessageLevel(DebugLevel const debug_level) {
+  current_debug_level = debug_level;
+}
+
+void debugMessage(DebugLevel const debug_level, char * fmt, ...) {
+  if(debug_level >= DebugLevel::Error   && 
+     debug_level <= DebugLevel::Verbose &&
+     debug_level <= current_debug_level) {
+    
     char timestamp[20];
     snprintf(timestamp, 20, "[ %d ] ", millis());
     Serial.print(timestamp);

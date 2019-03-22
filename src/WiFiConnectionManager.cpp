@@ -58,31 +58,31 @@ void WiFiConnectionManager::check() {
     switch (netConnectionState) {
       case CONNECTION_STATE_INIT:
         networkStatus = WiFi.status();
-        debugMessage(2, "WiFi.status(): %d", networkStatus);
+        debugMessage(DebugLevel::Info, "WiFi.status(): %d", networkStatus);
         if (networkStatus == NETWORK_HARDWARE_ERROR) {
           // NO FURTHER ACTION WILL FOLLOW THIS
           changeConnectionState(CONNECTION_STATE_ERROR);
           lastConnectionTickTime = now;
           return;
         }
-        debugMessage(0, "Current WiFi Firmware: %s", WiFi.firmwareVersion());
+        debugMessage(DebugLevel::Error, "Current WiFi Firmware: %s", WiFi.firmwareVersion());
         if(WiFi.firmwareVersion() < WIFI_FIRMWARE_VERSION_REQUIRED){
-          debugMessage(0, "Latest WiFi Firmware: %s", WIFI_FIRMWARE_VERSION_REQUIRED);
-          debugMessage(0, "Please update to the latest version for best performance.");
+          debugMessage(DebugLevel::Error, "Latest WiFi Firmware: %s", WIFI_FIRMWARE_VERSION_REQUIRED);
+          debugMessage(DebugLevel::Error, "Please update to the latest version for best performance.");
           delay(5000);
         }
         changeConnectionState(CONNECTION_STATE_CONNECTING);
         break;
       case CONNECTION_STATE_CONNECTING:
         networkStatus = WiFi.begin(ssid, pass);
-        debugMessage(4, "WiFi.status(): %d", networkStatus);
+        debugMessage(DebugLevel::Verbose, "WiFi.status(): %d", networkStatus);
         if (networkStatus != NETWORK_CONNECTED) {
-          debugMessage(0, "Connection to \"%s\" failed", ssid);
-          debugMessage(2, "Retrying in  \"%d\" milliseconds", connectionTickTimeInterval);
+          debugMessage(DebugLevel::Error, "Connection to \"%s\" failed", ssid);
+          debugMessage(DebugLevel::Info, "Retrying in  \"%d\" milliseconds", connectionTickTimeInterval);
           //changeConnectionState(CONNECTION_STATE_CONNECTING);
           return;
         } else {
-          debugMessage(2, "Connected to \"%s\"", ssid);
+          debugMessage(DebugLevel::Info, "Connected to \"%s\"", ssid);
           changeConnectionState(CONNECTION_STATE_CONNECTED);
           return;
         }
@@ -90,12 +90,12 @@ void WiFiConnectionManager::check() {
       case CONNECTION_STATE_CONNECTED:
         // keep testing connection
         networkStatus = WiFi.status();
-        debugMessage(4, "WiFi.status(): %d", networkStatus);
+        debugMessage(DebugLevel::Verbose, "WiFi.status(): %d", networkStatus);
         if (networkStatus != WL_CONNECTED) {
           changeConnectionState(CONNECTION_STATE_DISCONNECTED);
           return;
         }
-        debugMessage(4, "Connected to \"%s\"", ssid);
+        debugMessage(DebugLevel::Verbose, "Connected to \"%s\"", ssid);
         break;
       case CONNECTION_STATE_DISCONNECTED:
         WiFi.end();
@@ -118,21 +118,21 @@ void WiFiConnectionManager::changeConnectionState(NetworkConnectionState _newSta
       newInterval = CHECK_INTERVAL_INIT;
       break;
     case CONNECTION_STATE_CONNECTING:
-      debugMessage(2, "Connecting to \"%s\"", ssid);
+      debugMessage(DebugLevel::Info, "Connecting to \"%s\"", ssid);
       newInterval = CHECK_INTERVAL_CONNECTING;
       break;
     case CONNECTION_STATE_CONNECTED:
       newInterval = CHECK_INTERVAL_CONNECTED;
       break;
     case CONNECTION_STATE_DISCONNECTED:
-      debugMessage(4, "WiFi.status(): %d", WiFi.status());
-      debugMessage(0, "Connection to \"%s\" lost.", ssid);
-      debugMessage(0, "Attempting reconnection");
+      debugMessage(DebugLevel::Verbose, "WiFi.status(): %d", WiFi.status());
+      debugMessage(DebugLevel::Error, "Connection to \"%s\" lost.", ssid);
+      debugMessage(DebugLevel::Error, "Attempting reconnection");
       newInterval = CHECK_INTERVAL_DISCONNECTED;
       break;
     case CONNECTION_STATE_ERROR:
-      debugMessage(0, "WiFi Hardware failure.\nMake sure you are using a WiFi enabled board/shield.");
-      debugMessage(0, "Then reset and retry.");
+      debugMessage(DebugLevel::Error, "WiFi Hardware failure.\nMake sure you are using a WiFi enabled board/shield.");
+      debugMessage(DebugLevel::Error, "Then reset and retry.");
       break;
   }
   connectionTickTimeInterval = newInterval;

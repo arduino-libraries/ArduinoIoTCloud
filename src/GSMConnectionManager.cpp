@@ -49,11 +49,11 @@ GSMConnectionManager::GSMConnectionManager(const char *pin, const char *apn, con
 void GSMConnectionManager::init() {
   char msgBuffer[120];
   if (gsmAccess.begin(pin) == GSM_READY) {
-    debugMessage(2, "SIM card ok");
+    debugMessage(DebugLevel::Info, "SIM card ok");
     gsmAccess.setTimeout(CHECK_INTERVAL_RETRYING);
     changeConnectionState(CONNECTION_STATE_CONNECTING);
   } else {
-    debugMessage(0, "SIM not present or wrong PIN");
+    debugMessage(DebugLevel::Error, "SIM not present or wrong PIN");
     while(1);
   }
 }
@@ -74,34 +74,34 @@ void GSMConnectionManager::check() {
         // NOTE: Blocking Call when 4th parameter == true
         GSM3_NetworkStatus_t networkStatus;
         networkStatus = gprs.attachGPRS(apn, login, pass, true);
-        debugMessage(3, "GPRS.attachGPRS(): %d", networkStatus);
+        debugMessage(DebugLevel::Debug, "GPRS.attachGPRS(): %d", networkStatus);
         if (networkStatus == GSM3_NetworkStatus_t::ERROR) {
           // NO FURTHER ACTION WILL FOLLOW THIS
           changeConnectionState(CONNECTION_STATE_ERROR);
           return;
         }
-        debugMessage(2, "Sending PING to outer space...");
+        debugMessage(DebugLevel::Info, "Sending PING to outer space...");
         int pingResult;
         pingResult = gprs.ping("time.arduino.cc");
-        debugMessage(2, "GSM.ping(): %d", pingResult);
+        debugMessage(DebugLevel::Info, "GSM.ping(): %d", pingResult);
         if (pingResult < 0) {
-          debugMessage(0, "PING failed");
-          debugMessage(2, "Retrying in  \"%d\" milliseconds", connectionTickTimeInterval);
+          debugMessage(DebugLevel::Error, "PING failed");
+          debugMessage(DebugLevel::Info, "Retrying in  \"%d\" milliseconds", connectionTickTimeInterval);
           return;
         } else {
-          debugMessage(2, "Connected to GPRS Network");
+          debugMessage(DebugLevel::Info, "Connected to GPRS Network");
           changeConnectionState(CONNECTION_STATE_CONNECTED);
           return;
         }
         break;
       case CONNECTION_STATE_CONNECTED:
         gsmAccessAlive = gsmAccess.isAccessAlive();
-        debugMessage(4, "GPRS.isAccessAlive(): %d", gsmAccessAlive);
+        debugMessage(DebugLevel::Verbose, "GPRS.isAccessAlive(): %d", gsmAccessAlive);
         if (gsmAccessAlive != 1) {
           changeConnectionState(CONNECTION_STATE_DISCONNECTED);
           return;
         }
-        debugMessage(4, "Connected to Cellular Network");
+        debugMessage(DebugLevel::Verbose, "Connected to Cellular Network");
         break;
       case CONNECTION_STATE_DISCONNECTED:
         gprs.detachGPRS();
@@ -124,7 +124,7 @@ void GSMConnectionManager::changeConnectionState(NetworkConnectionState _newStat
       newInterval = CHECK_INTERVAL_INIT;
       break;
     case CONNECTION_STATE_CONNECTING:
-      debugMessage(2, "Connecting to Cellular Network");
+      debugMessage(DebugLevel::Info, "Connecting to Cellular Network");
       newInterval = CHECK_INTERVAL_CONNECTING;
       break;
     case CONNECTION_STATE_CONNECTED:
@@ -132,13 +132,13 @@ void GSMConnectionManager::changeConnectionState(NetworkConnectionState _newStat
       break;
     case CONNECTION_STATE_DISCONNECTED:
       if(netConnectionState == CONNECTION_STATE_CONNECTED){
-        debugMessage(0, "Disconnected from Cellular Network");
-        debugMessage(0, "Attempting reconnection");
+        debugMessage(DebugLevel::Error, "Disconnected from Cellular Network");
+        debugMessage(DebugLevel::Error, "Attempting reconnection");
       }
       newInterval = CHECK_INTERVAL_DISCONNECTED;
       break;
     case CONNECTION_STATE_ERROR:
-      debugMessage(0, "GPRS attach failed\n\rMake sure the antenna is connected and reset your board.");
+      debugMessage(DebugLevel::Error, "GPRS attach failed\n\rMake sure the antenna is connected and reset your board.");
       break;
   }
   connectionTickTimeInterval = newInterval;

@@ -22,17 +22,31 @@
 #include <Arduino.h>
 
 /******************************************************************************
+ * TYPEDEF
+ ******************************************************************************/
+
+enum class DebugLevel : int {
+	None    = -1,
+	Error   =  0,
+	Warning =  1,
+	Info    =  2,
+	Debug   =  3,
+	Verbose =  4
+};
+
+/******************************************************************************
  * CONSTANTS
  ******************************************************************************/
 
-static int const ARDUINO_IOT_CLOUD_DEFAULT_DEBUG_LEVEL = 2;
+static DebugLevel const ARDUINO_IOT_CLOUD_DEFAULT_DEBUG_LEVEL = DebugLevel::Info;
 
 /******************************************************************************
  * PROTOTYPES
  ******************************************************************************/
 
-void setDebugMessageLevel(int const debugLevel);
-void debugMessage        (int const debugLevel, char * fmt, ...);
+void setDebugMessageLevel(int        const debug_level); /* For backwards compatibility */
+void setDebugMessageLevel(DebugLevel const debug_level);
+void debugMessage        (DebugLevel const debug_level, char * fmt, ...);
 
 
 
