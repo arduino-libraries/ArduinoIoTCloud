@@ -53,7 +53,6 @@ unsigned long EthConnectionManager::getTime() {
 }
 
 void EthConnectionManager::check() {
-  char msgBuffer[120];
   unsigned long const now = millis();
   int networkStatus = 0;
   if (now - lastConnectionTickTime > connectionTickTimeInterval) {
@@ -65,69 +64,50 @@ void EthConnectionManager::check() {
           networkStatus = Ethernet.begin(mac, ss_pin);
         }
         networkStatus = Ethernet.hardwareStatus();
-        *msgBuffer = 0;
-        sprintf(msgBuffer, "Eth hardware status(): %d", networkStatus);
-        debugMessage(msgBuffer, 2);
+        debugMessage(2, "Eth hardware status(): %d", networkStatus);
         if (networkStatus == EthernetNoHardware) {
-          debugMessage("No Ethernet chip connected", 0);
+          debugMessage(0, "No Ethernet chip connected");
           // don't continue:
           changeConnectionState(CONNECTION_STATE_ERROR);
           lastConnectionTickTime = now;
           return;
         }
         networkStatus = Ethernet.linkStatus();
-        *msgBuffer = 0;
-        sprintf(msgBuffer, "Eth link status(): %d", networkStatus);
-        debugMessage(msgBuffer, 2);
+        debugMessage(2, "Eth link status(): %d", networkStatus);
         if (networkStatus == LinkOFF) {
-          debugMessage("Failed to configure Ethernet via dhcp", 0);
+          debugMessage(0, "Failed to configure Ethernet via dhcp");
           // don't continue:
           changeConnectionState(CONNECTION_STATE_ERROR);
           lastConnectionTickTime = now;
           return;
         }
-        *msgBuffer = 0;
-        sprintf(msgBuffer, "Ethernet shield recognized: ID", Ethernet.hardwareStatus());
-        debugMessage(msgBuffer, 0);
+        debugMessage(0, "Ethernet shield recognized: ID", Ethernet.hardwareStatus());
         changeConnectionState(CONNECTION_STATE_CONNECTING);
         break;
       case CONNECTION_STATE_CONNECTING:
-        *msgBuffer = 0;
-        sprintf(msgBuffer, "Connecting via dhcp");
-        debugMessage(msgBuffer, 2);
+        debugMessage(2, "Connecting via dhcp");
         if (ss_pin == -1) {
           networkStatus = Ethernet.begin(mac);
         } else {
           networkStatus = Ethernet.begin(mac, ss_pin);
         }
-        *msgBuffer = 0;
-        sprintf(msgBuffer, "Ethernet.status(): %d", networkStatus);
-        debugMessage(msgBuffer, 2);
+        debugMessage(2, "Ethernet.status(): %d", networkStatus);
         if (networkStatus == 0) {
-          *msgBuffer = 0;
-          sprintf(msgBuffer, "Connection failed");
-          debugMessage(msgBuffer, 0);
-
-          *msgBuffer = 0;
-          sprintf(msgBuffer, "Retrying in  \"%d\" milliseconds", connectionTickTimeInterval);
-          debugMessage(msgBuffer, 2);
+          debugMessage(0, "Connection failed");
+          debugMessage(2, "Retrying in  \"%d\" milliseconds", connectionTickTimeInterval);
           //changeConnectionState(CONNECTION_STATE_CONNECTING);
           return;
         } else {
-          *msgBuffer = 0;
-          sprintf(msgBuffer, "Connected!");
-          debugMessage(msgBuffer, 2);
+          debugMessage(2, "Connected!");
           changeConnectionState(CONNECTION_STATE_GETTIME);
           return;
         }
         break;
       case CONNECTION_STATE_GETTIME:
-        debugMessage("Acquiring Time from Network", 3);
+        debugMessage(3, "Acquiring Time from Network");
         unsigned long networkTime;
         networkTime = getTime();
-        *msgBuffer = 0;
-        sprintf(msgBuffer, "Network Time: %u", networkTime);
-        debugMessage(msgBuffer, 3);
+        debugMessage(3, "Network Time: %u", networkTime);
         if(networkTime > lastValidTimestamp){
           lastValidTimestamp = networkTime;
           changeConnectionState(CONNECTION_STATE_CONNECTED);
@@ -137,22 +117,16 @@ void EthConnectionManager::check() {
         // keep testing connection
         Ethernet.maintain();
         networkStatus = Ethernet.linkStatus();
-        *msgBuffer = 0;
-        sprintf(msgBuffer, "Eth link status(): %d", networkStatus);
-        debugMessage(msgBuffer, 4);
+        debugMessage(4, "Eth link status(): %d", networkStatus);
         if (networkStatus != LinkON) {
           changeConnectionState(CONNECTION_STATE_DISCONNECTED);
           return;
         }
-        *msgBuffer = 0;
-        sprintf(msgBuffer, "Connected");
-        debugMessage(msgBuffer, 2);
+        debugMessage(2, "Connected");
         break;
       case CONNECTION_STATE_DISCONNECTED:
-        *msgBuffer = 0;
-        sprintf(msgBuffer, "Connection lost.");
-        debugMessage(msgBuffer, 0);
-        debugMessage("Attempting reconnection", 1);
+        debugMessage(0, "Connection lost.");
+        debugMessage(2, "Attempting reconnection");
         changeConnectionState(CONNECTION_STATE_CONNECTING);
         //wifiClient.stop();
         break;

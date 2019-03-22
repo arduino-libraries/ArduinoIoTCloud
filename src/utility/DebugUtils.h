@@ -31,8 +31,8 @@ static int const ARDUINO_IOT_CLOUD_DEFAULT_DEBUG_LEVEL = 2;
  * PROTOTYPES
  ******************************************************************************/
 
-void setDebugMessageLevel(int debugLevel);
-void debugMessage(char * msg, int const debugLevel, bool const timestamp = true, bool const newline = true);
+void setDebugMessageLevel(int const debugLevel);
+void debugMessage        (int const debugLevel, char * fmt, ...);
 
 
 

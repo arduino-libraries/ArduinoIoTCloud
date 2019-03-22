@@ -40,7 +40,7 @@ static unsigned long getTime() {
   if (!getTimeConnection) return 0;
   unsigned long time = getTimeConnection->getTime();
   if (!NTPUtils::isTimeValid(time)) {
-    debugMessage("Bogus NTP time from API, fallback to UDP method", 0);
+    debugMessage(0, "Bogus NTP time from API, fallback to UDP method");
     time = NTPUtils(getTimeConnection->getUDP()).getTime();
   }
   #ifdef ARDUINO_ARCH_SAMD
@@ -102,18 +102,18 @@ int ArduinoIoTCloudClass::begin(Client& net, String brokerAddress, uint16_t brok
   byte thingIdBytes[72];
 
   if (!ECCX08.begin()) {
-    debugMessage("Cryptography processor failure. Make sure you have a compatible board.", 0);
+    debugMessage(0, "Cryptography processor failure. Make sure you have a compatible board.");
     return 0;
   }
 
   if (!ECCX08.readSlot(thingIdSlot, thingIdBytes, sizeof(thingIdBytes))) {
-    debugMessage("Cryptography processor read failure.", 0);
+    debugMessage(0, "Cryptography processor read failure.");
     return 0;
   }
   _id = (char*)thingIdBytes;
 
   if (!ECCX08Cert.beginReconstruction(keySlot, compressedCertSlot, serialNumberAndAuthorityKeyIdentifierSlot)) {
-    debugMessage("Cryptography certificate reconstruction failure.", 0);
+    debugMessage(0, "Cryptography certificate reconstruction failure.");
     return 0;
   }
 
@@ -124,7 +124,7 @@ int ArduinoIoTCloudClass::begin(Client& net, String brokerAddress, uint16_t brok
   ECCX08Cert.setIssuerCommonName("Arduino");
 
   if (!ECCX08Cert.endReconstruction()) {
-    debugMessage("Cryptography certificate reconstruction failure.", 0);
+    debugMessage(0, "Cryptography certificate reconstruction failure.");
     return 0;
   }
 
@@ -378,19 +378,16 @@ void ArduinoIoTCloudClass::connectionCheck()
     }
   }
   
-  char msgBuffer[120];
-  
-
   switch (iotStatus) {
     case IOT_STATUS_CLOUD_IDLE:
       setIoTConnectionState(IOT_STATUS_CLOUD_CONNECTING);
       break;
     case IOT_STATUS_CLOUD_ERROR:
-      debugMessage("Cloud Error. Retrying...", 0);
+      debugMessage(0, "Cloud Error. Retrying...");
       setIoTConnectionState(IOT_STATUS_CLOUD_RECONNECTING);
       break;
     case IOT_STATUS_CLOUD_CONNECTED:
-      debugMessage(".", 4, false, true);
+      debugMessage(4, ".");
       if (!_mqttClient->connected()){
         setIoTConnectionState(IOT_STATUS_CLOUD_DISCONNECTED);
       }
@@ -398,29 +395,26 @@ void ArduinoIoTCloudClass::connectionCheck()
     case IOT_STATUS_CLOUD_DISCONNECTED:
       setIoTConnectionState(IOT_STATUS_CLOUD_RECONNECTING);
       break;
-    case IOT_STATUS_CLOUD_RECONNECTING:
-      int arduinoIoTReconnectionAttempt;
-      arduinoIoTReconnectionAttempt = reconnect(*_net);
-      sprintf(msgBuffer, "ArduinoCloud.reconnect(): %d", arduinoIoTReconnectionAttempt);
-      debugMessage(msgBuffer, 2);
-      if (arduinoIoTReconnectionAttempt == 1) {
+    case IOT_STATUS_CLOUD_RECONNECTING: {
+      int const ret_code_reconnect = reconnect(*_net);
+      debugMessage(2, "ArduinoCloud.reconnect(): %d", ret_code_reconnect);
+      if (ret_code_reconnect == CONNECT_SUCCESS) {
         setIoTConnectionState(IOT_STATUS_CLOUD_CONNECTED);
         CloudSerial.begin(9600);
         CloudSerial.println("Hello from Cloud Serial!");
       }
+    }
       break;
     case IOT_STATUS_CLOUD_CONNECTING:
       int const ret_code_connect = connect();
-      sprintf(msgBuffer, "ArduinoCloud.connect(): %d", ret_code_connect);
-      debugMessage(msgBuffer, 4);
+      debugMessage(4, "ArduinoCloud.connect(): %d", ret_code_connect);
       if (ret_code_connect == CONNECT_SUCCESS) {
         setIoTConnectionState(IOT_STATUS_CLOUD_CONNECTED);
         CloudSerial.begin(9600);
         CloudSerial.println("Hello from Cloud Serial!");
       }
       else if (ret_code_connect == CONNECT_FAILURE_SUBSCRIBE) {
-        sprintf(msgBuffer, "ERROR - Please verify your THING ID");
-        debugMessage(msgBuffer, 0);
+        debugMessage(2, "ERROR - Please verify your THING ID");
       }
       break;
   }
@@ -430,19 +424,19 @@ void ArduinoIoTCloudClass::setIoTConnectionState(ArduinoIoTConnectionStatus _new
 {
   switch(_newState){
     case IOT_STATUS_CLOUD_ERROR:
-      debugMessage("Arduino, we have a problem.", 0);
+      debugMessage(0 ,"Arduino, we have a problem.");
       break;
     case IOT_STATUS_CLOUD_CONNECTING:
-      debugMessage("Connecting to Arduino IoT Cloud...", 0);
+      debugMessage(0 ,"Connecting to Arduino IoT Cloud...");
       break;
     case IOT_STATUS_CLOUD_RECONNECTING:
-      debugMessage("Reconnecting to Arduino IoT Cloud...", 0);
+      debugMessage(0 ,"Reconnecting to Arduino IoT Cloud...");
       break;
     case IOT_STATUS_CLOUD_CONNECTED:
-      debugMessage("Connected to Arduino IoT Cloud", 0);
+      debugMessage(0 ,"Connected to Arduino IoT Cloud");
       break;
     case IOT_STATUS_CLOUD_DISCONNECTED:
-      debugMessage("Disconnected from Arduino IoT Cloud", 0);
+      debugMessage(0 ,"Disconnected from Arduino IoT Cloud");
       break;
   }
   iotStatus = _newState;
@@ -450,14 +444,10 @@ void ArduinoIoTCloudClass::setIoTConnectionState(ArduinoIoTConnectionStatus _new
 
 void ArduinoIoTCloudClass::printDebugInfo()
 {
-  char msgBuffer[120];
-  debugMessage("***** Arduino IoT Cloud - configuration info *****", 2);
-  sprintf(msgBuffer, "Device ID: %s", getDeviceId().c_str());
-  debugMessage(msgBuffer, 2);
-  sprintf(msgBuffer, "Thing ID: %s", getThingId().c_str());
-  debugMessage(msgBuffer, 2);
-  sprintf(msgBuffer, "MQTT Broker: %s:%d", _brokerAddress.c_str(), _brokerPort);
-  debugMessage(msgBuffer, 2);
+  debugMessage(2, "***** Arduino IoT Cloud - configuration info *****");
+  debugMessage(2, "Device ID: %s", getDeviceId().c_str());
+  debugMessage(2, "Thing ID: %s", getThingId().c_str());
+  debugMessage(2, "MQTT Broker: %s:%d", _brokerAddress.c_str(), _brokerPort);
 }
 
 ArduinoIoTCloudClass ArduinoCloud;
