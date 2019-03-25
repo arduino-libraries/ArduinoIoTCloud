@@ -92,7 +92,6 @@ public:
 
 private:
 
-  bool                          _status = OFF;
   char                          _uuid[33];
   ArduinoCloudPropertyContainer _property_cont;
   bool                          _syncMessage;

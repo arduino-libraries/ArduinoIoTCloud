@@ -76,8 +76,6 @@ ArduinoCloudThing::ArduinoCloudThing() {
  ******************************************************************************/
 
 void ArduinoCloudThing::begin() {
-  _status = ON;
-  addPropertyReal(_status, "status", Permission::Read);
 }
 
 int ArduinoCloudThing::updateTimestampOnChangedProperties(unsigned long changeEventTime) {
