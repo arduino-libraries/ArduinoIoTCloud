@@ -28,7 +28,7 @@
 const static int keySlot                                   = 0;
 const static int compressedCertSlot                        = 10;
 const static int serialNumberAndAuthorityKeyIdentifierSlot = 11;
-const static int thingIdSlot                               = 12;
+const static int deviceIdSlot                              = 12;
 
 const static int CONNECT_SUCCESS                           =  1;
 const static int CONNECT_FAILURE                           =  0;
@@ -99,25 +99,25 @@ int ArduinoIoTCloudClass::begin(Client& net, String brokerAddress, uint16_t brok
   // store the broker address as class member
   _brokerAddress = brokerAddress;
   _brokerPort = brokerPort;
-  byte thingIdBytes[72];
+  byte deviceIdBytes[72];
 
   if (!ECCX08.begin()) {
     debugMessage("Cryptography processor failure. Make sure you have a compatible board.", 0);
     return 0;
   }
 
-  if (!ECCX08.readSlot(thingIdSlot, thingIdBytes, sizeof(thingIdBytes))) {
+  if (!ECCX08.readSlot(deviceIdSlot, deviceIdBytes, sizeof(deviceIdBytes))) {
     debugMessage("Cryptography processor read failure.", 0);
     return 0;
   }
-  _id = (char*)thingIdBytes;
+  _device_id = (char*)deviceIdBytes;
 
   if (!ECCX08Cert.beginReconstruction(keySlot, compressedCertSlot, serialNumberAndAuthorityKeyIdentifierSlot)) {
     debugMessage("Cryptography certificate reconstruction failure.", 0);
     return 0;
   }
 
-  ECCX08Cert.setSubjectCommonName(_id);
+  ECCX08Cert.setSubjectCommonName(_device_id);
   ECCX08Cert.setIssuerCountryName("US");
   ECCX08Cert.setIssuerOrganizationName("Arduino LLC US");
   ECCX08Cert.setIssuerOrganizationalUnitName("IT");
@@ -164,11 +164,11 @@ void ArduinoIoTCloudClass::onGetTime(unsigned long(*callback)(void))
 void ArduinoIoTCloudClass::mqttClientBegin()
 {
   // MQTT topics definition
-  _stdoutTopic  = "/a/d/" + _id + "/s/o";
-  _stdinTopic   = "/a/d/" + _id + "/s/i";
+  _stdoutTopic  = "/a/d/" + _device_id + "/s/o";
+  _stdinTopic   = "/a/d/" + _device_id + "/s/i";
   if(_thing_id == "") {
-    _dataTopicIn  = "/a/d/" + _id + "/e/i";
-    _dataTopicOut = "/a/d/" + _id + "/e/o";
+    _dataTopicIn  = "/a/d/" + _device_id + "/e/i";
+    _dataTopicOut = "/a/d/" + _device_id + "/e/o";
   }
   else {
     _dataTopicIn  = "/a/t/" + _thing_id + "/e/i";
@@ -181,7 +181,7 @@ void ArduinoIoTCloudClass::mqttClientBegin()
   _mqttClient->onMessage(ArduinoIoTCloudClass::onMessage);
   _mqttClient->setKeepAliveInterval(30 * 1000);
   _mqttClient->setConnectionTimeout(1500);
-  _mqttClient->setId(_id.c_str());
+  _mqttClient->setId(_device_id.c_str());
 }
 
 int ArduinoIoTCloudClass::connect()
