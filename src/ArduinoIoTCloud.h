@@ -91,7 +91,7 @@ public:
   inline void setThingId(String const thing_id) { _thing_id = thing_id; };
 
   inline String getThingId()  const { return _thing_id; };
-  inline String getDeviceId() const { return _id; };
+  inline String getDeviceId() const { return _device_id; };
 
   #define addProperty( v, ...) addPropertyReal(v, #v, __VA_ARGS__)
 
@@ -148,7 +148,7 @@ private:
   void sendPropertiesToCloud();
 
 
-  String _id,
+  String _device_id,
          _thing_id,
          _brokerAddress;
   uint16_t _brokerPort;
