@@ -9,7 +9,7 @@ const bool DEBUG = true;
 const int keySlot                                   = 0;
 const int compressedCertSlot                        = 10;
 const int serialNumberAndAuthorityKeyIdentifierSlot = 11;
-const int thingIdSlot                               = 12;
+const int deviceIdSlot                              = 12;
 
 void setup() {
   Serial.begin(9600);
@@ -56,8 +56,8 @@ void setup() {
     while (1);
   }
 
-  String thingId = promptAndReadLine("Please enter the thing id: ");
-  ECCX08Cert.setSubjectCommonName(thingId);
+  String deviceId = promptAndReadLine("Please enter the device id: ");
+  ECCX08Cert.setSubjectCommonName(deviceId);
 
   String csr = ECCX08Cert.endCSR();
 
@@ -79,18 +79,18 @@ void setup() {
   String authorityKeyIdentifier = promptAndReadLine("Please enter the certificates authority key identifier: ");
   String signature              = promptAndReadLine("Please enter the certificates signature: ");
 
-  byte thingIdBytes[72];
+  byte deviceIdBytes[72];
   byte serialNumberBytes[16];
   byte authorityKeyIdentifierBytes[20];
   byte signatureBytes[64];
 
-  thingId.getBytes(thingIdBytes, sizeof(thingIdBytes));
+  deviceId.getBytes(deviceIdBytes, sizeof(deviceIdBytes));
   hexStringToBytes(serialNumber, serialNumberBytes, sizeof(serialNumberBytes));
   hexStringToBytes(authorityKeyIdentifier, authorityKeyIdentifierBytes, sizeof(authorityKeyIdentifierBytes));
   hexStringToBytes(signature, signatureBytes, sizeof(signatureBytes));
   
-  if (!ECCX08.writeSlot(thingIdSlot, thingIdBytes, sizeof(thingIdBytes))) {
-    Serial.println("Error storing thing id!");
+  if (!ECCX08.writeSlot(deviceIdSlot, deviceIdBytes, sizeof(deviceIdBytes))) {
+    Serial.println("Error storing device id!");
     while (1);
   }
 
