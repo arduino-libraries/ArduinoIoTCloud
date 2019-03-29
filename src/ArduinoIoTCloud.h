@@ -100,7 +100,7 @@ public:
 
 
   template<typename T, typename N=T>
-  void addPropertyReal(T & property, String name, permissionType permission_type = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, void(*synFn)(ArduinoCloudProperty<T> property) = CLOUD_WINS, N minDelta = N(0)) {
+  void addPropertyReal(T & property, String name, permissionType permission_type = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, N minDelta = N(0), void(*synFn)(ArduinoCloudProperty<T> property) = CLOUD_WINS) {
     Permission permission = Permission::ReadWrite;
     if     (permission_type == READ ) permission = Permission::Read;
     else if(permission_type == WRITE) permission = Permission::Write;
