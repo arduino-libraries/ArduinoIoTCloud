@@ -1,0 +1,15 @@
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+pin	KEYWORD1
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+blinking	KEYWORD2
+serial	KEYWORD2
+btn	KEYWORD2
+btnSetup	KEYWORD2
+#######################################
+# Constants (LITERAL1)
+#######################################
