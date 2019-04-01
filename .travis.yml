@@ -29,5 +29,6 @@ install:
   - ln -s $PWD $HOME/Arduino/libraries/.
 script:
   - buildExampleSketch ArduinoIoTCloud_LED_switch
+  - buildExampleSketch ArduinoIoTCloud_Travis_CI
   - buildExampleUtilitySketch Provisioning
 
