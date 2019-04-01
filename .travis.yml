@@ -1,0 +1,33 @@
+language: generic
+env:
+  global:
+    - IDE_VERSION=1.8.9
+  matrix:
+    - BOARD="arduino:samd:mkr1000"
+    - BOARD="arduino:samd:mkrwifi1010"
+    - BOARD="arduino:samd:mkrgsm1400"
+before_install:
+  - wget http://downloads.arduino.cc/arduino-$IDE_VERSION-linux64.tar.xz
+  - tar xf arduino-$IDE_VERSION-linux64.tar.xz
+  - mv arduino-$IDE_VERSION $HOME/arduino-ide
+  - export PATH=$PATH:$HOME/arduino-ide
+  - if [[ "$BOARD" =~ "arduino:samd:" ]]; then
+      arduino --install-boards arduino:samd;
+    fi
+  - arduino --install-library ArduinoCloudThing
+  - arduino --install-library ArduinoECCX08
+  - arduino --install-library ArduinoIoTCloudBearSSL
+  - arduino --install-library ArduinoMqttClient
+#  - arduino --install-library MKRGSM
+  - arduino --install-library RTCZero
+#  - arduino --install-library WiFi101
+#  - arduino --install-library WiFiNINA
+  - buildExampleSketch() { arduino --verbose-build --verify --board $BOARD $PWD/examples/$1/$1.ino; }
+  - buildExampleUtilitySketch() { arduino --verbose-build --verify --board $BOARD $PWD/examples/utility/$1/$1.ino; }
+install:
+  - mkdir -p $HOME/Arduino/libraries
+  - ln -s $PWD $HOME/Arduino/libraries/.
+script:
+  - buildExampleSketch ArduinoIoTCloud_LED_switch
+  - buildExampleUtilitySketch Provisioning
+

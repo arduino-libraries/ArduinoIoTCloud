@@ -1,4 +1,5 @@
 # ArduinoIoTCloud
+[![Build Status](https://travis-ci.org/arduino-libraries/ArduinoIoTCloud.svg?branch=master)](https://travis-ci.org/arduino-libraries/ArduinoIoTCloud)
 
 This library facilitates interactions between boards featuring a cryptography co-processor and the Arduino IoT Cloud service. It includes a ConnectionManager to handle connection/disconnection/reconnection flows and provides means to interface local sketch variables with cloud based Thing properties, enabling synchronization and on-change callbacks.
 Currently supported boards: MKR1000 (WiFi101) and MKR 1010 (WiFiNINA). Support for MKRGSM is nearing completion and more cryptography enabled boards are following.
