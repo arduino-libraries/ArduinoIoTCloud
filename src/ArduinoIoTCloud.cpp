@@ -191,13 +191,15 @@ int ArduinoIoTCloudClass::connect()
   if (!_mqttClient->connect(_brokerAddress.c_str(), _brokerPort)) {
     return CONNECT_FAILURE;
   }
+  if(_shadowTopicIn != "")
+  {
+    if(_mqttClient->subscribe(_stdinTopic   ) == 0) return CONNECT_FAILURE_SUBSCRIBE;
+    if(_mqttClient->subscribe(_dataTopicIn  ) == 0) return CONNECT_FAILURE_SUBSCRIBE;
+    if(_mqttClient->subscribe(_shadowTopicIn) == 0) return CONNECT_FAILURE_SUBSCRIBE;
 
-  if(_mqttClient->subscribe(_stdinTopic   ) == 0) return CONNECT_FAILURE_SUBSCRIBE;
-  if(_mqttClient->subscribe(_dataTopicIn  ) == 0) return CONNECT_FAILURE_SUBSCRIBE;
-  if(_mqttClient->subscribe(_shadowTopicIn) == 0) return CONNECT_FAILURE_SUBSCRIBE;
-
-  _syncStatus = ArduinoIoTSynchronizationStatus::SYNC_STATUS_WAIT_FOR_CLOUD_VALUES;
-  _lastSyncRequestTickTime = 0;
+    _syncStatus = ArduinoIoTSynchronizationStatus::SYNC_STATUS_WAIT_FOR_CLOUD_VALUES;
+    _lastSyncRequestTickTime = 0;
+  }
 
   return CONNECT_SUCCESS;
 }
@@ -236,7 +238,10 @@ void ArduinoIoTCloudClass::update(int const reconnectionMaxRetries, int const re
 
   switch (_syncStatus) {
     case ArduinoIoTSynchronizationStatus::SYNC_STATUS_SYNCHRONIZED:
-      sendPropertiesToCloud();
+      if(_shadowTopicIn != "")
+      {
+        sendPropertiesToCloud();
+      }
       break;
     case ArduinoIoTSynchronizationStatus::SYNC_STATUS_WAIT_FOR_CLOUD_VALUES:
       if (millis() - _lastSyncRequestTickTime > TIMEOUT_FOR_LASTVALUES_SYNC) {
