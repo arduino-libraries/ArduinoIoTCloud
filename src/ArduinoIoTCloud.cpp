@@ -169,6 +169,8 @@ void ArduinoIoTCloudClass::mqttClientBegin()
   if(_thing_id == "") {
     _dataTopicIn  = "/a/d/" + _device_id + "/e/i";
     _dataTopicOut = "/a/d/" + _device_id + "/e/o";
+    _shadowTopicIn  = "";
+    _shadowTopicOut = "";
   }
   else {
     _dataTopicIn  = "/a/t/" + _thing_id + "/e/i";
@@ -238,10 +240,7 @@ void ArduinoIoTCloudClass::update(int const reconnectionMaxRetries, int const re
 
   switch (_syncStatus) {
     case ArduinoIoTSynchronizationStatus::SYNC_STATUS_SYNCHRONIZED:
-      if(_shadowTopicIn != "")
-      {
-        sendPropertiesToCloud();
-      }
+      sendPropertiesToCloud();
       break;
     case ArduinoIoTSynchronizationStatus::SYNC_STATUS_WAIT_FOR_CLOUD_VALUES:
       if (millis() - _lastSyncRequestTickTime > TIMEOUT_FOR_LASTVALUES_SYNC) {
