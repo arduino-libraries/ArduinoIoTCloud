@@ -18,10 +18,10 @@ before_install:
   - arduino --install-library ArduinoECCX08
   - arduino --install-library ArduinoIoTCloudBearSSL
   - arduino --install-library ArduinoMqttClient
-#  - arduino --install-library MKRGSM
+  - arduino --install-library MKRGSM
   - arduino --install-library RTCZero
-#  - arduino --install-library WiFi101
-#  - arduino --install-library WiFiNINA
+  - arduino --install-library WiFi101
+  - arduino --install-library WiFiNINA
   - buildExampleSketch() { arduino --verbose-build --verify --board $BOARD $PWD/examples/$1/$1.ino; }
   - buildExampleUtilitySketch() { arduino --verbose-build --verify --board $BOARD $PWD/examples/utility/$1/$1.ino; }
 install:
