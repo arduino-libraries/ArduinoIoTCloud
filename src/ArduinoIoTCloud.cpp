@@ -195,8 +195,7 @@ int ArduinoIoTCloudClass::connect()
   }
   if(_mqttClient->subscribe(_stdinTopic   ) == 0) return CONNECT_FAILURE_SUBSCRIBE;
   if(_mqttClient->subscribe(_dataTopicIn  ) == 0) return CONNECT_FAILURE_SUBSCRIBE;
-  if(_shadowTopicIn != "")
-  {
+  if(_shadowTopicIn != "") {
     if(_mqttClient->subscribe(_shadowTopicIn) == 0) return CONNECT_FAILURE_SUBSCRIBE;
 
     _syncStatus = ArduinoIoTSynchronizationStatus::SYNC_STATUS_WAIT_FOR_CLOUD_VALUES;
