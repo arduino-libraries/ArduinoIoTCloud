@@ -63,6 +63,13 @@ ArduinoIoTCloudClass::ArduinoIoTCloudClass() :
   _bearSslClient(NULL),
   _mqttClient   (NULL),
   connection    (NULL),
+  _stdinTopic     (""),
+  _stdoutTopic    (""),
+  _shadowTopicOut (""),
+  _shadowTopicIn  (""),
+  _dataTopicOut   (""),
+  _dataTopicIn    (""),
+  _otaTopic       (""),
   _lastSyncRequestTickTime(0)
 {
 }
@@ -169,8 +176,6 @@ void ArduinoIoTCloudClass::mqttClientBegin()
   if(_thing_id == "") {
     _dataTopicIn  = "/a/d/" + _device_id + "/e/i";
     _dataTopicOut = "/a/d/" + _device_id + "/e/o";
-    _shadowTopicIn  = "";
-    _shadowTopicOut = "";
   }
   else {
     _dataTopicIn  = "/a/t/" + _thing_id + "/e/i";
