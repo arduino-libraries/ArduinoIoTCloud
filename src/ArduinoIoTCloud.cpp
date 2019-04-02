@@ -63,6 +63,13 @@ ArduinoIoTCloudClass::ArduinoIoTCloudClass() :
   _bearSslClient(NULL),
   _mqttClient   (NULL),
   connection    (NULL),
+  _stdinTopic     (""),
+  _stdoutTopic    (""),
+  _shadowTopicOut (""),
+  _shadowTopicIn  (""),
+  _dataTopicOut   (""),
+  _dataTopicIn    (""),
+  _otaTopic       (""),
   _lastSyncRequestTickTime(0)
 {
 }
@@ -191,13 +198,14 @@ int ArduinoIoTCloudClass::connect()
   if (!_mqttClient->connect(_brokerAddress.c_str(), _brokerPort)) {
     return CONNECT_FAILURE;
   }
-
   if(_mqttClient->subscribe(_stdinTopic   ) == 0) return CONNECT_FAILURE_SUBSCRIBE;
   if(_mqttClient->subscribe(_dataTopicIn  ) == 0) return CONNECT_FAILURE_SUBSCRIBE;
-  if(_mqttClient->subscribe(_shadowTopicIn) == 0) return CONNECT_FAILURE_SUBSCRIBE;
+  if(_shadowTopicIn != "") {
+    if(_mqttClient->subscribe(_shadowTopicIn) == 0) return CONNECT_FAILURE_SUBSCRIBE;
 
-  _syncStatus = ArduinoIoTSynchronizationStatus::SYNC_STATUS_WAIT_FOR_CLOUD_VALUES;
-  _lastSyncRequestTickTime = 0;
+    _syncStatus = ArduinoIoTSynchronizationStatus::SYNC_STATUS_WAIT_FOR_CLOUD_VALUES;
+    _lastSyncRequestTickTime = 0;
+  }
 
   return CONNECT_SUCCESS;
 }
