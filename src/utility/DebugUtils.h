@@ -15,6 +15,9 @@
  * a commercial license, send an email to license@arduino.cc.
  */
 
+#ifndef DEBUG_UTILS_H_
+#define DEBUG_UTILS_H_
+
 /******************************************************************************
  * INCLUDE
  ******************************************************************************/
@@ -49,3 +52,5 @@ void setDebugMessageLevel	  (DebugLevel const debug_level);
 void setDebutOutputStream   (Stream         * stream);
 void debugMessage        	  (DebugLevel const debug_level, char * fmt, ...);
 void debugMessageNoTimestamp(DebugLevel const debug_level, char * fmt, ...);
+
+#endif /* DEBUG_UTILS_H_ */
