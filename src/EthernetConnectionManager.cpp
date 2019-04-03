@@ -57,7 +57,7 @@ void EthConnectionManager::check() {
   int networkStatus = 0;
   if (now - lastConnectionTickTime > connectionTickTimeInterval) {
     switch (netConnectionState) {
-      case CONNECTION_STATE_INIT: {
+      case NetworkConnectionState::INIT: {
         if (ss_pin == -1) {
           networkStatus = Ethernet.begin(mac);
         } else {
@@ -68,7 +68,7 @@ void EthConnectionManager::check() {
         if (networkStatus == EthernetNoHardware) {
           debugMessage(DebugLevel::Error, "No Ethernet chip connected");
           // don't continue:
-          changeConnectionState(CONNECTION_STATE_ERROR);
+          changeConnectionState(NetworkConnectionState::ERROR);
           lastConnectionTickTime = now;
           return;
         }
@@ -77,15 +77,15 @@ void EthConnectionManager::check() {
         if (networkStatus == LinkOFF) {
           debugMessage(DebugLevel::Error, "Failed to configure Ethernet via dhcp");
           // don't continue:
-          changeConnectionState(CONNECTION_STATE_ERROR);
+          changeConnectionState(NetworkConnectionState::ERROR);
           lastConnectionTickTime = now;
           return;
         }
         debugMessage(DebugLevel::Error, "Ethernet shield recognized: ID", Ethernet.hardwareStatus());
-        changeConnectionState(CONNECTION_STATE_CONNECTING);
+        changeConnectionState(NetworkConnectionState::CONNECTING);
       }
       break;
-      case CONNECTION_STATE_CONNECTING: {
+      case NetworkConnectionState::CONNECTING: {
         debugMessage(DebugLevel::Info, "Connecting via dhcp");
         if (ss_pin == -1) {
           networkStatus = Ethernet.begin(mac);
@@ -96,42 +96,42 @@ void EthConnectionManager::check() {
         if (networkStatus == 0) {
           debugMessage(DebugLevel::Error, "Connection failed");
           debugMessage(DebugLevel::Info, "Retrying in  \"%d\" milliseconds", connectionTickTimeInterval);
-          //changeConnectionState(CONNECTION_STATE_CONNECTING);
+          //changeConnectionState(NetworkConnectionState::CONNECTING);
           return;
         } else {
           debugMessage(DebugLevel::Info, "Connected!");
-          changeConnectionState(CONNECTION_STATE_GETTIME);
+          changeConnectionState(NetworkConnectionState::GETTIME);
           return;
         }
       }
       break;
-      case CONNECTION_STATE_GETTIME: {
+      case NetworkConnectionState::GETTIME: {
         debugMessage(DebugLevel::Debug, "Acquiring Time from Network");
         unsigned long networkTime;
         networkTime = getTime();
         debugMessage(DebugLevel::Debug, "Network Time: %u", networkTime);
         if(networkTime > lastValidTimestamp){
           lastValidTimestamp = networkTime;
-          changeConnectionState(CONNECTION_STATE_CONNECTED);
+          changeConnectionState(NetworkConnectionState::CONNECTED);
         }
       }
       break;
-      case CONNECTION_STATE_CONNECTED: {
+      case NetworkConnectionState::CONNECTED: {
         // keep testing connection
         Ethernet.maintain();
         networkStatus = Ethernet.linkStatus();
         debugMessage(DebugLevel::Verbose, "Eth link status(): %d", networkStatus);
         if (networkStatus != LinkON) {
-          changeConnectionState(CONNECTION_STATE_DISCONNECTED);
+          changeConnectionState(NetworkConnectionState::DISCONNECTED);
           return;
         }
         debugMessage(DebugLevel::Info, "Connected");
       }
       break;
-      case CONNECTION_STATE_DISCONNECTED: {
+      case NetworkConnectionState::DISCONNECTED: {
         debugMessage(DebugLevel::Error, "Connection lost.");
         debugMessage(DebugLevel::Info, "Attempting reconnection");
-        changeConnectionState(CONNECTION_STATE_CONNECTING);
+        changeConnectionState(NetworkConnectionState::CONNECTING);
       //wifiClient.stop();
       }
       break;
@@ -148,11 +148,11 @@ void EthConnectionManager::changeConnectionState(NetworkConnectionState _newStat
   netConnectionState = _newState;
   int newInterval = CHECK_INTERVAL_IDLE;
   switch (_newState) {
-    case CONNECTION_STATE_INIT:         newInterval = CHECK_INTERVAL_INIT;         break;
-    case CONNECTION_STATE_CONNECTING:   newInterval = CHECK_INTERVAL_CONNECTING;   break;
-    case CONNECTION_STATE_GETTIME:      newInterval = CHECK_INTERVAL_GETTIME;      break;
-    case CONNECTION_STATE_CONNECTED:    newInterval = CHECK_INTERVAL_CONNECTED;    break;
-    case CONNECTION_STATE_DISCONNECTED: newInterval = CHECK_INTERVAL_DISCONNECTED; break;
+    case NetworkConnectionState::INIT:         newInterval = CHECK_INTERVAL_INIT;         break;
+    case NetworkConnectionState::CONNECTING:   newInterval = CHECK_INTERVAL_CONNECTING;   break;
+    case NetworkConnectionState::GETTIME:      newInterval = CHECK_INTERVAL_GETTIME;      break;
+    case NetworkConnectionState::CONNECTED:    newInterval = CHECK_INTERVAL_CONNECTED;    break;
+    case NetworkConnectionState::DISCONNECTED: newInterval = CHECK_INTERVAL_DISCONNECTED; break;
   }
   connectionTickTimeInterval = newInterval;
   lastConnectionTickTime = millis();

@@ -378,7 +378,7 @@ void ArduinoIoTCloudClass::connectionCheck()
   if(connection != NULL){
     connection->check();
     
-    if (connection->getStatus() != ArduinoIoTConnectionStatus::CONNECTED) {
+    if (connection->getStatus() != NetworkConnectionState::CONNECTED) {
       if(iotStatus == ArduinoIoTConnectionStatus::CONNECTED){
         setIoTConnectionState(ArduinoIoTConnectionStatus::DISCONNECTED);
       }

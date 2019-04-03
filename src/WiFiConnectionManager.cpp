@@ -56,12 +56,12 @@ void WiFiConnectionManager::check() {
   int networkStatus = 0;
   if (now - lastConnectionTickTime > connectionTickTimeInterval) {
     switch (netConnectionState) {
-      case CONNECTION_STATE_INIT: {
+      case NetworkConnectionState::INIT: {
         networkStatus = WiFi.status();
         debugMessage(DebugLevel::Info, "WiFi.status(): %d", networkStatus);
         if (networkStatus == NETWORK_HARDWARE_ERROR) {
           // NO FURTHER ACTION WILL FOLLOW THIS
-          changeConnectionState(CONNECTION_STATE_ERROR);
+          changeConnectionState(NetworkConnectionState::ERROR);
           lastConnectionTickTime = now;
           return;
         }
@@ -71,38 +71,38 @@ void WiFiConnectionManager::check() {
           debugMessage(DebugLevel::Error, "Please update to the latest version for best performance.");
           delay(5000);
         }
-        changeConnectionState(CONNECTION_STATE_CONNECTING);
+        changeConnectionState(NetworkConnectionState::CONNECTING);
       }
       break;
-      case CONNECTION_STATE_CONNECTING: {
+      case NetworkConnectionState::CONNECTING: {
         networkStatus = WiFi.begin(ssid, pass);
         debugMessage(DebugLevel::Verbose, "WiFi.status(): %d", networkStatus);
         if (networkStatus != NETWORK_CONNECTED) {
           debugMessage(DebugLevel::Error, "Connection to \"%s\" failed", ssid);
           debugMessage(DebugLevel::Info, "Retrying in  \"%d\" milliseconds", connectionTickTimeInterval);
-          //changeConnectionState(CONNECTION_STATE_CONNECTING);
+          //changeConnectionState(NetworkConnectionState::CONNECTING);
           return;
         } else {
           debugMessage(DebugLevel::Info, "Connected to \"%s\"", ssid);
-          changeConnectionState(CONNECTION_STATE_CONNECTED);
+          changeConnectionState(NetworkConnectionState::CONNECTED);
           return;
         }
       }
       break;
-      case CONNECTION_STATE_CONNECTED: {
+      case NetworkConnectionState::CONNECTED: {
         // keep testing connection
         networkStatus = WiFi.status();
         debugMessage(DebugLevel::Verbose, "WiFi.status(): %d", networkStatus);
         if (networkStatus != WL_CONNECTED) {
-          changeConnectionState(CONNECTION_STATE_DISCONNECTED);
+          changeConnectionState(NetworkConnectionState::DISCONNECTED);
           return;
         }
         debugMessage(DebugLevel::Verbose, "Connected to \"%s\"", ssid);
       }
       break;
-      case CONNECTION_STATE_DISCONNECTED: {
+      case NetworkConnectionState::DISCONNECTED: {
         WiFi.end();
-        changeConnectionState(CONNECTION_STATE_CONNECTING);
+        changeConnectionState(NetworkConnectionState::CONNECTING);
       }
       break;
     }
@@ -117,27 +117,27 @@ void WiFiConnectionManager::check() {
 void WiFiConnectionManager::changeConnectionState(NetworkConnectionState _newState) {
   int newInterval = CHECK_INTERVAL_INIT;
   switch (_newState) {
-    case CONNECTION_STATE_INIT: {
+    case NetworkConnectionState::INIT: {
       newInterval = CHECK_INTERVAL_INIT;
     }
     break;
-    case CONNECTION_STATE_CONNECTING: {
+    case NetworkConnectionState::CONNECTING: {
       debugMessage(DebugLevel::Info, "Connecting to \"%s\"", ssid);
       newInterval = CHECK_INTERVAL_CONNECTING;
     }
     break;
-    case CONNECTION_STATE_CONNECTED: {
+    case NetworkConnectionState::CONNECTED: {
       newInterval = CHECK_INTERVAL_CONNECTED;
     }
     break;
-    case CONNECTION_STATE_DISCONNECTED: {
+    case NetworkConnectionState::DISCONNECTED: {
       debugMessage(DebugLevel::Verbose, "WiFi.status(): %d", WiFi.status());
       debugMessage(DebugLevel::Error, "Connection to \"%s\" lost.", ssid);
       debugMessage(DebugLevel::Error, "Attempting reconnection");
       newInterval = CHECK_INTERVAL_DISCONNECTED;
     }
     break;
-    case CONNECTION_STATE_ERROR: {
+    case NetworkConnectionState::ERROR: {
       debugMessage(DebugLevel::Error, "WiFi Hardware failure.\nMake sure you are using a WiFi enabled board/shield.");
       debugMessage(DebugLevel::Error, "Then reset and retry.");
     }
