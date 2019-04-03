@@ -39,9 +39,9 @@ void vDebugMessage(char const * fmt, va_list args);
  * PUBLIC FUNCTIONS
  ******************************************************************************/
 
-void setDebugMessageLevel(int const debug_level) {
-  switch(debug_level)
-  {
+void setDebugMessageLevel(int const debug_level)
+{
+  switch(debug_level) {
     case -1: setDebugMessageLevel(DebugLevel::None                     ); break;
     case  0: setDebugMessageLevel(DebugLevel::Error                    ); break;
     case  1: setDebugMessageLevel(DebugLevel::Warning                  ); break;
@@ -52,11 +52,13 @@ void setDebugMessageLevel(int const debug_level) {
   }
 }
 
-void setDebugMessageLevel(DebugLevel const debug_level) {
+void setDebugMessageLevel(DebugLevel const debug_level)
+{
   current_debug_level = debug_level;
 }
 
-void debugMessage(DebugLevel const debug_level, char * fmt, ...) {
+void debugMessage(DebugLevel const debug_level, char * fmt, ...)
+{
   if(debug_level >= DebugLevel::Error   && 
      debug_level <= DebugLevel::Verbose &&
      debug_level <= current_debug_level) {
@@ -72,7 +74,8 @@ void debugMessage(DebugLevel const debug_level, char * fmt, ...) {
   }
 }
 
-void debugMessageNoTimestamp(DebugLevel const debug_level, char * fmt, ...) {
+void debugMessageNoTimestamp(DebugLevel const debug_level, char * fmt, ...)
+{
   if(debug_level >= DebugLevel::Error   &&
      debug_level <= DebugLevel::Verbose &&
      debug_level <= current_debug_level) {
