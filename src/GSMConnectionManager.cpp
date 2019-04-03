@@ -67,10 +67,11 @@ void GSMConnectionManager::check() {
   int gsmAccessAlive;
   if (now - lastConnectionTickTime > connectionTickTimeInterval) {
     switch (netConnectionState) {
-      case CONNECTION_STATE_INIT:
+      case CONNECTION_STATE_INIT: {
         init();
-        break;
-      case CONNECTION_STATE_CONNECTING:
+      }
+      break;
+      case CONNECTION_STATE_CONNECTING: {
         // NOTE: Blocking Call when 4th parameter == true
         GSM3_NetworkStatus_t networkStatus;
         networkStatus = gprs.attachGPRS(apn, login, pass, true);
@@ -93,8 +94,9 @@ void GSMConnectionManager::check() {
           changeConnectionState(CONNECTION_STATE_CONNECTED);
           return;
         }
-        break;
-      case CONNECTION_STATE_CONNECTED:
+      }
+      break;
+      case CONNECTION_STATE_CONNECTED: {
         gsmAccessAlive = gsmAccess.isAccessAlive();
         debugMessage(DebugLevel::Verbose, "GPRS.isAccessAlive(): %d", gsmAccessAlive);
         if (gsmAccessAlive != 1) {
@@ -102,11 +104,13 @@ void GSMConnectionManager::check() {
           return;
         }
         debugMessage(DebugLevel::Verbose, "Connected to Cellular Network");
-        break;
-      case CONNECTION_STATE_DISCONNECTED:
+      }
+      break;
+      case CONNECTION_STATE_DISCONNECTED: {
         gprs.detachGPRS();
         changeConnectionState(CONNECTION_STATE_CONNECTING);
-        break;
+      }
+      break;
     }
     lastConnectionTickTime = now;
   }
@@ -117,29 +121,33 @@ void GSMConnectionManager::check() {
  ******************************************************************************/
 
 void GSMConnectionManager::changeConnectionState(NetworkConnectionState _newState) {
-  char msgBuffer[120];
   int newInterval = CHECK_INTERVAL_IDLE;
   switch (_newState) {
-    case CONNECTION_STATE_INIT:
+    case CONNECTION_STATE_INIT: {
       newInterval = CHECK_INTERVAL_INIT;
-      break;
-    case CONNECTION_STATE_CONNECTING:
+    }
+    break;
+    case CONNECTION_STATE_CONNECTING: {
       debugMessage(DebugLevel::Info, "Connecting to Cellular Network");
       newInterval = CHECK_INTERVAL_CONNECTING;
-      break;
-    case CONNECTION_STATE_CONNECTED:
+    }
+    break;
+    case CONNECTION_STATE_CONNECTED: {
       newInterval = CHECK_INTERVAL_CONNECTED;
-      break;
-    case CONNECTION_STATE_DISCONNECTED:
+    }
+    break;
+    case CONNECTION_STATE_DISCONNECTED: {
       if(netConnectionState == CONNECTION_STATE_CONNECTED){
         debugMessage(DebugLevel::Error, "Disconnected from Cellular Network");
         debugMessage(DebugLevel::Error, "Attempting reconnection");
       }
       newInterval = CHECK_INTERVAL_DISCONNECTED;
-      break;
-    case CONNECTION_STATE_ERROR:
+    }
+    break;
+    case CONNECTION_STATE_ERROR: {
       debugMessage(DebugLevel::Error, "GPRS attach failed\n\rMake sure the antenna is connected and reset your board.");
-      break;
+    }
+    break;
   }
   connectionTickTimeInterval = newInterval;
   lastConnectionTickTime = millis();

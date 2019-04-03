@@ -387,22 +387,26 @@ void ArduinoIoTCloudClass::connectionCheck()
   }
   
   switch (iotStatus) {
-    case IOT_STATUS_CLOUD_IDLE:
+    case IOT_STATUS_CLOUD_IDLE: {
       setIoTConnectionState(IOT_STATUS_CLOUD_CONNECTING);
-      break;
-    case IOT_STATUS_CLOUD_ERROR:
+    }
+    break;
+    case IOT_STATUS_CLOUD_ERROR: {
       debugMessage(DebugLevel::Error, "Cloud Error. Retrying...");
       setIoTConnectionState(IOT_STATUS_CLOUD_RECONNECTING);
-      break;
-    case IOT_STATUS_CLOUD_CONNECTED:
+    }
+    break;
+    case IOT_STATUS_CLOUD_CONNECTED: {
       debugMessageNoTimestamp(DebugLevel::Verbose, ".");
       if (!_mqttClient->connected()){
         setIoTConnectionState(IOT_STATUS_CLOUD_DISCONNECTED);
       }
-      break;
-    case IOT_STATUS_CLOUD_DISCONNECTED:
+    }
+    break;
+    case IOT_STATUS_CLOUD_DISCONNECTED: {
       setIoTConnectionState(IOT_STATUS_CLOUD_RECONNECTING);
-      break;
+    }
+    break;
     case IOT_STATUS_CLOUD_RECONNECTING: {
       int const ret_code_reconnect = reconnect(*_net);
       debugMessage(DebugLevel::Info, "ArduinoCloud.reconnect(): %d", ret_code_reconnect);
@@ -412,8 +416,8 @@ void ArduinoIoTCloudClass::connectionCheck()
         CloudSerial.println("Hello from Cloud Serial!");
       }
     }
-      break;
-    case IOT_STATUS_CLOUD_CONNECTING:
+    break;
+    case IOT_STATUS_CLOUD_CONNECTING: {
       int const ret_code_connect = connect();
       debugMessage(DebugLevel::Verbose, "ArduinoCloud.connect(): %d", ret_code_connect);
       if (ret_code_connect == CONNECT_SUCCESS) {
@@ -424,28 +428,19 @@ void ArduinoIoTCloudClass::connectionCheck()
       else if (ret_code_connect == CONNECT_FAILURE_SUBSCRIBE) {
         debugMessage(DebugLevel::Info, "ERROR - Please verify your THING ID");
       }
-      break;
+    }
+    break;
   }
 }
 
 void ArduinoIoTCloudClass::setIoTConnectionState(ArduinoIoTConnectionStatus _newState)
 {
   switch(_newState){
-    case IOT_STATUS_CLOUD_ERROR:
-      debugMessage(DebugLevel::Error, "Arduino, we have a problem.");
-      break;
-    case IOT_STATUS_CLOUD_CONNECTING:
-      debugMessage(DebugLevel::Error, "Connecting to Arduino IoT Cloud...");
-      break;
-    case IOT_STATUS_CLOUD_RECONNECTING:
-      debugMessage(DebugLevel::Error, "Reconnecting to Arduino IoT Cloud...");
-      break;
-    case IOT_STATUS_CLOUD_CONNECTED:
-      debugMessage(DebugLevel::Error, "Connected to Arduino IoT Cloud");
-      break;
-    case IOT_STATUS_CLOUD_DISCONNECTED:
-      debugMessage(DebugLevel::Error, "Disconnected from Arduino IoT Cloud");
-      break;
+    case IOT_STATUS_CLOUD_ERROR:        debugMessage(DebugLevel::Error, "Arduino, we have a problem.");          break;
+    case IOT_STATUS_CLOUD_CONNECTING:   debugMessage(DebugLevel::Error, "Connecting to Arduino IoT Cloud...");   break;
+    case IOT_STATUS_CLOUD_RECONNECTING: debugMessage(DebugLevel::Error, "Reconnecting to Arduino IoT Cloud..."); break;
+    case IOT_STATUS_CLOUD_CONNECTED:    debugMessage(DebugLevel::Error, "Connected to Arduino IoT Cloud");       break;
+    case IOT_STATUS_CLOUD_DISCONNECTED: debugMessage(DebugLevel::Error, "Disconnected from Arduino IoT Cloud");  break;
   }
   iotStatus = _newState;
 }
