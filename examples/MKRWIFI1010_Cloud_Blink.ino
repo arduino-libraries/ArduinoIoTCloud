@@ -2,17 +2,19 @@
 #include <WiFiConnectionManager.h>
 
 ///////please enter your sensitive data in the Secret tab/arduino_secrets.h
-char ssid[] = SECRET_WIFI_NAME;        // your network SSID (name)
-char pass[] = SECRET_PASSWORD;    // your network password (use for WPA, or use as key for WEP)
+char ssid[] = SECRET_WIFI_NAME; // your network SSID (name)
+char pass[] = SECRET_PASSWORD; // your network password (use for WPA, or use as key for WEP)
 
-String cloudSerialBuffer="";     // the string used to compose network messages from the received characters
-
+String cloudSerialBuffer=""; // the string used to compose network messages from the received characters
+// handles connection to the network
 ConnectionManager *ArduinoIoTPreferredConnection = new WiFiConnectionManager(SECRET_WIFI_NAME, SECRET_PASSWORD);
 
 void setup(){
-  setDebugMessageLevel(3);
-  delay(1500);
-  ArduinoCloud.begin(ArduinoIoTPreferredConnection);
+  setDebugMessageLevel(3); // used to set a level of granularity in information output [0...4]
+  Serial.begin(9600);
+  while (!Serial); // waits for the serial to become available
+  ArduinoCloud.begin(ArduinoIoTPreferredConnection); // initialize a connection to the Arduino IoT Cloud
+  while(ArduinoCloud.connected()); // needed to wait for the inizialization of CloudSerial
   CloudSerial.print("I'm ready for blinking!\n");
 }
 
@@ -61,3 +63,4 @@ void sendString(String stringToSend) {
   if (lastSentChar != '\n') {
     CloudSerial.write('\n');
   }
+}
