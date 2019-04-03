@@ -44,9 +44,10 @@ static DebugLevel const ARDUINO_IOT_CLOUD_DEFAULT_DEBUG_LEVEL = DebugLevel::Info
  * PROTOTYPES
  ******************************************************************************/
 
-void setDebugMessageLevel(int        const debug_level); /* For backwards compatibility */
-void setDebugMessageLevel(DebugLevel const debug_level);
-void debugMessage        (DebugLevel const debug_level, char * fmt, ...);
+void setDebugMessageLevel		(int        const debug_level); /* For backwards compatibility */
+void setDebugMessageLevel	  (DebugLevel const debug_level);
+void debugMessage        	  (DebugLevel const debug_level, char * fmt, ...);
+void debugMessageNoTimestamp(DebugLevel const debug_level, char * fmt, ...);
 
 
 

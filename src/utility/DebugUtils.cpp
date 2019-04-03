@@ -72,6 +72,18 @@ void debugMessage(DebugLevel const debug_level, char * fmt, ...) {
   }
 }
 
+void debugMessageNoTimestamp(DebugLevel const debug_level, char * fmt, ...) {
+  if(debug_level >= DebugLevel::Error   &&
+     debug_level <= DebugLevel::Verbose &&
+     debug_level <= current_debug_level) {
+
+    va_list args;
+    va_start(args, fmt);
+    vDebugMessage(fmt, args);
+    va_end(args);
+  }
+}
+
 /******************************************************************************
  * PRIVATE FUNCTIONS
  ******************************************************************************/

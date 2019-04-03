@@ -395,7 +395,7 @@ void ArduinoIoTCloudClass::connectionCheck()
       setIoTConnectionState(IOT_STATUS_CLOUD_RECONNECTING);
       break;
     case IOT_STATUS_CLOUD_CONNECTED:
-      debugMessage(DebugLevel::Verbose, ".");
+      debugMessageNoTimestamp(DebugLevel::Verbose, ".");
       if (!_mqttClient->connected()){
         setIoTConnectionState(IOT_STATUS_CLOUD_DISCONNECTED);
       }
