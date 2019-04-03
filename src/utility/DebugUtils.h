@@ -15,6 +15,9 @@
  * a commercial license, send an email to license@arduino.cc.
  */
 
+#ifndef DEBUG_UTILS_H_
+#define DEBUG_UTILS_H_
+
 /******************************************************************************
  * INCLUDE
  ******************************************************************************/
@@ -22,17 +25,32 @@
 #include <Arduino.h>
 
 /******************************************************************************
+ * TYPEDEF
+ ******************************************************************************/
+
+enum class DebugLevel : int {
+	None    = -1,
+	Error   =  0,
+	Warning =  1,
+	Info    =  2,
+	Debug   =  3,
+	Verbose =  4
+};
+
+/******************************************************************************
  * CONSTANTS
  ******************************************************************************/
 
-static int const ARDUINO_IOT_CLOUD_DEFAULT_DEBUG_LEVEL = 2;
+static DebugLevel const ARDUINO_IOT_CLOUD_DEFAULT_DEBUG_LEVEL = DebugLevel::Info;
 
 /******************************************************************************
  * PROTOTYPES
  ******************************************************************************/
 
-void setDebugMessageLevel(int debugLevel);
-void debugMessage(char * msg, int const debugLevel, bool const timestamp = true, bool const newline = true);
+void setDebugMessageLevel		(int        const debug_level); /* For backwards compatibility */
+void setDebugMessageLevel	  (DebugLevel const debug_level);
+void setDebugOutputStream   (Stream         * stream);
+void debugMessage        	  (DebugLevel const debug_level, char * fmt, ...);
+void debugMessageNoTimestamp(DebugLevel const debug_level, char * fmt, ...);
 
-
-
+#endif /* DEBUG_UTILS_H_ */

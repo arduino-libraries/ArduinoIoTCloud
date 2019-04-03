@@ -21,32 +21,88 @@
 
 #include "DebugUtils.h"
 
+#include <stdarg.h>
+
 /******************************************************************************
  * GLOBAL VARIABLES
  ******************************************************************************/
 
-static int debugMessageLevel = ARDUINO_IOT_CLOUD_DEFAULT_DEBUG_LEVEL;
+static DebugLevel current_debug_level = ARDUINO_IOT_CLOUD_DEFAULT_DEBUG_LEVEL;
+static Stream *   debug_output_stream = &Serial;
+
+/******************************************************************************
+ * PRIVATE PROTOTYPES
+ ******************************************************************************/
+
+void vDebugMessage(char const * fmt, va_list args);
 
 /******************************************************************************
  * PUBLIC FUNCTIONS
  ******************************************************************************/
 
-void setDebugMessageLevel(int const debugLevel) {
-  debugMessageLevel = debugLevel;
+void setDebugMessageLevel(int const debug_level)
+{
+  switch(debug_level) {
+    case -1: setDebugMessageLevel(DebugLevel::None                     ); break;
+    case  0: setDebugMessageLevel(DebugLevel::Error                    ); break;
+    case  1: setDebugMessageLevel(DebugLevel::Warning                  ); break;
+    case  2: setDebugMessageLevel(DebugLevel::Info                     ); break;
+    case  3: setDebugMessageLevel(DebugLevel::Debug                    ); break;
+    case  4: setDebugMessageLevel(DebugLevel::Verbose                  ); break;
+    default: setDebugMessageLevel(ARDUINO_IOT_CLOUD_DEFAULT_DEBUG_LEVEL); break;
+  }
 }
 
-void debugMessage(char * msg, int const debugLevel, bool const timestamp, bool const newline) {
-  if(debugLevel < 0){
-    return;
-  }
+void setDebugMessageLevel(DebugLevel const debug_level)
+{
+  current_debug_level = debug_level;
+}
 
-  if (debugLevel <= debugMessageLevel) {
-    if(timestamp) {
-      char prepend[20];
-      sprintf(prepend, "\n[ %d ] ", millis());
-      Serial.print(prepend);
-    }
-    if  (newline) Serial.println(msg);
-    else          Serial.print  (msg);
+void setDebugOutputStream(Stream * stream)
+{
+  debug_output_stream = stream;
+}
+
+void debugMessage(DebugLevel const debug_level, char * fmt, ...)
+{
+  if(debug_level >= DebugLevel::Error   && 
+     debug_level <= DebugLevel::Verbose &&
+     debug_level <= current_debug_level) {
+    
+    char timestamp[20];
+    snprintf(timestamp, 20, "[ %d ] ", millis());
+    debug_output_stream->print(timestamp);
+    
+    va_list args;
+    va_start(args, fmt);
+    vDebugMessage(fmt, args);
+    va_end(args);
   }
+}
+
+void debugMessageNoTimestamp(DebugLevel const debug_level, char * fmt, ...)
+{
+  if(debug_level >= DebugLevel::Error   &&
+     debug_level <= DebugLevel::Verbose &&
+     debug_level <= current_debug_level) {
+
+    va_list args;
+    va_start(args, fmt);
+    vDebugMessage(fmt, args);
+    va_end(args);
+  }
+}
+
+/******************************************************************************
+ * PRIVATE FUNCTIONS
+ ******************************************************************************/
+
+void vDebugMessage(char const * fmt, va_list args)
+{
+  static size_t const MSG_BUF_SIZE = 120;
+  char msg_buf[MSG_BUF_SIZE] = {0};
+
+  vsnprintf(msg_buf, MSG_BUF_SIZE, fmt, args);
+
+  debug_output_stream->println(msg_buf);
 }
