@@ -58,7 +58,7 @@ void setDebugMessageLevel(DebugLevel const debug_level)
   current_debug_level = debug_level;
 }
 
-void setDebutOutputStream(Stream * stream)
+void setDebugOutputStream(Stream * stream)
 {
   debug_output_stream = stream;
 }
