@@ -28,6 +28,7 @@
  ******************************************************************************/
 
 static DebugLevel current_debug_level = ARDUINO_IOT_CLOUD_DEFAULT_DEBUG_LEVEL;
+static Stream *   debug_output_stream = &Serial;
 
 /******************************************************************************
  * PRIVATE PROTOTYPES
@@ -57,6 +58,11 @@ void setDebugMessageLevel(DebugLevel const debug_level)
   current_debug_level = debug_level;
 }
 
+void setDebutOutputStream(Stream * stream)
+{
+  debug_output_stream = stream;
+}
+
 void debugMessage(DebugLevel const debug_level, char * fmt, ...)
 {
   if(debug_level >= DebugLevel::Error   && 
@@ -65,7 +71,7 @@ void debugMessage(DebugLevel const debug_level, char * fmt, ...)
     
     char timestamp[20];
     snprintf(timestamp, 20, "[ %d ] ", millis());
-    Serial.print(timestamp);
+    debug_output_stream->print(timestamp);
     
     va_list args;
     va_start(args, fmt);
@@ -98,5 +104,5 @@ void vDebugMessage(char const * fmt, va_list args)
 
   vsnprintf(msg_buf, MSG_BUF_SIZE, fmt, args);
 
-  Serial.println(msg_buf);
+  debug_output_stream->println(msg_buf);
 }
