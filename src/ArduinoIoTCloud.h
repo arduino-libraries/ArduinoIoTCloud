@@ -44,13 +44,13 @@ typedef void (*CallbackFunc)(void);
 
 extern ConnectionManager *ArduinoIoTPreferredConnection;
 
-enum ArduinoIoTConnectionStatus {
-  IOT_STATUS_CLOUD_IDLE,
-  IOT_STATUS_CLOUD_CONNECTING,
-  IOT_STATUS_CLOUD_CONNECTED,
-  IOT_STATUS_CLOUD_DISCONNECTED,
-  IOT_STATUS_CLOUD_RECONNECTING,
-  IOT_STATUS_CLOUD_ERROR,
+enum class ArduinoIoTConnectionStatus {
+  IDLE,
+  CONNECTING,
+  CONNECTED,
+  DISCONNECTED,
+  RECONNECTING,
+  ERROR,
 };
 
 enum class ArduinoIoTSynchronizationStatus {
@@ -139,7 +139,7 @@ protected:
   ArduinoIoTConnectionStatus getIoTStatus() { return iotStatus; }
   void setIoTConnectionState(ArduinoIoTConnectionStatus _newState);
 private:
-  ArduinoIoTConnectionStatus iotStatus = IOT_STATUS_CLOUD_IDLE;
+  ArduinoIoTConnectionStatus iotStatus = ArduinoIoTConnectionStatus::IDLE;
   ConnectionManager *connection;
   static void onMessage(int length);
   void handleMessage(int length);
