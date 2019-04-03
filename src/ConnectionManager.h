@@ -32,14 +32,14 @@
  * TYPEDEFS
  ******************************************************************************/
 
-enum NetworkConnectionState {
-  CONNECTION_STATE_INIT,
-  CONNECTION_STATE_CONNECTING,
-  CONNECTION_STATE_CONNECTED,
-  CONNECTION_STATE_GETTIME,
-  CONNECTION_STATE_DISCONNECTING,
-  CONNECTION_STATE_DISCONNECTED,
-  CONNECTION_STATE_ERROR
+enum class NetworkConnectionState {
+  INIT,
+  CONNECTING,
+  CONNECTED,
+  GETTIME,
+  DISCONNECTING,
+  DISCONNECTED,
+  ERROR
 };
 
 /******************************************************************************
@@ -58,7 +58,7 @@ public:
 
 protected:
   unsigned long lastValidTimestamp = 0;
-  NetworkConnectionState netConnectionState = CONNECTION_STATE_INIT;
+  NetworkConnectionState netConnectionState = NetworkConnectionState::INIT;
 
 };
 
