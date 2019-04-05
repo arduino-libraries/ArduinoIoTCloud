@@ -1,22 +1,22 @@
 /*
- * This file is part of ArduinoIoTCloud.
- *
- * Copyright 2019 ARDUINO SA (http://www.arduino.cc/)
- *
- * This software is released under the GNU General Public License version 3,
- * which covers the main part of arduino-cli.
- * The terms of this license can be found at:
- * https://www.gnu.org/licenses/gpl-3.0.en.html
- *
- * You can be released from the requirements of the above licenses by purchasing
- * a commercial license. Buying such a license is mandatory if you want to modify or
- * otherwise use the software for commercial activities involving the Arduino
- * software without disclosing the source code of your own applications. To purchase
- * a commercial license, send an email to license@arduino.cc.
- */
+   This file is part of ArduinoIoTCloud.
+
+   Copyright 2019 ARDUINO SA (http://www.arduino.cc/)
+
+   This software is released under the GNU General Public License version 3,
+   which covers the main part of arduino-cli.
+   The terms of this license can be found at:
+   https://www.gnu.org/licenses/gpl-3.0.en.html
+
+   You can be released from the requirements of the above licenses by purchasing
+   a commercial license. Buying such a license is mandatory if you want to modify or
+   otherwise use the software for commercial activities involving the Arduino
+   software without disclosing the source code of your own applications. To purchase
+   a commercial license, send an email to license@arduino.cc.
+*/
 
 /******************************************************************************
- * INCLUDE
+   INCLUDE
  ******************************************************************************/
 
 #include "EthernetConnectionManager.h"
@@ -24,13 +24,13 @@
 #ifdef BOARD_HAS_ETHERNET /* Only compile if the board has ethernet */
 
 /******************************************************************************
- * CONSTANTS
+   CONSTANTS
  ******************************************************************************/
 
 static const unsigned long NETWORK_CONNECTION_INTERVAL = 30000;
 
 /******************************************************************************
- * CTOR
+   CTOR
  ******************************************************************************/
 
 EthConnectionManager::EthConnectionManager(uint8_t * mac, int const ss_pin) :
@@ -41,7 +41,7 @@ EthConnectionManager::EthConnectionManager(uint8_t * mac, int const ss_pin) :
 }
 
 /******************************************************************************
- * PUBLIC MEMBER FUNCTIONS
+   PUBLIC MEMBER FUNCTIONS
  ******************************************************************************/
 
 void EthConnectionManager::init() {
@@ -58,90 +58,90 @@ void EthConnectionManager::check() {
   if (now - lastConnectionTickTime > connectionTickTimeInterval) {
     switch (netConnectionState) {
       case NetworkConnectionState::INIT: {
-        if (ss_pin == -1) {
-          networkStatus = Ethernet.begin(mac);
-        } else {
-          networkStatus = Ethernet.begin(mac, ss_pin);
+          if (ss_pin == -1) {
+            networkStatus = Ethernet.begin(mac);
+          } else {
+            networkStatus = Ethernet.begin(mac, ss_pin);
+          }
+          networkStatus = Ethernet.hardwareStatus();
+          debugMessage(DebugLevel::Info, "Eth hardware status(): %d", networkStatus);
+          if (networkStatus == EthernetNoHardware) {
+            debugMessage(DebugLevel::Error, "No Ethernet chip connected");
+            // don't continue:
+            changeConnectionState(NetworkConnectionState::ERROR);
+            lastConnectionTickTime = now;
+            return;
+          }
+          networkStatus = Ethernet.linkStatus();
+          debugMessage(DebugLevel::Info, "Eth link status(): %d", networkStatus);
+          if (networkStatus == LinkOFF) {
+            debugMessage(DebugLevel::Error, "Failed to configure Ethernet via dhcp");
+            // don't continue:
+            changeConnectionState(NetworkConnectionState::ERROR);
+            lastConnectionTickTime = now;
+            return;
+          }
+          debugMessage(DebugLevel::Error, "Ethernet shield recognized: ID", Ethernet.hardwareStatus());
+          changeConnectionState(NetworkConnectionState::CONNECTING);
         }
-        networkStatus = Ethernet.hardwareStatus();
-        debugMessage(DebugLevel::Info, "Eth hardware status(): %d", networkStatus);
-        if (networkStatus == EthernetNoHardware) {
-          debugMessage(DebugLevel::Error, "No Ethernet chip connected");
-          // don't continue:
-          changeConnectionState(NetworkConnectionState::ERROR);
-          lastConnectionTickTime = now;
-          return;
-        }
-        networkStatus = Ethernet.linkStatus();
-        debugMessage(DebugLevel::Info, "Eth link status(): %d", networkStatus);
-        if (networkStatus == LinkOFF) {
-          debugMessage(DebugLevel::Error, "Failed to configure Ethernet via dhcp");
-          // don't continue:
-          changeConnectionState(NetworkConnectionState::ERROR);
-          lastConnectionTickTime = now;
-          return;
-        }
-        debugMessage(DebugLevel::Error, "Ethernet shield recognized: ID", Ethernet.hardwareStatus());
-        changeConnectionState(NetworkConnectionState::CONNECTING);
-      }
-      break;
+        break;
       case NetworkConnectionState::CONNECTING: {
-        debugMessage(DebugLevel::Info, "Connecting via dhcp");
-        if (ss_pin == -1) {
-          networkStatus = Ethernet.begin(mac);
-        } else {
-          networkStatus = Ethernet.begin(mac, ss_pin);
+          debugMessage(DebugLevel::Info, "Connecting via dhcp");
+          if (ss_pin == -1) {
+            networkStatus = Ethernet.begin(mac);
+          } else {
+            networkStatus = Ethernet.begin(mac, ss_pin);
+          }
+          debugMessage(DebugLevel::Info, "Ethernet.status(): %d", networkStatus);
+          if (networkStatus == 0) {
+            debugMessage(DebugLevel::Error, "Connection failed");
+            debugMessage(DebugLevel::Info, "Retrying in  \"%d\" milliseconds", connectionTickTimeInterval);
+            //changeConnectionState(NetworkConnectionState::CONNECTING);
+            return;
+          } else {
+            debugMessage(DebugLevel::Info, "Connected!");
+            changeConnectionState(NetworkConnectionState::GETTIME);
+            return;
+          }
         }
-        debugMessage(DebugLevel::Info, "Ethernet.status(): %d", networkStatus);
-        if (networkStatus == 0) {
-          debugMessage(DebugLevel::Error, "Connection failed");
-          debugMessage(DebugLevel::Info, "Retrying in  \"%d\" milliseconds", connectionTickTimeInterval);
-          //changeConnectionState(NetworkConnectionState::CONNECTING);
-          return;
-        } else {
-          debugMessage(DebugLevel::Info, "Connected!");
-          changeConnectionState(NetworkConnectionState::GETTIME);
-          return;
-        }
-      }
-      break;
+        break;
       case NetworkConnectionState::GETTIME: {
-        debugMessage(DebugLevel::Debug, "Acquiring Time from Network");
-        unsigned long networkTime;
-        networkTime = getTime();
-        debugMessage(DebugLevel::Debug, "Network Time: %u", networkTime);
-        if(networkTime > lastValidTimestamp){
-          lastValidTimestamp = networkTime;
-          changeConnectionState(NetworkConnectionState::CONNECTED);
+          debugMessage(DebugLevel::Debug, "Acquiring Time from Network");
+          unsigned long networkTime;
+          networkTime = getTime();
+          debugMessage(DebugLevel::Debug, "Network Time: %u", networkTime);
+          if (networkTime > lastValidTimestamp) {
+            lastValidTimestamp = networkTime;
+            changeConnectionState(NetworkConnectionState::CONNECTED);
+          }
         }
-      }
-      break;
+        break;
       case NetworkConnectionState::CONNECTED: {
-        // keep testing connection
-        Ethernet.maintain();
-        networkStatus = Ethernet.linkStatus();
-        debugMessage(DebugLevel::Verbose, "Eth link status(): %d", networkStatus);
-        if (networkStatus != LinkON) {
-          changeConnectionState(NetworkConnectionState::DISCONNECTED);
-          return;
+          // keep testing connection
+          Ethernet.maintain();
+          networkStatus = Ethernet.linkStatus();
+          debugMessage(DebugLevel::Verbose, "Eth link status(): %d", networkStatus);
+          if (networkStatus != LinkON) {
+            changeConnectionState(NetworkConnectionState::DISCONNECTED);
+            return;
+          }
+          debugMessage(DebugLevel::Info, "Connected");
         }
-        debugMessage(DebugLevel::Info, "Connected");
-      }
-      break;
+        break;
       case NetworkConnectionState::DISCONNECTED: {
-        debugMessage(DebugLevel::Error, "Connection lost.");
-        debugMessage(DebugLevel::Info, "Attempting reconnection");
-        changeConnectionState(NetworkConnectionState::CONNECTING);
-      //wifiClient.stop();
-      }
-      break;
+          debugMessage(DebugLevel::Error, "Connection lost.");
+          debugMessage(DebugLevel::Info, "Attempting reconnection");
+          changeConnectionState(NetworkConnectionState::CONNECTING);
+          //wifiClient.stop();
+        }
+        break;
     }
     lastConnectionTickTime = now;
   }
 }
 
 /******************************************************************************
- * PRIVATE MEMBER FUNCTIONS
+   PRIVATE MEMBER FUNCTIONS
  ******************************************************************************/
 
 void EthConnectionManager::changeConnectionState(NetworkConnectionState _newState) {
