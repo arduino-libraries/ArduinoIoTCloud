@@ -8,28 +8,28 @@
 
 // could be a constexpr in C++14
 static time_t cvt_TIME(char const *time) {
-    char s_month[5];
-    int month, day, year;
-    struct tm t = {0};
-    static const char month_names[] = "JanFebMarAprMayJunJulAugSepOctNovDec";
+  char s_month[5];
+  int month, day, year;
+  struct tm t = {0};
+  static const char month_names[] = "JanFebMarAprMayJunJulAugSepOctNovDec";
 
-    sscanf(time, "%s %d %d", s_month, &day, &year);
+  sscanf(time, "%s %d %d", s_month, &day, &year);
 
-    month = (strstr(month_names, s_month)-month_names)/3;
+  month = (strstr(month_names, s_month) - month_names) / 3;
 
-    t.tm_mon = month;
-    t.tm_mday = day;
-    t.tm_year = year - 1900;
-    t.tm_isdst = -1;
+  t.tm_mon = month;
+  t.tm_mday = day;
+  t.tm_year = year - 1900;
+  t.tm_isdst = -1;
 
-    return mktime(&t);
+  return mktime(&t);
 }
 
 
 NTPUtils::NTPUtils(UDP& Udp) : Udp(Udp) {}
 
 bool NTPUtils::isTimeValid(unsigned long time) {
-    return (time > cvt_TIME(__DATE__));
+  return (time > cvt_TIME(__DATE__));
 }
 
 void NTPUtils::sendNTPpacket(uint8_t* packetBuffer) {
@@ -55,7 +55,7 @@ unsigned long NTPUtils::getTime() {
   Udp.begin(localPort);
   sendNTPpacket(packetBuffer);
   long start = millis();
-  while (!Udp.parsePacket() && (millis() - start < 10000)){}
+  while (!Udp.parsePacket() && (millis() - start < 10000)) {}
   if (millis() - start >= 1000) {
     //timeout reached
     Udp.stop();

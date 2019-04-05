@@ -29,13 +29,13 @@ void setup() {
   // tell ArduinoIoTCloud to use our WiFi connection
   ArduinoCloud.begin(ArduinoIoTPreferredConnection);
 
-  /* 
-      The following function allows you to obtain more information 
+  /*
+      The following function allows you to obtain more information
       related to the state of network and IoT Cloud connection and errors
       the higher number the more granular information you'll get.
       The default is 0 (only errors).
       Maximum is 3
-      
+
       setDebugMessageLevel(3);
   */
   ArduinoCloud.printDebugInfo();

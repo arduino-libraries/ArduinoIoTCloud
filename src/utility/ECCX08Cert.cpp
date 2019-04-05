@@ -1,19 +1,19 @@
 /*
- * This file is part of ArduinoIoTCloud.
- *
- * Copyright 2019 ARDUINO SA (http://www.arduino.cc/)
- *
- * This software is released under the GNU General Public License version 3,
- * which covers the main part of arduino-cli.
- * The terms of this license can be found at:
- * https://www.gnu.org/licenses/gpl-3.0.en.html
- *
- * You can be released from the requirements of the above licenses by purchasing
- * a commercial license. Buying such a license is mandatory if you want to modify or
- * otherwise use the software for commercial activities involving the Arduino
- * software without disclosing the source code of your own applications. To purchase
- * a commercial license, send an email to license@arduino.cc.
- */
+   This file is part of ArduinoIoTCloud.
+
+   Copyright 2019 ARDUINO SA (http://www.arduino.cc/)
+
+   This software is released under the GNU General Public License version 3,
+   which covers the main part of arduino-cli.
+   The terms of this license can be found at:
+   https://www.gnu.org/licenses/gpl-3.0.en.html
+
+   You can be released from the requirements of the above licenses by purchasing
+   a commercial license. Buying such a license is mandatory if you want to modify or
+   otherwise use the software for commercial activities involving the Arduino
+   software without disclosing the source code of your own applications. To purchase
+   a commercial license, send an email to license@arduino.cc.
+*/
 
 #include <ArduinoIoTCloudBearSSL.h>
 #include <bearssl/bearssl_hash.h>
@@ -43,8 +43,7 @@ struct __attribute__((__packed__)) SerialNumberAndAuthorityKeyIdentifier {
   byte authorityKeyIdentifier[AUTHORITY_KEY_IDENTIFIER_LENGTH];
 };
 
-static String base64Encode(const byte in[], unsigned int length, const char* prefix, const char* suffix)
-{
+static String base64Encode(const byte in[], unsigned int length, const char* prefix, const char* suffix) {
   static const char* CODES = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
 
   int b;
@@ -56,10 +55,10 @@ static String base64Encode(const byte in[], unsigned int length, const char* pre
   if (prefix) {
     out += prefix;
   }
-  
+
   for (unsigned int i = 0; i < length; i += 3) {
-    if (i > 0 && (i / 3 * 4) % 76 == 0) { 
-      out += '\n'; 
+    if (i > 0 && (i / 3 * 4) % 76 == 0) {
+      out += '\n';
     }
 
     b = (in[i] & 0xFC) >> 2;
@@ -71,10 +70,10 @@ static String base64Encode(const byte in[], unsigned int length, const char* pre
       out += CODES[b];
       b = (in[i + 1] & 0x0F) << 2;
       if (i + 2 < length) {
-         b |= (in[i + 2] & 0xC0) >> 6;
-         out += CODES[b];
-         b = in[i + 2] & 0x3F;
-         out += CODES[b];
+        b |= (in[i + 2] & 0xC0) >> 6;
+        out += CODES[b];
+        b = in[i + 2] & 0x3F;
+        out += CODES[b];
       } else {
         out += CODES[b];
         out += '=';
@@ -97,20 +96,17 @@ ECCX08CertClass::ECCX08CertClass() :
   _compressedCertSlot(-1),
   _serialNumberAndAuthorityKeyIdentifierSlot(-1),
   _bytes(NULL),
-  _length(0)
-{
+  _length(0) {
 }
 
-ECCX08CertClass::~ECCX08CertClass()
-{
+ECCX08CertClass::~ECCX08CertClass() {
   if (_bytes) {
     free(_bytes);
     _bytes = NULL;
   }
 }
 
-int ECCX08CertClass::beginCSR(int keySlot, bool newPrivateKey)
-{
+int ECCX08CertClass::beginCSR(int keySlot, bool newPrivateKey) {
   if (keySlot < 0 || keySlot > 8) {
     return 0;
   }
@@ -130,15 +126,14 @@ int ECCX08CertClass::beginCSR(int keySlot, bool newPrivateKey)
   return 1;
 }
 
-String ECCX08CertClass::endCSR()
-{
+String ECCX08CertClass::endCSR() {
   int versionLen = versionLength();
   int subjectLen = issuerOrSubjectLength(_subjectCountryName,
-                                          _subjectStateProvinceName,
-                                          _subjectLocalityName,
-                                          _subjectOrganizationName,
-                                          _subjectOrganizationalUnitName,
-                                          _subjectCommonName);
+                                         _subjectStateProvinceName,
+                                         _subjectLocalityName,
+                                         _subjectOrganizationName,
+                                         _subjectOrganizationalUnitName,
+                                         _subjectCommonName);
   int subjectHeaderLen = sequenceHeaderLength(subjectLen);
   int publicKeyLen = publicKeyLength();
 
@@ -207,8 +202,7 @@ String ECCX08CertClass::endCSR()
   return base64Encode(csr, csrLen + csrHeaderLen, "-----BEGIN CERTIFICATE REQUEST-----\n", "\n-----END CERTIFICATE REQUEST-----\n");
 }
 
-int ECCX08CertClass::beginStorage(int compressedCertSlot, int serialNumberAndAuthorityKeyIdentifierSlot)
-{
+int ECCX08CertClass::beginStorage(int compressedCertSlot, int serialNumberAndAuthorityKeyIdentifierSlot) {
   if (compressedCertSlot < 8 || compressedCertSlot > 15) {
     return 0;
   }
@@ -225,23 +219,20 @@ int ECCX08CertClass::beginStorage(int compressedCertSlot, int serialNumberAndAut
   return 1;
 }
 
-void ECCX08CertClass::setSignature(byte signature[])
-{
+void ECCX08CertClass::setSignature(byte signature[]) {
   struct CompressedCert* compressedCert = (struct CompressedCert*)_temp;
 
   memcpy(compressedCert->signature, signature, 64);
 }
 
-void ECCX08CertClass::setIssueYear(int issueYear)
-{
+void ECCX08CertClass::setIssueYear(int issueYear) {
   struct CompressedCert* compressedCert = (struct CompressedCert*)_temp;
 
   compressedCert->dates[0] &= 0x07;
   compressedCert->dates[0] |= (issueYear - 2000) << 3;
 }
 
-void ECCX08CertClass::setIssueMonth(int issueMonth)
-{
+void ECCX08CertClass::setIssueMonth(int issueMonth) {
   struct CompressedCert* compressedCert = (struct CompressedCert*)_temp;
 
   compressedCert->dates[0] &= 0xf8;
@@ -251,16 +242,14 @@ void ECCX08CertClass::setIssueMonth(int issueMonth)
   compressedCert->dates[1] |= issueMonth << 7;
 }
 
-void ECCX08CertClass::setIssueDay(int issueDay)
-{
+void ECCX08CertClass::setIssueDay(int issueDay) {
   struct CompressedCert* compressedCert = (struct CompressedCert*)_temp;
 
   compressedCert->dates[1] &= 0x83;
   compressedCert->dates[1] |= issueDay << 2;
 }
 
-void ECCX08CertClass::setIssueHour(int issueHour)
-{
+void ECCX08CertClass::setIssueHour(int issueHour) {
   struct CompressedCert* compressedCert = (struct CompressedCert*)_temp;
 
   compressedCert->dates[2] &= 0x1f;
@@ -270,26 +259,22 @@ void ECCX08CertClass::setIssueHour(int issueHour)
   compressedCert->dates[1] |= issueHour >> 3;
 }
 
-void ECCX08CertClass::setExpireYears(int expireYears)
-{
+void ECCX08CertClass::setExpireYears(int expireYears) {
   struct CompressedCert* compressedCert = (struct CompressedCert*)_temp;
 
   compressedCert->dates[2] &= 0xe0;
   compressedCert->dates[2] |= expireYears;
 }
 
-void ECCX08CertClass::setSerialNumber(const byte serialNumber[])
-{
+void ECCX08CertClass::setSerialNumber(const byte serialNumber[]) {
   memcpy(&_temp[72], serialNumber, SERIAL_NUMBER_LENGTH);
 }
 
-void ECCX08CertClass::setAuthorityKeyIdentifier(const byte authorityKeyIdentifier[])
-{
+void ECCX08CertClass::setAuthorityKeyIdentifier(const byte authorityKeyIdentifier[]) {
   memcpy(&_temp[88], authorityKeyIdentifier, AUTHORITY_KEY_IDENTIFIER_LENGTH);
 }
 
-int ECCX08CertClass::endStorage()
-{
+int ECCX08CertClass::endStorage() {
   if (!ECCX08.writeSlot(_compressedCertSlot, &_temp[0], 72)) {
     return 0;
   }
@@ -301,8 +286,7 @@ int ECCX08CertClass::endStorage()
   return 1;
 }
 
-int ECCX08CertClass::beginReconstruction(int keySlot, int compressedCertSlot, int serialNumberAndAuthorityKeyIdentifierSlot)
-{
+int ECCX08CertClass::beginReconstruction(int keySlot, int compressedCertSlot, int serialNumberAndAuthorityKeyIdentifierSlot) {
   if (keySlot < 0 || keySlot > 8) {
     return 0;
   }
@@ -322,8 +306,7 @@ int ECCX08CertClass::beginReconstruction(int keySlot, int compressedCertSlot, in
   return 1;
 }
 
-int ECCX08CertClass::endReconstruction()
-{
+int ECCX08CertClass::endReconstruction() {
   byte publicKey[64];
   struct CompressedCert compressedCert;
   struct SerialNumberAndAuthorityKeyIdentifier serialNumberAndAuthorityKeyIdentifier;
@@ -371,21 +354,21 @@ int ECCX08CertClass::endReconstruction()
   int issuerHeaderLen = sequenceHeaderLength(issuerLen);
 
   int subjectLen = issuerOrSubjectLength(_subjectCountryName,
-                                          _subjectStateProvinceName,
-                                          _subjectLocalityName,
-                                          _subjectOrganizationName,
-                                          _subjectOrganizationalUnitName,
-                                          _subjectCommonName);
+                                         _subjectStateProvinceName,
+                                         _subjectLocalityName,
+                                         _subjectOrganizationName,
+                                         _subjectOrganizationalUnitName,
+                                         _subjectCommonName);
 
   int subjectHeaderLen = sequenceHeaderLength(subjectLen);
 
   int publicKeyLen = publicKeyLength();
 
   int authorityKeyIdentifierLen = authorityKeyIdentifierLength(serialNumberAndAuthorityKeyIdentifier.authorityKeyIdentifier);
-  
+
   int signatureLen = signatureLength(compressedCert.signature);
 
-  int certInfoLen = 5 + serialNumberLen + 12 + issuerHeaderLen + issuerLen + (datesSize + 2) + 
+  int certInfoLen = 5 + serialNumberLen + 12 + issuerHeaderLen + issuerLen + (datesSize + 2) +
                     subjectHeaderLen + subjectLen + publicKeyLen;
 
   if (authorityKeyIdentifierLen) {
@@ -478,88 +461,72 @@ int ECCX08CertClass::endReconstruction()
   return 1;
 }
 
-byte* ECCX08CertClass::bytes()
-{
+byte* ECCX08CertClass::bytes() {
   return _bytes;
 }
 
-int ECCX08CertClass::length()
-{
+int ECCX08CertClass::length() {
   return _length;
 }
 
-void ECCX08CertClass::setIssuerCountryName(const String& countryName)
-{
+void ECCX08CertClass::setIssuerCountryName(const String& countryName) {
   _issuerCountryName = countryName;
 }
 
-void ECCX08CertClass::setIssuerStateProvinceName(const String& stateProvinceName)
-{
+void ECCX08CertClass::setIssuerStateProvinceName(const String& stateProvinceName) {
   _issuerStateProvinceName = stateProvinceName;
 }
 
-void ECCX08CertClass::setIssuerLocalityName(const String& localityName)
-{
+void ECCX08CertClass::setIssuerLocalityName(const String& localityName) {
   _issuerLocalityName = localityName;
 }
 
-void ECCX08CertClass::setIssuerOrganizationName(const String& organizationName)
-{
+void ECCX08CertClass::setIssuerOrganizationName(const String& organizationName) {
   _issuerOrganizationName = organizationName;
 }
 
-void ECCX08CertClass::setIssuerOrganizationalUnitName(const String& organizationalUnitName)
-{
+void ECCX08CertClass::setIssuerOrganizationalUnitName(const String& organizationalUnitName) {
   _issuerOrganizationalUnitName = organizationalUnitName;
 }
 
-void ECCX08CertClass::setIssuerCommonName(const String& commonName)
-{
+void ECCX08CertClass::setIssuerCommonName(const String& commonName) {
   _issuerCommonName = commonName;
 }
 
-void ECCX08CertClass::setSubjectCountryName(const String& countryName)
-{
+void ECCX08CertClass::setSubjectCountryName(const String& countryName) {
   _subjectCountryName = countryName;
 }
 
-void ECCX08CertClass::setSubjectStateProvinceName(const String& stateProvinceName)
-{
+void ECCX08CertClass::setSubjectStateProvinceName(const String& stateProvinceName) {
   _subjectStateProvinceName = stateProvinceName;
 }
 
-void ECCX08CertClass::setSubjectLocalityName(const String& localityName)
-{
+void ECCX08CertClass::setSubjectLocalityName(const String& localityName) {
   _subjectLocalityName = localityName;
 }
 
-void ECCX08CertClass::setSubjectOrganizationName(const String& organizationName)
-{
+void ECCX08CertClass::setSubjectOrganizationName(const String& organizationName) {
   _subjectOrganizationName = organizationName;
 }
 
-void ECCX08CertClass::setSubjectOrganizationalUnitName(const String& organizationalUnitName)
-{
+void ECCX08CertClass::setSubjectOrganizationalUnitName(const String& organizationalUnitName) {
   _subjectOrganizationName = organizationalUnitName;
 }
 
-void ECCX08CertClass::setSubjectCommonName(const String& commonName)
-{
+void ECCX08CertClass::setSubjectCommonName(const String& commonName) {
   _subjectCommonName = commonName;
 }
 
-int ECCX08CertClass::versionLength()
-{
+int ECCX08CertClass::versionLength() {
   return 3;
 }
 
 int ECCX08CertClass::issuerOrSubjectLength(const String& countryName,
-                                            const String& stateProvinceName,
-                                            const String& localityName,
-                                            const String& organizationName,
-                                            const String& organizationalUnitName,
-                                            const String& commonName)
-{
+    const String& stateProvinceName,
+    const String& localityName,
+    const String& organizationName,
+    const String& organizationalUnitName,
+    const String& commonName) {
   int length                       = 0;
   int countryNameLength            = countryName.length();
   int stateProvinceNameLength      = stateProvinceName.length();
@@ -595,13 +562,11 @@ int ECCX08CertClass::issuerOrSubjectLength(const String& countryName,
   return length;
 }
 
-int ECCX08CertClass::publicKeyLength()
-{
+int ECCX08CertClass::publicKeyLength() {
   return (2 + 2 + 9 + 10 + 4 + 64);
 }
 
-int ECCX08CertClass::authorityKeyIdentifierLength(const byte authorityKeyIdentifier[])
-{
+int ECCX08CertClass::authorityKeyIdentifierLength(const byte authorityKeyIdentifier[]) {
   bool set = false;
 
   // check if the authority key identifier is non-zero
@@ -615,8 +580,7 @@ int ECCX08CertClass::authorityKeyIdentifierLength(const byte authorityKeyIdentif
   return (set ? 37 : 0);
 }
 
-int ECCX08CertClass::signatureLength(const byte signature[])
-{
+int ECCX08CertClass::signatureLength(const byte signature[]) {
   const byte* r = &signature[0];
   const byte* s = &signature[32];
 
@@ -644,8 +608,7 @@ int ECCX08CertClass::signatureLength(const byte signature[])
   return (21 + rLength + sLength);
 }
 
-int ECCX08CertClass::serialNumberLength(const byte serialNumber[])
-{
+int ECCX08CertClass::serialNumberLength(const byte serialNumber[]) {
   int length = SERIAL_NUMBER_LENGTH;
 
   while (*serialNumber == 0 && length) {
@@ -660,8 +623,7 @@ int ECCX08CertClass::serialNumberLength(const byte serialNumber[])
   return (2 + length);
 }
 
-int ECCX08CertClass::sequenceHeaderLength(int length)
-{
+int ECCX08CertClass::sequenceHeaderLength(int length) {
   if (length > 255) {
     return 4;
   } else if (length > 127) {
@@ -671,21 +633,19 @@ int ECCX08CertClass::sequenceHeaderLength(int length)
   }
 }
 
-void ECCX08CertClass::appendVersion(int version, byte out[])
-{
+void ECCX08CertClass::appendVersion(int version, byte out[]) {
   out[0] = ASN1_INTEGER;
   out[1] = 0x01;
   out[2] = version;
 }
 
 void ECCX08CertClass::appendIssuerOrSubject(const String& countryName,
-                                            const String& stateProvinceName,
-                                            const String& localityName,
-                                            const String& organizationName,
-                                            const String& organizationalUnitName,
-                                            const String& commonName,
-                                            byte out[])
-{
+    const String& stateProvinceName,
+    const String& localityName,
+    const String& organizationName,
+    const String& organizationalUnitName,
+    const String& commonName,
+    byte out[]) {
   if (countryName.length() > 0) {
     out += appendName(countryName, 0x06, out);
   }
@@ -711,8 +671,7 @@ void ECCX08CertClass::appendIssuerOrSubject(const String& countryName,
   }
 }
 
-void ECCX08CertClass::appendPublicKey(const byte publicKey[], byte out[])
-{
+void ECCX08CertClass::appendPublicKey(const byte publicKey[], byte out[]) {
   int subjectPublicKeyDataLength = 2 + 9 + 10 + 4 + 64;
 
   // subject public key
@@ -753,8 +712,7 @@ void ECCX08CertClass::appendPublicKey(const byte publicKey[], byte out[])
   memcpy(out, publicKey, 64);
 }
 
-void ECCX08CertClass::appendAuthorityKeyIdentifier(const byte authorityKeyIdentifier[], byte out[])
-{
+void ECCX08CertClass::appendAuthorityKeyIdentifier(const byte authorityKeyIdentifier[], byte out[]) {
   // [3]
   *out++ = 0xa3;
   *out++ = 0x23;
@@ -788,8 +746,7 @@ void ECCX08CertClass::appendAuthorityKeyIdentifier(const byte authorityKeyIdenti
   memcpy(out, authorityKeyIdentifier, 20);
 }
 
-void ECCX08CertClass::appendSignature(const byte signature[], byte out[])
-{
+void ECCX08CertClass::appendSignature(const byte signature[], byte out[]) {
   // signature algorithm
   *out++ = ASN1_SEQUENCE;
   *out++ = 0x0a;
@@ -823,7 +780,7 @@ void ECCX08CertClass::appendSignature(const byte signature[], byte out[])
   }
 
   if (*r & 0x80) {
-    rLength++;  
+    rLength++;
   }
 
   if (*s & 0x80) {
@@ -856,8 +813,7 @@ void ECCX08CertClass::appendSignature(const byte signature[], byte out[])
   out += rLength;
 }
 
-void ECCX08CertClass::appendSerialNumber(const byte serialNumber[], byte out[])
-{
+void ECCX08CertClass::appendSerialNumber(const byte serialNumber[], byte out[]) {
   int length = SERIAL_NUMBER_LENGTH;
 
   while (*serialNumber == 0 && length) {
@@ -866,7 +822,7 @@ void ECCX08CertClass::appendSerialNumber(const byte serialNumber[], byte out[])
   }
 
   if (*serialNumber & 0x80) {
-    length++;  
+    length++;
   }
 
   *out++ = ASN1_INTEGER;
@@ -880,8 +836,7 @@ void ECCX08CertClass::appendSerialNumber(const byte serialNumber[], byte out[])
   memcpy(out, serialNumber, length);
 }
 
-int ECCX08CertClass::appendName(const String& name, int type, byte out[])
-{
+int ECCX08CertClass::appendName(const String& name, int type, byte out[]) {
   int nameLength = name.length();
 
   *out++ = ASN1_SET;
@@ -903,8 +858,7 @@ int ECCX08CertClass::appendName(const String& name, int type, byte out[])
   return (nameLength + 11);
 }
 
-void ECCX08CertClass::appendSequenceHeader(int length, byte out[])
-{
+void ECCX08CertClass::appendSequenceHeader(int length, byte out[]) {
   *out++ = ASN1_SEQUENCE;
   if (length > 255) {
     *out++ = 0x82;
@@ -915,8 +869,7 @@ void ECCX08CertClass::appendSequenceHeader(int length, byte out[])
   *out++ = (length) & 0xff;
 }
 
-int ECCX08CertClass::appendDate(int year, int month, int day, int hour, int minute, int second, byte out[])
-{
+int ECCX08CertClass::appendDate(int year, int month, int day, int hour, int minute, int second, byte out[]) {
   bool useGeneralizedTime = (year > 2049);
 
   if (useGeneralizedTime) {
@@ -949,8 +902,7 @@ int ECCX08CertClass::appendDate(int year, int month, int day, int hour, int minu
   return (useGeneralizedTime ? 17 : 15);
 }
 
-int ECCX08CertClass::appendEcdsaWithSHA256(byte out[])
-{
+int ECCX08CertClass::appendEcdsaWithSHA256(byte out[]) {
   *out++ = ASN1_SEQUENCE;
   *out++ = 0x0A;
   *out++ = ASN1_OBJECT_IDENTIFIER;

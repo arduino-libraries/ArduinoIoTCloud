@@ -5,7 +5,7 @@
   #include <WiFiConnectionManager.h>
 #elif defined(BOARD_HAS_GSM)
   #include <GSMConnectionManager.h>
-#else 
+#else
   #error "Arduino IoT Cloud currently only supports MKR1000, MKR WiFi 1010 and MKR GSM 1400"
 #endif
 
@@ -25,9 +25,9 @@ void initProperties() {
 }
 
 #if defined(BOARD_HAS_WIFI)
-ConnectionManager * ArduinoIoTPreferredConnection = new WiFiConnectionManager(SECRET_SSID, SECRET_PASS);
+  ConnectionManager * ArduinoIoTPreferredConnection = new WiFiConnectionManager(SECRET_SSID, SECRET_PASS);
 #elif defined(BOARD_HAS_GSM)
-ConnectionManager * ArduinoIoTPreferredConnection = new GSMConnectionManager (SECRET_PIN, SECRET_APN, SECRET_LOGIN, SECRET_PASS);
+  ConnectionManager * ArduinoIoTPreferredConnection = new GSMConnectionManager(SECRET_PIN, SECRET_APN, SECRET_LOGIN, SECRET_PASS);
 #endif
 
 

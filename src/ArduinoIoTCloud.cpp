@@ -1,19 +1,19 @@
 /*
- * This file is part of ArduinoIoTCloud.
- *
- * Copyright 2019 ARDUINO SA (http://www.arduino.cc/)
- *
- * This software is released under the GNU General Public License version 3,
- * which covers the main part of arduino-cli.
- * The terms of this license can be found at:
- * https://www.gnu.org/licenses/gpl-3.0.en.html
- *
- * You can be released from the requirements of the above licenses by purchasing
- * a commercial license. Buying such a license is mandatory if you want to modify or
- * otherwise use the software for commercial activities involving the Arduino
- * software without disclosing the source code of your own applications. To purchase
- * a commercial license, send an email to license@arduino.cc.
- */
+   This file is part of ArduinoIoTCloud.
+
+   Copyright 2019 ARDUINO SA (http://www.arduino.cc/)
+
+   This software is released under the GNU General Public License version 3,
+   which covers the main part of arduino-cli.
+   The terms of this license can be found at:
+   https://www.gnu.org/licenses/gpl-3.0.en.html
+
+   You can be released from the requirements of the above licenses by purchasing
+   a commercial license. Buying such a license is mandatory if you want to modify or
+   otherwise use the software for commercial activities involving the Arduino
+   software without disclosing the source code of your own applications. To purchase
+   a commercial license, send an email to license@arduino.cc.
+*/
 
 #include <ArduinoECCX08.h>
 #include "utility/ECCX08Cert.h"
@@ -37,45 +37,45 @@ const static int CONNECT_FAILURE_SUBSCRIBE                 = -1;
 static ConnectionManager *getTimeConnection = NULL;
 
 static unsigned long getTime() {
-  if (!getTimeConnection) return 0;
+  if (!getTimeConnection) {
+    return 0;
+  }
   unsigned long time = getTimeConnection->getTime();
   if (!NTPUtils::isTimeValid(time)) {
     debugMessage(DebugLevel::Error, "Bogus NTP time from API, fallback to UDP method");
     time = NTPUtils(getTimeConnection->getUDP()).getTime();
   }
   #ifdef ARDUINO_ARCH_SAMD
-    rtc.setEpoch(time);
+  rtc.setEpoch(time);
   #endif
   return time;
 }
 
 static unsigned long getTimestamp() {
   #ifdef ARDUINO_ARCH_SAMD
-    return rtc.getEpoch();
+  return rtc.getEpoch();
   #else
-    #warning "No RTC available on this architecture - ArduinoIoTCloud will not keep track of local change timestamps ." 
-    return 0;
+#warning "No RTC available on this architecture - ArduinoIoTCloud will not keep track of local change timestamps ."
+  return 0;
   #endif
 }
 
 ArduinoIoTCloudClass::ArduinoIoTCloudClass() :
-  _thing_id     (""),
+  _thing_id(""),
   _bearSslClient(NULL),
-  _mqttClient   (NULL),
-  connection    (NULL),
-  _stdinTopic     (""),
-  _stdoutTopic    (""),
-  _shadowTopicOut (""),
-  _shadowTopicIn  (""),
-  _dataTopicOut   (""),
-  _dataTopicIn    (""),
-  _otaTopic       (""),
-  _lastSyncRequestTickTime(0)
-{
+  _mqttClient(NULL),
+  connection(NULL),
+  _stdinTopic(""),
+  _stdoutTopic(""),
+  _shadowTopicOut(""),
+  _shadowTopicIn(""),
+  _dataTopicOut(""),
+  _dataTopicIn(""),
+  _otaTopic(""),
+  _lastSyncRequestTickTime(0) {
 }
 
-ArduinoIoTCloudClass::~ArduinoIoTCloudClass()
-{
+ArduinoIoTCloudClass::~ArduinoIoTCloudClass() {
   if (_mqttClient) {
     delete _mqttClient;
     _mqttClient = NULL;
@@ -87,20 +87,18 @@ ArduinoIoTCloudClass::~ArduinoIoTCloudClass()
   }
 }
 
-int ArduinoIoTCloudClass::begin(ConnectionManager *c, String brokerAddress, uint16_t brokerPort)
-{
+int ArduinoIoTCloudClass::begin(ConnectionManager *c, String brokerAddress, uint16_t brokerPort) {
   connection = c;
   Client &connectionClient = c->getClient();
   _brokerAddress = brokerAddress;
   _brokerPort = brokerPort;
   #ifdef ARDUINO_ARCH_SAMD
-    rtc.begin();
+  rtc.begin();
   #endif
   return begin(connectionClient, _brokerAddress, _brokerPort);
 }
 
-int ArduinoIoTCloudClass::begin(Client& net, String brokerAddress, uint16_t brokerPort)
-{
+int ArduinoIoTCloudClass::begin(Client& net, String brokerAddress, uint16_t brokerPort) {
 
   _net = &net;
   // store the broker address as class member
@@ -138,22 +136,22 @@ int ArduinoIoTCloudClass::begin(Client& net, String brokerAddress, uint16_t brok
   if (_bearSslClient) {
     delete _bearSslClient;
   }
-  if(connection != NULL){
+  if (connection != NULL) {
     _bearSslClient = new BearSSLClient(connection->getClient());
-  }else{
+  } else {
     _bearSslClient = new BearSSLClient(*_net);
   }
-  
+
   _bearSslClient->setEccSlot(keySlot, ECCX08Cert.bytes(), ECCX08Cert.length());
   _mqttClient = new MqttClient(*_bearSslClient);
 
   // Bind ArduinoBearSSL callback using static "non-method" function
-  if(connection != NULL){
+  if (connection != NULL) {
     getTimeConnection = connection;
     ArduinoBearSSL.onGetTime(getTime);
   }
-  
-  
+
+
   // TODO: Find a better way to allow callback into object method
   // Begin function for the MQTTClient
   mqttClientBegin();
@@ -162,22 +160,19 @@ int ArduinoIoTCloudClass::begin(Client& net, String brokerAddress, uint16_t brok
   return 1;
 }
 
-void ArduinoIoTCloudClass::onGetTime(unsigned long(*callback)(void))
-{
+void ArduinoIoTCloudClass::onGetTime(unsigned long(*callback)(void)) {
   ArduinoBearSSL.onGetTime(callback);
 }
 
 // private class method used to initialize mqttClient class member. (called in the begin class method)
-void ArduinoIoTCloudClass::mqttClientBegin()
-{
+void ArduinoIoTCloudClass::mqttClientBegin() {
   // MQTT topics definition
   _stdoutTopic  = "/a/d/" + _device_id + "/s/o";
   _stdinTopic   = "/a/d/" + _device_id + "/s/i";
-  if(_thing_id == "") {
+  if (_thing_id == "") {
     _dataTopicIn  = "/a/d/" + _device_id + "/e/i";
     _dataTopicOut = "/a/d/" + _device_id + "/e/o";
-  }
-  else {
+  } else {
     _dataTopicIn  = "/a/t/" + _thing_id + "/e/i";
     _dataTopicOut = "/a/t/" + _thing_id + "/e/o";
     _shadowTopicIn  = "/a/t/" + _thing_id + "/shadow/i";
@@ -191,17 +186,22 @@ void ArduinoIoTCloudClass::mqttClientBegin()
   _mqttClient->setId(_device_id.c_str());
 }
 
-int ArduinoIoTCloudClass::connect()
-{
+int ArduinoIoTCloudClass::connect() {
   // Username: device id
   // Password: empty
   if (!_mqttClient->connect(_brokerAddress.c_str(), _brokerPort)) {
     return CONNECT_FAILURE;
   }
-  if(_mqttClient->subscribe(_stdinTopic   ) == 0) return CONNECT_FAILURE_SUBSCRIBE;
-  if(_mqttClient->subscribe(_dataTopicIn  ) == 0) return CONNECT_FAILURE_SUBSCRIBE;
-  if(_shadowTopicIn != "") {
-    if(_mqttClient->subscribe(_shadowTopicIn) == 0) return CONNECT_FAILURE_SUBSCRIBE;
+  if (_mqttClient->subscribe(_stdinTopic) == 0) {
+    return CONNECT_FAILURE_SUBSCRIBE;
+  }
+  if (_mqttClient->subscribe(_dataTopicIn) == 0) {
+    return CONNECT_FAILURE_SUBSCRIBE;
+  }
+  if (_shadowTopicIn != "") {
+    if (_mqttClient->subscribe(_shadowTopicIn) == 0) {
+      return CONNECT_FAILURE_SUBSCRIBE;
+    }
 
     _syncStatus = ArduinoIoTSynchronizationStatus::SYNC_STATUS_WAIT_FOR_CLOUD_VALUES;
     _lastSyncRequestTickTime = 0;
@@ -210,32 +210,30 @@ int ArduinoIoTCloudClass::connect()
   return CONNECT_SUCCESS;
 }
 
-bool ArduinoIoTCloudClass::disconnect()
-{
+bool ArduinoIoTCloudClass::disconnect() {
   _mqttClient->stop();
 
   return true;
 }
 
-void ArduinoIoTCloudClass::poll()
-{
+void ArduinoIoTCloudClass::poll() {
   update();
 }
 
-void ArduinoIoTCloudClass::update(CallbackFunc onSyncCompleteCallback)
-{
+void ArduinoIoTCloudClass::update(CallbackFunc onSyncCompleteCallback) {
   // If user call update() without parameters use the default ones
   update(MAX_RETRIES, RECONNECTION_TIMEOUT, onSyncCompleteCallback);
 }
 
-void ArduinoIoTCloudClass::update(int const reconnectionMaxRetries, int const reconnectionTimeoutMs, CallbackFunc onSyncCompleteCallback)
-{
-  unsigned long const timestamp = getTimestamp(); 
-  //check if a property is changed 
-  if(timestamp != 0) Thing.updateTimestampOnChangedProperties(timestamp);
-    
+void ArduinoIoTCloudClass::update(int const reconnectionMaxRetries, int const reconnectionTimeoutMs, CallbackFunc onSyncCompleteCallback) {
+  unsigned long const timestamp = getTimestamp();
+  //check if a property is changed
+  if (timestamp != 0) {
+    Thing.updateTimestampOnChangedProperties(timestamp);
+  }
+
   connectionCheck();
-  if(iotStatus != ArduinoIoTConnectionStatus::CONNECTED){
+  if (iotStatus != ArduinoIoTConnectionStatus::CONNECTED) {
     return;
   }
 
@@ -253,15 +251,15 @@ void ArduinoIoTCloudClass::update(int const reconnectionMaxRetries, int const re
       }
       break;
     case ArduinoIoTSynchronizationStatus::SYNC_STATUS_VALUES_PROCESSED:
-      if(onSyncCompleteCallback != NULL)
+      if (onSyncCompleteCallback != NULL) {
         (*onSyncCompleteCallback)();
+      }
       _syncStatus = ArduinoIoTSynchronizationStatus::SYNC_STATUS_SYNCHRONIZED;
       break;
   }
 }
 
-void ArduinoIoTCloudClass::sendPropertiesToCloud()
-{
+void ArduinoIoTCloudClass::sendPropertiesToCloud() {
   uint8_t data[MQTT_TRANSMIT_BUFFER_SIZE];
   int const length = Thing.encode(data, sizeof(data));
   if (length > 0) {
@@ -269,8 +267,7 @@ void ArduinoIoTCloudClass::sendPropertiesToCloud()
   }
 }
 
-int ArduinoIoTCloudClass::reconnect(Client& /* net */)
-{
+int ArduinoIoTCloudClass::reconnect(Client& /* net */) {
   if (_mqttClient->connected()) {
     _mqttClient->stop();
   }
@@ -279,13 +276,11 @@ int ArduinoIoTCloudClass::reconnect(Client& /* net */)
   return connect();
 }
 
-int ArduinoIoTCloudClass::connected()
-{
+int ArduinoIoTCloudClass::connected() {
   return _mqttClient->connected();
 }
 
-int ArduinoIoTCloudClass::writeProperties(const byte data[], int length)
-{
+int ArduinoIoTCloudClass::writeProperties(const byte data[], int length) {
   if (!_mqttClient->beginMessage(_dataTopicOut, length, false, 0)) {
     return 0;
   }
@@ -301,8 +296,7 @@ int ArduinoIoTCloudClass::writeProperties(const byte data[], int length)
   return 1;
 }
 
-int ArduinoIoTCloudClass::writeStdout(const byte data[], int length)
-{
+int ArduinoIoTCloudClass::writeStdout(const byte data[], int length) {
   if (!_mqttClient->beginMessage(_stdoutTopic, length, false, 0)) {
     return 0;
   }
@@ -318,8 +312,7 @@ int ArduinoIoTCloudClass::writeStdout(const byte data[], int length)
   return 1;
 }
 
-int ArduinoIoTCloudClass::writeShadowOut(const byte data[], int length)
-{
+int ArduinoIoTCloudClass::writeShadowOut(const byte data[], int length) {
   if (!_mqttClient->beginMessage(_shadowTopicOut, length, false, 0)) {
     return 0;
   }
@@ -335,13 +328,11 @@ int ArduinoIoTCloudClass::writeShadowOut(const byte data[], int length)
   return 1;
 }
 
-void ArduinoIoTCloudClass::onMessage(int length)
-{
+void ArduinoIoTCloudClass::onMessage(int length) {
   ArduinoCloud.handleMessage(length);
 }
 
-void ArduinoIoTCloudClass::handleMessage(int length)
-{
+void ArduinoIoTCloudClass::handleMessage(int length) {
   String topic = _mqttClient->messageTopic();
 
   byte bytes[length];
@@ -364,8 +355,7 @@ void ArduinoIoTCloudClass::handleMessage(int length)
   }
 }
 
-void ArduinoIoTCloudClass::requestLastValue()
-{
+void ArduinoIoTCloudClass::requestLastValue() {
   // Send the getLastValues CBOR message to the cloud
   // [{0: "r:m", 3: "getLastValues"}] = 81 A2 00 63 72 3A 6D 03 6D 67 65 74 4C 61 73 74 56 61 6C 75 65 73
   // Use http://cbor.me to easily generate CBOR encoding
@@ -373,69 +363,66 @@ void ArduinoIoTCloudClass::requestLastValue()
   writeShadowOut(CBOR_REQUEST_LAST_VALUE_MSG, sizeof(CBOR_REQUEST_LAST_VALUE_MSG));
 }
 
-void ArduinoIoTCloudClass::connectionCheck()
-{
-  if(connection != NULL){
+void ArduinoIoTCloudClass::connectionCheck() {
+  if (connection != NULL) {
     connection->check();
-    
+
     if (connection->getStatus() != NetworkConnectionState::CONNECTED) {
-      if(iotStatus == ArduinoIoTConnectionStatus::CONNECTED){
+      if (iotStatus == ArduinoIoTConnectionStatus::CONNECTED) {
         setIoTConnectionState(ArduinoIoTConnectionStatus::DISCONNECTED);
       }
       return;
     }
   }
-  
+
   switch (iotStatus) {
     case ArduinoIoTConnectionStatus::IDLE: {
-      setIoTConnectionState(ArduinoIoTConnectionStatus::CONNECTING);
-    }
-    break;
+        setIoTConnectionState(ArduinoIoTConnectionStatus::CONNECTING);
+      }
+      break;
     case ArduinoIoTConnectionStatus::ERROR: {
-      debugMessage(DebugLevel::Error, "Cloud Error. Retrying...");
-      setIoTConnectionState(ArduinoIoTConnectionStatus::RECONNECTING);
-    }
-    break;
+        debugMessage(DebugLevel::Error, "Cloud Error. Retrying...");
+        setIoTConnectionState(ArduinoIoTConnectionStatus::RECONNECTING);
+      }
+      break;
     case ArduinoIoTConnectionStatus::CONNECTED: {
-      debugMessageNoTimestamp(DebugLevel::Verbose, ".");
-      if (!_mqttClient->connected()){
-        setIoTConnectionState(ArduinoIoTConnectionStatus::DISCONNECTED);
+        debugMessageNoTimestamp(DebugLevel::Verbose, ".");
+        if (!_mqttClient->connected()) {
+          setIoTConnectionState(ArduinoIoTConnectionStatus::DISCONNECTED);
+        }
       }
-    }
-    break;
+      break;
     case ArduinoIoTConnectionStatus::DISCONNECTED: {
-      setIoTConnectionState(ArduinoIoTConnectionStatus::RECONNECTING);
-    }
-    break;
+        setIoTConnectionState(ArduinoIoTConnectionStatus::RECONNECTING);
+      }
+      break;
     case ArduinoIoTConnectionStatus::RECONNECTING: {
-      int const ret_code_reconnect = reconnect(*_net);
-      debugMessage(DebugLevel::Info, "ArduinoCloud.reconnect(): %d", ret_code_reconnect);
-      if (ret_code_reconnect == CONNECT_SUCCESS) {
-        setIoTConnectionState(ArduinoIoTConnectionStatus::CONNECTED);
-        CloudSerial.begin(9600);
-        CloudSerial.println("Hello from Cloud Serial!");
+        int const ret_code_reconnect = reconnect(*_net);
+        debugMessage(DebugLevel::Info, "ArduinoCloud.reconnect(): %d", ret_code_reconnect);
+        if (ret_code_reconnect == CONNECT_SUCCESS) {
+          setIoTConnectionState(ArduinoIoTConnectionStatus::CONNECTED);
+          CloudSerial.begin(9600);
+          CloudSerial.println("Hello from Cloud Serial!");
+        }
       }
-    }
-    break;
+      break;
     case ArduinoIoTConnectionStatus::CONNECTING: {
-      int const ret_code_connect = connect();
-      debugMessage(DebugLevel::Verbose, "ArduinoCloud.connect(): %d", ret_code_connect);
-      if (ret_code_connect == CONNECT_SUCCESS) {
-        setIoTConnectionState(ArduinoIoTConnectionStatus::CONNECTED);
-        CloudSerial.begin(9600);
-        CloudSerial.println("Hello from Cloud Serial!");
+        int const ret_code_connect = connect();
+        debugMessage(DebugLevel::Verbose, "ArduinoCloud.connect(): %d", ret_code_connect);
+        if (ret_code_connect == CONNECT_SUCCESS) {
+          setIoTConnectionState(ArduinoIoTConnectionStatus::CONNECTED);
+          CloudSerial.begin(9600);
+          CloudSerial.println("Hello from Cloud Serial!");
+        } else if (ret_code_connect == CONNECT_FAILURE_SUBSCRIBE) {
+          debugMessage(DebugLevel::Info, "ERROR - Please verify your THING ID");
+        }
       }
-      else if (ret_code_connect == CONNECT_FAILURE_SUBSCRIBE) {
-        debugMessage(DebugLevel::Info, "ERROR - Please verify your THING ID");
-      }
-    }
-    break;
+      break;
   }
 }
 
-void ArduinoIoTCloudClass::setIoTConnectionState(ArduinoIoTConnectionStatus _newState)
-{
-  switch(_newState){
+void ArduinoIoTCloudClass::setIoTConnectionState(ArduinoIoTConnectionStatus _newState) {
+  switch (_newState) {
     case ArduinoIoTConnectionStatus::ERROR:        debugMessage(DebugLevel::Error, "Arduino, we have a problem.");          break;
     case ArduinoIoTConnectionStatus::CONNECTING:   debugMessage(DebugLevel::Error, "Connecting to Arduino IoT Cloud...");   break;
     case ArduinoIoTConnectionStatus::RECONNECTING: debugMessage(DebugLevel::Error, "Reconnecting to Arduino IoT Cloud..."); break;
@@ -445,8 +432,7 @@ void ArduinoIoTCloudClass::setIoTConnectionState(ArduinoIoTConnectionStatus _new
   iotStatus = _newState;
 }
 
-void ArduinoIoTCloudClass::printDebugInfo()
-{
+void ArduinoIoTCloudClass::printDebugInfo() {
   debugMessage(DebugLevel::Info, "***** Arduino IoT Cloud - configuration info *****");
   debugMessage(DebugLevel::Info, "Device ID: %s", getDeviceId().c_str());
   debugMessage(DebugLevel::Info, "Thing ID: %s", getThingId().c_str());
