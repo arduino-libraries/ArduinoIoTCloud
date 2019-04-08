@@ -55,4 +55,10 @@ script:
   - buildExampleSketch ArduinoIoTCloud_LED_switch
   - buildExampleSketch ArduinoIoTCloud_Travis_CI
   - buildExampleUtilitySketch Provisioning
+notifications:
+  webhooks:
+    urls:
+      - https://www.travisbuddy.com/
+    on_success: never
+    on_failure: always
 
