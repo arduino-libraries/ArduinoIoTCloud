@@ -16,38 +16,37 @@
 //
 
 /******************************************************************************
- * CTOR/DTOR
+   CTOR/DTOR
  ******************************************************************************/
 
 template <typename T>
 ArduinoCloudProperty<T>::ArduinoCloudProperty(T & property, String const & name, Permission const permission)
-: _property(property),
-  _cloud_shadow_property(property),
-  _local_shadow_property(property),
-  _name(name),
-  _permission(permission),
-  _update_callback_func(NULL),
-  _sync_callback_func(NULL),
-  _update_policy(UpdatePolicy::OnChange),
-  _has_been_updated_once(false),
-  _has_been_modified_in_callback(false),
-  _min_delta_property(getInitialMinDeltaPropertyValue()),
-  _min_time_between_updates_millis(0),
-  _last_updated_millis(0),
-  _update_interval_millis(0),
-  _last_local_change_timestamp(0),
-  _last_cloud_change_timestamp(0),
-  _previous_cloud_change_timestamp(0)
-{
+  : _property(property),
+    _cloud_shadow_property(property),
+    _local_shadow_property(property),
+    _name(name),
+    _permission(permission),
+    _update_callback_func(NULL),
+    _sync_callback_func(NULL),
+    _update_policy(UpdatePolicy::OnChange),
+    _has_been_updated_once(false),
+    _has_been_modified_in_callback(false),
+    _min_delta_property(getInitialMinDeltaPropertyValue()),
+    _min_time_between_updates_millis(0),
+    _last_updated_millis(0),
+    _update_interval_millis(0),
+    _last_local_change_timestamp(0),
+    _last_cloud_change_timestamp(0),
+    _previous_cloud_change_timestamp(0) {
 }
 
 /******************************************************************************
- * PUBLIC MEMBER FUNCTIONS
+   PUBLIC MEMBER FUNCTIONS
  ******************************************************************************/
 
 template <typename T>
 void ArduinoCloudProperty<T>::writeByCloud(T const val) {
-  if(isWriteableByCloud()) {
+  if (isWriteableByCloud()) {
     _property = val;
     /* _cloud_shadow_property and local_shadow_property are not updated so there will be an update the next time around */
   }
@@ -82,38 +81,38 @@ ArduinoCloudProperty<T> & ArduinoCloudProperty<T>::publishEvery(unsigned long co
 
 template <typename T>
 bool ArduinoCloudProperty<T>::shouldBeUpdated() {
-  if(!_has_been_updated_once) return true;
+  if (!_has_been_updated_once) {
+    return true;
+  }
 
-  if(_has_been_modified_in_callback) {
+  if (_has_been_modified_in_callback) {
     _has_been_modified_in_callback = false;
     return true;
   }
 
-  if     (_update_policy == UpdatePolicy::OnChange) {
+  if (_update_policy == UpdatePolicy::OnChange) {
     return (isValueDifferent(_property, _cloud_shadow_property) && ((millis() - _last_updated_millis) >= (_min_time_between_updates_millis)));
-  }
-  else if(_update_policy == UpdatePolicy::TimeInterval) {
+  } else if (_update_policy == UpdatePolicy::TimeInterval) {
     return ((millis() - _last_updated_millis) >= _update_interval_millis);
-  }
-  else {
+  } else {
     return false;
   }
 }
 
 template <typename T>
 void ArduinoCloudProperty<T>::forceCallbackOnChange() {
-  if(_update_callback_func != NULL) {
+  if (_update_callback_func != NULL) {
     _update_callback_func();
   }
 }
 
 template <typename T>
 void ArduinoCloudProperty<T>::execCallbackOnChange() {
-  if(isValueDifferent(_property, _cloud_shadow_property)) {
-    if(_update_callback_func != NULL) {
+  if (isValueDifferent(_property, _cloud_shadow_property)) {
+    if (_update_callback_func != NULL) {
       _update_callback_func();
     }
-    if(!isValueDifferent(_property, _cloud_shadow_property)) {
+    if (!isValueDifferent(_property, _cloud_shadow_property)) {
       _has_been_modified_in_callback = true;
     }
   }
@@ -121,7 +120,7 @@ void ArduinoCloudProperty<T>::execCallbackOnChange() {
 
 template <typename T>
 void ArduinoCloudProperty<T>::execCallbackOnSync() {
-  if(_sync_callback_func != NULL) {
+  if (_sync_callback_func != NULL) {
     _sync_callback_func(*this);
   }
 }
@@ -131,14 +130,14 @@ void ArduinoCloudProperty<T>::append(CborEncoder * encoder) {
   if (isReadableByCloud()) {
     CborEncoder mapEncoder;
 
-    cbor_encoder_create_map     (encoder, &mapEncoder, CborIndefiniteLength);
-    cbor_encode_int             (&mapEncoder, static_cast<int>(CborIntegerMapKey::Name));    
-    cbor_encode_text_stringz    (&mapEncoder, _name.c_str());
-    appendValue                 (&mapEncoder);
+    cbor_encoder_create_map(encoder, &mapEncoder, CborIndefiniteLength);
+    cbor_encode_int(&mapEncoder, static_cast<int>(CborIntegerMapKey::Name));
+    cbor_encode_text_stringz(&mapEncoder, _name.c_str());
+    appendValue(&mapEncoder);
     cbor_encoder_close_container(encoder, &mapEncoder);
 
     _cloud_shadow_property = _property;
- 
+
     _has_been_updated_once = true;
     _last_updated_millis = millis();
   }
@@ -159,21 +158,21 @@ void ArduinoCloudProperty<T>::updateTime(unsigned long changeEventTime) {
 
 template <typename T>
 void ArduinoCloudProperty<T>::setPropertyValue(T const val) {
-  if(isWriteableByCloud()) {
+  if (isWriteableByCloud()) {
     _property = val;
   }
 }
 
 template <typename T>
 void ArduinoCloudProperty<T>::setCloudShadowValue(T const val) {
-  if(isWriteableByCloud()) {
+  if (isWriteableByCloud()) {
     _cloud_shadow_property = val;
   }
 }
 
 template <typename T>
 void ArduinoCloudProperty<T>::setLocalShadowValue(T const val) {
-  if(isWriteableByCloud()) {
+  if (isWriteableByCloud()) {
     _local_shadow_property = val;
   }
 }
@@ -221,30 +220,30 @@ unsigned long ArduinoCloudProperty<T>::getLastLocalChangeTimestamp() {
 
 
 /******************************************************************************
- * PRIVATE MEMBER FUNCTIONS 
+   PRIVATE MEMBER FUNCTIONS
  ******************************************************************************/
 
 template <>
 inline void ArduinoCloudProperty<bool>::appendValue(CborEncoder * mapEncoder) const {
-  cbor_encode_int    (mapEncoder, static_cast<int>(CborIntegerMapKey::BooleanValue));    
+  cbor_encode_int(mapEncoder, static_cast<int>(CborIntegerMapKey::BooleanValue));
   cbor_encode_boolean(mapEncoder, _property);
 }
 
 template <>
 inline void ArduinoCloudProperty<int>::appendValue(CborEncoder * mapEncoder) const {
-  cbor_encode_int(mapEncoder, static_cast<int>(CborIntegerMapKey::Value));    
+  cbor_encode_int(mapEncoder, static_cast<int>(CborIntegerMapKey::Value));
   cbor_encode_int(mapEncoder, _property);
 }
 
 template <>
 inline void ArduinoCloudProperty<float>::appendValue(CborEncoder * mapEncoder) const {
-  cbor_encode_int  (mapEncoder, static_cast<int>(CborIntegerMapKey::Value));    
+  cbor_encode_int(mapEncoder, static_cast<int>(CborIntegerMapKey::Value));
   cbor_encode_float(mapEncoder, _property);
 }
 
 template <>
 inline void ArduinoCloudProperty<String>::appendValue(CborEncoder * mapEncoder) const {
-  cbor_encode_int         (mapEncoder, static_cast<int>(CborIntegerMapKey::StringValue));
+  cbor_encode_int(mapEncoder, static_cast<int>(CborIntegerMapKey::StringValue));
   cbor_encode_text_stringz(mapEncoder, _property.c_str());
 }
 

@@ -16,14 +16,16 @@
 //
 
 /******************************************************************************
- * PRIVATE MEMBER FUNCTIONS
+   PRIVATE MEMBER FUNCTIONS
  ******************************************************************************/
 
 template <typename T>
 bool ArduinoCloudPropertyContainer::isPropertyInList(LinkedList<ArduinoCloudProperty<T> *> & list, String const & name) {
   for (int i = 0; i < list.size(); i++) {
     ArduinoCloudProperty<T> * p = list.get(i);
-    if (p->name() == name) return true;
+    if (p->name() == name) {
+      return true;
+    }
   }
   return false;
 }
@@ -32,7 +34,9 @@ template <typename T>
 ArduinoCloudProperty<T> * ArduinoCloudPropertyContainer::getProperty(LinkedList<ArduinoCloudProperty<T> *> & list, String const & name) {
   for (int i = 0; i < list.size(); i++) {
     ArduinoCloudProperty<T> * p = list.get(i);
-    if (p->name() == name) return p;
+    if (p->name() == name) {
+      return p;
+    }
   }
   return 0;
 }
