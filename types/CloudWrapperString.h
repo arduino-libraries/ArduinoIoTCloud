@@ -26,52 +26,40 @@
 #include "../ArduinoCloudProperty.hpp"
 
 /******************************************************************************
- * TYPEDEF
- ******************************************************************************/
-
-/******************************************************************************
- * TYPEDEF
- ******************************************************************************/
-
-/******************************************************************************
  * CLASS DECLARATION
  ******************************************************************************/
 
 class CloudWrapperString : public ArduinoCloudProperty {
 private:
   String  &_primitive_value,
-          _cloud_shadow_value,
-          _local_shadow_value;  
+          _cloud_value,
+          _local_value;  
 public:
   CloudWrapperString(String& v) : 
     _primitive_value(v),
-    _cloud_shadow_value(v),
-    _local_shadow_value(v) {
+    _cloud_value(v),
+    _local_value(v) {
   }
-  virtual bool isDifferentFromCloudShadow() {
-    return _primitive_value != _cloud_shadow_value;
+  virtual bool isDifferentFromCloud() {
+    return _primitive_value != _cloud_value;
   }
-  virtual void toShadow() {
-    _cloud_shadow_value = _local_shadow_value = _primitive_value;
+  virtual void fromCloudToLocal() {
+    _primitive_value = _cloud_value;
   }
-  virtual void fromCloudShadow() {
-    _primitive_value = _cloud_shadow_value;
+  virtual void fromLocalToCloud() {
+    _cloud_value = _primitive_value;  
   }
-  virtual void appendValue(CborEncoder * mapEncoder) const {
-    cbor_encode_int         (mapEncoder, static_cast<int>(CborIntegerMapKey::StringValue));    
-    cbor_encode_text_stringz(mapEncoder, _primitive_value.c_str());
+  virtual void appendAttributesToCloud() {
+    appendAttribute(_primitive_value);
   }
-  virtual void setValue(CborMapData const * const map_data) {
-    _primitive_value = map_data->str_val.get();
-  }
-  virtual void setCloudShadowValue(CborMapData const * const map_data) {
-    _cloud_shadow_value = map_data->str_val.get();
+  virtual void setAttributesFromCloud() {
+    setAttribute(_cloud_value);
   }
   virtual bool isPrimitive() {
     return true;
   }
   virtual bool isChangedLocally() {
-    return _primitive_value != _local_shadow_value;
+    return _primitive_value != _local_value;
   }
 };
 

@@ -24,10 +24,12 @@
 
 #include "ArduinoCloudProperty.hpp"
 #include "lib/LinkedList/LinkedList.h"
-#include "valuetypes/CloudBool.h"
-#include "valuetypes/CloudFloat.h"
-#include "valuetypes/CloudInt.h"
-#include "valuetypes/CloudString.h"
+#include "types/CloudBool.h"
+#include "types/CloudFloat.h"
+#include "types/CloudInt.h"
+#include "types/CloudString.h"
+#include "types/CloudLocation.h"
+#include "types/CloudColor.h"
 
 /******************************************************************************
    CONSTANTS
@@ -69,22 +71,28 @@ public:
   /* encode return > 0 if a property has changed and encodes the changed properties in CBOR format into the provided buffer */
   int encode(uint8_t * data, size_t const size);
   /* decode a CBOR payload received from the cloud */
-  void decode(uint8_t const * const payload, size_t const length, bool syncMessage = false);
+  void decode(uint8_t const * const payload, size_t const length, bool isSyncMessage = false);
 
   bool isPropertyInContainer              (String const & name);
   int appendChangedProperties             (CborEncoder * arrayEncoder);
   inline void addProperty                 (ArduinoCloudProperty   * property_obj) { _property_list.add  (property_obj); }
   ArduinoCloudProperty * getProperty(String const & name);
   void updateTimestampOnLocallyChangedProperties();
+  void updateProperty(String propertyName, unsigned long cloudChangeEventTime);
 
 private:
-  LinkedList<ArduinoCloudProperty   *> _property_list;
-/* Keep track of the number of primitive properties in the Thing. If 0 it allows the early exit in updateTimestampOnLocallyChangedProperties() */
-  int                                  _numPrimitivesProperties = 0;
-
-  char                          _uuid[33];
-  bool                          _syncMessage;
-
+  LinkedList<ArduinoCloudProperty *>   _property_list;
+  /* Keep track of the number of primitive properties in the Thing. If 0 it allows the early exit in updateTimestampOnLocallyChangedProperties() */
+  int                                  _numPrimitivesProperties;
+  /* Indicates the if the message received to be decoded is a response to the getLastValues inquiry */
+  bool                                 _isSyncMessage;
+  /* List of map data that will hold all the attributes of a property */
+  LinkedList<CborMapData *>            _map_data_list;
+  /* Current property name during decoding: use to look for a new property in the senml value array */
+  String                               _currentPropertyName;
+  unsigned long                        _currentPropertyBaseTime,
+                                       _currentPropertyTime;
+   
   enum class MapParserState {
     EnterMap,
     MapKey,
@@ -102,7 +110,7 @@ private:
     Error
   };
 
-  MapParserState handle_EnterMap     (CborValue * map_iter, CborValue * value_iter, CborMapData * map_data);
+  MapParserState handle_EnterMap     (CborValue * map_iter, CborValue * value_iter, CborMapData **map_data);
   MapParserState handle_MapKey       (CborValue * value_iter);
   MapParserState handle_UndefinedKey (CborValue * value_iter);
   MapParserState handle_BaseVersion  (CborValue * value_iter, CborMapData * map_data);
@@ -113,10 +121,11 @@ private:
   MapParserState handle_StringValue  (CborValue * value_iter, CborMapData * map_data);
   MapParserState handle_BooleanValue (CborValue * value_iter, CborMapData * map_data);
   MapParserState handle_Time         (CborValue * value_iter, CborMapData * map_data);
-  MapParserState handle_LeaveMap     (CborValue * map_iter, CborValue * value_iter, CborMapData const * const map_data);
+  MapParserState handle_LeaveMap     (CborValue * map_iter, CborValue * value_iter, CborMapData * map_data);
 
   static bool   ifNumericConvertToDouble    (CborValue * value_iter, double * numeric_val);
   static double convertCborHalfFloatToDouble(uint16_t const half_val);
+  void freeMapDataList(LinkedList<CborMapData *> *map_data_list);
 
 };
 

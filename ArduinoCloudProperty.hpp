@@ -18,16 +18,27 @@
 #ifndef ARDUINO_CLOUD_PROPERTY_HPP_
 #define ARDUINO_CLOUD_PROPERTY_HPP_
 
+#ifdef HOST_BUILD
+#define substring(...) substr(__VA_ARGS__) 
+#define indexOf(x) find(x) 
+#endif
+
 /******************************************************************************
    INCLUDE
  ******************************************************************************/
 
-#include <Arduino.h>
-#include "lib/tinycbor/cbor-lib.h"
 
-/******************************************************************************
-   TYPEDEF
- ******************************************************************************/
+#include <Arduino.h>
+// in order to allow <functional> to define its own max and min functions
+#undef max
+#undef min
+#include <functional>
+
+#include "lib/tinycbor/cbor-lib.h"
+#include "lib/LinkedList/LinkedList.h"
+
+#define appendAttribute(x) appendAttributeReal(x, getAttributeName(#x, '.'))
+#define setAttribute(x) setAttributeReal(x, getAttributeName(#x, '.')) 
 
 /******************************************************************************
  * ENUM
@@ -77,18 +88,11 @@ public:
   MapEntry<String> base_name;
   MapEntry<double> base_time;
   MapEntry<String> name;
+  MapEntry<String> attribute_name;
   MapEntry<float>  val;
   MapEntry<String> str_val;
   MapEntry<bool>   bool_val;
   MapEntry<double> time;
-  
-  void resetNotBase() {
-    name.reset        ();
-    val.reset         ();
-    str_val.reset     ();
-    bool_val.reset    ();
-    time.reset        ();
-  }
 };
 
 enum class Permission {
@@ -134,22 +138,33 @@ public:
 
   void updateLocalTimestamp   ();
   void append                 (CborEncoder * encoder);
+  void appendAttributeReal    (bool value, String attributeName = "");
+  void appendAttributeReal    (int value, String attributeName = "");
+  void appendAttributeReal    (float value, String attributeName = "");
+  void appendAttributeReal    (String value, String attributeName = "");
+  void appendAttributeName    (String attributeName, std::function<void (CborEncoder& mapEncoder)>f);
+  void setAttributesFromCloud (LinkedList<CborMapData *> *map_data_list);
+  void setAttributeReal       (bool& value, String attributeName = "");
+  void setAttributeReal       (int& value, String attributeName = "");
+  void setAttributeReal       (float& value, String attributeName = "");
+  void setAttributeReal       (String& value, String attributeName = "");
+  void setAttributeReal       (String attributeName, std::function<void (CborMapData *md)>setValue);
+  String getAttributeName     (String propertyName, char separator);
 
-  virtual bool isDifferentFromCloudShadow() = 0;
-  virtual void toShadow() = 0;
-  virtual void fromCloudShadow() = 0;
-  virtual void appendValue(CborEncoder * mapEncoder) const = 0;
-  virtual void setValue(CborMapData const * const map_data) = 0;
-  virtual void setCloudShadowValue(CborMapData const * const map_data) = 0;
+  virtual bool isDifferentFromCloud() = 0;
+  virtual void fromCloudToLocal() = 0;
+  virtual void fromLocalToCloud() = 0;
+  virtual void appendAttributesToCloud() = 0;
+  virtual void setAttributesFromCloud() = 0;
   virtual bool isPrimitive() { return false; };
   virtual bool isChangedLocally() { return false; };
 protected:
   /* Variables used for UpdatePolicy::OnChange */
   float              _min_delta_property;
   unsigned long      _min_time_between_updates_millis;
+  String             _name;
 
 private:
-  String             _name;
   Permission         _permission;
   UpdateCallbackFunc _update_callback_func;
   void               (*_sync_callback_func)(ArduinoCloudProperty &property);
@@ -163,7 +178,10 @@ private:
   /* Variables used for reconnection sync*/
   unsigned long      _last_local_change_timestamp;
   unsigned long      _last_cloud_change_timestamp;
-        
+  /* variable to manage property serialization/deserialization on CBOR */
+  CborEncoder       *_encoder;
+  LinkedList<CborMapData *>
+                    *_map_data_list;
 };
 
 /******************************************************************************

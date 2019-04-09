@@ -26,43 +26,33 @@
 #include "../ArduinoCloudProperty.hpp"
 
 /******************************************************************************
- * TYPEDEF
- ******************************************************************************/
-
-/******************************************************************************
- * TYPEDEF
- ******************************************************************************/
-
-/******************************************************************************
  * CLASS DECLARATION
  ******************************************************************************/
+
+
 
 class CloudInt : public ArduinoCloudProperty {
 private:
   int _value,
-      _cloud_shadow_value;  
+      _cloud_value;  
 public:
   CloudInt()                                          { CloudInt(0); }
-  CloudInt(int v) : _value(v), _cloud_shadow_value(v) {}
+  CloudInt(int v) : _value(v), _cloud_value(v) {}
   operator int() const {return _value;}
-  virtual bool isDifferentFromCloudShadow() {
-    return _value != _cloud_shadow_value && (abs(_value - _cloud_shadow_value) >= ArduinoCloudProperty::_min_delta_property);
+  virtual bool isDifferentFromCloud() {
+    return _value != _cloud_value && (abs(_value - _cloud_value) >= ArduinoCloudProperty::_min_delta_property);
   }
-  virtual void toShadow() {
-    _cloud_shadow_value = _value;
+  virtual void fromCloudToLocal() {
+    _value = _cloud_value;
   }
-  virtual void fromCloudShadow() {
-    _value = _cloud_shadow_value;
+  virtual void fromLocalToCloud() {
+    _cloud_value = _value;  
   }
-  virtual void appendValue(CborEncoder * mapEncoder) const {
-    cbor_encode_int  (mapEncoder, static_cast<int>(CborIntegerMapKey::Value));    
-    cbor_encode_int  (mapEncoder, _value);
+  virtual void appendAttributesToCloud() {
+    appendAttribute(_value);
   }
-  virtual void setValue(CborMapData const * const map_data) {
-    _value = map_data->val.get();
-  }
-  virtual void setCloudShadowValue(CborMapData const * const map_data) {
-    _cloud_shadow_value = map_data->val.get();
+  virtual void setAttributesFromCloud() {
+    setAttribute(_cloud_value);
   }
   //modifiers
   CloudInt& operator=(int v) {
@@ -80,8 +70,8 @@ public:
   CloudInt& operator%=(int v) {return operator=(_value%=v);}
   CloudInt& operator++() {return operator=(++_value);}
   CloudInt& operator--() {return operator=(--_value);}
-  CloudInt operator++(int) {return CloudInt(_value++);}
-  CloudInt operator--(int) {return CloudInt(_value--);}
+  CloudInt operator++(int) {int temp =_value; operator=(_value+1); return CloudInt(_value);}
+  CloudInt operator--(int) {int temp =_value; operator=(_value-1); return CloudInt(_value);}
   CloudInt& operator&=(int v) {return operator=(_value&=v);}
   CloudInt& operator|=(int v) {return operator=(_value|=v);}
   CloudInt& operator^=(int v) {return operator=(_value^=v);}

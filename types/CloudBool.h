@@ -26,43 +26,33 @@
 #include "../ArduinoCloudProperty.hpp"
 
 /******************************************************************************
- * TYPEDEF
- ******************************************************************************/
-
-/******************************************************************************
- * TYPEDEF
- ******************************************************************************/
-
-/******************************************************************************
  * CLASS DECLARATION
  ******************************************************************************/
+
+
 
 class CloudBool : public ArduinoCloudProperty {
 private:
   bool  _value,
-        _cloud_shadow_value;
+        _cloud_value;
 public:
   CloudBool()                                           { CloudBool(false); }
-  CloudBool(bool v) : _value(v), _cloud_shadow_value(v) {}
+  CloudBool(bool v) : _value(v), _cloud_value(v) {}
   operator bool() const                             {return _value;}
-  virtual bool isDifferentFromCloudShadow() {
-    return _value != _cloud_shadow_value;
+  virtual bool isDifferentFromCloud() {
+    return _value != _cloud_value;
   }
-  virtual void toShadow() {
-    _cloud_shadow_value = _value;
+  virtual void fromCloudToLocal() {
+    _value = _cloud_value;
   }
-  virtual void fromCloudShadow() {
-    _value = _cloud_shadow_value;
+  virtual void fromLocalToCloud() {
+    _cloud_value = _value;  
   }
-  virtual void appendValue(CborEncoder * mapEncoder) const {
-    cbor_encode_int    (mapEncoder, static_cast<int>(CborIntegerMapKey::BooleanValue));    
-    cbor_encode_boolean(mapEncoder, _value);
+  virtual void appendAttributesToCloud() {
+    appendAttribute(_value);
   }
-  virtual void setValue(CborMapData const * const map_data) {
-    _value = map_data->bool_val.get();
-  }
-  virtual void setCloudShadowValue(CborMapData const * const map_data) {
-    _cloud_shadow_value = map_data->bool_val.get();
+  virtual void setAttributesFromCloud() {
+    setAttribute(_cloud_value);
   }
   //modifiers
   CloudBool& operator=(bool v) {

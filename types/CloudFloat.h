@@ -28,43 +28,33 @@
 #include "../ArduinoCloudProperty.hpp"
 
 /******************************************************************************
- * TYPEDEF
- ******************************************************************************/
-
-/******************************************************************************
- * TYPEDEF
- ******************************************************************************/
-
-/******************************************************************************
  * CLASS DECLARATION
  ******************************************************************************/
+
+
 
 class CloudFloat : public ArduinoCloudProperty {
 private:
   float _value,
-        _cloud_shadow_value;
+        _cloud_value;
 public:
   CloudFloat()                                            { CloudFloat(0.0f); }
-  CloudFloat(float v) : _value(v), _cloud_shadow_value(v) {}
+  CloudFloat(float v) : _value(v), _cloud_value(v) {}
   operator float() const {return _value;}
-  virtual bool isDifferentFromCloudShadow() {
-    return _value != _cloud_shadow_value && (abs(_value - _cloud_shadow_value) >= ArduinoCloudProperty::_min_delta_property);
+  virtual bool isDifferentFromCloud() {
+    return _value != _cloud_value && (abs(_value - _cloud_value) >= ArduinoCloudProperty::_min_delta_property);
   }
-  virtual void toShadow() {
-    _cloud_shadow_value = _value;
+  virtual void fromCloudToLocal() {
+    _value = _cloud_value;
   }
-  virtual void fromCloudShadow() {
-    _value = _cloud_shadow_value;
+  virtual void fromLocalToCloud() {
+    _cloud_value = _value;  
   }
-  virtual void appendValue(CborEncoder * mapEncoder) const {
-    cbor_encode_int  (mapEncoder, static_cast<int>(CborIntegerMapKey::Value));    
-    cbor_encode_float(mapEncoder, _value);
+  virtual void appendAttributesToCloud() {
+    appendAttribute(_value);
   }
-  virtual void setValue(CborMapData const * const map_data) {
-    _value = map_data->val.get();
-  }
-  virtual void setCloudShadowValue(CborMapData const * const map_data) {
-    _cloud_shadow_value = map_data->val.get();
+  virtual void setAttributesFromCloud() {
+    setAttribute(_cloud_value);
   }
   //modifiers
   CloudFloat& operator=(float v) {
@@ -79,21 +69,40 @@ public:
   CloudFloat& operator-=(float v) {return operator=(_value-=v);}
   CloudFloat& operator*=(float v) {return operator=(_value*=v);}
   CloudFloat& operator/=(float v) {return operator=(_value/=v);}
-  CloudFloat& operator++() {return operator=(_value++);}
-  CloudFloat& operator--() {return operator=(_value--);}
+  CloudFloat& operator++() {return operator=(_value+1.0f);}
+  CloudFloat& operator--() {return operator=(_value-1.0f);}
+  CloudFloat operator++(int) {float f =_value; operator=(_value+1.0f); return CloudFloat(_value);}
+  CloudFloat operator--(int) {float f =_value; operator=(_value-1.0f); return CloudFloat(_value);}
+
   //friends
   friend CloudFloat operator+(CloudFloat iw, CloudFloat v) {return iw+=v;}
   friend CloudFloat operator+(CloudFloat iw, float v) {return iw+=v;}
+  friend CloudFloat operator+(CloudFloat iw, int v) {return iw+=(float)v;}
+  friend CloudFloat operator+(CloudFloat iw, double v) {return iw+=(float)v;}
   friend CloudFloat operator+(float v, CloudFloat iw) {return CloudFloat(v)+=iw;}
+  friend CloudFloat operator+(int v, CloudFloat iw) {return CloudFloat(v)+=iw;}
+  friend CloudFloat operator+(double v, CloudFloat iw) {return CloudFloat(v)+=iw;}
   friend CloudFloat operator-(CloudFloat iw, CloudFloat v) {return iw-=v;}
   friend CloudFloat operator-(CloudFloat iw, float v) {return iw-=v;}
+  friend CloudFloat operator-(CloudFloat iw, int v) {return iw-=(float)v;}
+  friend CloudFloat operator-(CloudFloat iw, double v) {return iw-=(float)v;}
   friend CloudFloat operator-(float v, CloudFloat iw) {return CloudFloat(v)-=iw;}
+  friend CloudFloat operator-(int v, CloudFloat iw) {return CloudFloat(v)-=iw;}
+  friend CloudFloat operator-(double v, CloudFloat iw) {return CloudFloat(v)-=iw;}
   friend CloudFloat operator*(CloudFloat iw, CloudFloat v) {return iw*=v;}
   friend CloudFloat operator*(CloudFloat iw, float v) {return iw*=v;}
+  friend CloudFloat operator*(CloudFloat iw, int v) {return iw*=(float)v;}
+  friend CloudFloat operator*(CloudFloat iw, double v) {return iw*=(float)v;}
   friend CloudFloat operator*(float v, CloudFloat iw) {return CloudFloat(v)*=iw;}
+  friend CloudFloat operator*(int v, CloudFloat iw) {return CloudFloat(v)*=iw;}
+  friend CloudFloat operator*(double v, CloudFloat iw) {return CloudFloat(v)*=iw;}
   friend CloudFloat operator/(CloudFloat iw, CloudFloat v) {return iw/=v;}
   friend CloudFloat operator/(CloudFloat iw, float v) {return iw/=v;}
+  friend CloudFloat operator/(CloudFloat iw, int v) {return iw/=(float)v;}
+  friend CloudFloat operator/(CloudFloat iw, double v) {return iw/=(float)v;}
   friend CloudFloat operator/(float v, CloudFloat iw) {return CloudFloat(v)/=iw;}
+  friend CloudFloat operator/(int v, CloudFloat iw) {return CloudFloat(v)/=iw;}
+  friend CloudFloat operator/(double v, CloudFloat iw) {return CloudFloat(v)/=iw;}
 };
 
 
