@@ -16,6 +16,7 @@ void setup() {
   ArduinoCloud.begin(ArduinoIoTPreferredConnection); // initialize a connection to the Arduino IoT Cloud
   while (ArduinoCloud.connected()); // needed to wait for the inizialization of CloudSerial
   CloudSerial.print("I'm ready for blinking!\n");
+  pinMode(LED_BUILTIN, OUTPUT);
 }
 
 void loop() {
