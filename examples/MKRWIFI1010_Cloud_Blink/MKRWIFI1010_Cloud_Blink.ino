@@ -5,20 +5,20 @@
 char ssid[] = SECRET_WIFI_NAME; // your network SSID (name)
 char pass[] = SECRET_PASSWORD; // your network password (use for WPA, or use as key for WEP)
 
-String cloudSerialBuffer=""; // the string used to compose network messages from the received characters
+String cloudSerialBuffer = ""; // the string used to compose network messages from the received characters
 // handles connection to the network
 ConnectionManager *ArduinoIoTPreferredConnection = new WiFiConnectionManager(SECRET_WIFI_NAME, SECRET_PASSWORD);
 
-void setup(){
+void setup() {
   setDebugMessageLevel(3); // used to set a level of granularity in information output [0...4]
   Serial.begin(9600);
   while (!Serial); // waits for the serial to become available
   ArduinoCloud.begin(ArduinoIoTPreferredConnection); // initialize a connection to the Arduino IoT Cloud
-  while(ArduinoCloud.connected()); // needed to wait for the inizialization of CloudSerial
+  while (ArduinoCloud.connected()); // needed to wait for the inizialization of CloudSerial
   CloudSerial.print("I'm ready for blinking!\n");
 }
 
-void loop(){
+void loop() {
   ArduinoCloud.update();
   // check if there is something waiting to be read
   if (CloudSerial.available()) {
@@ -28,9 +28,7 @@ void loop(){
     if (character == '\n') {
       handleString();
     }
-  }
-  else // if there is nothing to read, it could be that the last command didn't end with a '\n'. Check.
-  {
+  } else { // if there is nothing to read, it could be that the last command didn't end with a '\n'. Check.
     handleString();
   }
   // Just to be able to simulate the board responses through the serial monitor
@@ -40,13 +38,18 @@ void loop(){
 }
 void handleString() {
   // Don't proceed if the string is empty
-  if (cloudSerialBuffer.equals("")) return;
+  if (cloudSerialBuffer.equals("")) {
+    return;
+  }
   // Remove leading and trailing whitespaces
   cloudSerialBuffer.trim();
   // Make it uppercase;
   cloudSerialBuffer.toUpperCase();
-  if (cloudSerialBuffer.equals("ON")) digitalWrite(LED_BUILTIN, HIGH);
-  else if (cloudSerialBuffer.equals("OFF")) digitalWrite(LED_BUILTIN, LOW);
+  if (cloudSerialBuffer.equals("ON")) {
+    digitalWrite(LED_BUILTIN, HIGH);
+  } else if (cloudSerialBuffer.equals("OFF")) {
+    digitalWrite(LED_BUILTIN, LOW);
+  }
   sendString(cloudSerialBuffer);
   // Reset cloudSerialBuffer
   cloudSerialBuffer = "";
