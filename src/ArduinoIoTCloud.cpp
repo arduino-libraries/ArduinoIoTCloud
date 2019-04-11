@@ -72,7 +72,11 @@ ArduinoIoTCloudClass::ArduinoIoTCloudClass() :
   _dataTopicOut(""),
   _dataTopicIn(""),
   _otaTopic(""),
-  _lastSyncRequestTickTime(0) {
+  _lastSyncRequestTickTime(0),
+  _on_sync_event_callback(NULL),
+  _on_connect_event_callback(NULL),
+  _on_disconnect_event_callback(NULL) {
+
 }
 
 ArduinoIoTCloudClass::~ArduinoIoTCloudClass() {
@@ -237,21 +241,25 @@ void ArduinoIoTCloudClass::update(int const reconnectionMaxRetries, int const re
   _mqttClient->poll();
 
   switch (_syncStatus) {
-    case ArduinoIoTSynchronizationStatus::SYNC_STATUS_SYNCHRONIZED:
+    case ArduinoIoTSynchronizationStatus::SYNC_STATUS_SYNCHRONIZED: {
       sendPropertiesToCloud();
-      break;
-    case ArduinoIoTSynchronizationStatus::SYNC_STATUS_WAIT_FOR_CLOUD_VALUES:
+    }
+    break;
+    case ArduinoIoTSynchronizationStatus::SYNC_STATUS_WAIT_FOR_CLOUD_VALUES: {
       if (millis() - _lastSyncRequestTickTime > TIMEOUT_FOR_LASTVALUES_SYNC) {
         requestLastValue();
         _lastSyncRequestTickTime = millis();
       }
-      break;
-    case ArduinoIoTSynchronizationStatus::SYNC_STATUS_VALUES_PROCESSED:
+    }
+    break;
+    case ArduinoIoTSynchronizationStatus::SYNC_STATUS_VALUES_PROCESSED: {
       if (onSyncCompleteCallback != NULL) {
         (*onSyncCompleteCallback)();
       }
+      execCloudConnectionEventCallback(_on_sync_event_callback, 0 /* callback_arg */);
       _syncStatus = ArduinoIoTSynchronizationStatus::SYNC_STATUS_SYNCHRONIZED;
-      break;
+    }
+    break;
   }
 }
 
@@ -385,6 +393,7 @@ void ArduinoIoTCloudClass::connectionCheck() {
         debugMessageNoTimestamp(DebugLevel::Verbose, ".");
         if (!_mqttClient->connected()) {
           setIoTConnectionState(ArduinoIoTConnectionStatus::DISCONNECTED);
+          execCloudConnectionEventCallback(_on_disconnect_event_callback, 0 /* callback_arg - e.g. could be error code casted to void * */);
         }
       }
       break;
@@ -397,6 +406,7 @@ void ArduinoIoTCloudClass::connectionCheck() {
         debugMessage(DebugLevel::Info, "ArduinoCloud.reconnect(): %d", ret_code_reconnect);
         if (ret_code_reconnect == CONNECT_SUCCESS) {
           setIoTConnectionState(ArduinoIoTConnectionStatus::CONNECTED);
+          execCloudConnectionEventCallback(_on_connect_event_callback, 0 /* callback_arg */);
           CloudSerial.begin(9600);
           CloudSerial.println("Hello from Cloud Serial!");
         }
@@ -407,6 +417,7 @@ void ArduinoIoTCloudClass::connectionCheck() {
         debugMessage(DebugLevel::Verbose, "ArduinoCloud.connect(): %d", ret_code_connect);
         if (ret_code_connect == CONNECT_SUCCESS) {
           setIoTConnectionState(ArduinoIoTConnectionStatus::CONNECTED);
+          execCloudConnectionEventCallback(_on_connect_event_callback, 0 /* callback_arg */);
           CloudSerial.begin(9600);
           CloudSerial.println("Hello from Cloud Serial!");
         } else if (ret_code_connect == CONNECT_FAILURE_SUBSCRIBE) {
@@ -433,6 +444,20 @@ void ArduinoIoTCloudClass::printDebugInfo() {
   debugMessage(DebugLevel::Info, "Device ID: %s", getDeviceId().c_str());
   debugMessage(DebugLevel::Info, "Thing ID: %s", getThingId().c_str());
   debugMessage(DebugLevel::Info, "MQTT Broker: %s:%d", _brokerAddress.c_str(), _brokerPort);
+}
+
+void ArduinoIoTCloudClass::addCallback(ArduinoIoTCloudConnectionEvent const event, OnCloudConnectionEventCallback callback) {
+  switch (event) {
+    case ArduinoIoTCloudConnectionEvent::SYNC:       _on_sync_event_callback       = callback; break;
+    case ArduinoIoTCloudConnectionEvent::CONNECT:    _on_connect_event_callback    = callback; break;
+    case ArduinoIoTCloudConnectionEvent::DISCONNECT: _on_disconnect_event_callback = callback; break;
+  }
+}
+
+void ArduinoIoTCloudClass::execCloudConnectionEventCallback(OnCloudConnectionEventCallback & callback, void * callback_arg) {
+  if(callback) {
+    (*callback)(callback_arg);
+  }
 }
 
 ArduinoIoTCloudClass ArduinoCloud;
