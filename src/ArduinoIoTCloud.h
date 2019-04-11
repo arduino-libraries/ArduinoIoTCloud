@@ -40,8 +40,6 @@ typedef struct {
   int timeout;
 } mqttConnectionOptions;
 
-typedef void (*CallbackFunc)(void);
-
 extern ConnectionManager *ArduinoIoTPreferredConnection;
 
 enum class ArduinoIoTConnectionStatus {
@@ -58,6 +56,13 @@ enum class ArduinoIoTSynchronizationStatus {
   SYNC_STATUS_WAIT_FOR_CLOUD_VALUES,
   SYNC_STATUS_VALUES_PROCESSED
 };
+
+enum class ArduinoIoTCloudConnectionEvent {
+  SYNC, CONNECT, DISCONNECT
+};
+
+typedef void (*CallbackFunc)(void);
+typedef void (*OnCloudConnectionEventCallback)(void * /* arg */);
 
 class ArduinoIoTCloudClass {
 
@@ -136,6 +141,8 @@ class ArduinoIoTCloudClass {
     }
     void printDebugInfo();
 
+    void addCallback(ArduinoIoTCloudConnectionEvent const event, OnCloudConnectionEventCallback callback);
+
   protected:
     friend class CloudSerialClass;
     int writeStdout(const byte data[], int length);
@@ -182,6 +189,13 @@ class ArduinoIoTCloudClass {
     String _dataTopicIn;
     String _otaTopic;
     Client *_net;
+
+    OnCloudConnectionEventCallback _on_sync_event_callback,
+                                   _on_connect_event_callback,
+                                   _on_disconnect_event_callback;
+
+    static void execCloudConnectionEventCallback(OnCloudConnectionEventCallback & callback, void * callback_arg);
+
 };
 
 extern ArduinoIoTCloudClass ArduinoCloud;
