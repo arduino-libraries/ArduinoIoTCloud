@@ -83,10 +83,16 @@ class ArduinoIoTCloudClass {
     int  connect();
     bool disconnect();
 
-    void update(CallbackFunc onSyncCompleteCallback = NULL);
+    inline void update() {
+      update(NULL);
+    }
+    void update(CallbackFunc onSyncCompleteCallback) __attribute__((deprecated)); /* Attention: Function is deprecated - use 'addCallback(ArduinoIoTCloudConnectionEvent::SYNC, &onSync)' for adding a onSyncCallback instead */
 
     // defined for users who want to specify max reconnections reties and timeout between them
-    void update(int const reconnectionMaxRetries, int const reconnectionTimeoutMs, CallbackFunc onSyncCompleteCallback = NULL);
+    inline void update(int const reconnectionMaxRetries, int const reconnectionTimeoutMs) {
+      update(reconnectionMaxRetries, reconnectionTimeoutMs, NULL);
+    }
+    void update(int const reconnectionMaxRetries, int const reconnectionTimeoutMs, CallbackFunc onSyncCompleteCallback) __attribute__((deprecated)); /* Attention: Function is deprecated - use 'addCallback(ArduinoIoTCloudConnectionEvent::SYNC, &onSync)' for adding a onSyncCallback instead */
 
     int connected();
     // Clean up existing Mqtt connection, create a new one and initialize it
