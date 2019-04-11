@@ -1,5 +1,13 @@
 #include <ArduinoIoTCloud.h>
-#include <WiFiConnectionManager.h>
+#include <ConnectionManager.h>
+
+#if defined(BOARD_HAS_WIFI)
+  #include <WiFiConnectionManager.h>
+#elif defined(BOARD_HAS_GSM)
+  #include <GSMConnectionManager.h>
+#else
+  #error "Arduino IoT Cloud currently only supports MKR1000, MKR WiFi 1010 and MKR GSM 1400"
+#endif
 
 ///////please enter your sensitive data in the Secret tab/arduino_secrets.h
 char ssid[] = SECRET_WIFI_NAME; // your network SSID (name)
@@ -7,7 +15,11 @@ char pass[] = SECRET_PASSWORD; // your network password (use for WPA, or use as 
 
 String cloudSerialBuffer = ""; // the string used to compose network messages from the received characters
 // handles connection to the network
-ConnectionManager *ArduinoIoTPreferredConnection = new WiFiConnectionManager(SECRET_WIFI_NAME, SECRET_PASSWORD);
+#if defined(BOARD_HAS_WIFI)
+  ConnectionManager * ArduinoIoTPreferredConnection = new WiFiConnectionManager(SECRET_WIFI_NAME, SECRET_PASSWORD);
+#elif defined(BOARD_HAS_GSM)
+  ConnectionManager * ArduinoIoTPreferredConnection = new GSMConnectionManager(SECRET_PIN, SECRET_APN, SECRET_LOGIN, SECRET_PASS);
+#endif
 
 void setup() {
   setDebugMessageLevel(3); // used to set a level of granularity in information output [0...4]
