@@ -14,7 +14,7 @@ void setup() {
   Serial.begin(9600);
   while (!Serial); // waits for the serial to become available
   ArduinoCloud.begin(ArduinoIoTPreferredConnection); // initialize a connection to the Arduino IoT Cloud
-  while (ArduinoCloud.connected()); // needed to wait for the inizialization of CloudSerial
+  while (ArduinoCloud.connected()); // needed to wait for the initialization of CloudSerial
   CloudSerial.print("I'm ready for blinking!\n");
   pinMode(LED_BUILTIN, OUTPUT);
 }
