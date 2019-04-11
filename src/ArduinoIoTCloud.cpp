@@ -242,24 +242,24 @@ void ArduinoIoTCloudClass::update(int const reconnectionMaxRetries, int const re
 
   switch (_syncStatus) {
     case ArduinoIoTSynchronizationStatus::SYNC_STATUS_SYNCHRONIZED: {
-      sendPropertiesToCloud();
-    }
-    break;
+        sendPropertiesToCloud();
+      }
+      break;
     case ArduinoIoTSynchronizationStatus::SYNC_STATUS_WAIT_FOR_CLOUD_VALUES: {
-      if (millis() - _lastSyncRequestTickTime > TIMEOUT_FOR_LASTVALUES_SYNC) {
-        requestLastValue();
-        _lastSyncRequestTickTime = millis();
+        if (millis() - _lastSyncRequestTickTime > TIMEOUT_FOR_LASTVALUES_SYNC) {
+          requestLastValue();
+          _lastSyncRequestTickTime = millis();
+        }
       }
-    }
-    break;
+      break;
     case ArduinoIoTSynchronizationStatus::SYNC_STATUS_VALUES_PROCESSED: {
-      if (onSyncCompleteCallback != NULL) {
-        (*onSyncCompleteCallback)();
+        if (onSyncCompleteCallback != NULL) {
+          (*onSyncCompleteCallback)();
+        }
+        execCloudEventCallback(_on_sync_event_callback, 0 /* callback_arg */);
+        _syncStatus = ArduinoIoTSynchronizationStatus::SYNC_STATUS_SYNCHRONIZED;
       }
-      execCloudEventCallback(_on_sync_event_callback, 0 /* callback_arg */);
-      _syncStatus = ArduinoIoTSynchronizationStatus::SYNC_STATUS_SYNCHRONIZED;
-    }
-    break;
+      break;
   }
 }
 
@@ -455,7 +455,7 @@ void ArduinoIoTCloudClass::addCallback(ArduinoIoTCloudEvent const event, OnCloud
 }
 
 void ArduinoIoTCloudClass::execCloudEventCallback(OnCloudEventCallback & callback, void * callback_arg) {
-  if(callback) {
+  if (callback) {
     (*callback)(callback_arg);
   }
 }
