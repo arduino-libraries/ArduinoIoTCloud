@@ -9,9 +9,39 @@
   #error "Arduino IoT Cloud currently only supports MKR1000, MKR WiFi 1010 and MKR GSM 1400"
 #endif
 
-///////please enter your sensitive data in the Secret tab/arduino_secrets.h
-char ssid[] = SECRET_WIFI_NAME; // your network SSID (name)
-char pass[] = SECRET_PASSWORD; // your network password (use for WPA, or use as key for WEP)
+#ifdef BOARD_HAS_WIFI
+  #ifndef SECRET_WIFI_NAME
+    #define SECRET_WIFI_NAME ""
+    #warning "You need to define SECRET_WIFI_NAME in tab/arduino_secrets.h"
+  #endif
+
+  #ifndef SECRET_PASSWORD
+    #define SECRET_PASSWORD ""
+    #warning "You need to define SECRET_PASSWORD in tab/arduino_secrets.h"
+  #endif
+#endif
+
+#ifdef BOARD_HAS_GSM
+  #ifndef SECRET_PIN
+    #define SECRET_PIN ""
+    #warning "You need to define SECRET_PIN in tab/arduino_secrets.h"
+  #endif
+
+  #ifndef SECRET_APN
+    #define SECRET_APN ""
+    #warning "You need to define SECRET_PIN in tab/arduino_secrets.h"
+  #endif
+
+  #ifndef SECRET_LOGIN
+    #define SECRET_LOGIN ""
+    #warning "You need to define SECRET_LOGIN in tab/arduino_secrets.h"
+  #endif
+
+  #ifndef SECRET_PASS
+    #define SECRET_PASS ""
+    #warning "You need to define SECRET_PASS in tab/arduino_secrets.h"
+  #endif
+#endif
 
 String cloudSerialBuffer = ""; // the string used to compose network messages from the received characters
 // handles connection to the network
