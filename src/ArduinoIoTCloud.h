@@ -78,7 +78,6 @@ class ArduinoIoTCloudClass {
     int  connect();
     bool disconnect();
 
-    void poll() __attribute__((deprecated)); /* Attention: Function is deprecated - use 'update' instead */
     void update(CallbackFunc onSyncCompleteCallback = NULL);
 
     // defined for users who want to specify max reconnections reties and timeout between them

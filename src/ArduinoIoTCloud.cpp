@@ -216,10 +216,6 @@ bool ArduinoIoTCloudClass::disconnect() {
   return true;
 }
 
-void ArduinoIoTCloudClass::poll() {
-  update();
-}
-
 void ArduinoIoTCloudClass::update(CallbackFunc onSyncCompleteCallback) {
   // If user call update() without parameters use the default ones
   update(MAX_RETRIES, RECONNECTION_TIMEOUT, onSyncCompleteCallback);
