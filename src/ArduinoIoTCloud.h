@@ -57,12 +57,12 @@ enum class ArduinoIoTSynchronizationStatus {
   SYNC_STATUS_VALUES_PROCESSED
 };
 
-enum class ArduinoIoTCloudConnectionEvent {
+enum class ArduinoIoTCloudEvent {
   SYNC, CONNECT, DISCONNECT
 };
 
 typedef void (*CallbackFunc)(void);
-typedef void (*OnCloudConnectionEventCallback)(void * /* arg */);
+typedef void (*OnCloudEventCallback)(void * /* arg */);
 
 class ArduinoIoTCloudClass {
 
@@ -147,7 +147,7 @@ class ArduinoIoTCloudClass {
     }
     void printDebugInfo();
 
-    void addCallback(ArduinoIoTCloudConnectionEvent const event, OnCloudConnectionEventCallback callback);
+    void addCallback(ArduinoIoTCloudEvent const event, OnCloudEventCallback callback);
 
   protected:
     friend class CloudSerialClass;
@@ -196,11 +196,11 @@ class ArduinoIoTCloudClass {
     String _otaTopic;
     Client *_net;
 
-    OnCloudConnectionEventCallback _on_sync_event_callback,
-                                   _on_connect_event_callback,
-                                   _on_disconnect_event_callback;
+    OnCloudEventCallback _on_sync_event_callback,
+                         _on_connect_event_callback,
+                         _on_disconnect_event_callback;
 
-    static void execCloudConnectionEventCallback(OnCloudConnectionEventCallback & callback, void * callback_arg);
+    static void execCloudEventCallback(OnCloudEventCallback & callback, void * callback_arg);
 
 };
 
