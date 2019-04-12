@@ -30,6 +30,7 @@ install:
 script:
   - buildExampleSketch ArduinoIoTCloud_LED_switch
   - buildExampleSketch ArduinoIoTCloud_Travis_CI
-  - buildExampleSketch MKRWIFI1010_Cloud_Blink
+  - buildExampleSketch WiFi_Cloud_Blink
+  - buildExampleSketch GSM_Cloud_Blink
   - buildExampleUtilitySketch Provisioning
 
