@@ -1,55 +1,30 @@
 #include <ArduinoIoTCloud.h>
 #include <ConnectionManager.h>
+#include <GSMConnectionManager.h>
 
-#if defined(BOARD_HAS_WIFI)
-  #include <WiFiConnectionManager.h>
-#elif defined(BOARD_HAS_GSM)
-  #include <GSMConnectionManager.h>
-#else
-  #error "Arduino IoT Cloud currently only supports MKR1000, MKR WiFi 1010 and MKR GSM 1400"
+#ifndef SECRET_PIN
+  #define SECRET_PIN ""
+  #warning "You need to define SECRET_PIN in tab/arduino_secrets.h"
 #endif
 
-#ifdef BOARD_HAS_WIFI
-  #ifndef SECRET_WIFI_NAME
-    #define SECRET_WIFI_NAME ""
-    #warning "You need to define SECRET_WIFI_NAME in tab/arduino_secrets.h"
-  #endif
-
-  #ifndef SECRET_PASSWORD
-    #define SECRET_PASSWORD ""
-    #warning "You need to define SECRET_PASSWORD in tab/arduino_secrets.h"
-  #endif
+#ifndef SECRET_APN
+  #define SECRET_APN ""
+  #warning "You need to define SECRET_PIN in tab/arduino_secrets.h"
 #endif
 
-#ifdef BOARD_HAS_GSM
-  #ifndef SECRET_PIN
-    #define SECRET_PIN ""
-    #warning "You need to define SECRET_PIN in tab/arduino_secrets.h"
-  #endif
+#ifndef SECRET_LOGIN
+  #define SECRET_LOGIN ""
+  #warning "You need to define SECRET_LOGIN in tab/arduino_secrets.h"
+#endif
 
-  #ifndef SECRET_APN
-    #define SECRET_APN ""
-    #warning "You need to define SECRET_PIN in tab/arduino_secrets.h"
-  #endif
-
-  #ifndef SECRET_LOGIN
-    #define SECRET_LOGIN ""
-    #warning "You need to define SECRET_LOGIN in tab/arduino_secrets.h"
-  #endif
-
-  #ifndef SECRET_PASS
-    #define SECRET_PASS ""
-    #warning "You need to define SECRET_PASS in tab/arduino_secrets.h"
-  #endif
+#ifndef SECRET_PASS
+  #define SECRET_PASS ""
+  #warning "You need to define SECRET_PASS in tab/arduino_secrets.h"
 #endif
 
 String cloudSerialBuffer = ""; // the string used to compose network messages from the received characters
 // handles connection to the network
-#if defined(BOARD_HAS_WIFI)
-  ConnectionManager * ArduinoIoTPreferredConnection = new WiFiConnectionManager(SECRET_WIFI_NAME, SECRET_PASSWORD);
-#elif defined(BOARD_HAS_GSM)
-  ConnectionManager * ArduinoIoTPreferredConnection = new GSMConnectionManager(SECRET_PIN, SECRET_APN, SECRET_LOGIN, SECRET_PASS);
-#endif
+ConnectionManager * ArduinoIoTPreferredConnection = new GSMConnectionManager(SECRET_PIN, SECRET_APN, SECRET_LOGIN, SECRET_PASS);
 
 void setup() {
   setDebugMessageLevel(3); // used to set a level of granularity in information output [0...4]
