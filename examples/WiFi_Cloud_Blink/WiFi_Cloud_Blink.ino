@@ -21,27 +21,27 @@ void setup() {
   Serial.begin(9600);
   while (!Serial); // waits for the serial to become available
   ArduinoCloud.begin(ArduinoIoTPreferredConnection); // initialize a connection to the Arduino IoT Cloud
-  while (ArduinoCloud.connected()); // needed to wait for the initialization of CloudSerial
-  CloudSerial.print("I'm ready for blinking!\n");
   pinMode(LED_BUILTIN, OUTPUT);
 }
 
 void loop() {
   ArduinoCloud.update();
   // check if there is something waiting to be read
-  if (CloudSerial.available()) {
-    char character = CloudSerial.read();
-    cloudSerialBuffer += character;
-    // if a \n character has been received, there should be a complete command inside cloudSerialBuffer
-    if (character == '\n') {
+  if (ArduinoCloud.connected()) {
+    if (CloudSerial.available()) {
+      char character = CloudSerial.read();
+      cloudSerialBuffer += character;
+      // if a \n character has been received, there should be a complete command inside cloudSerialBuffer
+      if (character == '\n') {
+        handleString();
+      }
+    } else { // if there is nothing to read, it could be that the last command didn't end with a '\n'. Check.
       handleString();
     }
-  } else { // if there is nothing to read, it could be that the last command didn't end with a '\n'. Check.
-    handleString();
-  }
-  // Just to be able to simulate the board responses through the serial monitor
-  if (Serial.available()) {
-    CloudSerial.write(Serial.read());
+    // Just to be able to simulate the board responses through the serial monitor
+    if (Serial.available()) {
+      CloudSerial.write(Serial.read());
+    }
   }
 }
 void handleString() {
