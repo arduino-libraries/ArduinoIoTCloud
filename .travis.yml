@@ -34,6 +34,9 @@ script:
     if [ "$BOARD" == "arduino:samd:mkr1000" ] || [ "$BOARD" == "arduino:samd:mkrwifi1010" ];
     then buildExampleSketch WiFi_Cloud_Blink;
     fi
-  - buildExampleSketch GSM_Cloud_Blink
+  - |
+    if [ "$BOARD" == "arduino:samd:mkrgsm1400" ];
+    then buildExampleSketch GSM_Cloud_Blink;
+    fi
   - buildExampleUtilitySketch Provisioning
 
