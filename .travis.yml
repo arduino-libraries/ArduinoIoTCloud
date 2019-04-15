@@ -54,6 +54,14 @@ install:
 script:
   - buildExampleSketch ArduinoIoTCloud_LED_switch
   - buildExampleSketch ArduinoIoTCloud_Travis_CI
+  - |
+    if [ "$BOARD" == "arduino:samd:mkr1000" ] || [ "$BOARD" == "arduino:samd:mkrwifi1010" ];
+    then buildExampleSketch WiFi_Cloud_Blink;
+    fi
+  - |
+    if [ "$BOARD" == "arduino:samd:mkrgsm1400" ];
+    then buildExampleSketch GSM_Cloud_Blink;
+    fi
   - buildExampleUtilitySketch Provisioning
 notifications:
   webhooks:
