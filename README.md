@@ -68,7 +68,7 @@ This library has multiple `begin(...)` methods allowing you to take more control
 
 - `disconnect()` closes the connection to the MQTT Client.
 
-- The `update()` method can be called periodically in the loop of the `.ino` file. If a `ConnectionManager` is implemented it checks network connnections. It also makes sure that a connection with the MQTT broker is active and tries to reconnect otherwise. During `update()` data from the Cloud is retrieved and changed values are posted to the proper MQTT topic.
+- The `update()` method can be called periodically in the loop of the `.ino` file. If a `ConnectionManager` is implemented it checks network connections. It also makes sure that a connection with the MQTT broker is active and tries to reconnect otherwise. During `update()` data from the Cloud is retrieved and changed values are posted to the proper MQTT topic.
 
 - `connected()` simply returns the current status of the MQTT connection.
 
