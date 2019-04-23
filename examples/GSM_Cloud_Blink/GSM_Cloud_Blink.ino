@@ -2,25 +2,7 @@
 #include <ConnectionManager.h>
 #include <GSMConnectionManager.h>
 
-#ifndef SECRET_PIN
-  #define SECRET_PIN ""
-  #pragma message "You need to define SECRET_PIN in tab/arduino_secrets.h"
-#endif
-
-#ifndef SECRET_APN
-  #define SECRET_APN ""
-  #pragma message "You need to define SECRET_PIN in tab/arduino_secrets.h"
-#endif
-
-#ifndef SECRET_USER_NAME
-  #define SECRET_USER_NAME ""
-  #pragma message "You need to define SECRET_USER_NAME in tab/arduino_secrets.h"
-#endif
-
-#ifndef SECRET_PASSWORD
-  #define SECRET_PASSWORD ""
-  #pragma message "You need to define SECRET_PASSWORD in tab/arduino_secrets.h"
-#endif
+#include "arduino_secrets.h"
 
 String cloudSerialBuffer = ""; // the string used to compose network messages from the received characters
 // handles connection to the network

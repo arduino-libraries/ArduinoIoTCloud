@@ -2,19 +2,11 @@
 #include <ConnectionManager.h>
 #include <WiFiConnectionManager.h>
 
-#ifndef SECRET_WIFI_NAME
-  #define SECRET_WIFI_NAME ""
-  #pragma message "You need to define SECRET_WIFI_NAME in tab/arduino_secrets.h"
-#endif
-
-#ifndef SECRET_PASSWORD
-  #define SECRET_PASSWORD ""
-  #pragma message "You need to define SECRET_PASSWORD in tab/arduino_secrets.h"
-#endif
+#include "arduino_secrets.h"
 
 String cloudSerialBuffer = ""; // the string used to compose network messages from the received characters
 // handles connection to the network
-ConnectionManager * ArduinoIoTPreferredConnection = new WiFiConnectionManager(SECRET_WIFI_NAME, SECRET_PASSWORD);
+ConnectionManager * ArduinoIoTPreferredConnection = new WiFiConnectionManager(SECRET_SSID, SECRET_PASS);
 
 void setup() {
   setDebugMessageLevel(3); // used to set a level of granularity in information output [0...4]
