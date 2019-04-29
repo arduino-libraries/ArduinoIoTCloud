@@ -29,10 +29,9 @@
 
 #if defined(DEBUG_MEMORY) && defined(ARDUINO_ARCH_SAMD)
 extern "C" char *sbrk(int i);
-void PrintFreeRam (void)
-{
-    char stack_dummy = 0;
-    //Serial.print("Free RAM: "); //Serial.println(&stack_dummy - sbrk(0));
+void PrintFreeRam(void) {
+  char stack_dummy = 0;
+  //Serial.print("Free RAM: "); //Serial.println(&stack_dummy - sbrk(0));
 }
 #endif
 
@@ -44,12 +43,12 @@ void PrintFreeRam (void)
    CTOR/DTOR
  ******************************************************************************/
 
-ArduinoCloudThing::ArduinoCloudThing() : 
-_numPrimitivesProperties(0), 
-_isSyncMessage(false), 
-_currentPropertyName(""),
-_currentPropertyTime(0),
-_currentPropertyBaseTime(0) 
+ArduinoCloudThing::ArduinoCloudThing() :
+  _numPrimitivesProperties(0),
+  _isSyncMessage(false),
+  _currentPropertyName(""),
+  _currentPropertyTime(0),
+  _currentPropertyBaseTime(0)
 {}
 
 /******************************************************************************
@@ -66,7 +65,7 @@ int ArduinoCloudThing::encode(uint8_t * data, size_t const size) {
 
   cbor_encoder_init(&encoder, data, size, 0);
 
-  if(cbor_encoder_create_array(&encoder, &arrayEncoder, CborIndefiniteLength) != CborNoError) {
+  if (cbor_encoder_create_array(&encoder, &arrayEncoder, CborIndefiniteLength) != CborNoError) {
     return -1;
   }
 
@@ -74,25 +73,25 @@ int ArduinoCloudThing::encode(uint8_t * data, size_t const size) {
     return -1;
   }
 
-  if(cbor_encoder_close_container(&encoder, &arrayEncoder) != CborNoError) {
+  if (cbor_encoder_close_container(&encoder, &arrayEncoder) != CborNoError) {
     return -1;
   }
 
-#if defined(DEBUG_MEMORY) && defined(ARDUINO_ARCH_SAMD)
-PrintFreeRam();
-#endif
+  #if defined(DEBUG_MEMORY) && defined(ARDUINO_ARCH_SAMD)
+  PrintFreeRam();
+  #endif
   int const bytes_encoded = cbor_encoder_get_buffer_size(&encoder, data);
   return bytes_encoded;
 }
 
 ArduinoCloudProperty& ArduinoCloudThing::addPropertyReal(ArduinoCloudProperty & property, String const & name, Permission const permission) {
   property.init(name, permission);
-  if(isPropertyInContainer(name)) {
+  if (isPropertyInContainer(name)) {
     return (*getProperty(name));
-  }
-  else {
-    if (property.isPrimitive())
-      _numPrimitivesProperties++;    
+  } else {
+    if (property.isPrimitive()) {
+      _numPrimitivesProperties++;
+    }
     addProperty(&property);
     return (property);
   }
@@ -126,23 +125,23 @@ void ArduinoCloudThing::decode(uint8_t const * const payload, size_t const lengt
   MapParserState current_state = MapParserState::EnterMap,
                  next_state;
 
-  while(current_state != MapParserState::Complete) {
+  while (current_state != MapParserState::Complete) {
 
-    switch(current_state) {
-    case MapParserState::EnterMap     : next_state = handle_EnterMap     (&map_iter, &value_iter, &map_data); break;
-    case MapParserState::MapKey       : next_state = handle_MapKey       (&value_iter                      ); break;
-    case MapParserState::UndefinedKey : next_state = handle_UndefinedKey (&value_iter                      ); break;
-    case MapParserState::BaseVersion  : next_state = handle_BaseVersion  (&value_iter, map_data           ); break;
-    case MapParserState::BaseName     : next_state = handle_BaseName     (&value_iter, map_data           ); break;
-    case MapParserState::BaseTime     : next_state = handle_BaseTime     (&value_iter, map_data           ); break;
-    case MapParserState::Time         : next_state = handle_Time         (&value_iter, map_data           ); break;
-    case MapParserState::Name         : next_state = handle_Name         (&value_iter, map_data           ); break;
-    case MapParserState::Value        : next_state = handle_Value        (&value_iter, map_data           ); break;
-    case MapParserState::StringValue  : next_state = handle_StringValue  (&value_iter, map_data           ); break;
-    case MapParserState::BooleanValue : next_state = handle_BooleanValue (&value_iter, map_data           ); break;
-    case MapParserState::LeaveMap     : next_state = handle_LeaveMap     (&map_iter, &value_iter, map_data); break;
-    case MapParserState::Complete     : /* Nothing to do */                                                   break;
-    case MapParserState::Error        : return;                                                               break;
+    switch (current_state) {
+      case MapParserState::EnterMap     : next_state = handle_EnterMap(&map_iter, &value_iter, &map_data); break;
+      case MapParserState::MapKey       : next_state = handle_MapKey(&value_iter); break;
+      case MapParserState::UndefinedKey : next_state = handle_UndefinedKey(&value_iter); break;
+      case MapParserState::BaseVersion  : next_state = handle_BaseVersion(&value_iter, map_data); break;
+      case MapParserState::BaseName     : next_state = handle_BaseName(&value_iter, map_data); break;
+      case MapParserState::BaseTime     : next_state = handle_BaseTime(&value_iter, map_data); break;
+      case MapParserState::Time         : next_state = handle_Time(&value_iter, map_data); break;
+      case MapParserState::Name         : next_state = handle_Name(&value_iter, map_data); break;
+      case MapParserState::Value        : next_state = handle_Value(&value_iter, map_data); break;
+      case MapParserState::StringValue  : next_state = handle_StringValue(&value_iter, map_data); break;
+      case MapParserState::BooleanValue : next_state = handle_BooleanValue(&value_iter, map_data); break;
+      case MapParserState::LeaveMap     : next_state = handle_LeaveMap(&map_iter, &value_iter, map_data); break;
+      case MapParserState::Complete     : /* Nothing to do */                                                   break;
+      case MapParserState::Error        : return;                                                               break;
     }
 
     current_state = next_state;
@@ -152,7 +151,9 @@ void ArduinoCloudThing::decode(uint8_t const * const payload, size_t const lengt
 bool ArduinoCloudThing::isPropertyInContainer(String const & name) {
   for (int i = 0; i < _property_list.size(); i++) {
     ArduinoCloudProperty * p = _property_list.get(i);
-    if (p->name() == name) return true;
+    if (p->name() == name) {
+      return true;
+    }
   }
   return false;
 }
@@ -172,7 +173,9 @@ int ArduinoCloudThing::appendChangedProperties(CborEncoder * arrayEncoder) {
 ArduinoCloudProperty * ArduinoCloudThing::getProperty(String const & name) {
   for (int i = 0; i < _property_list.size(); i++) {
     ArduinoCloudProperty * p = _property_list.get(i);
-    if (p->name() == name) return p;
+    if (p->name() == name) {
+      return p;
+    }
   }
   return NULL;
 }
@@ -186,7 +189,7 @@ void ArduinoCloudThing::updateTimestampOnLocallyChangedProperties() {
       if (p->isPrimitive() && p->isChangedLocally() && p->isReadableByCloud()) {
         p->updateLocalTimestamp();
       }
-    }  
+    }
   }
 }
 
@@ -197,8 +200,8 @@ void ArduinoCloudThing::updateTimestampOnLocallyChangedProperties() {
 ArduinoCloudThing::MapParserState ArduinoCloudThing::handle_EnterMap(CborValue * map_iter, CborValue * value_iter, CborMapData **map_data) {
   MapParserState next_state = MapParserState::Error;
 
-  if(cbor_value_get_type(map_iter) == CborMapType) {
-    if(cbor_value_enter_container(map_iter, value_iter) == CborNoError) {
+  if (cbor_value_get_type(map_iter) == CborMapType) {
+    if (cbor_value_enter_container(map_iter, value_iter) == CborNoError) {
       *map_data = new CborMapData();
       next_state = MapParserState::MapKey;
     }
@@ -307,17 +310,18 @@ ArduinoCloudThing::MapParserState ArduinoCloudThing::handle_BaseTime(CborValue *
 ArduinoCloudThing::MapParserState ArduinoCloudThing::handle_Name(CborValue * value_iter, CborMapData * map_data) {
   MapParserState next_state = MapParserState::Error;
 
-  if(cbor_value_is_text_string(value_iter)) {
+  if (cbor_value_is_text_string(value_iter)) {
     char * val      = nullptr;
     size_t val_size = 0;
-    if(cbor_value_dup_text_string(value_iter, &val, &val_size, value_iter) == CborNoError) {
+    if (cbor_value_dup_text_string(value_iter, &val, &val_size, value_iter) == CborNoError) {
       String name = val;
       free(val);
       map_data->name.set(name);
       int colonPos = name.indexOf(":");
       String attribute_name = "";
-      if(colonPos != -1)
+      if (colonPos != -1) {
         attribute_name = name.substring(colonPos + 1);
+      }
       map_data->attribute_name.set(attribute_name);
       next_state = MapParserState::MapKey;
     }
@@ -389,16 +393,15 @@ ArduinoCloudThing::MapParserState ArduinoCloudThing::handle_Time(CborValue * val
 
 ArduinoCloudThing::MapParserState ArduinoCloudThing::handle_LeaveMap(CborValue * map_iter, CborValue * value_iter, CborMapData * map_data) {
   MapParserState next_state = MapParserState::Error;
-  if(map_data->name.isSet())
-  {
-    String propertyName; 
+  if (map_data->name.isSet()) {
+    String propertyName;
     int colonPos = map_data->name.get().indexOf(":");
-    if(colonPos != -1) {
+    if (colonPos != -1) {
       propertyName = map_data->name.get().substring(0, colonPos);
     } else {
       propertyName = map_data->name.get();
     }
-  
+
     if (_currentPropertyName != "" && propertyName != _currentPropertyName) {
 
       /* Update the property containers depending on the parsed data */
@@ -410,10 +413,10 @@ ArduinoCloudThing::MapParserState ArduinoCloudThing::handle_LeaveMap(CborValue *
       _currentPropertyTime = 0;
     }
     /* Compute the cloud change event baseTime and Time */
-    if(map_data->base_time.isSet()){
+    if (map_data->base_time.isSet()) {
       _currentPropertyBaseTime = (unsigned long)(map_data->base_time.get());
     }
-    if(map_data->time.isSet() && (map_data->time.get() > _currentPropertyTime)){
+    if (map_data->time.isSet() && (map_data->time.get() > _currentPropertyTime)) {
       _currentPropertyTime = (unsigned long)map_data->time.get();
     }
     _map_data_list.add(map_data);
@@ -421,11 +424,10 @@ ArduinoCloudThing::MapParserState ArduinoCloudThing::handle_LeaveMap(CborValue *
   }
 
   /* Transition into the next map if available, otherwise finish */
-  if(cbor_value_leave_container(map_iter, value_iter) == CborNoError) {
-    if(!cbor_value_at_end(map_iter)) {
+  if (cbor_value_leave_container(map_iter, value_iter) == CborNoError) {
+    if (!cbor_value_at_end(map_iter)) {
       next_state = MapParserState::EnterMap;
-    }
-    else {
+    } else {
       updateProperty(_currentPropertyName, _currentPropertyBaseTime + _currentPropertyTime);
       next_state = MapParserState::Complete;
     }
@@ -434,8 +436,8 @@ ArduinoCloudThing::MapParserState ArduinoCloudThing::handle_LeaveMap(CborValue *
   return next_state;
 }
 
-void ArduinoCloudThing::freeMapDataList(LinkedList<CborMapData *> *map_data_list){
-  while(map_data_list->size() > 0){
+void ArduinoCloudThing::freeMapDataList(LinkedList<CborMapData *> *map_data_list) {
+  while (map_data_list->size() > 0) {
     CborMapData const * mapData = map_data_list->pop();
     delete mapData;
   }
@@ -443,10 +445,10 @@ void ArduinoCloudThing::freeMapDataList(LinkedList<CborMapData *> *map_data_list
 
 void ArduinoCloudThing::updateProperty(String propertyName, unsigned long cloudChangeEventTime) {
   ArduinoCloudProperty* property = getProperty(propertyName);
-  if(property && property->isWriteableByCloud()) {
+  if (property && property->isWriteableByCloud()) {
     property->setLastCloudChangeTimestamp(cloudChangeEventTime);
     property->setAttributesFromCloud(&_map_data_list);
-    if(_isSyncMessage) {
+    if (_isSyncMessage) {
       property->execCallbackOnSync();
     } else {
       property->fromCloudToLocal();
@@ -501,7 +503,7 @@ double ArduinoCloudThing::convertCborHalfFloatToDouble(uint16_t const half_val) 
 }
 
 void onAutoSync(ArduinoCloudProperty & property) {
-  if( property.getLastCloudChangeTimestamp() > property.getLastLocalChangeTimestamp()){
+  if (property.getLastCloudChangeTimestamp() > property.getLastLocalChangeTimestamp()) {
     property.fromCloudToLocal();
     property.execCallbackOnChange();
   }

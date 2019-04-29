@@ -19,7 +19,7 @@
 #define CLOUDLOCATION_H_
 
 /******************************************************************************
- * INCLUDE
+   INCLUDE
  ******************************************************************************/
 
 #include <math.h>
@@ -27,7 +27,7 @@
 #include "../ArduinoCloudProperty.hpp"
 
 /******************************************************************************
- * CLASS DECLARATION
+   CLASS DECLARATION
  ******************************************************************************/
 
 
@@ -54,47 +54,47 @@ class Location {
 };
 
 class CloudLocation : public ArduinoCloudProperty {
-private:
-  Location _value,
-           _cloud_value;
-public:
-  CloudLocation() : _value(0, 0), _cloud_value(0, 0) {}
-  CloudLocation(float lat, float lon) : _value(lat, lon), _cloud_value(lat, lon) {}
-  virtual bool isDifferentFromCloud() {
-    float distance = _value - _cloud_value;
-    return _value != _cloud_value && (abs(distance) >= ArduinoCloudProperty::_min_delta_property);
-  }
-  
-  CloudLocation& operator=(Location aLocation) {
-	  _value.lat = aLocation.lat;
-	  _value.lon = aLocation.lon;
-	  updateLocalTimestamp();
-	  return *this;
-  }
+  private:
+    Location _value,
+             _cloud_value;
+  public:
+    CloudLocation() : _value(0, 0), _cloud_value(0, 0) {}
+    CloudLocation(float lat, float lon) : _value(lat, lon), _cloud_value(lat, lon) {}
+    virtual bool isDifferentFromCloud() {
+      float distance = _value - _cloud_value;
+      return _value != _cloud_value && (abs(distance) >= ArduinoCloudProperty::_min_delta_property);
+    }
 
-  Location getCloudValue() {
-	  return _cloud_value;
-  }
+    CloudLocation& operator=(Location aLocation) {
+      _value.lat = aLocation.lat;
+      _value.lon = aLocation.lon;
+      updateLocalTimestamp();
+      return *this;
+    }
 
-  Location getValue() {
-	  return _value;
-  }
+    Location getCloudValue() {
+      return _cloud_value;
+    }
+
+    Location getValue() {
+      return _value;
+    }
 
 
-  virtual void fromCloudToLocal() {
-    _value = _cloud_value;
-  }
-  virtual void fromLocalToCloud() {
-    _cloud_value = _value;  
-  }
-  virtual void appendAttributesToCloud() {
-    appendAttribute(_value.lat);
-    appendAttribute(_value.lon);
-  }
-  virtual void setAttributesFromCloud() {
-    setAttribute(_cloud_value.lat);
-    setAttribute(_cloud_value.lon);
-  }
+    virtual void fromCloudToLocal() {
+      _value = _cloud_value;
+    }
+    virtual void fromLocalToCloud() {
+      _cloud_value = _value;
+    }
+    virtual void appendAttributesToCloud() {
+      appendAttribute(_value.lat);
+      appendAttribute(_value.lon);
+    }
+    virtual void setAttributesFromCloud() {
+      setAttribute(_cloud_value.lat);
+      setAttribute(_cloud_value.lon);
+    }
 };
 
 #endif /* CLOUDLOCATION_H_ */

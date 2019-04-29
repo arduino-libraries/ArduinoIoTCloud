@@ -19,8 +19,8 @@
 #define ARDUINO_CLOUD_PROPERTY_HPP_
 
 #ifdef HOST_BUILD
-#define substring(...) substr(__VA_ARGS__) 
-#define indexOf(x) find(x) 
+  #define substring(...) substr(__VA_ARGS__)
+  #define indexOf(x) find(x)
 #endif
 
 /******************************************************************************
@@ -38,10 +38,10 @@
 #include "lib/LinkedList/LinkedList.h"
 
 #define appendAttribute(x) appendAttributeReal(x, getAttributeName(#x, '.'))
-#define setAttribute(x) setAttributeReal(x, getAttributeName(#x, '.')) 
+#define setAttribute(x) setAttributeReal(x, getAttributeName(#x, '.'))
 
 /******************************************************************************
- * ENUM
+   ENUM
  ******************************************************************************/
 /* Source: https://tools.ietf.org/html/rfc8428#section-6 */
 enum class CborIntegerMapKey : int {
@@ -64,35 +64,44 @@ enum class CborIntegerMapKey : int {
 
 template <typename T>
 class MapEntry {
-public:
+  public:
 
-  MapEntry() : _is_set(false) { }
+    MapEntry() : _is_set(false) { }
 
-  inline void    set  (T const & entry) { _entry = entry; _is_set = true; }
-  inline T const get  () const { return _entry; }
+    inline void    set(T const & entry) {
+      _entry = entry;
+      _is_set = true;
+    }
+    inline T const get() const {
+      return _entry;
+    }
 
-  inline bool    isSet() const { return _is_set; }
-  inline void    reset()       { _is_set = false; }
+    inline bool    isSet() const {
+      return _is_set;
+    }
+    inline void    reset()       {
+      _is_set = false;
+    }
 
-private:
+  private:
 
-  T    _entry;
-  bool _is_set;
+    T    _entry;
+    bool _is_set;
 
 };
 
 class CborMapData {
 
-public:
-  MapEntry<int>    base_version;
-  MapEntry<String> base_name;
-  MapEntry<double> base_time;
-  MapEntry<String> name;
-  MapEntry<String> attribute_name;
-  MapEntry<float>  val;
-  MapEntry<String> str_val;
-  MapEntry<bool>   bool_val;
-  MapEntry<double> time;
+  public:
+    MapEntry<int>    base_version;
+    MapEntry<String> base_name;
+    MapEntry<double> base_time;
+    MapEntry<String> name;
+    MapEntry<String> attribute_name;
+    MapEntry<float>  val;
+    MapEntry<String> str_val;
+    MapEntry<bool>   bool_val;
+    MapEntry<double> time;
 };
 
 enum class Permission {
@@ -114,80 +123,92 @@ typedef void(*UpdateCallbackFunc)(void);
  ******************************************************************************/
 
 class ArduinoCloudProperty {
-public:
-  ArduinoCloudProperty();
-  void init(String const name, Permission const permission);
+  public:
+    ArduinoCloudProperty();
+    void init(String const name, Permission const permission);
 
-  /* Composable configuration of the ArduinoCloudProperty class */
-  ArduinoCloudProperty & onUpdate       (UpdateCallbackFunc func);
-  ArduinoCloudProperty & onSync         (void (*func)(ArduinoCloudProperty &property));
-  ArduinoCloudProperty & publishOnChange(float const min_delta_property, unsigned long const min_time_between_updates_millis = 0);
-  ArduinoCloudProperty & publishEvery   (unsigned long const seconds);
+    /* Composable configuration of the ArduinoCloudProperty class */
+    ArduinoCloudProperty & onUpdate(UpdateCallbackFunc func);
+    ArduinoCloudProperty & onSync(void (*func)(ArduinoCloudProperty &property));
+    ArduinoCloudProperty & publishOnChange(float const min_delta_property, unsigned long const min_time_between_updates_millis = 0);
+    ArduinoCloudProperty & publishEvery(unsigned long const seconds);
 
-  inline String name              () const { return _name; }
-  inline bool   isReadableByCloud () const { return (_permission == Permission::Read ) || (_permission == Permission::ReadWrite); }
-  inline bool   isWriteableByCloud() const { return (_permission == Permission::Write) || (_permission == Permission::ReadWrite); }
+    inline String name() const {
+      return _name;
+    }
+    inline bool   isReadableByCloud() const {
+      return (_permission == Permission::Read) || (_permission == Permission::ReadWrite);
+    }
+    inline bool   isWriteableByCloud() const {
+      return (_permission == Permission::Write) || (_permission == Permission::ReadWrite);
+    }
 
-  bool shouldBeUpdated        ();
-  void execCallbackOnChange   ();
-  void execCallbackOnSync     ();
-  void setLastCloudChangeTimestamp         (unsigned long cloudChangeTime);
-  void setLastLocalChangeTimestamp         (unsigned long localChangeTime);
-  unsigned long getLastCloudChangeTimestamp();
-  unsigned long getLastLocalChangeTimestamp();
+    bool shouldBeUpdated();
+    void execCallbackOnChange();
+    void execCallbackOnSync();
+    void setLastCloudChangeTimestamp(unsigned long cloudChangeTime);
+    void setLastLocalChangeTimestamp(unsigned long localChangeTime);
+    unsigned long getLastCloudChangeTimestamp();
+    unsigned long getLastLocalChangeTimestamp();
 
-  void updateLocalTimestamp   ();
-  void append                 (CborEncoder * encoder);
-  void appendAttributeReal    (bool value, String attributeName = "");
-  void appendAttributeReal    (int value, String attributeName = "");
-  void appendAttributeReal    (float value, String attributeName = "");
-  void appendAttributeReal    (String value, String attributeName = "");
-  void appendAttributeName    (String attributeName, std::function<void (CborEncoder& mapEncoder)>f);
-  void setAttributesFromCloud (LinkedList<CborMapData *> *map_data_list);
-  void setAttributeReal       (bool& value, String attributeName = "");
-  void setAttributeReal       (int& value, String attributeName = "");
-  void setAttributeReal       (float& value, String attributeName = "");
-  void setAttributeReal       (String& value, String attributeName = "");
-  void setAttributeReal       (String attributeName, std::function<void (CborMapData *md)>setValue);
-  String getAttributeName     (String propertyName, char separator);
+    void updateLocalTimestamp();
+    void append(CborEncoder * encoder);
+    void appendAttributeReal(bool value, String attributeName = "");
+    void appendAttributeReal(int value, String attributeName = "");
+    void appendAttributeReal(float value, String attributeName = "");
+    void appendAttributeReal(String value, String attributeName = "");
+    void appendAttributeName(String attributeName, std::function<void (CborEncoder& mapEncoder)>f);
+    void setAttributesFromCloud(LinkedList<CborMapData *> *map_data_list);
+    void setAttributeReal(bool& value, String attributeName = "");
+    void setAttributeReal(int& value, String attributeName = "");
+    void setAttributeReal(float& value, String attributeName = "");
+    void setAttributeReal(String& value, String attributeName = "");
+    void setAttributeReal(String attributeName, std::function<void (CborMapData *md)>setValue);
+    String getAttributeName(String propertyName, char separator);
 
-  virtual bool isDifferentFromCloud() = 0;
-  virtual void fromCloudToLocal() = 0;
-  virtual void fromLocalToCloud() = 0;
-  virtual void appendAttributesToCloud() = 0;
-  virtual void setAttributesFromCloud() = 0;
-  virtual bool isPrimitive() { return false; };
-  virtual bool isChangedLocally() { return false; };
-protected:
-  /* Variables used for UpdatePolicy::OnChange */
-  float              _min_delta_property;
-  unsigned long      _min_time_between_updates_millis;
-  String             _name;
+    virtual bool isDifferentFromCloud() = 0;
+    virtual void fromCloudToLocal() = 0;
+    virtual void fromLocalToCloud() = 0;
+    virtual void appendAttributesToCloud() = 0;
+    virtual void setAttributesFromCloud() = 0;
+    virtual bool isPrimitive() {
+      return false;
+    };
+    virtual bool isChangedLocally() {
+      return false;
+    };
+  protected:
+    /* Variables used for UpdatePolicy::OnChange */
+    float              _min_delta_property;
+    unsigned long      _min_time_between_updates_millis;
+    String             _name;
 
-private:
-  Permission         _permission;
-  UpdateCallbackFunc _update_callback_func;
-  void               (*_sync_callback_func)(ArduinoCloudProperty &property);
+  private:
+    Permission         _permission;
+    UpdateCallbackFunc _update_callback_func;
+    void (*_sync_callback_func)(ArduinoCloudProperty &property);
 
-  UpdatePolicy       _update_policy;
-  bool               _has_been_updated_once,
-                     _has_been_modified_in_callback;
-  /* Variables used for UpdatePolicy::TimeInterval */
-  unsigned long      _last_updated_millis,
-                     _update_interval_millis;
-  /* Variables used for reconnection sync*/
-  unsigned long      _last_local_change_timestamp;
-  unsigned long      _last_cloud_change_timestamp;
-  /* variable to manage property serialization/deserialization on CBOR */
-  CborEncoder       *_encoder;
-  LinkedList<CborMapData *>
-                    *_map_data_list;
+    UpdatePolicy       _update_policy;
+    bool               _has_been_updated_once,
+                       _has_been_modified_in_callback;
+    /* Variables used for UpdatePolicy::TimeInterval */
+    unsigned long      _last_updated_millis,
+             _update_interval_millis;
+    /* Variables used for reconnection sync*/
+    unsigned long      _last_local_change_timestamp;
+    unsigned long      _last_cloud_change_timestamp;
+    /* variable to manage property serialization/deserialization on CBOR */
+    CborEncoder       *_encoder;
+    LinkedList<CborMapData *>
+    *_map_data_list;
 };
 
 /******************************************************************************
    PROTOTYPE FREE FUNCTIONs
  ******************************************************************************/
 
-inline bool operator == (ArduinoCloudProperty const & lhs, ArduinoCloudProperty const & rhs) { return (lhs.name() == rhs.name()); }
+inline bool operator == (ArduinoCloudProperty const & lhs, ArduinoCloudProperty const & rhs) {
+  return (lhs.name() == rhs.name());
+}
 
 #endif /* ARDUINO_CLOUD_PROPERTY_HPP_ */

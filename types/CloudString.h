@@ -19,66 +19,70 @@
 #define CLOUDSTRING_H_
 
 /******************************************************************************
- * INCLUDE
+   INCLUDE
  ******************************************************************************/
 
 #include <Arduino.h>
 #include "../ArduinoCloudProperty.hpp"
 
 /******************************************************************************
- * CLASS DECLARATION
+   CLASS DECLARATION
  ******************************************************************************/
 
 
 
 class CloudString : public ArduinoCloudProperty {
-private:
-  String  _value,
-          _cloud_value;  
-public:
-  CloudString()                                { CloudString(""); }
-  CloudString(const char *v)                   { CloudString(String(v)); }
-  CloudString(String v) : _value(v), _cloud_value(v) {}
-  operator String() const {return _value;}
-  virtual bool isDifferentFromCloud() {
-    return _value != _cloud_value;
-  }
-  virtual void fromCloudToLocal() {
-    _value = _cloud_value;
-  }
-  virtual void fromLocalToCloud() {
-    _cloud_value = _value;  
-  }
-  virtual void appendAttributesToCloud() {
-    appendAttribute(_value);
-  }
-  virtual void setAttributesFromCloud() {
-    setAttribute(_cloud_value);
-  }
-  //modifiers
-  CloudString& operator=(String v) {
-    _value = v;
-    updateLocalTimestamp();
-    return *this;
-  }
-  CloudString& operator=(const char *v) {
-    return operator=(String(v));
-  }
-  CloudString& operator+=(String v) {
-    return operator=(_value += v);
-  }
-  bool operator==(const char *c) const
-  {
-    return operator==(String(c));
-  }
-  bool operator==(String c) const
-  {
-    return _value == c;
-  }
-  //friends
-  friend CloudString operator+(CloudString cs, String v) {
-    return cs+=v;
-  }
+  private:
+    String  _value,
+            _cloud_value;
+  public:
+    CloudString()                                {
+      CloudString("");
+    }
+    CloudString(const char *v)                   {
+      CloudString(String(v));
+    }
+    CloudString(String v) : _value(v), _cloud_value(v) {}
+    operator String() const {
+      return _value;
+    }
+    virtual bool isDifferentFromCloud() {
+      return _value != _cloud_value;
+    }
+    virtual void fromCloudToLocal() {
+      _value = _cloud_value;
+    }
+    virtual void fromLocalToCloud() {
+      _cloud_value = _value;
+    }
+    virtual void appendAttributesToCloud() {
+      appendAttribute(_value);
+    }
+    virtual void setAttributesFromCloud() {
+      setAttribute(_cloud_value);
+    }
+    //modifiers
+    CloudString& operator=(String v) {
+      _value = v;
+      updateLocalTimestamp();
+      return *this;
+    }
+    CloudString& operator=(const char *v) {
+      return operator=(String(v));
+    }
+    CloudString& operator+=(String v) {
+      return operator=(_value += v);
+    }
+    bool operator==(const char *c) const {
+      return operator==(String(c));
+    }
+    bool operator==(String c) const {
+      return _value == c;
+    }
+    //friends
+    friend CloudString operator+(CloudString cs, String v) {
+      return cs += v;
+    }
 };
 
 

@@ -19,53 +19,59 @@
 #define CLOUDBOOL_H_
 
 /******************************************************************************
- * INCLUDE
+   INCLUDE
  ******************************************************************************/
 
 #include <Arduino.h>
 #include "../ArduinoCloudProperty.hpp"
 
 /******************************************************************************
- * CLASS DECLARATION
+   CLASS DECLARATION
  ******************************************************************************/
 
 
 
 class CloudBool : public ArduinoCloudProperty {
-private:
-  bool  _value,
-        _cloud_value;
-public:
-  CloudBool()                                           { CloudBool(false); }
-  CloudBool(bool v) : _value(v), _cloud_value(v) {}
-  operator bool() const                             {return _value;}
-  virtual bool isDifferentFromCloud() {
-    return _value != _cloud_value;
-  }
-  virtual void fromCloudToLocal() {
-    _value = _cloud_value;
-  }
-  virtual void fromLocalToCloud() {
-    _cloud_value = _value;  
-  }
-  virtual void appendAttributesToCloud() {
-    appendAttribute(_value);
-  }
-  virtual void setAttributesFromCloud() {
-    setAttribute(_cloud_value);
-  }
-  //modifiers
-  CloudBool& operator=(bool v) {
-    _value = v;
-    updateLocalTimestamp();
-    return *this;
-  }
-  CloudBool& operator=(CloudBool v) {
-    return operator=((bool)v);
-  }
-  //accessors
-  CloudBool operator!() const {return CloudBool(!_value);}
-  //friends
+  private:
+    bool  _value,
+          _cloud_value;
+  public:
+    CloudBool()                                           {
+      CloudBool(false);
+    }
+    CloudBool(bool v) : _value(v), _cloud_value(v) {}
+    operator bool() const                             {
+      return _value;
+    }
+    virtual bool isDifferentFromCloud() {
+      return _value != _cloud_value;
+    }
+    virtual void fromCloudToLocal() {
+      _value = _cloud_value;
+    }
+    virtual void fromLocalToCloud() {
+      _cloud_value = _value;
+    }
+    virtual void appendAttributesToCloud() {
+      appendAttribute(_value);
+    }
+    virtual void setAttributesFromCloud() {
+      setAttribute(_cloud_value);
+    }
+    //modifiers
+    CloudBool& operator=(bool v) {
+      _value = v;
+      updateLocalTimestamp();
+      return *this;
+    }
+    CloudBool& operator=(CloudBool v) {
+      return operator=((bool)v);
+    }
+    //accessors
+    CloudBool operator!() const {
+      return CloudBool(!_value);
+    }
+    //friends
 };
 
 

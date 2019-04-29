@@ -21,88 +21,168 @@
 #include <math.h>
 
 /******************************************************************************
- * INCLUDE
+   INCLUDE
  ******************************************************************************/
 
 #include <Arduino.h>
 #include "../ArduinoCloudProperty.hpp"
 
 /******************************************************************************
- * CLASS DECLARATION
+   CLASS DECLARATION
  ******************************************************************************/
 
 
 
 class CloudFloat : public ArduinoCloudProperty {
-private:
-  float _value,
-        _cloud_value;
-public:
-  CloudFloat()                                            { CloudFloat(0.0f); }
-  CloudFloat(float v) : _value(v), _cloud_value(v) {}
-  operator float() const {return _value;}
-  virtual bool isDifferentFromCloud() {
-    return _value != _cloud_value && (abs(_value - _cloud_value) >= ArduinoCloudProperty::_min_delta_property);
-  }
-  virtual void fromCloudToLocal() {
-    _value = _cloud_value;
-  }
-  virtual void fromLocalToCloud() {
-    _cloud_value = _value;  
-  }
-  virtual void appendAttributesToCloud() {
-    appendAttribute(_value);
-  }
-  virtual void setAttributesFromCloud() {
-    setAttribute(_cloud_value);
-  }
-  //modifiers
-  CloudFloat& operator=(float v) {
-    _value = v;
-    updateLocalTimestamp();
-    return *this;
-  }
-  CloudFloat& operator=(CloudFloat v) {
-    return operator=((float)v);
-  }
-  CloudFloat& operator+=(float v) {return operator=(_value+=v);}
-  CloudFloat& operator-=(float v) {return operator=(_value-=v);}
-  CloudFloat& operator*=(float v) {return operator=(_value*=v);}
-  CloudFloat& operator/=(float v) {return operator=(_value/=v);}
-  CloudFloat& operator++() {return operator=(_value+1.0f);}
-  CloudFloat& operator--() {return operator=(_value-1.0f);}
-  CloudFloat operator++(int) {float f =_value; operator=(_value+1.0f); return CloudFloat(_value);}
-  CloudFloat operator--(int) {float f =_value; operator=(_value-1.0f); return CloudFloat(_value);}
+  private:
+    float _value,
+          _cloud_value;
+  public:
+    CloudFloat()                                            {
+      CloudFloat(0.0f);
+    }
+    CloudFloat(float v) : _value(v), _cloud_value(v) {}
+    operator float() const {
+      return _value;
+    }
+    virtual bool isDifferentFromCloud() {
+      return _value != _cloud_value && (abs(_value - _cloud_value) >= ArduinoCloudProperty::_min_delta_property);
+    }
+    virtual void fromCloudToLocal() {
+      _value = _cloud_value;
+    }
+    virtual void fromLocalToCloud() {
+      _cloud_value = _value;
+    }
+    virtual void appendAttributesToCloud() {
+      appendAttribute(_value);
+    }
+    virtual void setAttributesFromCloud() {
+      setAttribute(_cloud_value);
+    }
+    //modifiers
+    CloudFloat& operator=(float v) {
+      _value = v;
+      updateLocalTimestamp();
+      return *this;
+    }
+    CloudFloat& operator=(CloudFloat v) {
+      return operator=((float)v);
+    }
+    CloudFloat& operator+=(float v) {
+      return operator=(_value += v);
+    }
+    CloudFloat& operator-=(float v) {
+      return operator=(_value -= v);
+    }
+    CloudFloat& operator*=(float v) {
+      return operator=(_value *= v);
+    }
+    CloudFloat& operator/=(float v) {
+      return operator=(_value /= v);
+    }
+    CloudFloat& operator++() {
+      return operator=(_value + 1.0f);
+    }
+    CloudFloat& operator--() {
+      return operator=(_value - 1.0f);
+    }
+    CloudFloat operator++(int) {
+      float f = _value;
+      operator=(_value + 1.0f);
+      return CloudFloat(_value);
+    }
+    CloudFloat operator--(int) {
+      float f = _value;
+      operator=(_value - 1.0f);
+      return CloudFloat(_value);
+    }
 
-  //friends
-  friend CloudFloat operator+(CloudFloat iw, CloudFloat v) {return iw+=v;}
-  friend CloudFloat operator+(CloudFloat iw, float v) {return iw+=v;}
-  friend CloudFloat operator+(CloudFloat iw, int v) {return iw+=(float)v;}
-  friend CloudFloat operator+(CloudFloat iw, double v) {return iw+=(float)v;}
-  friend CloudFloat operator+(float v, CloudFloat iw) {return CloudFloat(v)+=iw;}
-  friend CloudFloat operator+(int v, CloudFloat iw) {return CloudFloat(v)+=iw;}
-  friend CloudFloat operator+(double v, CloudFloat iw) {return CloudFloat(v)+=iw;}
-  friend CloudFloat operator-(CloudFloat iw, CloudFloat v) {return iw-=v;}
-  friend CloudFloat operator-(CloudFloat iw, float v) {return iw-=v;}
-  friend CloudFloat operator-(CloudFloat iw, int v) {return iw-=(float)v;}
-  friend CloudFloat operator-(CloudFloat iw, double v) {return iw-=(float)v;}
-  friend CloudFloat operator-(float v, CloudFloat iw) {return CloudFloat(v)-=iw;}
-  friend CloudFloat operator-(int v, CloudFloat iw) {return CloudFloat(v)-=iw;}
-  friend CloudFloat operator-(double v, CloudFloat iw) {return CloudFloat(v)-=iw;}
-  friend CloudFloat operator*(CloudFloat iw, CloudFloat v) {return iw*=v;}
-  friend CloudFloat operator*(CloudFloat iw, float v) {return iw*=v;}
-  friend CloudFloat operator*(CloudFloat iw, int v) {return iw*=(float)v;}
-  friend CloudFloat operator*(CloudFloat iw, double v) {return iw*=(float)v;}
-  friend CloudFloat operator*(float v, CloudFloat iw) {return CloudFloat(v)*=iw;}
-  friend CloudFloat operator*(int v, CloudFloat iw) {return CloudFloat(v)*=iw;}
-  friend CloudFloat operator*(double v, CloudFloat iw) {return CloudFloat(v)*=iw;}
-  friend CloudFloat operator/(CloudFloat iw, CloudFloat v) {return iw/=v;}
-  friend CloudFloat operator/(CloudFloat iw, float v) {return iw/=v;}
-  friend CloudFloat operator/(CloudFloat iw, int v) {return iw/=(float)v;}
-  friend CloudFloat operator/(CloudFloat iw, double v) {return iw/=(float)v;}
-  friend CloudFloat operator/(float v, CloudFloat iw) {return CloudFloat(v)/=iw;}
-  friend CloudFloat operator/(int v, CloudFloat iw) {return CloudFloat(v)/=iw;}
-  friend CloudFloat operator/(double v, CloudFloat iw) {return CloudFloat(v)/=iw;}
+    //friends
+    friend CloudFloat operator+(CloudFloat iw, CloudFloat v) {
+      return iw += v;
+    }
+    friend CloudFloat operator+(CloudFloat iw, float v) {
+      return iw += v;
+    }
+    friend CloudFloat operator+(CloudFloat iw, int v) {
+      return iw += (float)v;
+    }
+    friend CloudFloat operator+(CloudFloat iw, double v) {
+      return iw += (float)v;
+    }
+    friend CloudFloat operator+(float v, CloudFloat iw) {
+      return CloudFloat(v) += iw;
+    }
+    friend CloudFloat operator+(int v, CloudFloat iw) {
+      return CloudFloat(v) += iw;
+    }
+    friend CloudFloat operator+(double v, CloudFloat iw) {
+      return CloudFloat(v) += iw;
+    }
+    friend CloudFloat operator-(CloudFloat iw, CloudFloat v) {
+      return iw -= v;
+    }
+    friend CloudFloat operator-(CloudFloat iw, float v) {
+      return iw -= v;
+    }
+    friend CloudFloat operator-(CloudFloat iw, int v) {
+      return iw -= (float)v;
+    }
+    friend CloudFloat operator-(CloudFloat iw, double v) {
+      return iw -= (float)v;
+    }
+    friend CloudFloat operator-(float v, CloudFloat iw) {
+      return CloudFloat(v) -= iw;
+    }
+    friend CloudFloat operator-(int v, CloudFloat iw) {
+      return CloudFloat(v) -= iw;
+    }
+    friend CloudFloat operator-(double v, CloudFloat iw) {
+      return CloudFloat(v) -= iw;
+    }
+    friend CloudFloat operator*(CloudFloat iw, CloudFloat v) {
+      return iw *= v;
+    }
+    friend CloudFloat operator*(CloudFloat iw, float v) {
+      return iw *= v;
+    }
+    friend CloudFloat operator*(CloudFloat iw, int v) {
+      return iw *= (float)v;
+    }
+    friend CloudFloat operator*(CloudFloat iw, double v) {
+      return iw *= (float)v;
+    }
+    friend CloudFloat operator*(float v, CloudFloat iw) {
+      return CloudFloat(v) *= iw;
+    }
+    friend CloudFloat operator*(int v, CloudFloat iw) {
+      return CloudFloat(v) *= iw;
+    }
+    friend CloudFloat operator*(double v, CloudFloat iw) {
+      return CloudFloat(v) *= iw;
+    }
+    friend CloudFloat operator/(CloudFloat iw, CloudFloat v) {
+      return iw /= v;
+    }
+    friend CloudFloat operator/(CloudFloat iw, float v) {
+      return iw /= v;
+    }
+    friend CloudFloat operator/(CloudFloat iw, int v) {
+      return iw /= (float)v;
+    }
+    friend CloudFloat operator/(CloudFloat iw, double v) {
+      return iw /= (float)v;
+    }
+    friend CloudFloat operator/(float v, CloudFloat iw) {
+      return CloudFloat(v) /= iw;
+    }
+    friend CloudFloat operator/(int v, CloudFloat iw) {
+      return CloudFloat(v) /= iw;
+    }
+    friend CloudFloat operator/(double v, CloudFloat iw) {
+      return CloudFloat(v) /= iw;
+    }
 };
 
 

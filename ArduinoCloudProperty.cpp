@@ -24,36 +24,35 @@
 
 static unsigned long getTimestamp() {
   #ifdef ARDUINO_ARCH_SAMD
-    return rtc.getEpoch();
+  return rtc.getEpoch();
   #else
-    #warning "No RTC available on this architecture - ArduinoIoTCloud will not keep track of local change timestamps ." 
-    return 0;
+#warning "No RTC available on this architecture - ArduinoIoTCloud will not keep track of local change timestamps ."
+  return 0;
   #endif
 }
 
 /******************************************************************************
- * CTOR/DTOR
+   CTOR/DTOR
  ******************************************************************************/
 ArduinoCloudProperty::ArduinoCloudProperty()
-: _name(""),
-  _permission(Permission::Read),
-  _update_callback_func(nullptr),
-  _sync_callback_func(nullptr),
-  _has_been_updated_once(false),
-  _has_been_modified_in_callback(false),
-  _min_delta_property(0.0f),
-  _min_time_between_updates_millis(0),
-  _last_updated_millis(0),
-  _update_interval_millis(0),
-  _last_local_change_timestamp(0),
-  _last_cloud_change_timestamp(0),
-  _encoder(nullptr),
-  _map_data_list(nullptr)
-{
+  : _name(""),
+    _permission(Permission::Read),
+    _update_callback_func(nullptr),
+    _sync_callback_func(nullptr),
+    _has_been_updated_once(false),
+    _has_been_modified_in_callback(false),
+    _min_delta_property(0.0f),
+    _min_time_between_updates_millis(0),
+    _last_updated_millis(0),
+    _update_interval_millis(0),
+    _last_local_change_timestamp(0),
+    _last_cloud_change_timestamp(0),
+    _encoder(nullptr),
+    _map_data_list(nullptr) {
 }
 
 /******************************************************************************
- * PUBLIC MEMBER FUNCTIONS
+   PUBLIC MEMBER FUNCTIONS
  ******************************************************************************/
 void ArduinoCloudProperty::init(String const name, Permission const permission) {
   _name = name;
@@ -84,35 +83,35 @@ ArduinoCloudProperty & ArduinoCloudProperty::publishEvery(unsigned long const se
 }
 
 bool ArduinoCloudProperty::shouldBeUpdated() {
-  if(!_has_been_updated_once) return true;
+  if (!_has_been_updated_once) {
+    return true;
+  }
 
-  if(_has_been_modified_in_callback) {
+  if (_has_been_modified_in_callback) {
     _has_been_modified_in_callback = false;
     return true;
   }
 
-  if     (_update_policy == UpdatePolicy::OnChange) {
+  if (_update_policy == UpdatePolicy::OnChange) {
     return (isDifferentFromCloud() && ((millis() - _last_updated_millis) >= (_min_time_between_updates_millis)));
-  }
-  else if(_update_policy == UpdatePolicy::TimeInterval) {
+  } else if (_update_policy == UpdatePolicy::TimeInterval) {
     return ((millis() - _last_updated_millis) >= _update_interval_millis);
-  }
-  else {
+  } else {
     return false;
   }
 }
 
 void ArduinoCloudProperty::execCallbackOnChange() {
-  if(_update_callback_func != NULL) {
+  if (_update_callback_func != NULL) {
     _update_callback_func();
   }
-  if(!isDifferentFromCloud()) {
+  if (!isDifferentFromCloud()) {
     _has_been_modified_in_callback = true;
   }
 }
 
 void ArduinoCloudProperty::execCallbackOnSync() {
-  if(_sync_callback_func != NULL) {
+  if (_sync_callback_func != NULL) {
     _sync_callback_func(*this);
   }
 }
@@ -126,41 +125,41 @@ void ArduinoCloudProperty::append(CborEncoder *encoder) {
 }
 
 void ArduinoCloudProperty::appendAttributeReal(bool value, String attributeName) {
-  appendAttributeName(attributeName, [value](CborEncoder& mapEncoder) {
-    cbor_encode_int  (&mapEncoder, static_cast<int>(CborIntegerMapKey::BooleanValue));
+  appendAttributeName(attributeName, [value](CborEncoder & mapEncoder) {
+    cbor_encode_int(&mapEncoder, static_cast<int>(CborIntegerMapKey::BooleanValue));
     cbor_encode_boolean(&mapEncoder, value);
   });
 }
 
 void ArduinoCloudProperty::appendAttributeReal(int value, String attributeName) {
-  appendAttributeName(attributeName, [value](CborEncoder& mapEncoder) {
-    cbor_encode_int  (&mapEncoder, static_cast<int>(CborIntegerMapKey::Value));
+  appendAttributeName(attributeName, [value](CborEncoder & mapEncoder) {
+    cbor_encode_int(&mapEncoder, static_cast<int>(CborIntegerMapKey::Value));
     cbor_encode_int(&mapEncoder, value);
   });
 }
 
 void ArduinoCloudProperty::appendAttributeReal(float value, String attributeName) {
-  appendAttributeName(attributeName, [value](CborEncoder& mapEncoder) {
-    cbor_encode_int  (&mapEncoder, static_cast<int>(CborIntegerMapKey::Value));  
+  appendAttributeName(attributeName, [value](CborEncoder & mapEncoder) {
+    cbor_encode_int(&mapEncoder, static_cast<int>(CborIntegerMapKey::Value));
     cbor_encode_float(&mapEncoder, value);
   });
 }
 
 void ArduinoCloudProperty::appendAttributeReal(String value, String attributeName) {
-  appendAttributeName(attributeName, [value](CborEncoder& mapEncoder) {
-    cbor_encode_int  (&mapEncoder, static_cast<int>(CborIntegerMapKey::StringValue));
+  appendAttributeName(attributeName, [value](CborEncoder & mapEncoder) {
+    cbor_encode_int(&mapEncoder, static_cast<int>(CborIntegerMapKey::StringValue));
     cbor_encode_text_stringz(&mapEncoder, value.c_str());
   });
 }
 
-void ArduinoCloudProperty::appendAttributeName(String attributeName, std::function<void (CborEncoder& mapEncoder)>appendValue){
+void ArduinoCloudProperty::appendAttributeName(String attributeName, std::function<void (CborEncoder& mapEncoder)>appendValue) {
   CborEncoder mapEncoder;
   cbor_encoder_create_map(_encoder, &mapEncoder, 2);
   cbor_encode_int(&mapEncoder, static_cast<int>(CborIntegerMapKey::Name));
   String completeName = _name;
-  if(attributeName != ""){
+  if (attributeName != "") {
     completeName += ":" + attributeName;
-  }   
+  }
   cbor_encode_text_stringz(&mapEncoder, completeName.c_str());
   appendValue(mapEncoder);
   cbor_encoder_close_container(_encoder, &mapEncoder);
@@ -172,19 +171,27 @@ void ArduinoCloudProperty::setAttributesFromCloud(LinkedList<CborMapData *> *map
 }
 
 void ArduinoCloudProperty::setAttributeReal(bool& value, String attributeName) {
-  setAttributeReal(attributeName, [&value](CborMapData *md) {value = md->bool_val.get(); });
+  setAttributeReal(attributeName, [&value](CborMapData * md) {
+    value = md->bool_val.get();
+  });
 }
 
 void ArduinoCloudProperty::setAttributeReal(int& value, String attributeName) {
-  setAttributeReal(attributeName, [&value](CborMapData *md) { value = md->val.get(); });
+  setAttributeReal(attributeName, [&value](CborMapData * md) {
+    value = md->val.get();
+  });
 }
 
 void ArduinoCloudProperty::setAttributeReal(float& value, String attributeName) {
-  setAttributeReal(attributeName, [&value](CborMapData *md) { value = md->val.get(); });
+  setAttributeReal(attributeName, [&value](CborMapData * md) {
+    value = md->val.get();
+  });
 }
 
 void ArduinoCloudProperty::setAttributeReal(String& value, String attributeName) {
-  setAttributeReal(attributeName, [&value](CborMapData *md) { value = md->str_val.get(); });
+  setAttributeReal(attributeName, [&value](CborMapData * md) {
+    value = md->str_val.get();
+  });
 }
 
 void ArduinoCloudProperty::setAttributeReal(String attributeName, std::function<void (CborMapData *md)>setValue) {

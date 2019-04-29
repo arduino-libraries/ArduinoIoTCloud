@@ -21,44 +21,44 @@
 #include <math.h>
 
 /******************************************************************************
- * INCLUDE
+   INCLUDE
  ******************************************************************************/
 
 #include <Arduino.h>
 #include "../ArduinoCloudProperty.hpp"
 
 /******************************************************************************
- * CLASS DECLARATION
+   CLASS DECLARATION
  ******************************************************************************/
 
 class CloudWrapperFloat : public ArduinoCloudProperty {
-private:
-  float  &_primitive_value,
-        _cloud_value,
-        _local_value;
-public:
-  CloudWrapperFloat(float& v) : _primitive_value(v), _cloud_value(v), _local_value(v) {}
-  virtual bool isDifferentFromCloud() {
-    return _primitive_value != _cloud_value && (abs(_primitive_value - _cloud_value) >= ArduinoCloudProperty::_min_delta_property);
-  }
-  virtual void fromCloudToLocal() {
-    _primitive_value = _cloud_value;
-  }
-  virtual void fromLocalToCloud() {
-    _cloud_value = _primitive_value;  
-  }
-  virtual void appendAttributesToCloud() {
-    appendAttribute(_primitive_value);
-  }
-  virtual void setAttributesFromCloud() {
-    setAttribute(_cloud_value);
-  }
-  virtual bool isPrimitive() {
-    return true;
-  }
-  virtual bool isChangedLocally() {
-    return _primitive_value != _local_value;
-  }
+  private:
+    float  &_primitive_value,
+           _cloud_value,
+           _local_value;
+  public:
+    CloudWrapperFloat(float& v) : _primitive_value(v), _cloud_value(v), _local_value(v) {}
+    virtual bool isDifferentFromCloud() {
+      return _primitive_value != _cloud_value && (abs(_primitive_value - _cloud_value) >= ArduinoCloudProperty::_min_delta_property);
+    }
+    virtual void fromCloudToLocal() {
+      _primitive_value = _cloud_value;
+    }
+    virtual void fromLocalToCloud() {
+      _cloud_value = _primitive_value;
+    }
+    virtual void appendAttributesToCloud() {
+      appendAttribute(_primitive_value);
+    }
+    virtual void setAttributesFromCloud() {
+      setAttribute(_cloud_value);
+    }
+    virtual bool isPrimitive() {
+      return true;
+    }
+    virtual bool isChangedLocally() {
+      return _primitive_value != _local_value;
+    }
 };
 
 
