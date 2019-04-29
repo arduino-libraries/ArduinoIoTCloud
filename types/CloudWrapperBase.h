@@ -15,51 +15,24 @@
 // a commercial license, send an email to license@arduino.cc.
 //
 
-#ifndef CLOUDWRAPPERFLOAT_H_
-#define CLOUDWRAPPERFLOAT_H_
-
-#include <math.h>
+#ifndef CLOUDWRAPPERBASE_H_
+#define CLOUDWRAPPERBASE_H_
 
 /******************************************************************************
    INCLUDE
  ******************************************************************************/
 
 #include <Arduino.h>
-#include "CloudWrapperBase.h"
+#include "../ArduinoCloudProperty.hpp"
 
 /******************************************************************************
    CLASS DECLARATION
  ******************************************************************************/
 
-class CloudWrapperFloat : public CloudWrapperBase {
-  private:
-    float  &_primitive_value,
-           _cloud_value,
-           _local_value;
+class CloudWrapperBase : public ArduinoCloudProperty {
   public:
-    CloudWrapperFloat(float& v) : _primitive_value(v), _cloud_value(v), _local_value(v) {}
-    virtual bool isDifferentFromCloud() {
-      return _primitive_value != _cloud_value && (abs(_primitive_value - _cloud_value) >= ArduinoCloudProperty::_min_delta_property);
-    }
-    virtual void fromCloudToLocal() {
-      _primitive_value = _cloud_value;
-    }
-    virtual void fromLocalToCloud() {
-      _cloud_value = _primitive_value;
-    }
-    virtual void appendAttributesToCloud() {
-      appendAttribute(_primitive_value);
-    }
-    virtual void setAttributesFromCloud() {
-      setAttribute(_cloud_value);
-    }
-    virtual bool isPrimitive() {
-      return true;
-    }
-    virtual bool isChangedLocally() {
-      return _primitive_value != _local_value;
-    }
+    virtual bool isChangedLocally() = 0;
 };
 
 
-#endif /* CLOUWRAPPERFLOAT_H_ */
+#endif /* CLOUDWRAPPERBASE_H_ */

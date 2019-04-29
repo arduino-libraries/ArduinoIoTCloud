@@ -23,13 +23,13 @@
  ******************************************************************************/
 
 #include <Arduino.h>
-#include "../ArduinoCloudProperty.hpp"
+#include "CloudWrapperBase.h"
 
 /******************************************************************************
    CLASS DECLARATION
  ******************************************************************************/
 
-class CloudWrapperString : public ArduinoCloudProperty {
+class CloudWrapperString : public CloudWrapperBase {
   private:
     String  &_primitive_value,
             _cloud_value,

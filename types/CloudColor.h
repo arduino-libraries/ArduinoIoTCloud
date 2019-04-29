@@ -68,21 +68,22 @@ class Color {
 
       for (uint8_t j = 0; j < 3; j++) {
 
-        if (temp[j] > max) {
+        if (temp[j] >= max) {
           max = temp[j];
           imax = j;
         }
-        if (temp[j] < min) {
+        if (temp[j] <= min) {
           min = temp[j];
           imin = j;
         }
       }
+
       delta = max - min;
       if (delta == 0) {
         hue = 0;
       } else if (imax == 0) {
-        uint8_t div = (temp[1] - temp[2]) / delta;
-        hue = 60 * (div % 6);
+
+        hue = 60 * fmod((temp[1] - temp[2]) / delta, 6);
       } else if (imax == 1) {
         hue = 60 * (((temp[2] - temp[0]) / delta) + 2);
       } else if (imax == 2) {

@@ -30,6 +30,7 @@
 #include "types/CloudString.h"
 #include "types/CloudLocation.h"
 #include "types/CloudColor.h"
+#include "types/CloudWrapperBase.h"
 
 /******************************************************************************
    CONSTANTS

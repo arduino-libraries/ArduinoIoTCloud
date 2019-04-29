@@ -180,12 +180,13 @@ ArduinoCloudProperty * ArduinoCloudThing::getProperty(String const & name) {
   return NULL;
 }
 
+// this function updates the timestamps on the primitive properties that have been modified locally since last cloud synchronization
 void ArduinoCloudThing::updateTimestampOnLocallyChangedProperties() {
   if (_numPrimitivesProperties == 0) {
     return;
   } else {
     for (int i = 0; i < _property_list.size(); i++) {
-      ArduinoCloudProperty * p = _property_list.get(i);
+      CloudWrapperBase * p = (CloudWrapperBase *)_property_list.get(i);
       if (p->isPrimitive() && p->isChangedLocally() && p->isReadableByCloud()) {
         p->updateLocalTimestamp();
       }

@@ -174,9 +174,6 @@ class ArduinoCloudProperty {
     virtual bool isPrimitive() {
       return false;
     };
-    virtual bool isChangedLocally() {
-      return false;
-    };
   protected:
     /* Variables used for UpdatePolicy::OnChange */
     float              _min_delta_property;
