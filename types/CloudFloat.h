@@ -25,7 +25,7 @@
  ******************************************************************************/
 
 #include <Arduino.h>
-#include "../ArduinoCloudProperty.hpp"
+#include "../ArduinoCloudProperty.h"
 
 /******************************************************************************
    CLASS DECLARATION

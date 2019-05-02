@@ -37,7 +37,8 @@
 #include "lib/tinycbor/cbor-lib.h"
 #include "lib/LinkedList/LinkedList.h"
 
-#define appendAttribute(x) appendAttributeReal(x, getAttributeName(#x, '.'))
+#define appendAttributesToCloud() appendAttributesToCloudReal(CborEncoder *encoder)
+#define appendAttribute(x) appendAttributeReal(x, getAttributeName(#x, '.'), encoder)
 #define setAttribute(x) setAttributeReal(x, getAttributeName(#x, '.'))
 
 /******************************************************************************
@@ -123,13 +124,14 @@ typedef void(*UpdateCallbackFunc)(void);
  ******************************************************************************/
 
 class ArduinoCloudProperty {
+    typedef void(*SyncCallbackFunc)(ArduinoCloudProperty &property);
   public:
     ArduinoCloudProperty();
     void init(String const name, Permission const permission);
 
     /* Composable configuration of the ArduinoCloudProperty class */
     ArduinoCloudProperty & onUpdate(UpdateCallbackFunc func);
-    ArduinoCloudProperty & onSync(void (*func)(ArduinoCloudProperty &property));
+    ArduinoCloudProperty & onSync(SyncCallbackFunc func);
     ArduinoCloudProperty & publishOnChange(float const min_delta_property, unsigned long const min_time_between_updates_millis = 0);
     ArduinoCloudProperty & publishEvery(unsigned long const seconds);
 
@@ -153,11 +155,11 @@ class ArduinoCloudProperty {
 
     void updateLocalTimestamp();
     void append(CborEncoder * encoder);
-    void appendAttributeReal(bool value, String attributeName = "");
-    void appendAttributeReal(int value, String attributeName = "");
-    void appendAttributeReal(float value, String attributeName = "");
-    void appendAttributeReal(String value, String attributeName = "");
-    void appendAttributeName(String attributeName, std::function<void (CborEncoder& mapEncoder)>f);
+    void appendAttributeReal(bool value, String attributeName = "", CborEncoder *encoder = nullptr);
+    void appendAttributeReal(int value, String attributeName = "", CborEncoder *encoder = nullptr);
+    void appendAttributeReal(float value, String attributeName = "", CborEncoder *encoder = nullptr);
+    void appendAttributeReal(String value, String attributeName = "", CborEncoder *encoder = nullptr);
+    void appendAttributeName(String attributeName, std::function<void (CborEncoder& mapEncoder)>f, CborEncoder *encoder);
     void setAttributesFromCloud(LinkedList<CborMapData *> *map_data_list);
     void setAttributeReal(bool& value, String attributeName = "");
     void setAttributeReal(int& value, String attributeName = "");
@@ -169,7 +171,7 @@ class ArduinoCloudProperty {
     virtual bool isDifferentFromCloud() = 0;
     virtual void fromCloudToLocal() = 0;
     virtual void fromLocalToCloud() = 0;
-    virtual void appendAttributesToCloud() = 0;
+    virtual void appendAttributesToCloudReal(CborEncoder *encoder) = 0;
     virtual void setAttributesFromCloud() = 0;
     virtual bool isPrimitive() {
       return false;
@@ -194,10 +196,7 @@ class ArduinoCloudProperty {
     /* Variables used for reconnection sync*/
     unsigned long      _last_local_change_timestamp;
     unsigned long      _last_cloud_change_timestamp;
-    /* variable to manage property serialization/deserialization on CBOR */
-    CborEncoder       *_encoder;
-    LinkedList<CborMapData *>
-    *_map_data_list;
+    LinkedList<CborMapData *> * _map_data_list;
 };
 
 /******************************************************************************

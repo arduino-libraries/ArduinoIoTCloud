@@ -22,7 +22,7 @@
    INCLUDE
  ******************************************************************************/
 
-#include "ArduinoCloudProperty.hpp"
+#include "ArduinoCloudProperty.h"
 #include "lib/LinkedList/LinkedList.h"
 #include "types/CloudBool.h"
 #include "types/CloudFloat.h"
@@ -76,10 +76,6 @@ class ArduinoCloudThing {
 
     bool isPropertyInContainer(String const & name);
     int appendChangedProperties(CborEncoder * arrayEncoder);
-    inline void addProperty(ArduinoCloudProperty   * property_obj) {
-      _property_list.add(property_obj);
-    }
-    ArduinoCloudProperty * getProperty(String const & name);
     void updateTimestampOnLocallyChangedProperties();
     void updateProperty(String propertyName, unsigned long cloudChangeEventTime);
 
@@ -129,6 +125,10 @@ class ArduinoCloudThing {
     static bool   ifNumericConvertToDouble(CborValue * value_iter, double * numeric_val);
     static double convertCborHalfFloatToDouble(uint16_t const half_val);
     void freeMapDataList(LinkedList<CborMapData *> *map_data_list);
+    inline void addProperty(ArduinoCloudProperty   * property_obj) {
+      _property_list.add(property_obj);
+    }
+    ArduinoCloudProperty * getProperty(String const & name);
 
 };
 

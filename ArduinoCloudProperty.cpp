@@ -15,7 +15,7 @@
 // a commercial license, send an email to license@arduino.cc.
 //
 
-#include "ArduinoCloudProperty.hpp"
+#include "ArduinoCloudProperty.h"
 
 #ifdef ARDUINO_ARCH_SAMD
   #include <RTCZero.h>
@@ -47,7 +47,6 @@ ArduinoCloudProperty::ArduinoCloudProperty()
     _update_interval_millis(0),
     _last_local_change_timestamp(0),
     _last_cloud_change_timestamp(0),
-    _encoder(nullptr),
     _map_data_list(nullptr) {
 }
 
@@ -64,7 +63,7 @@ ArduinoCloudProperty & ArduinoCloudProperty::onUpdate(UpdateCallbackFunc func) {
   return (*this);
 }
 
-ArduinoCloudProperty & ArduinoCloudProperty::onSync(void (*func)(ArduinoCloudProperty & property)) {
+ArduinoCloudProperty & ArduinoCloudProperty::onSync(SyncCallbackFunc func) {
   _sync_callback_func = func;
   return (*this);
 }
@@ -117,44 +116,43 @@ void ArduinoCloudProperty::execCallbackOnSync() {
 }
 
 void ArduinoCloudProperty::append(CborEncoder *encoder) {
-  _encoder = encoder;
-  appendAttributesToCloud();
+  appendAttributesToCloudReal(encoder);
   fromLocalToCloud();
   _has_been_updated_once = true;
   _last_updated_millis = millis();
 }
 
-void ArduinoCloudProperty::appendAttributeReal(bool value, String attributeName) {
+void ArduinoCloudProperty::appendAttributeReal(bool value, String attributeName, CborEncoder *encoder) {
   appendAttributeName(attributeName, [value](CborEncoder & mapEncoder) {
     cbor_encode_int(&mapEncoder, static_cast<int>(CborIntegerMapKey::BooleanValue));
     cbor_encode_boolean(&mapEncoder, value);
-  });
+  }, encoder);
 }
 
-void ArduinoCloudProperty::appendAttributeReal(int value, String attributeName) {
+void ArduinoCloudProperty::appendAttributeReal(int value, String attributeName, CborEncoder *encoder) {
   appendAttributeName(attributeName, [value](CborEncoder & mapEncoder) {
     cbor_encode_int(&mapEncoder, static_cast<int>(CborIntegerMapKey::Value));
     cbor_encode_int(&mapEncoder, value);
-  });
+  }, encoder);
 }
 
-void ArduinoCloudProperty::appendAttributeReal(float value, String attributeName) {
+void ArduinoCloudProperty::appendAttributeReal(float value, String attributeName, CborEncoder *encoder) {
   appendAttributeName(attributeName, [value](CborEncoder & mapEncoder) {
     cbor_encode_int(&mapEncoder, static_cast<int>(CborIntegerMapKey::Value));
     cbor_encode_float(&mapEncoder, value);
-  });
+  }, encoder);
 }
 
-void ArduinoCloudProperty::appendAttributeReal(String value, String attributeName) {
+void ArduinoCloudProperty::appendAttributeReal(String value, String attributeName, CborEncoder *encoder) {
   appendAttributeName(attributeName, [value](CborEncoder & mapEncoder) {
     cbor_encode_int(&mapEncoder, static_cast<int>(CborIntegerMapKey::StringValue));
     cbor_encode_text_stringz(&mapEncoder, value.c_str());
-  });
+  }, encoder);
 }
 
-void ArduinoCloudProperty::appendAttributeName(String attributeName, std::function<void (CborEncoder& mapEncoder)>appendValue) {
+void ArduinoCloudProperty::appendAttributeName(String attributeName, std::function<void (CborEncoder& mapEncoder)>appendValue, CborEncoder *encoder) {
   CborEncoder mapEncoder;
-  cbor_encoder_create_map(_encoder, &mapEncoder, 2);
+  cbor_encoder_create_map(encoder, &mapEncoder, 2);
   cbor_encode_int(&mapEncoder, static_cast<int>(CborIntegerMapKey::Name));
   String completeName = _name;
   if (attributeName != "") {
@@ -162,7 +160,7 @@ void ArduinoCloudProperty::appendAttributeName(String attributeName, std::functi
   }
   cbor_encode_text_stringz(&mapEncoder, completeName.c_str());
   appendValue(mapEncoder);
-  cbor_encoder_close_container(_encoder, &mapEncoder);
+  cbor_encoder_close_container(encoder, &mapEncoder);
 }
 
 void ArduinoCloudProperty::setAttributesFromCloud(LinkedList<CborMapData *> *map_data_list) {
