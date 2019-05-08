@@ -28,7 +28,7 @@ matrix:
         - wget --directory-prefix="${HOME}/astyle" https://raw.githubusercontent.com/arduino/Arduino/master/build/shared/examples_formatter.conf
       script:
         # check code formatting
-        - find . -regextype posix-extended -path './.git' -prune -or \( -iregex '.*\.((ino)|(h)|(hpp)|(hh)|(hxx)|(h\+\+)|(cpp)|(cc)|(cxx)|(c\+\+)|(cp)|(c)|(ipp)|(ii)|(ixx)|(inl)|(tpp)|(txx)|(tpl))$' -and -type f \) -print0 | xargs -0 -L1 bash -c 'if ! diff $0 <(astyle --options=${HOME}/astyle/examples_formatter.conf --dry-run < $0); then echo "Non-compliant code formatting in $0"; false; fi'
+        - find . -regextype posix-extended -path './.git' -prune -or \( -iregex '.*\.((ino)|(h)|(hpp)|(hh)|(hxx)|(h\+\+)|(cpp)|(cc)|(cxx)|(c\+\+)|(cp)|(c)|(ipp)|(ii)|(ixx)|(inl)|(tpp)|(txx)|(tpl))$' -and -type f \) -print0 | xargs -0 -L1 bash -c 'if ! diff "$0" <(astyle --options=${HOME}/astyle/examples_formatter.conf --dry-run < "$0"); then echo "Non-compliant code formatting in $0"; false; fi'
     - env:
         - NAME=Spell Check
       language: python
