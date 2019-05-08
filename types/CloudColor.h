@@ -174,7 +174,7 @@ class CloudColor : public ArduinoCloudProperty {
     CloudColor& operator=(Color aColor) {
       _value.hue = aColor.hue;
       _value.sat = aColor.sat;
-      _value.sat = aColor.bri;
+      _value.bri = aColor.bri;
       updateLocalTimestamp();
       return *this;
     }
