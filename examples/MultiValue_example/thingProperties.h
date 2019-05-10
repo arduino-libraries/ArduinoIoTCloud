@@ -14,7 +14,7 @@ bool Switch;
 CloudLocation Loc;
 CloudColor Color;
 
-void initProperties(){
+void initProperties() {
   ArduinoCloud.setThingId(THING_ID);
   ArduinoCloud.addProperty(Switch, READWRITE, ON_CHANGE, onSwitchChange);
   ArduinoCloud.addProperty(Loc, READ, ON_CHANGE, NULL);
