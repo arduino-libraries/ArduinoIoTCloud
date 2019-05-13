@@ -94,9 +94,9 @@ void initProperties() {
   ArduinoCloud.addProperty(float_property_3, Permission::ReadWrite).publishOnChange(MIN_DELTA_FLOAT_PROPERTY);
   ArduinoCloud.addProperty(float_property_4, Permission::ReadWrite).publishOnChange(MIN_DELTA_FLOAT_PROPERTY).onUpdate(onFloatPropertyChange);
 
-  ArduinoCloud.addProperty(str_property_3, READWRITE, 1 * SECONDS, 0 /* onStringPropertyChange */, "" /* 'minDelta' */, MOST_RECENT_WINS);
-  ArduinoCloud.addProperty(str_property_4, READWRITE, 1 * SECONDS, 0 /* onStringPropertyChange */, "" /* 'minDelta' */, CLOUD_WINS);
-  ArduinoCloud.addProperty(str_property_5, READWRITE, 1 * SECONDS, 0 /* onStringPropertyChange */, "" /* 'minDelta' */, DEVICE_WINS);
+  ArduinoCloud.addProperty(str_property_3, READWRITE, 1 * SECONDS, 0 /* onStringPropertyChange */, 0.0 /* 'minDelta' */, MOST_RECENT_WINS);
+  ArduinoCloud.addProperty(str_property_4, READWRITE, 1 * SECONDS, 0 /* onStringPropertyChange */, 0.0 /* 'minDelta' */, CLOUD_WINS);
+  ArduinoCloud.addProperty(str_property_5, READWRITE, 1 * SECONDS, 0 /* onStringPropertyChange */, 0.0 /* 'minDelta' */, DEVICE_WINS);
 
   ArduinoCloud.addProperty(str_property_6, Permission::ReadWrite).publishEvery(1 * SECONDS).onSync(MOST_RECENT_WINS);
   ArduinoCloud.addProperty(str_property_7, Permission::ReadWrite).publishEvery(1 * SECONDS).onSync(CLOUD_WINS);

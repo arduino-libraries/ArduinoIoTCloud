@@ -51,15 +51,6 @@ static unsigned long getTime() {
   return time;
 }
 
-static unsigned long getTimestamp() {
-  #ifdef ARDUINO_ARCH_SAMD
-  return rtc.getEpoch();
-  #else
-#warning "No RTC available on this architecture - ArduinoIoTCloud will not keep track of local change timestamps ."
-  return 0;
-  #endif
-}
-
 ArduinoIoTCloudClass::ArduinoIoTCloudClass() :
   _thing_id(""),
   _bearSslClient(NULL),
@@ -226,11 +217,8 @@ void ArduinoIoTCloudClass::update(CallbackFunc onSyncCompleteCallback) {
 }
 
 void ArduinoIoTCloudClass::update(int const reconnectionMaxRetries, int const reconnectionTimeoutMs, CallbackFunc onSyncCompleteCallback) {
-  unsigned long const timestamp = getTimestamp();
-  //check if a property is changed
-  if (timestamp != 0) {
-    Thing.updateTimestampOnChangedProperties(timestamp);
-  }
+  // Check if a primitive property wrapper is locally changed
+  Thing.updateTimestampOnLocallyChangedProperties();
 
   connectionCheck();
   if (iotStatus != ArduinoIoTConnectionStatus::CONNECTED) {
