@@ -51,11 +51,11 @@ void loop() {
 
   switchButton = !switchButton;
   if (switchButton) {
-      location  = Location(latMov, lonMov);
-      color     = Color(hueRed, satRed, briRed);
+    location  = Location(latMov, lonMov);
+    color     = Color(hueRed, satRed, briRed);
   }  else {
-      location  = Location(latArd, lonArd);
-      color     =  Color(hueGreen, satGreen, briGreen);
+    location  = Location(latArd, lonArd);
+    color     =  Color(hueGreen, satGreen, briGreen);
   }
   delay(5000);
 }
