@@ -7,7 +7,7 @@
 
   The following variables are automatically generated and updated when changes are made to the Thing properties
 
-  bool Switch;
+  bool switchButton;
 
   Properties which are marked as READ/WRITE in the Cloud Thing will also have functions
   which are called when their values are changed from the Dashboard.
@@ -49,29 +49,29 @@ void loop() {
   ArduinoCloud.update();
   // Your code here
 
-  Switch = !Switch;
-  if (Switch) {
-    Loc =   { .lat = latMov,   .lon = lonMov };
-    Color = { .hue = hueRed,   .sat = satRed,    .bri = briRed };
+  switchButton = !switchButton;
+  if (switchButton) {
+      location  = Location(latMov, lonMov);
+      color     = Color(hueRed, satRed, briRed);
   }  else {
-    Loc =   { .lat = latArd,   .lon = lonArd };
-    Color = { .hue = hueGreen, .sat = satGreen, .bri = briGreen };
+      location  = Location(latArd, lonArd);
+      color     =  Color(hueGreen, satGreen, briGreen);
   }
   delay(5000);
 }
 
 
-void onSwitchChange() {
+void onSwitchButtonChange() {
   // Do something
-  digitalWrite(LED_BUILTIN, Switch);
+  digitalWrite(LED_BUILTIN, switchButton);
 }
 
 void onColorChange() {
   // Do something
   Serial.print("Hue = ");
-  Serial.println(Color.getValue().hue);
+  Serial.println(color.getValue().hue);
   Serial.print("Sat = ");
-  Serial.println(Color.getValue().sat);
+  Serial.println(color.getValue().sat);
   Serial.print("Bri = ");
-  Serial.println(Color.getValue().bri);
+  Serial.println(color.getValue().bri);
 }
