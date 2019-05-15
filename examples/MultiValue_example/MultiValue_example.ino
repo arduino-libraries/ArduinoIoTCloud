@@ -26,7 +26,7 @@ void setup() {
   initProperties();
 
   // Connect to Arduino IoT Cloud
-  ArduinoCloud.begin(ArduinoIoTPreferredConnection, "mqtts-sa.iot.oniudra.cc");
+  ArduinoCloud.begin(ArduinoIoTPreferredConnection);
 
   /*
      The following function allows you to obtain more information
