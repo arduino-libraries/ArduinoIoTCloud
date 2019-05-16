@@ -57,18 +57,19 @@ before_install:
   - arduino --install-library RTCZero
   - arduino --install-library WiFi101
   - arduino --install-library WiFiNINA
-  - buildExampleSketch() { arduino --verbose-build --verify --board $BOARD $PWD/examples/$1/$1.ino; }
-  - buildExampleUtilitySketch() { arduino --verbose-build --verify --board $BOARD $PWD/examples/utility/$1/$1.ino; }
+  - buildExampleSketch() { arduino --verify --board $BOARD $PWD/examples/$1/$1.ino; }
+  - buildExampleUtilitySketch() { arduino --verify --board $BOARD $PWD/examples/utility/$1/$1.ino; }
 install:
   - mkdir -p $HOME/Arduino/libraries
   - ln -s $PWD $HOME/Arduino/libraries/.
 script:
   - buildExampleSketch ArduinoIoTCloud_LED_switch
   - buildExampleSketch ArduinoIoTCloud_Travis_CI
-  - buildExampleSketch MultiValue_example
   - |
     if [ "$BOARD" == "arduino:samd:mkr1000" ] || [ "$BOARD" == "arduino:samd:mkrwifi1010" ];
-    then buildExampleSketch WiFi_Cloud_Blink;
+    then
+      buildExampleSketch WiFi_Cloud_Blink;
+      buildExampleSketch MultiValue_example;
     fi
   - |
     if [ "$BOARD" == "arduino:samd:mkrgsm1400" ];
