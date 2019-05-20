@@ -89,12 +89,10 @@ class CloudInt : public ArduinoCloudProperty {
       return operator=(--_value);
     }
     CloudInt operator++(int) {
-      int temp = _value;
       operator=(_value + 1);
       return CloudInt(_value);
     }
     CloudInt operator--(int) {
-      int temp = _value;
       operator=(_value - 1);
       return CloudInt(_value);
     }

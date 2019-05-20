@@ -36,6 +36,9 @@
 #include <inttypes.h>
 #include <string.h>
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpedantic"
+
 /**
  * \defgroup CborPretty Converting CBOR to text
  * \brief Group of functions used to convert CBOR to text form.
@@ -574,5 +577,7 @@ CborError cbor_value_to_pretty_stream(CborStreamFunction streamFunction, void *t
 {
     return value_to_pretty(streamFunction, token, value, flags, CBOR_PARSER_MAX_RECURSIONS);
 }
+
+#pragma GCC diagnostic pop
 
 /** @} */

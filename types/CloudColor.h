@@ -52,19 +52,15 @@ class Color {
     }
 
     bool setColorRGB(uint8_t R, uint8_t G, uint8_t B) {
-      if (R < 0 || R > 255 || G < 0 || G > 255 || B < 0 || B > 255) {
-        return false;
-      }
       float temp[3];
       float max, min, delta;
-      uint8_t imax, imin;
+      uint8_t imax;
       temp[0] = (float)R / 255;
       temp[1] = (float)G / 255;
       temp[2] = (float)B / 255;
       max = temp[0];
       imax = 0;
       min = temp[0];
-      imin = 0;
 
       for (uint8_t j = 0; j < 3; j++) {
 
@@ -74,7 +70,6 @@ class Color {
         }
         if (temp[j] <= min) {
           min = temp[j];
-          imin = j;
         }
       }
 

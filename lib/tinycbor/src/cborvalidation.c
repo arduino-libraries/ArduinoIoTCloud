@@ -45,6 +45,9 @@
 #  define CBOR_PARSER_MAX_RECURSIONS 1024
 #endif
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpedantic"
+
 /**
  * \addtogroup CborParsing
  * @{
@@ -660,6 +663,8 @@ CborError cbor_value_validate(const CborValue *it, uint32_t flags)
         return CborErrorGarbageAtEnd;
     return CborNoError;
 }
+
+#pragma GCC diagnostic pop
 
 /**
  * @}

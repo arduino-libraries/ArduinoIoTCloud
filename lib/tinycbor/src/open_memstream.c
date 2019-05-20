@@ -39,6 +39,9 @@ typedef size_t LenType;
 
 #include "compilersupport_p.h"
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpedantic"
+
 struct Buffer
 {
     char **ptr;
@@ -57,8 +60,8 @@ static RetType write_to_buffer(void *cookie, const char *data, LenType len)
         return -1;
 
     if (newsize > b->alloc) {
-        // make room
-        size_t newalloc = newsize + newsize / 2 + 1;    // give 50% more room
+        /* make room */
+        size_t newalloc = newsize + newsize / 2 + 1;    /* give 50% more room */
         ptr = realloc(ptr, newalloc);
         if (ptr == NULL)
             return -1;
@@ -104,3 +107,4 @@ FILE *open_memstream(char **bufptr, size_t *lenptr)
 #endif
 }
 
+#pragma GCC diagnostic pop

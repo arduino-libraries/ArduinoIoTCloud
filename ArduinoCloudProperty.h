@@ -178,9 +178,9 @@ class ArduinoCloudProperty {
     };
   protected:
     /* Variables used for UpdatePolicy::OnChange */
+    String             _name;
     float              _min_delta_property;
     unsigned long      _min_time_between_updates_millis;
-    String             _name;
 
   private:
     Permission         _permission;

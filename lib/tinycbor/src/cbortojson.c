@@ -40,6 +40,9 @@
 #include <stdlib.h>
 #include <string.h>
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpedantic"
+
 /**
  * \defgroup CborToJson Converting CBOR to JSON
  * \brief Group of functions used to convert CBOR to JSON.
@@ -695,5 +698,7 @@ CborError cbor_value_to_json_advance(FILE *out, CborValue *value, int flags)
     ConversionStatus status;
     return value_to_json(out, value, flags, cbor_value_get_type(value), &status);
 }
+
+#pragma GCC diagnostic pop
 
 /** @} */

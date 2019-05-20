@@ -26,7 +26,7 @@ static unsigned long getTimestamp() {
   #ifdef ARDUINO_ARCH_SAMD
   return rtc.getEpoch();
   #else
-#warning "No RTC available on this architecture - ArduinoIoTCloud will not keep track of local change timestamps ."
+#pragma message "No RTC available on this architecture - ArduinoIoTCloud will not keep track of local change timestamps ."
   return 0;
   #endif
 }
@@ -35,19 +35,19 @@ static unsigned long getTimestamp() {
    CTOR/DTOR
  ******************************************************************************/
 ArduinoCloudProperty::ArduinoCloudProperty()
-  : _name(""),
-    _permission(Permission::Read),
-    _update_callback_func(nullptr),
-    _sync_callback_func(nullptr),
-    _has_been_updated_once(false),
-    _has_been_modified_in_callback(false),
-    _min_delta_property(0.0f),
-    _min_time_between_updates_millis(0),
-    _last_updated_millis(0),
-    _update_interval_millis(0),
-    _last_local_change_timestamp(0),
-    _last_cloud_change_timestamp(0),
-    _map_data_list(nullptr) {
+  :   _name(""),
+      _min_delta_property(0.0f),
+      _min_time_between_updates_millis(0),
+      _permission(Permission::Read),
+      _update_callback_func(nullptr),
+      _sync_callback_func(nullptr),
+      _has_been_updated_once(false),
+      _has_been_modified_in_callback(false),
+      _last_updated_millis(0),
+      _update_interval_millis(0),
+      _last_local_change_timestamp(0),
+      _last_cloud_change_timestamp(0),
+      _map_data_list(nullptr) {
 }
 
 /******************************************************************************

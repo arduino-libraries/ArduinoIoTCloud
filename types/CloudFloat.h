@@ -88,12 +88,10 @@ class CloudFloat : public ArduinoCloudProperty {
       return operator=(_value - 1.0f);
     }
     CloudFloat operator++(int) {
-      float f = _value;
       operator=(_value + 1.0f);
       return CloudFloat(_value);
     }
     CloudFloat operator--(int) {
-      float f = _value;
       operator=(_value - 1.0f);
       return CloudFloat(_value);
     }

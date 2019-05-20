@@ -47,8 +47,8 @@ ArduinoCloudThing::ArduinoCloudThing() :
   _numPrimitivesProperties(0),
   _isSyncMessage(false),
   _currentPropertyName(""),
-  _currentPropertyTime(0),
-  _currentPropertyBaseTime(0)
+  _currentPropertyBaseTime(0),
+  _currentPropertyTime(0)
 {}
 
 /******************************************************************************
@@ -515,5 +515,5 @@ void onForceCloudSync(ArduinoCloudProperty & property) {
   property.execCallbackOnChange();
 }
 
-void onForceDeviceSync(ArduinoCloudProperty & property) {
+void onForceDeviceSync(ArduinoCloudProperty & /* property */) {
 }

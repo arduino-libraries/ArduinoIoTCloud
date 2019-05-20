@@ -36,8 +36,8 @@
    CONSTANTS
  ******************************************************************************/
 
-static bool ON  = true;
-static bool OFF = false;
+static bool const ON  = true;
+static bool const OFF = false;
 
 static long const ON_CHANGE = -1;
 static long const SECONDS   = 1;

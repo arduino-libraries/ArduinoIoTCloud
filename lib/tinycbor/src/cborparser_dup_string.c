@@ -36,6 +36,9 @@
 #include "compilersupport_p.h"
 #include <stdlib.h>
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpedantic"
+
 /**
  * \fn CborError cbor_value_dup_text_string(const CborValue *value, char **buffer, size_t *buflen, CborValue *next)
  *
@@ -117,3 +120,5 @@ CborError _cbor_value_dup_string(const CborValue *value, void **buffer, size_t *
     }
     return CborNoError;
 }
+
+#pragma GCC diagnostic pop

@@ -39,6 +39,9 @@
 #include <stdlib.h>
 #include <string.h>
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpedantic"
+
 /**
  * \defgroup CborEncoding Encoding to CBOR
  * \brief Group of functions used to encode data to CBOR.
@@ -641,5 +644,7 @@ CborError cbor_encoder_close_container(CborEncoder *encoder, const CborEncoder *
  *
  * \sa cbor_encoder_init(), cbor_encoder_get_buffer_size(), CborEncoding
  */
+
+#pragma GCC diagnostic pop
 
 /** @} */

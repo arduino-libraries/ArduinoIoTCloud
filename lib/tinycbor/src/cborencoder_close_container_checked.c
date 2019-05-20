@@ -30,6 +30,9 @@
 
 #include "cbor.h"
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpedantic"
+
 /**
  * \addtogroup CborEncoding
  * @{
@@ -53,5 +56,7 @@ CborError cbor_encoder_close_container_checked(CborEncoder *encoder, const CborE
 {
     return cbor_encoder_close_container(encoder, containerEncoder);
 }
+
+#pragma GCC diagnostic pop
 
 /** @} */

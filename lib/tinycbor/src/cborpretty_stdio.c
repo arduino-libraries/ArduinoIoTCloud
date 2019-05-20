@@ -26,6 +26,9 @@
 #include <stdarg.h>
 #include <stdio.h>
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpedantic"
+
 static CborError cbor_fprintf(void *out, const char *fmt, ...)
 {
     int n;
@@ -85,3 +88,4 @@ CborError cbor_value_to_pretty_advance_flags(FILE *out, CborValue *value, int fl
     return cbor_value_to_pretty_stream(cbor_fprintf, out, value, flags);
 }
 
+#pragma GCC diagnostic pop

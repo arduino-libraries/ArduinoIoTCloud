@@ -38,6 +38,9 @@
 
 #include <string.h>
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpedantic"
+
 /**
  * \defgroup CborParsing Parsing CBOR streams
  * \brief Group of functions used to parse CBOR streams.
@@ -1426,5 +1429,7 @@ CborError cbor_value_get_half_float(const CborValue *value, void *result)
     memcpy(result, &v, sizeof(v));
     return CborNoError;
 }
+
+#pragma GCC diagnostic pop
 
 /** @} */

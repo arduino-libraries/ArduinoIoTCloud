@@ -28,6 +28,9 @@
 #  define _(msg)    msg
 #endif
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpedantic"
+
 /**
  * \enum CborError
  * \ingroup CborGlobals
@@ -180,3 +183,5 @@ const char *cbor_error_string(CborError error)
     }
     return cbor_error_string(CborUnknownError);
 }
+
+#pragma GCC diagnostic pop
