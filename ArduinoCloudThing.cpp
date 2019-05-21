@@ -123,7 +123,7 @@ void ArduinoCloudThing::decode(uint8_t const * const payload, size_t const lengt
   _currentPropertyName = "";
 
   MapParserState current_state = MapParserState::EnterMap,
-                 next_state;
+                 next_state = MapParserState::Error;
 
   while (current_state != MapParserState::Complete) {
 
