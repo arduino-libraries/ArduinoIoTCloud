@@ -2,6 +2,7 @@ language: generic
 env:
   global:
     - CLI_VERSION=latest
+    - EXTRA_COMPILER_WARNING_FLAGS="-Wpedantic -Werror"
 matrix:
   include:
     - env:
@@ -60,8 +61,8 @@ before_install:
   - arduino-cli lib install WiFi101
   - arduino-cli lib install WiFiNINA
   - arduino-cli lib install Ethernet
-  - buildExampleSketch() { arduino-cli compile --warnings all --fqbn $BOARD $PWD/examples/$1; }
-  - buildExampleUtilitySketch() { arduino-cli compile --warnings all --fqbn $BOARD $PWD/examples/utility/$1; }
+  - buildExampleSketch() { arduino-cli compile --warnings all --build-properties compiler.c.extra_flags="${EXTRA_COMPILER_WARNING_FLAGS}" --build-properties compiler.cpp.extra_flags="${EXTRA_COMPILER_WARNING_FLAGS}" --build-properties compiler.S.extra_flags="${EXTRA_COMPILER_WARNING_FLAGS}" --fqbn $BOARD $PWD/examples/$1; }
+  - buildExampleUtilitySketch() { arduino-cli compile --warnings all --build-properties compiler.c.extra_flags="${EXTRA_COMPILER_WARNING_FLAGS}" --build-properties compiler.cpp.extra_flags="${EXTRA_COMPILER_WARNING_FLAGS}" --build-properties compiler.S.extra_flags="${EXTRA_COMPILER_WARNING_FLAGS}" --fqbn $BOARD $PWD/examples/utility/$1; }
 install:
   - mkdir -p $HOME/Arduino/libraries
   - ln -s $PWD $HOME/Arduino/libraries/.
