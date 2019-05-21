@@ -4,22 +4,22 @@
 
 #ifndef SECRET_PIN
   #define SECRET_PIN ""
-  #warning "You need to define SECRET_PIN in tab/arduino_secrets.h"
+  #pragma message "You need to define SECRET_PIN in tab/arduino_secrets.h"
 #endif
 
 #ifndef SECRET_APN
   #define SECRET_APN ""
-  #warning "You need to define SECRET_PIN in tab/arduino_secrets.h"
+  #pragma message "You need to define SECRET_PIN in tab/arduino_secrets.h"
 #endif
 
 #ifndef SECRET_USER_NAME
   #define SECRET_USER_NAME ""
-  #warning "You need to define SECRET_USER_NAME in tab/arduino_secrets.h"
+  #pragma message "You need to define SECRET_USER_NAME in tab/arduino_secrets.h"
 #endif
 
 #ifndef SECRET_PASSWORD
   #define SECRET_PASSWORD ""
-  #warning "You need to define SECRET_PASSWORD in tab/arduino_secrets.h"
+  #pragma message "You need to define SECRET_PASSWORD in tab/arduino_secrets.h"
 #endif
 
 String cloudSerialBuffer = ""; // the string used to compose network messages from the received characters
@@ -76,7 +76,7 @@ void handleString() {
 void sendString(String stringToSend) {
   // send the characters one at a time
   char lastSentChar = 0;
-  for (int i = 0; i < stringToSend.length(); i++) {
+  for (unsigned int i = 0; i < stringToSend.length(); i++) {
     lastSentChar = stringToSend.charAt(i);
     CloudSerial.write(lastSentChar);
   }

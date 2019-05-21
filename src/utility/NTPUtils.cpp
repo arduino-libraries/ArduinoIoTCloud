@@ -10,7 +10,16 @@
 static time_t cvt_TIME(char const *time) {
   char s_month[5];
   int month, day, year;
-  struct tm t = {0};
+  struct tm t = {0 /* tm_sec   */,
+           0 /* tm_min   */,
+           0 /* tm_hour  */,
+           0 /* tm_mday  */,
+           0 /* tm_mon   */,
+           0 /* tm_year  */,
+           0 /* tm_wday  */,
+           0 /* tm_yday  */,
+           0 /* tm_isdst */
+  };
   static const char month_names[] = "JanFebMarAprMayJunJulAugSepOctNovDec";
 
   sscanf(time, "%s %d %d", s_month, &day, &year);
@@ -29,7 +38,7 @@ static time_t cvt_TIME(char const *time) {
 NTPUtils::NTPUtils(UDP& Udp) : Udp(Udp) {}
 
 bool NTPUtils::isTimeValid(unsigned long time) {
-  return (time > cvt_TIME(__DATE__));
+  return (time > static_cast<unsigned long>(cvt_TIME(__DATE__)));
 }
 
 void NTPUtils::sendNTPpacket(uint8_t* packetBuffer) {

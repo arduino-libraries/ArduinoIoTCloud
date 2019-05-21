@@ -128,11 +128,19 @@ void EthConnectionManager::check() {
           debugMessage(DebugLevel::Info, "Connected");
         }
         break;
+      case NetworkConnectionState::DISCONNECTING: {
+          /* Do nothing */
+        }
+        break;
       case NetworkConnectionState::DISCONNECTED: {
           debugMessage(DebugLevel::Error, "Connection lost.");
           debugMessage(DebugLevel::Info, "Attempting reconnection");
           changeConnectionState(NetworkConnectionState::CONNECTING);
           //wifiClient.stop();
+        }
+        break;
+      case NetworkConnectionState::ERROR: {
+          /* Do nothing */
         }
         break;
     }
@@ -146,15 +154,15 @@ void EthConnectionManager::check() {
 
 void EthConnectionManager::changeConnectionState(NetworkConnectionState _newState) {
   netConnectionState = _newState;
-  int newInterval = CHECK_INTERVAL_IDLE;
   switch (_newState) {
-    case NetworkConnectionState::INIT:         newInterval = CHECK_INTERVAL_INIT;         break;
-    case NetworkConnectionState::CONNECTING:   newInterval = CHECK_INTERVAL_CONNECTING;   break;
-    case NetworkConnectionState::GETTIME:      newInterval = CHECK_INTERVAL_GETTIME;      break;
-    case NetworkConnectionState::CONNECTED:    newInterval = CHECK_INTERVAL_CONNECTED;    break;
-    case NetworkConnectionState::DISCONNECTED: newInterval = CHECK_INTERVAL_DISCONNECTED; break;
+    case NetworkConnectionState::INIT:          connectionTickTimeInterval = CHECK_INTERVAL_INIT;          break;
+    case NetworkConnectionState::CONNECTING:    connectionTickTimeInterval = CHECK_INTERVAL_CONNECTING;    break;
+    case NetworkConnectionState::GETTIME:       connectionTickTimeInterval = CHECK_INTERVAL_GETTIME;       break;
+    case NetworkConnectionState::CONNECTED:     connectionTickTimeInterval = CHECK_INTERVAL_CONNECTED;     break;
+    case NetworkConnectionState::DISCONNECTED:  connectionTickTimeInterval = CHECK_INTERVAL_DISCONNECTED;  break;
+    case NetworkConnectionState::ERROR:         connectionTickTimeInterval = CHECK_INTERVAL_ERROR;         break;
+    default:                                    connectionTickTimeInterval = CHECK_INTERVAL_IDLE;          break;
   }
-  connectionTickTimeInterval = newInterval;
   lastConnectionTickTime = millis();
 }
 

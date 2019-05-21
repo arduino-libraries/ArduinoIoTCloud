@@ -60,13 +60,13 @@ void setDebugOutputStream(Stream * stream) {
   debug_output_stream = stream;
 }
 
-void debugMessage(DebugLevel const debug_level, char * fmt, ...) {
+void debugMessage(DebugLevel const debug_level, const char * fmt, ...) {
   if (debug_level >= DebugLevel::Error   &&
       debug_level <= DebugLevel::Verbose &&
       debug_level <= current_debug_level) {
 
     char timestamp[20];
-    snprintf(timestamp, 20, "[ %d ] ", millis());
+    snprintf(timestamp, 20, "[ %lu ] ", millis());
     debug_output_stream->print(timestamp);
 
     va_list args;
@@ -76,7 +76,7 @@ void debugMessage(DebugLevel const debug_level, char * fmt, ...) {
   }
 }
 
-void debugMessageNoTimestamp(DebugLevel const debug_level, char * fmt, ...) {
+void debugMessageNoTimestamp(DebugLevel const debug_level, const char * fmt, ...) {
   if (debug_level >= DebugLevel::Error   &&
       debug_level <= DebugLevel::Verbose &&
       debug_level <= current_debug_level) {

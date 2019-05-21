@@ -66,7 +66,7 @@ void WiFiConnectionManager::check() {
             return;
           }
           debugMessage(DebugLevel::Error, "Current WiFi Firmware: %s", WiFi.firmwareVersion());
-          if (WiFi.firmwareVersion() < WIFI_FIRMWARE_VERSION_REQUIRED) {
+          if (strcmp(WiFi.firmwareVersion(), WIFI_FIRMWARE_VERSION_REQUIRED) < 0) {
             debugMessage(DebugLevel::Error, "Latest WiFi Firmware: %s", WIFI_FIRMWARE_VERSION_REQUIRED);
             debugMessage(DebugLevel::Error, "Please update to the latest version for best performance.");
             delay(5000);
@@ -100,9 +100,21 @@ void WiFiConnectionManager::check() {
           debugMessage(DebugLevel::Verbose, "Connected to \"%s\"", ssid);
         }
         break;
+      case NetworkConnectionState::GETTIME: {
+          /* Do nothing */
+        }
+        break;
+      case NetworkConnectionState::DISCONNECTING: {
+          /* Do nothing */
+        }
+        break;
       case NetworkConnectionState::DISCONNECTED: {
           WiFi.end();
           changeConnectionState(NetworkConnectionState::CONNECTING);
+        }
+        break;
+      case NetworkConnectionState::ERROR: {
+          /* Do nothing */
         }
         break;
     }
@@ -115,26 +127,36 @@ void WiFiConnectionManager::check() {
  ******************************************************************************/
 
 void WiFiConnectionManager::changeConnectionState(NetworkConnectionState _newState) {
-  int newInterval = CHECK_INTERVAL_INIT;
+  connectionTickTimeInterval = CHECK_INTERVAL_INIT;
+  netConnectionState = _newState;
+
   switch (_newState) {
     case NetworkConnectionState::INIT: {
-        newInterval = CHECK_INTERVAL_INIT;
+        connectionTickTimeInterval = CHECK_INTERVAL_INIT;
       }
       break;
     case NetworkConnectionState::CONNECTING: {
         debugMessage(DebugLevel::Info, "Connecting to \"%s\"", ssid);
-        newInterval = CHECK_INTERVAL_CONNECTING;
+        connectionTickTimeInterval = CHECK_INTERVAL_CONNECTING;
       }
       break;
     case NetworkConnectionState::CONNECTED: {
-        newInterval = CHECK_INTERVAL_CONNECTED;
+        connectionTickTimeInterval = CHECK_INTERVAL_CONNECTED;
+      }
+      break;
+    case NetworkConnectionState::GETTIME: {
+        /* Do nothing */
+      }
+      break;
+    case NetworkConnectionState::DISCONNECTING: {
+        /* Do nothing */
       }
       break;
     case NetworkConnectionState::DISCONNECTED: {
         debugMessage(DebugLevel::Verbose, "WiFi.status(): %d", WiFi.status());
         debugMessage(DebugLevel::Error, "Connection to \"%s\" lost.", ssid);
         debugMessage(DebugLevel::Error, "Attempting reconnection");
-        newInterval = CHECK_INTERVAL_DISCONNECTED;
+        connectionTickTimeInterval = CHECK_INTERVAL_DISCONNECTED;
       }
       break;
     case NetworkConnectionState::ERROR: {
@@ -143,9 +165,8 @@ void WiFiConnectionManager::changeConnectionState(NetworkConnectionState _newSta
       }
       break;
   }
-  connectionTickTimeInterval = newInterval;
+
   lastConnectionTickTime = millis();
-  netConnectionState = _newState;
 }
 
 #endif /* #ifdef BOARD_HAS_WIFI */

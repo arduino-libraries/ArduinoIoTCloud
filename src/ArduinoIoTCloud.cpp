@@ -52,10 +52,11 @@ static unsigned long getTime() {
 }
 
 ArduinoIoTCloudClass::ArduinoIoTCloudClass() :
+  _connection(NULL),
   _thing_id(""),
   _bearSslClient(NULL),
   _mqttClient(NULL),
-  connection(NULL),
+  _lastSyncRequestTickTime(0),
   _stdinTopic(""),
   _stdoutTopic(""),
   _shadowTopicOut(""),
@@ -63,7 +64,6 @@ ArduinoIoTCloudClass::ArduinoIoTCloudClass() :
   _dataTopicOut(""),
   _dataTopicIn(""),
   _otaTopic(""),
-  _lastSyncRequestTickTime(0),
   _on_sync_event_callback(NULL),
   _on_connect_event_callback(NULL),
   _on_disconnect_event_callback(NULL) {
@@ -83,7 +83,7 @@ ArduinoIoTCloudClass::~ArduinoIoTCloudClass() {
 }
 
 int ArduinoIoTCloudClass::begin(ConnectionManager *c, String brokerAddress, uint16_t brokerPort) {
-  connection = c;
+  _connection = c;
   Client &connectionClient = c->getClient();
   _brokerAddress = brokerAddress;
   _brokerPort = brokerPort;
@@ -131,8 +131,8 @@ int ArduinoIoTCloudClass::begin(Client& net, String brokerAddress, uint16_t brok
   if (_bearSslClient) {
     delete _bearSslClient;
   }
-  if (connection != NULL) {
-    _bearSslClient = new BearSSLClient(connection->getClient());
+  if (_connection != NULL) {
+    _bearSslClient = new BearSSLClient(_connection->getClient());
   } else {
     _bearSslClient = new BearSSLClient(*_net);
   }
@@ -141,8 +141,8 @@ int ArduinoIoTCloudClass::begin(Client& net, String brokerAddress, uint16_t brok
   _mqttClient = new MqttClient(*_bearSslClient);
 
   // Bind ArduinoBearSSL callback using static "non-method" function
-  if (connection != NULL) {
-    getTimeConnection = connection;
+  if (_connection != NULL) {
+    getTimeConnection = _connection;
     ArduinoBearSSL.onGetTime(getTime);
   }
 
@@ -211,12 +211,7 @@ bool ArduinoIoTCloudClass::disconnect() {
   return true;
 }
 
-void ArduinoIoTCloudClass::update(CallbackFunc onSyncCompleteCallback) {
-  // If user call update() without parameters use the default ones
-  update(MAX_RETRIES, RECONNECTION_TIMEOUT, onSyncCompleteCallback);
-}
-
-void ArduinoIoTCloudClass::update(int const reconnectionMaxRetries, int const reconnectionTimeoutMs, CallbackFunc onSyncCompleteCallback) {
+void ArduinoIoTCloudClass::update(int const /* reconnectionMaxRetries */, int const /* reconnectionTimeoutMs */, CallbackFunc onSyncCompleteCallback) {
   // Check if a primitive property wrapper is locally changed
   Thing.updateTimestampOnLocallyChangedProperties();
 
@@ -328,7 +323,6 @@ void ArduinoIoTCloudClass::handleMessage(int length) {
   String topic = _mqttClient->messageTopic();
 
   byte bytes[length];
-  int index = 0;
 
   for (int i = 0; i < length; i++) {
     bytes[i] = _mqttClient->read();
@@ -356,10 +350,10 @@ void ArduinoIoTCloudClass::requestLastValue() {
 }
 
 void ArduinoIoTCloudClass::connectionCheck() {
-  if (connection != NULL) {
-    connection->check();
+  if (_connection != NULL) {
+    _connection->check();
 
-    if (connection->getStatus() != NetworkConnectionState::CONNECTED) {
+    if (_connection->getStatus() != NetworkConnectionState::CONNECTED) {
       if (iotStatus == ArduinoIoTConnectionStatus::CONNECTED) {
         setIoTConnectionState(ArduinoIoTConnectionStatus::DISCONNECTED);
       }
@@ -418,6 +412,7 @@ void ArduinoIoTCloudClass::connectionCheck() {
 
 void ArduinoIoTCloudClass::setIoTConnectionState(ArduinoIoTConnectionStatus _newState) {
   switch (_newState) {
+    case ArduinoIoTConnectionStatus::IDLE:                                                                                  break;
     case ArduinoIoTConnectionStatus::ERROR:        debugMessage(DebugLevel::Error, "Arduino, we have a problem.");          break;
     case ArduinoIoTConnectionStatus::CONNECTING:   debugMessage(DebugLevel::Error, "Connecting to Arduino IoT Cloud...");   break;
     case ArduinoIoTConnectionStatus::RECONNECTING: debugMessage(DebugLevel::Error, "Reconnecting to Arduino IoT Cloud..."); break;
