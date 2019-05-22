@@ -131,7 +131,7 @@ void GSMConnectionManager::check() {
    PRIVATE MEMBER FUNCTIONS
  ******************************************************************************/
 
-void GSMConnectionManager::changeConnectionState(NetworkConnectionState newState) {
+void GSMConnectionManager::changeConnectionState(NetworkConnectionState const newState) {
   netConnectionState = newState;
 
   switch (netConnectionState) {

@@ -152,7 +152,7 @@ void EthConnectionManager::check() {
    PRIVATE MEMBER FUNCTIONS
  ******************************************************************************/
 
-void EthConnectionManager::changeConnectionState(NetworkConnectionState newState) {
+void EthConnectionManager::changeConnectionState(NetworkConnectionState const newState) {
   netConnectionState = newState;
   switch (netConnectionState) {
     case NetworkConnectionState::INIT:          connectionTickTimeInterval = CHECK_INTERVAL_INIT;          break;

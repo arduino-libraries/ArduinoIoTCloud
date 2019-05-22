@@ -126,7 +126,7 @@ void WiFiConnectionManager::check() {
    PRIVATE MEMBER FUNCTIONS
  ******************************************************************************/
 
-void WiFiConnectionManager::changeConnectionState(NetworkConnectionState newState) {
+void WiFiConnectionManager::changeConnectionState(NetworkConnectionState const newState) {
   connectionTickTimeInterval = CHECK_INTERVAL_INIT;
   netConnectionState = newState;
 

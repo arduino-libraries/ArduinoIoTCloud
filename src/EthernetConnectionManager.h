@@ -49,7 +49,7 @@ class EthConnectionManager : public ConnectionManager {
 
   private:
 
-    void changeConnectionState(NetworkConnectionState newState);
+    void changeConnectionState(NetworkConnectionState const newState);
 
     const unsigned long CHECK_INTERVAL_IDLE = 100;
     const unsigned long CHECK_INTERVAL_INIT = 100;
