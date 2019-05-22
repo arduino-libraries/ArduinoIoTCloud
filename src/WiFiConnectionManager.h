@@ -50,7 +50,7 @@ class WiFiConnectionManager : public ConnectionManager {
 
   private:
 
-    void changeConnectionState(NetworkConnectionState _newState);
+    void changeConnectionState(NetworkConnectionState newState);
 
     const unsigned long CHECK_INTERVAL_IDLE = 100;
     const unsigned long CHECK_INTERVAL_INIT = 100;

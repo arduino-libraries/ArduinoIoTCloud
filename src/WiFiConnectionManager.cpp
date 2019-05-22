@@ -126,11 +126,11 @@ void WiFiConnectionManager::check() {
    PRIVATE MEMBER FUNCTIONS
  ******************************************************************************/
 
-void WiFiConnectionManager::changeConnectionState(NetworkConnectionState _newState) {
+void WiFiConnectionManager::changeConnectionState(NetworkConnectionState newState) {
   connectionTickTimeInterval = CHECK_INTERVAL_INIT;
-  netConnectionState = _newState;
+  netConnectionState = newState;
 
-  switch (_newState) {
+  switch (netConnectionState) {
     case NetworkConnectionState::INIT: {
         connectionTickTimeInterval = CHECK_INTERVAL_INIT;
       }

@@ -131,10 +131,10 @@ void GSMConnectionManager::check() {
    PRIVATE MEMBER FUNCTIONS
  ******************************************************************************/
 
-void GSMConnectionManager::changeConnectionState(NetworkConnectionState _newState) {
-  netConnectionState = _newState;
+void GSMConnectionManager::changeConnectionState(NetworkConnectionState newState) {
+  netConnectionState = newState;
 
-  switch (_newState) {
+  switch (netConnectionState) {
     case NetworkConnectionState::INIT: {
         connectionTickTimeInterval = CHECK_INTERVAL_INIT;
       }

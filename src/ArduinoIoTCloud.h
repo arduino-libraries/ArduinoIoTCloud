@@ -194,7 +194,7 @@ class ArduinoIoTCloudClass {
     ArduinoIoTConnectionStatus getIoTStatus() {
       return iotStatus;
     }
-    void setIoTConnectionState(ArduinoIoTConnectionStatus _newState);
+    void setIoTConnectionState(ArduinoIoTConnectionStatus newState);
   private:
     ArduinoIoTConnectionStatus iotStatus = ArduinoIoTConnectionStatus::IDLE;
     ConnectionManager * _connection;
