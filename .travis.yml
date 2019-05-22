@@ -52,15 +52,28 @@ before_install:
   - if [[ "$BOARD" =~ "arduino:samd:" ]]; then
       arduino-cli core install arduino:samd;
     fi
-  - arduino-cli lib install ArduinoCloudThing
-  - arduino-cli lib install ArduinoECCX08
-  - arduino-cli lib install ArduinoIoTCloudBearSSL
-  - arduino-cli lib install ArduinoMqttClient
-  - arduino-cli lib install MKRGSM
-  - arduino-cli lib install RTCZero
-  - arduino-cli lib install WiFi101
-  - arduino-cli lib install WiFiNINA
-  - arduino-cli lib install Ethernet
+  - |
+    installLibrary() {
+      local -r repositoryFullName="$1"
+      local -r repositoryName="${repositoryFullName##*/}"
+      # clone repository to the libraries folder of the sketchbook
+      git clone https://github.com/${repositoryFullName} "${HOME}/Arduino/libraries/${repositoryName}"
+      cd "${HOME}/Arduino/libraries/${repositoryName}"
+      # get new tags from the remote
+      git fetch --tags
+      # checkout the latest tag
+      git checkout $(git describe --tags `git rev-list --tags --max-count=1`)
+      cd "${TRAVIS_BUILD_DIR}"
+    }
+  - installLibrary arduino-libraries/ArduinoCloudThing
+  - installLibrary arduino-libraries/ArduinoECCX08
+  - installLibrary arduino-libraries/ArduinoIoTCloudBearSSL
+  - installLibrary arduino-libraries/ArduinoMqttClient
+  - installLibrary arduino-libraries/MKRGSM
+  - installLibrary arduino-libraries/RTCZero
+  - installLibrary arduino-libraries/WiFi101
+  - installLibrary arduino-libraries/WiFiNINA
+  - installLibrary arduino-libraries/Ethernet
   - buildExampleSketch() { arduino-cli compile --warnings all --build-properties compiler.c.extra_flags="${EXTRA_COMPILER_WARNING_FLAGS}" --build-properties compiler.cpp.extra_flags="${EXTRA_COMPILER_WARNING_FLAGS}" --build-properties compiler.S.extra_flags="${EXTRA_COMPILER_WARNING_FLAGS}" --fqbn $BOARD $PWD/examples/$1; }
   - buildExampleUtilitySketch() { arduino-cli compile --warnings all --build-properties compiler.c.extra_flags="${EXTRA_COMPILER_WARNING_FLAGS}" --build-properties compiler.cpp.extra_flags="${EXTRA_COMPILER_WARNING_FLAGS}" --build-properties compiler.S.extra_flags="${EXTRA_COMPILER_WARNING_FLAGS}" --fqbn $BOARD $PWD/examples/utility/$1; }
 install:
