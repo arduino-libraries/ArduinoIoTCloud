@@ -25,9 +25,9 @@ void initProperties() {
 }
 
 #if defined(BOARD_HAS_WIFI)
-  ConnectionManager * ArduinoIoTPreferredConnection = new WiFiConnectionManager(WIFI_SECRET_SSID, WIFI_SECRET_PASS);
+  ConnectionManager * ArduinoIoTPreferredConnection = new WiFiConnectionManager(SECRET_SSID, SECRET_PASS);
 #elif defined(BOARD_HAS_GSM)
-  ConnectionManager * ArduinoIoTPreferredConnection = new GSMConnectionManager(GSM_SECRET_PIN, GSM_SECRET_APN, GSM_SECRET_LOGIN, GSM_SECRET_PASS);
+  ConnectionManager * ArduinoIoTPreferredConnection = new GSMConnectionManager(SECRET_PIN, SECRET_APN, SECRET_LOGIN, SECRET_PASS);
 #endif
 
 

@@ -1,9 +1,15 @@
+#include <ConnectionManager.h>
+
 /* (MKR1000, MKR WiFi 1010) */
-#define WIFI_SECRET_SSID "YOUR_WIFI_NETWORK_NAME"
-#define WIFI_SECRET_PASS "YOUR_WIFI_PASSWORD"
+#if defined(BOARD_HAS_WIFI)
+  #define SECRET_SSID "YOUR_WIFI_NETWORK_NAME"
+  #define SECRET_PASS "YOUR_WIFI_PASSWORD"
+#endif
 
 /* MKR GSM 1400 comment the lines above and uncommet the following. */
-#define GSM_SECRET_PIN ""
-#define GSM_SECRET_APN ""
-#define GSM_SECRET_LOGIN ""
-#define GSM_SECRET_PASS ""
+#if defined(BOARD_HAS_GSM)
+  #define SECRET_PIN ""
+  #define SECRET_APN ""
+  #define SECRET_LOGIN ""
+  #define SECRET_PASS ""
+#endif
