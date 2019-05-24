@@ -91,8 +91,9 @@ class ArduinoIoTCloudClass {
     inline void update() {
       update(NULL);
     }
-    void update(CallbackFunc onSyncCompleteCallback) __attribute__((deprecated)); /* Attention: Function is deprecated - use 'addCallback(ArduinoIoTCloudConnectionEvent::SYNC, &onSync)' for adding a onSyncCallback instead */
-
+    inline void update(CallbackFunc onSyncCompleteCallback) __attribute__((deprecated)) { /* Attention: Function is deprecated - use 'addCallback(ArduinoIoTCloudConnectionEvent::SYNC, &onSync)' for adding a onSyncCallback instead */
+      update(MAX_RETRIES, RECONNECTION_TIMEOUT, onSyncCompleteCallback);
+    }
     // defined for users who want to specify max reconnections reties and timeout between them
     inline void update(int const reconnectionMaxRetries, int const reconnectionTimeoutMs) {
       update(reconnectionMaxRetries, reconnectionTimeoutMs, NULL);
@@ -193,10 +194,10 @@ class ArduinoIoTCloudClass {
     ArduinoIoTConnectionStatus getIoTStatus() {
       return iotStatus;
     }
-    void setIoTConnectionState(ArduinoIoTConnectionStatus _newState);
+    void setIoTConnectionState(ArduinoIoTConnectionStatus newState);
   private:
     ArduinoIoTConnectionStatus iotStatus = ArduinoIoTConnectionStatus::IDLE;
-    ConnectionManager *connection;
+    ConnectionManager * _connection;
     static void onMessage(int length);
     void handleMessage(int length);
     ArduinoIoTSynchronizationStatus _syncStatus = ArduinoIoTSynchronizationStatus::SYNC_STATUS_SYNCHRONIZED;
