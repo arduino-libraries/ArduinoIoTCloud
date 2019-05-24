@@ -211,7 +211,7 @@ bool ArduinoIoTCloudClass::disconnect() {
   return true;
 }
 
-void ArduinoIoTCloudClass::update(int const /* reconnectionMaxRetries */, int const /* reconnectionTimeoutMs */, CallbackFunc onSyncCompleteCallback) {
+void ArduinoIoTCloudClass::update(CallbackFunc onSyncCompleteCallback) {
   // Check if a primitive property wrapper is locally changed
   Thing.updateTimestampOnLocallyChangedProperties();
 
