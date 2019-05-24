@@ -79,8 +79,6 @@ class ArduinoIoTCloudClass {
     int begin(Client& net, String brokerAddress = DEFAULT_BROKER_ADDRESS, uint16_t brokerPort = DEFAULT_BROKER_PORT);
     // Class constant declaration
     static const int MQTT_TRANSMIT_BUFFER_SIZE = 256;
-    static const int MAX_RETRIES = 5;
-    static const int RECONNECTION_TIMEOUT = 2000;
     static const int TIMEOUT_FOR_LASTVALUES_SYNC = 10000;
 
     void onGetTime(unsigned long(*callback)(void));
@@ -91,14 +89,10 @@ class ArduinoIoTCloudClass {
     inline void update() {
       update(NULL);
     }
-    inline void update(CallbackFunc onSyncCompleteCallback) __attribute__((deprecated)) { /* Attention: Function is deprecated - use 'addCallback(ArduinoIoTCloudConnectionEvent::SYNC, &onSync)' for adding a onSyncCallback instead */
-      update(MAX_RETRIES, RECONNECTION_TIMEOUT, onSyncCompleteCallback);
+    inline void update(int const reconnectionMaxRetries, int const reconnectionTimeoutMs) __attribute__((deprecated)) {
+      update(NULL);
     }
-    // defined for users who want to specify max reconnections reties and timeout between them
-    inline void update(int const reconnectionMaxRetries, int const reconnectionTimeoutMs) {
-      update(reconnectionMaxRetries, reconnectionTimeoutMs, NULL);
-    }
-    void update(int const reconnectionMaxRetries, int const reconnectionTimeoutMs, CallbackFunc onSyncCompleteCallback) __attribute__((deprecated)); /* Attention: Function is deprecated - use 'addCallback(ArduinoIoTCloudConnectionEvent::SYNC, &onSync)' for adding a onSyncCallback instead */
+    void update(CallbackFunc onSyncCompleteCallback) __attribute__((deprecated)); /* Attention: Function is deprecated - use 'addCallback(ArduinoIoTCloudConnectionEvent::SYNC, &onSync)' for adding a onSyncCallback instead */
 
     int connected();
     // Clean up existing Mqtt connection, create a new one and initialize it
