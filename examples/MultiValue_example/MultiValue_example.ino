@@ -12,6 +12,10 @@
   Properties which are marked as READ/WRITE in the Cloud Thing will also have functions
   which are called when their values are changed from the Dashboard.
   These functions are generated with the Thing and added at the end of this sketch.
+
+  This sketch is compatible with:
+    - MKR 1000
+    - MKR WIFI 1010
 */
 
 #include "thingProperties.h"
