@@ -429,7 +429,11 @@ ArduinoCloudThing::MapParserState ArduinoCloudThing::handle_LeaveMap(CborValue *
     if (!cbor_value_at_end(map_iter)) {
       next_state = MapParserState::EnterMap;
     } else {
+      /* Update the property containers depending on the parsed data */
       updateProperty(_currentPropertyName, _currentPropertyBaseTime + _currentPropertyTime);
+      /* Reset last property data */
+      freeMapDataList(&_map_data_list);
+      _map_data_list.clear();
       next_state = MapParserState::Complete;
     }
   }
