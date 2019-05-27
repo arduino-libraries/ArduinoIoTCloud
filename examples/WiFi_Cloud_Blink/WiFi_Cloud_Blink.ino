@@ -1,3 +1,12 @@
+/* This sketch is used during the getting started tutorial when
+   initialising a Arduino cloud-enabled board with the Arduino
+   cloud for the first time.
+
+   This sketch is compatible with:
+     - MKR 1000
+     - MKR WIFI 1010
+*/
+
 #include <ArduinoIoTCloud.h>
 #include <ConnectionManager.h>
 #include <WiFiConnectionManager.h>

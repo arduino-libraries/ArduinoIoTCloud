@@ -1,3 +1,11 @@
+/* This sketch is used during the getting started tutorial when
+   initialising a Arduino cloud-enabled board with the Arduino
+   cloud for the first time.
+
+   This sketch is compatible with:
+     - MKR GSM 1400
+*/
+
 #include <ArduinoIoTCloud.h>
 #include <ConnectionManager.h>
 #include <GSMConnectionManager.h>
