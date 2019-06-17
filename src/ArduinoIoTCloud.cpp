@@ -15,12 +15,20 @@
    a commercial license, send an email to license@arduino.cc.
 */
 
+<<<<<<< HEAD
 #include <ArduinoIoTCloud.h>
 
 #ifdef BOARD_HAS_ECCX08
   #include "utility/ECCX08Cert.h"
   #include <ArduinoECCX08.h>
 #endif
+=======
+#include <ArduinoECCX08.h>
+#include "utility/ECCX08Cert.h"
+#include "CloudSerial.h"
+#include "ArduinoIoTCloud.h"
+#include <Arduino_DebugUtils.h>
+>>>>>>> Remove connection handling and debug messages because those tasks are now handled by 'Arduino_ConnectionHandler' and 'Arduino_DebugUtils'
 
 #ifdef ARDUINO_ARCH_SAMD
   #include <RTCZero.h>
