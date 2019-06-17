@@ -1,5 +1,5 @@
 #include <ArduinoIoTCloud.h>
-#include <WiFiConnectionManager.h>
+#include <Arduino_ConnectionHandler.h>
 
 // Set the Thing Id value
 const char THING_ID[] = "";
@@ -21,4 +21,4 @@ void initProperties() {
   ArduinoCloud.addProperty(color, READWRITE, ON_CHANGE, onColorChange);
 }
 
-ConnectionManager *ArduinoIoTPreferredConnection = new WiFiConnectionManager(SSID, PASS);
+WiFiConnectionHandler ArduinoIoTPreferredConnection(SSID, PASS);

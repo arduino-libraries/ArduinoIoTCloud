@@ -73,6 +73,8 @@ before_install:
   - installLibrary arduino-libraries/WiFi101
   - installLibrary arduino-libraries/WiFiNINA
   - installLibrary arduino-libraries/Ethernet
+  - installLibrary arduino-libraries/Arduino_ConnectionHandler
+  - installLibrary arduino-libraries/Arduino_DebugUtils
   - buildExampleSketch() { arduino-cli compile --warnings all --fqbn $BOARD $PWD/examples/$1; }
   - buildExampleUtilitySketch() { arduino-cli compile --warnings all --fqbn $BOARD $PWD/examples/utility/$1; }
 install:

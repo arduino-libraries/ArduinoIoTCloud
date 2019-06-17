@@ -8,14 +8,13 @@
 */
 
 #include <ArduinoIoTCloud.h>
-#include <ConnectionManager.h>
-#include <WiFiConnectionManager.h>
+#include <Arduino_ConnectionHandler.h>
 
 #include "arduino_secrets.h"
 
 String cloudSerialBuffer = ""; // the string used to compose network messages from the received characters
 // handles connection to the network
-ConnectionManager * ArduinoIoTPreferredConnection = new WiFiConnectionManager(SECRET_SSID, SECRET_PASS);
+WiFiConnectionHandler ArduinoIoTPreferredConnection(SECRET_WIFI_NAME, SECRET_PASSWORD);
 
 void setup() {
   setDebugMessageLevel(3); // used to set a level of granularity in information output [0...4]

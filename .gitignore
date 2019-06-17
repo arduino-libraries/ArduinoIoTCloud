@@ -2,3 +2,4 @@
 *.elf
 *~
 .vscode
+*.orig

@@ -1,4 +1,4 @@
-#include <ConnectionManager.h>
+#include <Arduino_ConnectionHandler.h>
 
 /* MKR1000, MKR WiFi 1010 */
 #if defined(BOARD_HAS_WIFI)

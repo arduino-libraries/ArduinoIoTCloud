@@ -7,14 +7,13 @@
 */
 
 #include <ArduinoIoTCloud.h>
-#include <ConnectionManager.h>
-#include <GSMConnectionManager.h>
+#include <Arduino_ConnectionHandler.h>
 
 #include "arduino_secrets.h"
 
 String cloudSerialBuffer = ""; // the string used to compose network messages from the received characters
 // handles connection to the network
-ConnectionManager * ArduinoIoTPreferredConnection = new GSMConnectionManager(SECRET_PIN, SECRET_APN, SECRET_USER_NAME, SECRET_PASSWORD);
+GSMConnectionHandler ArduinoIoTPreferredConnection(SECRET_PIN, SECRET_APN, SECRET_USER_NAME, SECRET_PASSWORD);
 
 void setup() {
   setDebugMessageLevel(3); // used to set a level of granularity in information output [0...4]

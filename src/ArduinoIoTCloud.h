@@ -21,12 +21,13 @@
 #include <ArduinoMqttClient.h>
 #include <ArduinoIoTCloudBearSSL.h>
 #include <ArduinoCloudThing.h>
-#include "ConnectionManager.h"
+#include <Arduino_DebugUtils.h>
+#include <Arduino_ConnectionHandler.h>
 #include "types/CloudWrapperBool.h"
 #include "types/CloudWrapperFloat.h"
 #include "types/CloudWrapperInt.h"
 #include "types/CloudWrapperString.h"
-
+#include "utility/NTPUtils.h"
 
 #include "CloudSerial.h"
 
@@ -45,7 +46,7 @@ typedef struct {
   int timeout;
 } mqttConnectionOptions;
 
-extern ConnectionManager *ArduinoIoTPreferredConnection;
+//extern ConnectionHandler *ArduinoIoTPreferredConnection;
 
 enum class ArduinoIoTConnectionStatus {
   IDLE,
@@ -75,7 +76,7 @@ class ArduinoIoTCloudClass {
     ArduinoIoTCloudClass();
     ~ArduinoIoTCloudClass();
 
-    int begin(ConnectionManager *connection = ArduinoIoTPreferredConnection, String brokerAddress = DEFAULT_BROKER_ADDRESS, uint16_t brokerPort = DEFAULT_BROKER_PORT);
+    int begin(ConnectionHandler& connection, String brokerAddress = DEFAULT_BROKER_ADDRESS, uint16_t brokerPort = DEFAULT_BROKER_PORT);
     int begin(Client& net, String brokerAddress = DEFAULT_BROKER_ADDRESS, uint16_t brokerPort = DEFAULT_BROKER_PORT);
     // Class constant declaration
     static const int MQTT_TRANSMIT_BUFFER_SIZE = 256;
@@ -191,7 +192,7 @@ class ArduinoIoTCloudClass {
     void setIoTConnectionState(ArduinoIoTConnectionStatus newState);
   private:
     ArduinoIoTConnectionStatus iotStatus = ArduinoIoTConnectionStatus::IDLE;
-    ConnectionManager * _connection;
+    ConnectionHandler * _connection;
     static void onMessage(int length);
     void handleMessage(int length);
     ArduinoIoTSynchronizationStatus _syncStatus = ArduinoIoTSynchronizationStatus::SYNC_STATUS_SYNCHRONIZED;
