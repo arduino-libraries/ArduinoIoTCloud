@@ -39,7 +39,6 @@ class CloudDimmeredLight : public CloudColoredLight {
     bool getSwitch() {
       return _value.swi;
     }
-
     virtual void appendAttributesToCloud() {
       appendAttribute(_value.swi);
       appendAttribute(_value.bri);

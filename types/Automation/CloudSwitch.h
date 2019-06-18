@@ -34,6 +34,9 @@
 class CloudSwitch : public CloudBool {
   private:
   public:
+    CloudSwitch& operator=(bool v) {
+      CloudBool::operator=(v);
+    }
 };
 
 

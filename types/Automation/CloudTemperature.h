@@ -34,6 +34,9 @@
 class CloudTemperature : public CloudFloat {
   private:
   public:
+    CloudTemperature& operator=(float v) {
+      CloudFloat::operator=(v);
+    }
 };
 
 

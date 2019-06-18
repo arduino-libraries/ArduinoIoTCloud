@@ -32,7 +32,7 @@
 
 
 class CloudBool : public ArduinoCloudProperty {
-  private:
+  protected:
     bool  _value,
           _cloud_value;
   public:

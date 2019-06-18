@@ -34,7 +34,7 @@
 
 
 class CloudFloat : public ArduinoCloudProperty {
-  private:
+  protected:
     float _value,
           _cloud_value;
   public:

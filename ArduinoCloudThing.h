@@ -32,6 +32,16 @@
 #include "types/CloudColor.h"
 #include "types/CloudWrapperBase.h"
 
+#include "types/automation/CloudColoredLight.h"
+#include "types/automation/CloudContactSensor.h"
+#include "types/automation/CloudDimmeredLight.h"
+#include "types/automation/CloudLight.h"
+#include "types/automation/CloudMotionSensor.h"
+#include "types/automation/CloudSmartPlug.h"
+#include "types/automation/CloudSwitch.h"
+#include "types/automation/CloudTemperature.h"
+
+
 /******************************************************************************
    CONSTANTS
  ******************************************************************************/

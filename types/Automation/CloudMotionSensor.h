@@ -34,6 +34,9 @@
 class CloudMotionSensor : public CloudBool {
   private:
   public:
+    CloudMotionSensor& operator=(bool v) {
+      CloudBool::operator=(v);
+    }
 };
 
 
