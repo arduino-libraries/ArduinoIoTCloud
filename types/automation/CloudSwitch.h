@@ -15,8 +15,8 @@
 // a commercial license, send an email to license@arduino.cc.
 //
 
-#ifndef CLOUDCONTACTSENSOR_H_
-#define CLOUDCONTACTSENSOR_H_
+#ifndef CLOUDSWITCH_H_
+#define CLOUDSWITCH_H_
 
 /******************************************************************************
    INCLUDE
@@ -31,13 +31,14 @@
 
 
 
-class CloudContactSensor : public CloudBool {
+class CloudSwitch : public CloudBool {
   private:
   public:
-    CloudContactSensor& operator=(bool v) {
+    CloudSwitch& operator=(bool v) {
       CloudBool::operator=(v);
+      return *this;
     }
 };
 
 
-#endif /* CLOUDCONTACTSENSOR_H_ */
+#endif /* CLOUDSWITCH_H_ */

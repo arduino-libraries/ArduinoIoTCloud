@@ -15,8 +15,8 @@
 // a commercial license, send an email to license@arduino.cc.
 //
 
-#ifndef CLOUDLIGHT_H_
-#define CLOUDLIGHT_H_
+#ifndef CLOUDSMARTPLUG_H_
+#define CLOUDSMARTPLUG_H_
 
 /******************************************************************************
    INCLUDE
@@ -31,13 +31,14 @@
 
 
 
-class CloudLight : public CloudBool {
+class CloudSmartPlug : public CloudBool {
   private:
   public:
-    CloudLight& operator=(bool v) {
+    CloudSmartPlug& operator=(bool v) {
       CloudBool::operator=(v);
+      return *this;
     }
 };
 
 
-#endif /* CLOUDLIGHT_H_ */
+#endif /* CLOUDSMARTPLUG_H_ */

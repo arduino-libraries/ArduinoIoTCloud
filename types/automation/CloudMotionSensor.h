@@ -15,8 +15,8 @@
 // a commercial license, send an email to license@arduino.cc.
 //
 
-#ifndef CLOUDSMARTPLUG_H_
-#define CLOUDSMARTPLUG_H_
+#ifndef CLOUDMOTIONSENSOR_H_
+#define CLOUDMOTIONSENSOR_H_
 
 /******************************************************************************
    INCLUDE
@@ -31,13 +31,14 @@
 
 
 
-class CloudSmartPlug : public CloudBool {
+class CloudMotionSensor : public CloudBool {
   private:
   public:
-    CloudSmartPlug& operator=(bool v) {
+    CloudMotionSensor& operator=(bool v) {
       CloudBool::operator=(v);
+      return *this;
     }
 };
 
 
-#endif /* CLOUDSMARTPLUG_H_ */
+#endif /* CLOUDMOTIONSENSOR_H_ */

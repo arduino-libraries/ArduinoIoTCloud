@@ -33,7 +33,7 @@
 class ColoredLight : public Color {
   public:
     bool swi;
-    ColoredLight(bool swi, float h, float s, float b): swi(swi), Color(h, s, b) {
+    ColoredLight(bool swi, float h, float s, float b): Color(h, s, b), swi(swi) {
     }
 
     bool operator==(ColoredLight & aLight) {
@@ -49,7 +49,7 @@ class ColoredLight : public Color {
 class CloudColoredLight : public CloudColor {
   protected:
     ColoredLight _value,
-          _cloud_value;
+                 _cloud_value;
   public:
     CloudColoredLight() : _value(false, 0, 0, 0), _cloud_value(false, 0, 0, 0) {}
     CloudColoredLight(bool swi, float hue, float saturation, float brightness) : _value(swi, hue, saturation, brightness), _cloud_value(swi, hue, saturation, brightness) {}
