@@ -41,6 +41,7 @@ static unsigned long getTime() {
     return 0;
   }
   unsigned long time = getTimeConnection->getTime();
+  debugMessage(DebugLevel::Debug, "NTP time: %lu", time);
   if (!NTPUtils::isTimeValid(time)) {
     debugMessage(DebugLevel::Error, "Bogus NTP time from API, fallback to UDP method");
     time = NTPUtils(getTimeConnection->getUDP()).getTime();
