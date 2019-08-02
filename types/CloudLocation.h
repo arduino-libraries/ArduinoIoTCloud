@@ -42,14 +42,17 @@ class Location {
       lon = aLocation.lon;
       return *this;
     }
-    float operator-(Location& aLocation) {
-      return sqrt(pow(lat - aLocation.lat, 2) + pow(lon - aLocation.lon, 2));
+    Location operator-(Location& aLocation) {
+      return Location(lat - aLocation.lat, lon - aLocation.lon);
     }
     bool operator==(Location& aLocation) {
       return lat == aLocation.lat && lon == aLocation.lon;
     }
     bool operator!=(Location& aLocation) {
       return !(operator==(aLocation));
+    }
+    static float distance(Location& loc1, Location& loc2) {
+      return sqrt(pow(loc1.lat - loc2.lat, 2) + pow(loc1.lon - loc2.lon, 2));
     }
 };
 
@@ -61,7 +64,7 @@ class CloudLocation : public ArduinoCloudProperty {
     CloudLocation() : _value(0, 0), _cloud_value(0, 0) {}
     CloudLocation(float lat, float lon) : _value(lat, lon), _cloud_value(lat, lon) {}
     virtual bool isDifferentFromCloud() {
-      float distance = _value - _cloud_value;
+      float const distance = Location::distance(_value, _cloud_value);
       return _value != _cloud_value && (abs(distance) >= ArduinoCloudProperty::_min_delta_property);
     }
 
