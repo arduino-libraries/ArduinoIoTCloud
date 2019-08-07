@@ -47,7 +47,7 @@ class ColoredLight : public Color {
 };
 
 class CloudColoredLight : public CloudColor {
-  protected:
+  private:
     ColoredLight _value,
                  _cloud_value;
   public:
