@@ -15,21 +15,26 @@
    a commercial license, send an email to license@arduino.cc.
 */
 
-#include <ArduinoECCX08.h>
+#include <ArduinoIoTCloud.h>
+
+#ifdef BOARD_HAS_ECCX08
 #include "utility/ECCX08Cert.h"
-#include "CloudSerial.h"
-#include "ArduinoIoTCloud.h"
-#include <Arduino_DebugUtils.h>
+#include <ArduinoECCX08.h>
+#elif defined(BOARD_ESP)
+#include "utility/ca_cert.h"
+#endif
 
 #ifdef ARDUINO_ARCH_SAMD
   #include <RTCZero.h>
   RTCZero rtc;
 #endif
 
+#ifdef BOARD_HAS_ECCX08
 const static int keySlot                                   = 0;
 const static int compressedCertSlot                        = 10;
 const static int serialNumberAndAuthorityKeyIdentifierSlot = 11;
 const static int deviceIdSlot                              = 12;
+#endif
 
 const static int CONNECT_SUCCESS                           =  1;
 const static int CONNECT_FAILURE                           =  0;
@@ -56,7 +61,10 @@ static unsigned long getTime() {
 ArduinoIoTCloudClass::ArduinoIoTCloudClass() :
   _connection(NULL),
   _thing_id(""),
-  _bearSslClient(NULL),
+  _sslClient(NULL),
+#ifdef BOARD_ESP
+  _certificate(MQTTS_UP_ARDUINO_CC_CERTIFICATE),
+#endif
   _mqttClient(NULL),
   _lastSyncRequestTickTime(0),
   _stdinTopic(""),
@@ -68,9 +76,9 @@ ArduinoIoTCloudClass::ArduinoIoTCloudClass() :
   _otaTopic(""),
   _on_sync_event_callback(NULL),
   _on_connect_event_callback(NULL),
-  _on_disconnect_event_callback(NULL) {
-
-}
+  _on_disconnect_event_callback(NULL),
+  _device_id(""),
+  _password("") {}
 
 ArduinoIoTCloudClass::~ArduinoIoTCloudClass() {
   if (_mqttClient) {
@@ -78,21 +86,31 @@ ArduinoIoTCloudClass::~ArduinoIoTCloudClass() {
     _mqttClient = NULL;
   }
 
-  if (_bearSslClient) {
-    delete _bearSslClient;
-    _bearSslClient = NULL;
+  if (_sslClient) {
+    delete _sslClient;
+    _sslClient = NULL;
   }
 }
 
-int ArduinoIoTCloudClass::begin(ConnectionHandler& c, String brokerAddress, uint16_t brokerPort) {
-  _connection = &c;
-  Client &connectionClient = _connection->getClient();
+int ArduinoIoTCloudClass::begin(ConnectionHandler & connection,
+                                String device_id,
+                                String password, 
+                                String brokerAddress,
+                                uint16_t brokerPort) {
+  _connection = &connection;
+  _device_id = device_id;
+  _password = password;
+  return begin(_connection->getClient(), brokerAddress, brokerPort);
+}
+
+int ArduinoIoTCloudClass::begin(ConnectionHandler & connection, String brokerAddress, uint16_t brokerPort) {
+  _connection = &connection;
   _brokerAddress = brokerAddress;
   _brokerPort = brokerPort;
   #ifdef ARDUINO_ARCH_SAMD
   rtc.begin();
   #endif
-  return begin(connectionClient, _brokerAddress, _brokerPort);
+  return begin(_connection->getClient(), _brokerAddress, _brokerPort);
 }
 
 int ArduinoIoTCloudClass::begin(Client& net, String brokerAddress, uint16_t brokerPort) {
@@ -101,8 +119,9 @@ int ArduinoIoTCloudClass::begin(Client& net, String brokerAddress, uint16_t brok
   // store the broker address as class member
   _brokerAddress = brokerAddress;
   _brokerPort = brokerPort;
-  byte deviceIdBytes[72];
 
+#ifdef BOARD_HAS_ECCX08
+  byte deviceIdBytes[72];
   if (!ECCX08.begin()) {
     Debug.print(DBG_ERROR, "Cryptography processor failure. Make sure you have a compatible board.");
     return 0;
@@ -112,7 +131,7 @@ int ArduinoIoTCloudClass::begin(Client& net, String brokerAddress, uint16_t brok
     Debug.print(DBG_ERROR, "Cryptography processor read failure.");
     return 0;
   }
-  _device_id = (char*)deviceIdBytes;
+  _device_id = (char *)deviceIdBytes;
 
   if (!ECCX08Cert.beginReconstruction(keySlot, compressedCertSlot, serialNumberAndAuthorityKeyIdentifierSlot)) {
     Debug.print(DBG_ERROR, "Cryptography certificate reconstruction failure.");
@@ -129,25 +148,43 @@ int ArduinoIoTCloudClass::begin(Client& net, String brokerAddress, uint16_t brok
     Debug.print(DBG_ERROR, "Cryptography certificate reconstruction failure.");
     return 0;
   }
+#endif /* BOARD_HAS_ECCX08 */
 
-  if (_bearSslClient) {
-    delete _bearSslClient;
+  if (_sslClient) {
+    delete _sslClient;
+    _sslClient = NULL;
   }
+
+#ifdef BOARD_HAS_ECCX08
   if (_connection != NULL) {
-    _bearSslClient = new BearSSLClient(_connection->getClient());
+    _sslClient = new BearSSLClient(_connection->getClient());
   } else {
-    _bearSslClient = new BearSSLClient(*_net);
+    _sslClient = new BearSSLClient(*_net);
   }
+#elif defined(BOARD_ESP)
+  _sslClient = new WiFiClientSecure();
+  Debug.print(DBG_VERBOSE, "new WiFiClientSecure()");
+#endif
 
-  _bearSslClient->setEccSlot(keySlot, ECCX08Cert.bytes(), ECCX08Cert.length());
-  _mqttClient = new MqttClient(*_bearSslClient);
+#ifdef BOARD_HAS_ECCX08
+  _sslClient->setEccSlot(keySlot, ECCX08Cert.bytes(), ECCX08Cert.length());
+#elif defined(BOARD_ESP)
+  _sslClient->setTrustAnchors(&_certificate);
+#endif
+
+  _mqttClient = new MqttClient(*_sslClient);
+
+#ifdef BOARD_ESP
+  _mqttClient->setUsernamePassword(_device_id, _password);
+#endif
 
   // Bind ArduinoBearSSL callback using static "non-method" function
   if (_connection != NULL) {
     getTimeConnection = _connection;
+#ifdef BOARD_HAS_ECCX08
     ArduinoBearSSL.onGetTime(getTime);
+#endif
   }
-
 
   // TODO: Find a better way to allow callback into object method
   // Begin function for the MQTTClient
@@ -157,8 +194,10 @@ int ArduinoIoTCloudClass::begin(Client& net, String brokerAddress, uint16_t brok
   return 1;
 }
 
-void ArduinoIoTCloudClass::onGetTime(unsigned long(*callback)(void)) {
+void ArduinoIoTCloudClass::onGetTime(unsigned long (*callback)(void)) {
+#ifdef BOARD_HAS_ECCX08
   ArduinoBearSSL.onGetTime(callback);
+#endif /* BOARD_HAS_ECCX08 */
 }
 
 // private class method used to initialize mqttClient class member. (called in the begin class method)
@@ -184,8 +223,7 @@ void ArduinoIoTCloudClass::mqttClientBegin() {
 }
 
 int ArduinoIoTCloudClass::connect() {
-  // Username: device id
-  // Password: empty
+  
   if (!_mqttClient->connect(_brokerAddress.c_str(), _brokerPort)) {
     return CONNECT_FAILURE;
   }
@@ -419,7 +457,7 @@ void ArduinoIoTCloudClass::connectionCheck() {
 void ArduinoIoTCloudClass::setIoTConnectionState(ArduinoIoTConnectionStatus newState) {
   iotStatus = newState;
   switch (iotStatus) {
-    case ArduinoIoTConnectionStatus::IDLE:                                                                                  break;
+    case ArduinoIoTConnectionStatus::IDLE:                                                                         break;
     case ArduinoIoTConnectionStatus::ERROR:        Debug.print(DBG_ERROR, "Arduino, we have a problem.");          break;
     case ArduinoIoTConnectionStatus::CONNECTING:   Debug.print(DBG_ERROR, "Connecting to Arduino IoT Cloud...");   break;
     case ArduinoIoTConnectionStatus::RECONNECTING: Debug.print(DBG_ERROR, "Reconnecting to Arduino IoT Cloud..."); break;

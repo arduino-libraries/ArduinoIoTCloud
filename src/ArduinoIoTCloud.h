@@ -18,9 +18,16 @@
 #ifndef ARDUINO_IOT_CLOUD_H
 #define ARDUINO_IOT_CLOUD_H
 
-#include <ArduinoMqttClient.h>
-#include <ArduinoIoTCloudBearSSL.h>
+#include <ArduinoIoTCloud_Defines.h>
+
+#ifdef BOARD_HAS_ECCX08
+  #include <ArduinoIoTCloudBearSSL.h>
+#elif defined(BOARD_ESP)
+  #include <WiFiClientSecure.h>
+#endif
+
 #include <ArduinoCloudThing.h>
+#include <ArduinoMqttClient.h>
 #include <Arduino_DebugUtils.h>
 #include <Arduino_ConnectionHandler.h>
 #include "types/CloudWrapperBool.h"
@@ -45,8 +52,6 @@ typedef struct {
   bool cleanSession;
   int timeout;
 } mqttConnectionOptions;
-
-//extern ConnectionHandler *ArduinoIoTPreferredConnection;
 
 enum class ArduinoIoTConnectionStatus {
   IDLE,
@@ -76,8 +81,9 @@ class ArduinoIoTCloudClass {
     ArduinoIoTCloudClass();
     ~ArduinoIoTCloudClass();
 
-    int begin(ConnectionHandler& connection, String brokerAddress = DEFAULT_BROKER_ADDRESS, uint16_t brokerPort = DEFAULT_BROKER_PORT);
-    int begin(Client& net, String brokerAddress = DEFAULT_BROKER_ADDRESS, uint16_t brokerPort = DEFAULT_BROKER_PORT);
+    int begin(ConnectionHandler &connection, String device_id, String password, String brokerAddress = DEFAULT_BROKER_ADDRESS, uint16_t brokerPort = DEFAULT_BROKER_PORT);
+    int begin(ConnectionHandler &connection, String brokerAddress = DEFAULT_BROKER_ADDRESS, uint16_t brokerPort = DEFAULT_BROKER_PORT);
+    int begin(Client &net, String brokerAddress = DEFAULT_BROKER_ADDRESS, uint16_t brokerPort = DEFAULT_BROKER_PORT);
     // Class constant declaration
     static const int MQTT_TRANSMIT_BUFFER_SIZE = 256;
     static const int TIMEOUT_FOR_LASTVALUES_SYNC = 10000;
@@ -190,6 +196,7 @@ class ArduinoIoTCloudClass {
       return iotStatus;
     }
     void setIoTConnectionState(ArduinoIoTConnectionStatus newState);
+
   private:
     ArduinoIoTConnectionStatus iotStatus = ArduinoIoTConnectionStatus::IDLE;
     ConnectionHandler * _connection;
@@ -199,14 +206,19 @@ class ArduinoIoTCloudClass {
 
     void sendPropertiesToCloud();
 
-
-    String _device_id,
-           _thing_id,
-           _brokerAddress;
+    String _device_id, _password, _thing_id, _brokerAddress;
     uint16_t _brokerPort;
+
     ArduinoCloudThing Thing;
-    BearSSLClient* _bearSslClient;
-    MqttClient* _mqttClient;
+
+#ifdef BOARD_HAS_ECCX08
+    BearSSLClient *_sslClient;
+#elif defined(BOARD_ESP)
+    WiFiClientSecure *_sslClient;
+    X509List _certificate;
+#endif
+
+    MqttClient *_mqttClient;
     int _lastSyncRequestTickTime;
 
 
