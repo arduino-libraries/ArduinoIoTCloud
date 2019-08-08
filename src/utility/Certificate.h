@@ -15,8 +15,8 @@
    a commercial license, send an email to license@arduino.cc.
 */
 
-#ifndef CA_CERT_H_
-#define CA_CERT_H_
+#ifndef CERTIFICATE_H_
+#define CERTIFICATE_H_
 
 #include <ArduinoIoTCloud_Defines.h>
 
@@ -59,4 +59,4 @@ static const char MQTTS_UP_ARDUINO_CC_CERTIFICATE[] = \
 
 #endif /* BOARD_HAS_ECCX08 */
 
-#endif /* CA_CERT_H_ */
+#endif /* CERTIFICATE_H_ */

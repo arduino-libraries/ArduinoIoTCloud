@@ -21,7 +21,7 @@
 #include "utility/ECCX08Cert.h"
 #include <ArduinoECCX08.h>
 #elif defined(BOARD_ESP)
-#include "utility/ca_cert.h"
+#include "utility/Certificate.h"
 #endif
 
 #ifdef ARDUINO_ARCH_SAMD
