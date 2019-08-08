@@ -88,8 +88,6 @@ class ArduinoIoTCloudClass {
     static const int MQTT_TRANSMIT_BUFFER_SIZE = 256;
     static const int TIMEOUT_FOR_LASTVALUES_SYNC = 10000;
 
-    void onGetTime(unsigned long(*callback)(void));
-
     int  connect();
     bool disconnect();
 

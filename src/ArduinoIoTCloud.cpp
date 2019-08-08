@@ -194,12 +194,6 @@ int ArduinoIoTCloudClass::begin(Client& net, String brokerAddress, uint16_t brok
   return 1;
 }
 
-void ArduinoIoTCloudClass::onGetTime(unsigned long (*callback)(void)) {
-#ifdef BOARD_HAS_ECCX08
-  ArduinoBearSSL.onGetTime(callback);
-#endif /* BOARD_HAS_ECCX08 */
-}
-
 // private class method used to initialize mqttClient class member. (called in the begin class method)
 void ArduinoIoTCloudClass::mqttClientBegin() {
   // MQTT topics definition
