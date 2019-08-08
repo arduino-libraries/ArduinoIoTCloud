@@ -38,8 +38,11 @@
 
 #include "CloudSerial.h"
 
-#define DEFAULT_BROKER_ADDRESS "mqtts-sa.iot.arduino.cc"
-#define DEFAULT_BROKER_PORT 8883
+static char const DEFAULT_BROKER_ADDRESS_SECURE_AUTH[] = "mqtts-sa.iot.arduino.cc";
+static uint16_t const DEFAULT_BROKER_PORT_SECURE_AUTH = 8883;
+static char const DEFAULT_BROKER_ADDRESS_USER_PASS_AUTH[] = "mqtts-up.iot.arduino.cc";
+static uint16_t const DEFAULT_BROKER_PORT_USER_PASS_AUTH = 8884;
+
 typedef enum {
   READ      = 0x01,
   WRITE     = 0x02,
@@ -81,9 +84,9 @@ class ArduinoIoTCloudClass {
     ArduinoIoTCloudClass();
     ~ArduinoIoTCloudClass();
 
-    int begin(ConnectionHandler &connection, String device_id, String password, String brokerAddress = DEFAULT_BROKER_ADDRESS, uint16_t brokerPort = DEFAULT_BROKER_PORT);
-    int begin(ConnectionHandler &connection, String brokerAddress = DEFAULT_BROKER_ADDRESS, uint16_t brokerPort = DEFAULT_BROKER_PORT);
-    int begin(Client &net, String brokerAddress = DEFAULT_BROKER_ADDRESS, uint16_t brokerPort = DEFAULT_BROKER_PORT);
+    int begin(ConnectionHandler &connection, String device_id, String password, String brokerAddress = DEFAULT_BROKER_ADDRESS_USER_PASS_AUTH, uint16_t brokerPort = DEFAULT_BROKER_PORT_USER_PASS_AUTH);
+    int begin(ConnectionHandler &connection, String brokerAddress = DEFAULT_BROKER_ADDRESS_SECURE_AUTH, uint16_t brokerPort = DEFAULT_BROKER_PORT_SECURE_AUTH);
+    int begin(Client &net, String brokerAddress = DEFAULT_BROKER_ADDRESS_SECURE_AUTH, uint16_t brokerPort = DEFAULT_BROKER_PORT_SECURE_AUTH);
     // Class constant declaration
     static const int MQTT_TRANSMIT_BUFFER_SIZE = 256;
     static const int TIMEOUT_FOR_LASTVALUES_SYNC = 10000;
