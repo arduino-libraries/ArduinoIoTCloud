@@ -162,13 +162,9 @@ int ArduinoIoTCloudClass::begin(Client& net, String brokerAddress, uint16_t brok
   } else {
     _sslClient = new BearSSLClient(*_net);
   }
-#elif defined(BOARD_ESP)
-  _sslClient = new WiFiClientSecure();
-#endif
-
-#ifdef BOARD_HAS_ECCX08
   _sslClient->setEccSlot(keySlot, ECCX08Cert.bytes(), ECCX08Cert.length());
 #elif defined(BOARD_ESP)
+  _sslClient = new WiFiClientSecure();
   _sslClient->setTrustAnchors(&_certificate);
 #endif
 
