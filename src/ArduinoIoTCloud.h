@@ -113,6 +113,9 @@ class ArduinoIoTCloudClass {
     inline String getDeviceId() const {
       return _device_id;
     };
+    inline ConnectionHandler * getConnection() {
+      return _connection;
+    }
 
 #define addProperty( v, ...) addPropertyReal(v, #v, __VA_ARGS__)
 

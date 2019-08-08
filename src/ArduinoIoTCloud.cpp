@@ -40,17 +40,16 @@ const static int CONNECT_SUCCESS                           =  1;
 const static int CONNECT_FAILURE                           =  0;
 const static int CONNECT_FAILURE_SUBSCRIBE                 = -1;
 
-static ConnectionHandler *getTimeConnection = NULL;
-
 static unsigned long getTime() {
-  if (!getTimeConnection) {
+  if (!ArduinoCloud.getConnection()) {
     return 0;
   }
-  unsigned long time = getTimeConnection->getTime();
+  ConnectionHandler * connection = ArduinoCloud.getConnection();
+  unsigned long time = connection->getTime();
   Debug.print(DBG_DEBUG, "NTP time: %lu", time);
   if (!NTPUtils::isTimeValid(time)) {
     Debug.print(DBG_ERROR, "Bogus NTP time from API, fallback to UDP method");
-    time = NTPUtils(getTimeConnection->getUDP()).getTime();
+    time = NTPUtils(connection->getUDP()).getTime();
   }
   #ifdef ARDUINO_ARCH_SAMD
   rtc.setEpoch(time);
@@ -148,6 +147,8 @@ int ArduinoIoTCloudClass::begin(Client& net, String brokerAddress, uint16_t brok
     Debug.print(DBG_ERROR, "Cryptography certificate reconstruction failure.");
     return 0;
   }
+
+  ArduinoBearSSL.onGetTime(getTime);
 #endif /* BOARD_HAS_ECCX08 */
 
   if (_sslClient) {
@@ -163,7 +164,6 @@ int ArduinoIoTCloudClass::begin(Client& net, String brokerAddress, uint16_t brok
   }
 #elif defined(BOARD_ESP)
   _sslClient = new WiFiClientSecure();
-  Debug.print(DBG_VERBOSE, "new WiFiClientSecure()");
 #endif
 
 #ifdef BOARD_HAS_ECCX08
@@ -178,16 +178,6 @@ int ArduinoIoTCloudClass::begin(Client& net, String brokerAddress, uint16_t brok
   _mqttClient->setUsernamePassword(_device_id, _password);
 #endif
 
-  // Bind ArduinoBearSSL callback using static "non-method" function
-  if (_connection != NULL) {
-    getTimeConnection = _connection;
-#ifdef BOARD_HAS_ECCX08
-    ArduinoBearSSL.onGetTime(getTime);
-#endif
-  }
-
-  // TODO: Find a better way to allow callback into object method
-  // Begin function for the MQTTClient
   mqttClientBegin();
 
   Thing.begin();
