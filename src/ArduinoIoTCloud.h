@@ -197,12 +197,11 @@ class ArduinoIoTCloudClass {
     void requestLastValue();
 
     ArduinoIoTConnectionStatus getIoTStatus() {
-      return iotStatus;
+      return _iotStatus;
     }
-    void setIoTConnectionState(ArduinoIoTConnectionStatus newState);
 
   private:
-    ArduinoIoTConnectionStatus iotStatus = ArduinoIoTConnectionStatus::IDLE;
+    ArduinoIoTConnectionStatus _iotStatus = ArduinoIoTConnectionStatus::IDLE;
     ConnectionHandler * _connection;
     static void onMessage(int length);
     void handleMessage(int length);
@@ -241,6 +240,7 @@ class ArduinoIoTCloudClass {
                          _on_disconnect_event_callback;
 
     static void execCloudEventCallback(OnCloudEventCallback & callback, void * callback_arg);
+    static void printConnectionStatus(ArduinoIoTConnectionStatus status);
 };
 
 extern ArduinoIoTCloudClass ArduinoCloud;
