@@ -214,12 +214,12 @@ class ArduinoIoTCloudClass {
 
     ArduinoCloudThing Thing;
 
-#ifdef BOARD_HAS_ECCX08
+    #ifdef BOARD_HAS_ECCX08
     BearSSLClient *_sslClient;
-#elif defined(BOARD_ESP)
+    #elif defined(BOARD_ESP)
     WiFiClientSecure *_sslClient;
     X509List _certificate;
-#endif
+    #endif
 
     MqttClient *_mqttClient;
     int _lastSyncRequestTickTime;

@@ -31,16 +31,15 @@
 #define SERIAL_BUFFER_SIZE 64
 
 template <int N>
-class RingBufferN
-{
+class RingBufferN {
   public:
     uint8_t _aucBuffer[N] ;
     volatile int _iHead ;
     volatile int _iTail ;
 
   public:
-    RingBufferN( void ) ;
-    void store_char( uint8_t c ) ;
+    RingBufferN(void) ;
+    void store_char(uint8_t c) ;
     void clear();
     int read_char();
     int available();
@@ -56,40 +55,36 @@ typedef RingBufferN<SERIAL_BUFFER_SIZE> RingBuffer;
 
 
 template <int N>
-RingBufferN<N>::RingBufferN( void )
-{
-    memset( _aucBuffer, 0, N ) ;
-    clear();
+RingBufferN<N>::RingBufferN(void) {
+  memset(_aucBuffer, 0, N) ;
+  clear();
 }
 
 template <int N>
-void RingBufferN<N>::store_char( uint8_t c )
-{
+void RingBufferN<N>::store_char(uint8_t c) {
   int i = nextIndex(_iHead);
 
   // if we should be storing the received character into the location
   // just before the tail (meaning that the head would advance to the
   // current location of the tail), we're about to overflow the buffer
   // and so we don't write the character or advance the head.
-  if ( i != _iTail )
-  {
+  if (i != _iTail) {
     _aucBuffer[_iHead] = c ;
     _iHead = i ;
   }
 }
 
 template <int N>
-void RingBufferN<N>::clear()
-{
+void RingBufferN<N>::clear() {
   _iHead = 0;
   _iTail = 0;
 }
 
 template <int N>
-int RingBufferN<N>::read_char()
-{
-  if(_iTail == _iHead)
+int RingBufferN<N>::read_char() {
+  if (_iTail == _iHead) {
     return -1;
+  }
 
   uint8_t value = _aucBuffer[_iTail];
   _iTail = nextIndex(_iTail);
@@ -98,43 +93,41 @@ int RingBufferN<N>::read_char()
 }
 
 template <int N>
-int RingBufferN<N>::available()
-{
+int RingBufferN<N>::available() {
   int delta = _iHead - _iTail;
 
-  if(delta < 0)
+  if (delta < 0) {
     return N + delta;
-  else
+  } else {
     return delta;
+  }
 }
 
 template <int N>
-int RingBufferN<N>::availableForStore()
-{
-  if (_iHead >= _iTail)
+int RingBufferN<N>::availableForStore() {
+  if (_iHead >= _iTail) {
     return N - 1 - _iHead + _iTail;
-  else
+  } else {
     return _iTail - _iHead - 1;
+  }
 }
 
 template <int N>
-int RingBufferN<N>::peek()
-{
-  if(_iTail == _iHead)
+int RingBufferN<N>::peek() {
+  if (_iTail == _iHead) {
     return -1;
+  }
 
   return _aucBuffer[_iTail];
 }
 
 template <int N>
-int RingBufferN<N>::nextIndex(int index)
-{
+int RingBufferN<N>::nextIndex(int index) {
   return (uint32_t)(index + 1) % N;
 }
 
 template <int N>
-bool RingBufferN<N>::isFull()
-{
+bool RingBufferN<N>::isFull() {
   return (nextIndex(_iHead) == _iTail);
 }
 

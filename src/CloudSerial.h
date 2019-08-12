@@ -20,9 +20,9 @@
 
 #include <Arduino.h>
 #if defined(ARDUINO_ESP8266_ESP12) || defined(ARDUINO_ARCH_ESP32) || defined(ESP8266)
-#include "utility/RingBuffer.h"
+  #include "utility/RingBuffer.h"
 #else
-#include <RingBuffer.h>
+  #include <RingBuffer.h>
 #endif
 
 #define CLOUD_SERIAL_TX_BUFFER_SIZE 64

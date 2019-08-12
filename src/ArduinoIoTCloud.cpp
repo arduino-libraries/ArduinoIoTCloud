@@ -18,10 +18,10 @@
 #include <ArduinoIoTCloud.h>
 
 #ifdef BOARD_HAS_ECCX08
-#include "utility/ECCX08Cert.h"
-#include <ArduinoECCX08.h>
+  #include "utility/ECCX08Cert.h"
+  #include <ArduinoECCX08.h>
 #elif defined(BOARD_ESP)
-#include "utility/Certificate.h"
+  #include "utility/Certificate.h"
 #endif
 
 #ifdef ARDUINO_ARCH_SAMD
@@ -30,10 +30,10 @@
 #endif
 
 #ifdef BOARD_HAS_ECCX08
-const static int keySlot                                   = 0;
-const static int compressedCertSlot                        = 10;
-const static int serialNumberAndAuthorityKeyIdentifierSlot = 11;
-const static int deviceIdSlot                              = 12;
+  const static int keySlot                                   = 0;
+  const static int compressedCertSlot                        = 10;
+  const static int serialNumberAndAuthorityKeyIdentifierSlot = 11;
+  const static int deviceIdSlot                              = 12;
 #endif
 
 const static int CONNECT_SUCCESS                           =  1;
@@ -61,9 +61,9 @@ ArduinoIoTCloudClass::ArduinoIoTCloudClass() :
   _connection(NULL),
   _thing_id(""),
   _sslClient(NULL),
-#ifdef BOARD_ESP
+  #ifdef BOARD_ESP
   _certificate(MQTTS_UP_ARDUINO_CC_CERTIFICATE),
-#endif
+  #endif
   _mqttClient(NULL),
   _lastSyncRequestTickTime(0),
   _stdinTopic(""),
@@ -93,7 +93,7 @@ ArduinoIoTCloudClass::~ArduinoIoTCloudClass() {
 
 int ArduinoIoTCloudClass::begin(ConnectionHandler & connection,
                                 String device_id,
-                                String password, 
+                                String password,
                                 String brokerAddress,
                                 uint16_t brokerPort) {
   _connection = &connection;
@@ -119,7 +119,7 @@ int ArduinoIoTCloudClass::begin(Client& net, String brokerAddress, uint16_t brok
   _brokerAddress = brokerAddress;
   _brokerPort = brokerPort;
 
-#ifdef BOARD_HAS_ECCX08
+  #ifdef BOARD_HAS_ECCX08
   byte deviceIdBytes[72];
   if (!ECCX08.begin()) {
     Debug.print(DBG_ERROR, "Cryptography processor failure. Make sure you have a compatible board.");
@@ -149,30 +149,30 @@ int ArduinoIoTCloudClass::begin(Client& net, String brokerAddress, uint16_t brok
   }
 
   ArduinoBearSSL.onGetTime(getTime);
-#endif /* BOARD_HAS_ECCX08 */
+  #endif /* BOARD_HAS_ECCX08 */
 
   if (_sslClient) {
     delete _sslClient;
     _sslClient = NULL;
   }
 
-#ifdef BOARD_HAS_ECCX08
+  #ifdef BOARD_HAS_ECCX08
   if (_connection != NULL) {
     _sslClient = new BearSSLClient(_connection->getClient());
   } else {
     _sslClient = new BearSSLClient(*_net);
   }
   _sslClient->setEccSlot(keySlot, ECCX08Cert.bytes(), ECCX08Cert.length());
-#elif defined(BOARD_ESP)
+  #elif defined(BOARD_ESP)
   _sslClient = new WiFiClientSecure();
   _sslClient->setTrustAnchors(&_certificate);
-#endif
+  #endif
 
   _mqttClient = new MqttClient(*_sslClient);
 
-#ifdef BOARD_ESP
+  #ifdef BOARD_ESP
   _mqttClient->setUsernamePassword(_device_id, _password);
-#endif
+  #endif
 
   mqttClientBegin();
 
@@ -203,7 +203,7 @@ void ArduinoIoTCloudClass::mqttClientBegin() {
 }
 
 int ArduinoIoTCloudClass::connect() {
-  
+
   if (!_mqttClient->connect(_brokerAddress.c_str(), _brokerPort)) {
     return CONNECT_FAILURE;
   }
