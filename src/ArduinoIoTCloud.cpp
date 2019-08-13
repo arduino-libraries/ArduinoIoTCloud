@@ -63,6 +63,7 @@ ArduinoIoTCloudClass::ArduinoIoTCloudClass() :
   _sslClient(NULL),
   #ifdef BOARD_ESP
   _certificate(MQTTS_UP_ARDUINO_CC_CERTIFICATE),
+  _password(""),
   #endif
   _mqttClient(NULL),
   _lastSyncRequestTickTime(0),
@@ -76,8 +77,7 @@ ArduinoIoTCloudClass::ArduinoIoTCloudClass() :
   _on_sync_event_callback(NULL),
   _on_connect_event_callback(NULL),
   _on_disconnect_event_callback(NULL),
-  _device_id(""),
-  _password("") {}
+  _device_id("") {}
 
 ArduinoIoTCloudClass::~ArduinoIoTCloudClass() {
   if (_mqttClient) {
@@ -89,17 +89,6 @@ ArduinoIoTCloudClass::~ArduinoIoTCloudClass() {
     delete _sslClient;
     _sslClient = NULL;
   }
-}
-
-int ArduinoIoTCloudClass::begin(ConnectionHandler & connection,
-                                String device_id,
-                                String password,
-                                String brokerAddress,
-                                uint16_t brokerPort) {
-  _connection = &connection;
-  _device_id = device_id;
-  _password = password;
-  return begin(_connection->getClient(), brokerAddress, brokerPort);
 }
 
 int ArduinoIoTCloudClass::begin(ConnectionHandler & connection, String brokerAddress, uint16_t brokerPort) {

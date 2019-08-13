@@ -84,8 +84,11 @@ class ArduinoIoTCloudClass {
     ArduinoIoTCloudClass();
     ~ArduinoIoTCloudClass();
 
-    int begin(ConnectionHandler &connection, String device_id, String password, String brokerAddress = DEFAULT_BROKER_ADDRESS_USER_PASS_AUTH, uint16_t brokerPort = DEFAULT_BROKER_PORT_USER_PASS_AUTH);
+    #ifdef BOARD_HAS_ECCX08
     int begin(ConnectionHandler &connection, String brokerAddress = DEFAULT_BROKER_ADDRESS_SECURE_AUTH, uint16_t brokerPort = DEFAULT_BROKER_PORT_SECURE_AUTH);
+    #else
+    int begin(ConnectionHandler &connection, String brokerAddress = DEFAULT_BROKER_ADDRESS_USER_PASS_AUTH, uint16_t brokerPort = DEFAULT_BROKER_PORT_USER_PASS_AUTH);
+    #endif
     int begin(Client &net, String brokerAddress = DEFAULT_BROKER_ADDRESS_SECURE_AUTH, uint16_t brokerPort = DEFAULT_BROKER_PORT_SECURE_AUTH);
     // Class constant declaration
     static const int MQTT_TRANSMIT_BUFFER_SIZE = 256;
@@ -109,7 +112,14 @@ class ArduinoIoTCloudClass {
     inline void setThingId(String const thing_id) {
       _thing_id = thing_id;
     };
-
+    #ifdef BOARD_ESP
+    inline void setDeviceId(String const device_id) {
+      _device_id = device_id;
+    }
+    inline void setPassword(String const password) {
+      _password = password;
+    }
+    #endif
     inline String getThingId()  const {
       return _thing_id;
     };
@@ -209,7 +219,7 @@ class ArduinoIoTCloudClass {
 
     void sendPropertiesToCloud();
 
-    String _device_id, _password, _thing_id, _brokerAddress;
+    String _device_id, _thing_id, _brokerAddress;
     uint16_t _brokerPort;
 
     ArduinoCloudThing Thing;
@@ -219,6 +229,7 @@ class ArduinoIoTCloudClass {
     #elif defined(BOARD_ESP)
     WiFiClientSecure *_sslClient;
     X509List _certificate;
+    String _password;
     #endif
 
     MqttClient *_mqttClient;
