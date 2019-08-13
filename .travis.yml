@@ -75,7 +75,7 @@ before_install:
   - installLibrary arduino-libraries/Ethernet
   - installLibrary arduino-libraries/Arduino_ConnectionHandler
   - installLibrary arduino-libraries/Arduino_DebugUtils
-  - buildExampleSketch() { arduino-cli compile --warnings all --fqbn $BOARD  --additional-urls http://arduino.esp8266.com/stable/package_esp8266com_index.json $PWD/examples/$1; }
+  - buildExampleSketch() { arduino-cli compile --warnings all --fqbn $BOARD $PWD/examples/$1; }
   - buildExampleUtilitySketch() { arduino-cli compile --warnings all --fqbn $BOARD $PWD/examples/utility/$1; }
 install:
   - mkdir -p $HOME/Arduino/libraries
