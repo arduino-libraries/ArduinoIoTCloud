@@ -6,9 +6,6 @@
 #include "arduino_secrets.h"
 #include "thingProperties.h"
 
-#define ARDUINO_CLOUD_DEVICE_ID "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" /* Entry "Board ID" when selecting board within Arduino Create */
-#define ARDUINO_CLOUD_DEVICE_PASS "my-password" /* Password set via IoT API */
-
 void setup() {
 
   pinMode(LED_BUILTIN, OUTPUT);
@@ -23,7 +20,7 @@ void setup() {
 
   setDebugMessageLevel(DBG_INFO);
 
-  ArduinoCloud.begin(ArduinoIoTPreferredConnection, ARDUINO_CLOUD_DEVICE_ID, ARDUINO_CLOUD_DEVICE_PASS);
+  ArduinoCloud.begin(ArduinoIoTPreferredConnection);
 }
 
 void loop() {
