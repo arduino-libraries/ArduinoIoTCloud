@@ -48,7 +48,7 @@ before_install:
   - if [[ "$BOARD" =~ "arduino:samd:" ]]; then
       arduino-cli core install arduino:samd;
     fi
-  - if [[ "$BOARD" == "esp8266:esp8266" ]]; then
+  - if [[ "$BOARD" =~ "esp8266:esp8266" ]]; then
       arduino-cli core install esp8266:esp8266 --additional-urls http://arduino.esp8266.com/stable/package_esp8266com_index.json;
     fi
   - |
