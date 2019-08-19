@@ -34,6 +34,9 @@
 class CloudSmartPlug : public CloudBool {
   private:
   public:
+    operator bool() const                             {
+      return _value;
+    }
     CloudSmartPlug& operator=(bool v) {
       CloudBool::operator=(v);
       return *this;

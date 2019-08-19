@@ -34,6 +34,9 @@
 class CloudContactSensor : public CloudBool {
   private:
   public:
+    operator bool() const                             {
+      return _value;
+    }
     CloudContactSensor& operator=(bool v) {
       CloudBool::operator=(v);
       return *this;

@@ -34,6 +34,9 @@
 class CloudLight : public CloudBool {
   private:
   public:
+    operator bool() const                             {
+      return _value;
+    }
     CloudLight& operator=(bool v) {
       CloudBool::operator=(v);
       return *this;
