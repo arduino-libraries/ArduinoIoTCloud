@@ -113,10 +113,10 @@ class ArduinoIoTCloudClass {
       _thing_id = thing_id;
     };
     #ifdef BOARD_ESP
-    inline void setDeviceId(String const device_id) {
+    inline void setDeviceLoginName(String const device_id) {
       _device_id = device_id;
     }
-    inline void setPassword(String const password) {
+    inline void setSecretDeviceKey(String const password) {
       _password = password;
     }
     #endif

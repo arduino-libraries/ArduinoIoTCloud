@@ -10,8 +10,8 @@ bool led;
 
 void initProperties() {
   ArduinoCloud.setThingId(THING_ID);
-  ArduinoCloud.setDeviceId(DEVICE_LOGIN_NAME);
-  ArduinoCloud.setPassword(SECRET_DEVICE_KEY);
+  ArduinoCloud.setDeviceLoginName(DEVICE_LOGIN_NAME);
+  ArduinoCloud.setSecretDeviceKey(SECRET_DEVICE_KEY);
   ArduinoCloud.addProperty(led, READWRITE, ON_CHANGE, onLedChange);
 }
 
