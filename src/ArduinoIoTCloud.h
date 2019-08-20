@@ -21,7 +21,7 @@
 #include <ArduinoIoTCloud_Defines.h>
 
 #ifdef BOARD_HAS_ECCX08
-  #include <ArduinoIoTCloudBearSSL.h>
+  #include <ArduinoBearSSL.h>
 #elif defined(BOARD_ESP)
   #include <WiFiClientSecure.h>
 #endif

@@ -2,7 +2,7 @@
 #include <utility/ECCX08Cert.h>
 #include <utility/ECCX08TLSConfig.h>
 
-#include <ArduinoIoTCloudBearSSL.h>
+#include <ArduinoBearSSL.h>
 #include <ArduinoECCX08.h>
 
 const bool DEBUG = true;

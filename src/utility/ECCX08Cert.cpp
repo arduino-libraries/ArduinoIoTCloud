@@ -19,7 +19,7 @@
 
 #ifdef BOARD_HAS_ECCX08
 
-#include <ArduinoIoTCloudBearSSL.h>
+#include <ArduinoBearSSL.h>
 #include <bearssl/bearssl_hash.h>
 #include <ArduinoECCX08.h>
 
