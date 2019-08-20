@@ -15,20 +15,13 @@
    a commercial license, send an email to license@arduino.cc.
 */
 
-<<<<<<< HEAD
 #include <ArduinoIoTCloud.h>
 
 #ifdef BOARD_HAS_ECCX08
   #include "utility/ECCX08Cert.h"
+  #include "utility/BearSSLTrustAnchor.h"
   #include <ArduinoECCX08.h>
 #endif
-=======
-#include <ArduinoECCX08.h>
-#include "utility/ECCX08Cert.h"
-#include "CloudSerial.h"
-#include "ArduinoIoTCloud.h"
-#include <Arduino_DebugUtils.h>
->>>>>>> Remove connection handling and debug messages because those tasks are now handled by 'Arduino_ConnectionHandler' and 'Arduino_DebugUtils'
 
 #ifdef ARDUINO_ARCH_SAMD
   #include <RTCZero.h>
@@ -152,9 +145,9 @@ int ArduinoIoTCloudClass::begin(Client& net, String brokerAddress, uint16_t brok
 
   #ifdef BOARD_HAS_ECCX08
   if (_connection != NULL) {
-    _sslClient = new BearSSLClient(_connection->getClient());
+    _sslClient = new BearSSLClient(_connection->getClient(), ArduinoIoTCloudTrustAnchor, ArduinoIoTCloudTrustAnchor_NUM);
   } else {
-    _sslClient = new BearSSLClient(*_net);
+    _sslClient = new BearSSLClient(*_net, ArduinoIoTCloudTrustAnchor, ArduinoIoTCloudTrustAnchor_NUM);
   }
   _sslClient->setEccSlot(keySlot, ECCX08Cert.bytes(), ECCX08Cert.length());
   #elif defined(BOARD_ESP)
