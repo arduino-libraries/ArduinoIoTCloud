@@ -86,13 +86,7 @@ class CloudColoredLight : public CloudColor {
       appendAttribute(_value.swi);
       appendAttribute(_value.hue);
       appendAttribute(_value.sat);
-      // To allow visualization through color widget
-      if (_value.swi) {
-        appendAttribute(_value.bri);
-      } else {
-        float bri = 0;
-        appendAttributeReal(bri, getAttributeName(".bri", '.'), encoder);
-      }
+      appendAttribute(_value.bri);
     }
     virtual void setAttributesFromCloud() {
       setAttribute(_cloud_value.swi);

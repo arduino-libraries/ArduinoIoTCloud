@@ -90,12 +90,7 @@ class CloudDimmeredLight : public ArduinoCloudProperty {
       float sat = 0;
       appendAttributeReal(hue, getAttributeName(".hue", '.'), encoder);
       appendAttributeReal(sat, getAttributeName(".sat", '.'), encoder);
-      if (_value.swi) {
-        appendAttribute(_value.bri);
-      } else {
-        float bri = 0;
-        appendAttributeReal(bri, getAttributeName(".bri", '.'), encoder);
-      }
+      appendAttribute(_value.bri);
       // should be only:
       // appendAttribute(_value.bri);
       // end
