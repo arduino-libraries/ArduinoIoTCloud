@@ -228,7 +228,6 @@ class ArduinoIoTCloudClass {
     BearSSLClient *_sslClient;
     #elif defined(BOARD_ESP)
     WiFiClientSecure *_sslClient;
-    X509List _certificate;
     String _password;
     #endif
 

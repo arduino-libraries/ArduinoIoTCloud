@@ -20,8 +20,6 @@
 #ifdef BOARD_HAS_ECCX08
   #include "utility/ECCX08Cert.h"
   #include <ArduinoECCX08.h>
-#elif defined(BOARD_ESP)
-  #include "utility/Certificate.h"
 #endif
 
 #ifdef ARDUINO_ARCH_SAMD
@@ -62,7 +60,6 @@ ArduinoIoTCloudClass::ArduinoIoTCloudClass() :
   _thing_id(""),
   _sslClient(NULL),
   #ifdef BOARD_ESP
-  _certificate(MQTTS_UP_ARDUINO_CC_CERTIFICATE),
   _password(""),
   #endif
   _mqttClient(NULL),
@@ -154,7 +151,7 @@ int ArduinoIoTCloudClass::begin(Client& net, String brokerAddress, uint16_t brok
   _sslClient->setEccSlot(keySlot, ECCX08Cert.bytes(), ECCX08Cert.length());
   #elif defined(BOARD_ESP)
   _sslClient = new WiFiClientSecure();
-  _sslClient->setTrustAnchors(&_certificate);
+  _sslClient->setInsecure();
   #endif
 
   _mqttClient = new MqttClient(*_sslClient);
