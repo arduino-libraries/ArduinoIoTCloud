@@ -9,7 +9,7 @@
 #endif
 
 #ifndef SECRET_BOARD_ID
-  #define SECRET_BOARD_ID ""  
+  #define SECRET_BOARD_ID ""
   #warning "You need to define SECRET_BOARD_ID in tab/arduino_secrets.h"
 #endif
 
