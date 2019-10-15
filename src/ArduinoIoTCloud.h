@@ -18,20 +18,31 @@
 #ifndef ARDUINO_IOT_CLOUD_H
 #define ARDUINO_IOT_CLOUD_H
 
-#include <ArduinoMqttClient.h>
-#include <ArduinoIoTCloudBearSSL.h>
+#include <ArduinoIoTCloud_Defines.h>
+
+#ifdef BOARD_HAS_ECCX08
+  #include <ArduinoBearSSL.h>
+#elif defined(BOARD_ESP)
+  #include <WiFiClientSecure.h>
+#endif
+
 #include <ArduinoCloudThing.h>
-#include "ConnectionManager.h"
+#include <ArduinoMqttClient.h>
+#include <Arduino_DebugUtils.h>
+#include <Arduino_ConnectionHandler.h>
 #include "types/CloudWrapperBool.h"
 #include "types/CloudWrapperFloat.h"
 #include "types/CloudWrapperInt.h"
 #include "types/CloudWrapperString.h"
-
+#include "utility/NTPUtils.h"
 
 #include "CloudSerial.h"
 
-#define DEFAULT_BROKER_ADDRESS "mqtts-sa.iot.arduino.cc"
-#define DEFAULT_BROKER_PORT 8883
+static char const DEFAULT_BROKER_ADDRESS_SECURE_AUTH[] = "mqtts-sa.iot.arduino.cc";
+static uint16_t const DEFAULT_BROKER_PORT_SECURE_AUTH = 8883;
+static char const DEFAULT_BROKER_ADDRESS_USER_PASS_AUTH[] = "mqtts-up.iot.arduino.cc";
+static uint16_t const DEFAULT_BROKER_PORT_USER_PASS_AUTH = 8884;
+
 typedef enum {
   READ      = 0x01,
   WRITE     = 0x02,
@@ -44,8 +55,6 @@ typedef struct {
   bool cleanSession;
   int timeout;
 } mqttConnectionOptions;
-
-extern ConnectionManager *ArduinoIoTPreferredConnection;
 
 enum class ArduinoIoTConnectionStatus {
   IDLE,
@@ -75,13 +84,15 @@ class ArduinoIoTCloudClass {
     ArduinoIoTCloudClass();
     ~ArduinoIoTCloudClass();
 
-    int begin(ConnectionManager *connection = ArduinoIoTPreferredConnection, String brokerAddress = DEFAULT_BROKER_ADDRESS, uint16_t brokerPort = DEFAULT_BROKER_PORT);
-    int begin(Client& net, String brokerAddress = DEFAULT_BROKER_ADDRESS, uint16_t brokerPort = DEFAULT_BROKER_PORT);
+    #ifdef BOARD_HAS_ECCX08
+    int begin(ConnectionHandler &connection, String brokerAddress = DEFAULT_BROKER_ADDRESS_SECURE_AUTH, uint16_t brokerPort = DEFAULT_BROKER_PORT_SECURE_AUTH);
+    #else
+    int begin(ConnectionHandler &connection, String brokerAddress = DEFAULT_BROKER_ADDRESS_USER_PASS_AUTH, uint16_t brokerPort = DEFAULT_BROKER_PORT_USER_PASS_AUTH);
+    #endif
+    int begin(Client &net, String brokerAddress = DEFAULT_BROKER_ADDRESS_SECURE_AUTH, uint16_t brokerPort = DEFAULT_BROKER_PORT_SECURE_AUTH);
     // Class constant declaration
     static const int MQTT_TRANSMIT_BUFFER_SIZE = 256;
     static const int TIMEOUT_FOR_LASTVALUES_SYNC = 10000;
-
-    void onGetTime(unsigned long(*callback)(void));
 
     int  connect();
     bool disconnect();
@@ -101,13 +112,23 @@ class ArduinoIoTCloudClass {
     inline void setThingId(String const thing_id) {
       _thing_id = thing_id;
     };
-
+    #ifdef BOARD_ESP
+    inline void setBoardId(String const device_id) {
+      _device_id = device_id;
+    }
+    inline void setSecretDeviceKey(String const password) {
+      _password = password;
+    }
+    #endif
     inline String getThingId()  const {
       return _thing_id;
     };
     inline String getDeviceId() const {
       return _device_id;
     };
+    inline ConnectionHandler * getConnection() {
+      return _connection;
+    }
 
 #define addProperty( v, ...) addPropertyReal(v, #v, __VA_ARGS__)
 
@@ -186,26 +207,31 @@ class ArduinoIoTCloudClass {
     void requestLastValue();
 
     ArduinoIoTConnectionStatus getIoTStatus() {
-      return iotStatus;
+      return _iotStatus;
     }
-    void setIoTConnectionState(ArduinoIoTConnectionStatus newState);
+
   private:
-    ArduinoIoTConnectionStatus iotStatus = ArduinoIoTConnectionStatus::IDLE;
-    ConnectionManager * _connection;
+    ArduinoIoTConnectionStatus _iotStatus = ArduinoIoTConnectionStatus::IDLE;
+    ConnectionHandler * _connection;
     static void onMessage(int length);
     void handleMessage(int length);
     ArduinoIoTSynchronizationStatus _syncStatus = ArduinoIoTSynchronizationStatus::SYNC_STATUS_SYNCHRONIZED;
 
     void sendPropertiesToCloud();
 
-
-    String _device_id,
-           _thing_id,
-           _brokerAddress;
+    String _device_id, _thing_id, _brokerAddress;
     uint16_t _brokerPort;
+
     ArduinoCloudThing Thing;
-    BearSSLClient* _bearSslClient;
-    MqttClient* _mqttClient;
+
+    #ifdef BOARD_HAS_ECCX08
+    BearSSLClient *_sslClient;
+    #elif defined(BOARD_ESP)
+    WiFiClientSecure *_sslClient;
+    String _password;
+    #endif
+
+    MqttClient *_mqttClient;
     int _lastSyncRequestTickTime;
 
 
@@ -224,6 +250,7 @@ class ArduinoIoTCloudClass {
                          _on_disconnect_event_callback;
 
     static void execCloudEventCallback(OnCloudEventCallback & callback, void * callback_arg);
+    static void printConnectionStatus(ArduinoIoTConnectionStatus status);
 };
 
 extern ArduinoIoTCloudClass ArduinoCloud;

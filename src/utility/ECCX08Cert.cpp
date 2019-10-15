@@ -15,7 +15,11 @@
    a commercial license, send an email to license@arduino.cc.
 */
 
-#include <ArduinoIoTCloudBearSSL.h>
+#include <ArduinoIoTCloud_Defines.h>
+
+#ifdef BOARD_HAS_ECCX08
+
+#include <ArduinoBearSSL.h>
 #include <bearssl/bearssl_hash.h>
 #include <ArduinoECCX08.h>
 
@@ -920,3 +924,5 @@ int ECCX08CertClass::appendEcdsaWithSHA256(byte out[]) {
 }
 
 ECCX08CertClass ECCX08Cert;
+
+#endif /* BOARD_HAS_ECCX08 */

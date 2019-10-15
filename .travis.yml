@@ -1,7 +1,4 @@
 language: generic
-env:
-  global:
-    - CLI_VERSION=latest
 matrix:
   include:
     - env:
@@ -10,6 +7,8 @@ matrix:
         - BOARD="arduino:samd:mkrwifi1010"
     - env:
         - BOARD="arduino:samd:mkrgsm1400"
+    - env:
+        - BOARD="esp8266:esp8266:huzzah"
     - env:
         - NAME=Code Formatting Check
       # must define an empty before_install phase, otherwise the default one is used
@@ -42,14 +41,15 @@ matrix:
         - codespell --skip="${TRAVIS_BUILD_DIR}/.git" --ignore-words="${TRAVIS_BUILD_DIR}/extras/codespell-ignore-words-list.txt" "${TRAVIS_BUILD_DIR}"
 # default phases
 before_install:
-  - wget http://downloads.arduino.cc/arduino-cli/arduino-cli-$CLI_VERSION-linux64.tar.bz2
-  - tar xf arduino-cli-$CLI_VERSION-linux64.tar.bz2
   - mkdir -p "$HOME/bin"
-  - mv arduino-cli-*-linux64 $HOME/bin/arduino-cli
+  - curl -fsSL https://raw.githubusercontent.com/arduino/arduino-cli/master/install.sh | BINDIR="$HOME/bin" sh
   - export PATH="$PATH:$HOME/bin"
-  - arduino-cli core update-index
+  - arduino-cli core update-index --additional-urls http://arduino.esp8266.com/stable/package_esp8266com_index.json;
   - if [[ "$BOARD" =~ "arduino:samd:" ]]; then
       arduino-cli core install arduino:samd;
+    fi
+  - if [[ "$BOARD" =~ "esp8266:esp8266" ]]; then
+      arduino-cli core install esp8266:esp8266 --additional-urls http://arduino.esp8266.com/stable/package_esp8266com_index.json;
     fi
   - |
     installLibrary() {
@@ -66,32 +66,40 @@ before_install:
     }
   - installLibrary arduino-libraries/ArduinoCloudThing
   - installLibrary arduino-libraries/ArduinoECCX08
-  - installLibrary arduino-libraries/ArduinoIoTCloudBearSSL
+  - installLibrary arduino-libraries/ArduinoBearSSL
   - installLibrary arduino-libraries/ArduinoMqttClient
   - installLibrary arduino-libraries/MKRGSM
   - installLibrary arduino-libraries/RTCZero
   - installLibrary arduino-libraries/WiFi101
   - installLibrary arduino-libraries/WiFiNINA
   - installLibrary arduino-libraries/Ethernet
+  - installLibrary arduino-libraries/Arduino_ConnectionHandler
+  - installLibrary arduino-libraries/Arduino_DebugUtils
   - buildExampleSketch() { arduino-cli compile --warnings all --fqbn $BOARD $PWD/examples/$1; }
   - buildExampleUtilitySketch() { arduino-cli compile --warnings all --fqbn $BOARD $PWD/examples/utility/$1; }
 install:
   - mkdir -p $HOME/Arduino/libraries
   - ln -s $PWD $HOME/Arduino/libraries/.
 script:
-  - buildExampleSketch ArduinoIoTCloud_LED_switch
-  - buildExampleSketch ArduinoIoTCloud_Travis_CI
   - |
-    if [ "$BOARD" == "arduino:samd:mkr1000" ] || [ "$BOARD" == "arduino:samd:mkrwifi1010" ];
-    then
+    if [ "$BOARD" == "arduino:samd:mkr1000" ] || [ "$BOARD" == "arduino:samd:mkrwifi1010" ] || [ "$BOARD" == "arduino:samd:mkrgsm1400" ]; then
+      buildExampleSketch ArduinoIoTCloud_LED_switch;
+      buildExampleSketch ArduinoIoTCloud_Travis_CI;
+      buildExampleUtilitySketch Provisioning;
+    fi
+  - |
+    if [ "$BOARD" == "arduino:samd:mkr1000" ] || [ "$BOARD" == "arduino:samd:mkrwifi1010" ]; then
       buildExampleSketch WiFi_Cloud_Blink;
       buildExampleSketch MultiValue_example;
     fi
   - |
-    if [ "$BOARD" == "arduino:samd:mkrgsm1400" ];
-    then buildExampleSketch GSM_Cloud_Blink;
+    if [ "$BOARD" == "arduino:samd:mkrgsm1400" ]; then
+      buildExampleSketch GSM_Cloud_Blink;
     fi
-  - buildExampleUtilitySketch Provisioning
+  - |
+    if [ "$BOARD" == "esp8266:esp8266:huzzah" ]; then
+      buildExampleSketch ArduinoIoTCloud_ESP8266;
+    fi
 notifications:
   webhooks:
     urls:

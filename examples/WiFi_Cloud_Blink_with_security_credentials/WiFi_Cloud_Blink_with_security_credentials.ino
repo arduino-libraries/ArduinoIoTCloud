@@ -3,8 +3,7 @@
    cloud for the first time.
 
    This sketch is compatible with:
-     - MKR 1000
-     - MKR WIFI 1010
+     - ESP8266 boards
 */
 
 #include <ArduinoIoTCloud.h>
@@ -20,6 +19,8 @@ void setup() {
   setDebugMessageLevel(3); // used to set a level of granularity in information output [0...4]
   Serial.begin(9600);
   while (!Serial); // waits for the serial to become available
+  ArduinoCloud.setBoardId(SECRET_BOARD_ID);
+  ArduinoCloud.setSecretDeviceKey(SECRET_DEVICE_KEY);
   ArduinoCloud.begin(ArduinoIoTPreferredConnection); // initialize a connection to the Arduino IoT Cloud
   pinMode(LED_BUILTIN, OUTPUT);
 }

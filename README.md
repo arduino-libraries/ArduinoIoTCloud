@@ -25,34 +25,11 @@ The introductory tutorial linked above explains this in an easy and comprehensiv
 
 ## ArduinoIoTCloud library
 
-The library is made of multiple classes:
+As of version 0.8.0 the `ConnectionManager` libraries have been migrated into their own packages, so are the debug helpers, hence the library is made of just these classes:
 - `ArduinoIoTCloud` is the main class. It's responsible for the connection to the MQTT Broker and to Arduino IoT Cloud.
 This library has multiple `begin(...)` methods allowing you to take more control of its behavior when it comes to network **Client** or to use a `ConnectionManager`
 
-- `ConnectionManager` is an abstract Class defining methods to be implemented in derived classes, such as `WiFiConnectionManager`, `GSMConnectionManager` and so on. The right `ConnectionManager` is chosen on a board basis during compilation.
-
-- `WiFiConnectionManager` handles connection, network time retrieval, disconnection, and reconnection to Internet for WiFi equipped boards (**MKR1000**, **MKR WIFI 1010** and upcoming implementations).
-
-- `GSMConnectionManager` handles connection, network time retrieval, disconnection, and reconnection to Internet for GSM equipped boards (**MKR GSM 1400**)
-
-
 - `CloudSerial` is similar to [Serial](https://www.arduino.cc/reference/en/language/functions/communication/serial/), but used in combination with the cloud, allowing the user to send and receive custom messages using Arduino IoT Cloud as a channel.
-
-
-### ConnectionManager
-
-**Connection Manager** is configured via a series of compiler directives, including the correct implementation of the class based on which board is selected.
-
-### How to use it
-- Instantiate the class with `ConnectionManager *ArduinoIoTPreferredConnection = new WiFiConnectionManager(SECRET_SSID, SECRET_PASS);` if you are using a WiFi board, otherwise replace **WiFi** with **GSM** or any future implementation.
-
-- The `check()` method does all the work. It uses a finite state machine and is responsible for connection and reconnection to a network. The method is designed to be non-blocking by using time (milliseconds) to perform its tasks.
-
-- `getTime()` returns different implementations of the `getTIme()` method based on the board used. Time is retrieved from an NTP server and is required for the SSL connection to the cloud.
-
-- `&getClient()` returns a reference an instance of the `Client` class used to connect to the network.
-
-- `getStatus()` returns the network connection status. The different states are defined in an `enum`
 
 - `debugMessage(char *_msg, uint8_t _debugLevel, bool _timestamp = true, bool _newline = true)` is the method used to print debug messages on the physical serial. This helps providing troubleshooting information should anything go wrong.
 
@@ -68,7 +45,7 @@ This library has multiple `begin(...)` methods allowing you to take more control
 
 - `disconnect()` closes the connection to the MQTT Client.
 
-- The `update()` method can be called periodically in the loop of the `.ino` file. If a `ConnectionManager` is implemented it checks network connections. It also makes sure that a connection with the MQTT broker is active and tries to reconnect otherwise. During `update()` data from the Cloud is retrieved and changed values are posted to the proper MQTT topic.
+- The `update()` method can be called periodically in the loop of the `.ino` file. If a `ConnectionHandler` is implemented it checks network connections. It also makes sure that a connection with the MQTT broker is active and tries to reconnect otherwise. During `update()` data from the Cloud is retrieved and changed values are posted to the proper MQTT topic.
 
 - `connected()` simply returns the current status of the MQTT connection.
 
@@ -78,4 +55,7 @@ This library has multiple `begin(...)` methods allowing you to take more control
 
 - `getThingId()` returns the **THING_ID**.
 
-- `connectionCheck()` invokes the `check()` method from a **ConnectionManager** if it is implemented. Mainly it implements a state machine and is responsible for the connection to Arduino IoT Cloud.
+- `connectionCheck()` invokes the `check()` method from a **ConnectionHandler** if it is implemented. Mainly it implements a state machine and is responsible for the connection to Arduino IoT Cloud.
+
+- `getIoTStatus()` returns the Cloud connection status. The different states are defined in an `enum`
+
