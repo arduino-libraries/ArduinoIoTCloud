@@ -19,7 +19,8 @@
 #define ARDUINO_IOT_CLOUD_DEFINES_H_
 
 #if defined(ARDUINO_SAMD_MKRGSM1400) || defined(ARDUINO_SAMD_MKRWIFI1010) ||   \
-  defined(ARDUINO_SAMD_MKR1000) || defined(ARDUINO_SAMD_NANO_33_IOT)
+  defined(ARDUINO_SAMD_MKR1000) || defined(ARDUINO_SAMD_NANO_33_IOT)      ||   \
+  defined(ARDUINO_SAMD_MKRNB1500)
   #define BOARD_HAS_ECCX08
 #endif
 
