@@ -76,6 +76,38 @@ class CloudColoredLight : public CloudColor {
       return _value;
     }
 
+    bool getSwitch() {
+      return _value.swi;
+    }
+
+    void setSwitch(bool const swi) {
+      _value.swi = swi;
+    }
+
+    float getHue() {
+      return _value.hue;
+    }
+
+    void setHue(float const hue) {
+      _value.hue = hue;
+    }
+
+    float getSaturation() {
+      return _value.sat;
+    }
+
+    void setSaturation(float const sat) {
+      _value.sat = sat;
+    }
+
+    float getBrightness() {
+      return _value.bri;
+    }
+
+    void setBrightness(float const bri) {
+      _value.bri = bri;
+    }
+
     virtual void fromCloudToLocal() {
       _value = _cloud_value;
     }

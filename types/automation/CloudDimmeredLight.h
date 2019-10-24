@@ -75,6 +75,22 @@ class CloudDimmeredLight : public ArduinoCloudProperty {
       return _value;
     }
 
+    float getBrightness() {
+      return _value.bri;
+    }
+
+    void setBrightness(float const bri) {
+      _value.bri = bri;
+    }
+
+    bool getSwitch() {
+      return _value.swi;
+    }
+
+    void setSwitch(bool const swi) {
+      _value.swi = swi;
+    }
+
     virtual void fromCloudToLocal() {
       _value = _cloud_value;
     }
