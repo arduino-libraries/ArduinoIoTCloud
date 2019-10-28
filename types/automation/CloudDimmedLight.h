@@ -15,8 +15,8 @@
 // a commercial license, send an email to license@arduino.cc.
 //
 
-#ifndef CLOUDDIMMEREDLIGHT_H_
-#define CLOUDDIMMEREDLIGHT_H_
+#ifndef CLOUDDIMMEDLIGHT_H_
+#define CLOUDDIMMEDLIGHT_H_
 
 /******************************************************************************
    INCLUDE
@@ -29,49 +29,49 @@
 /******************************************************************************
    CLASS DECLARATION
  ******************************************************************************/
-class DimmeredLight {
+class DimmedLight {
   public:
     bool swi;
     float bri;
-    DimmeredLight(bool swi, float bri): swi(swi), bri(bri) {
+    DimmedLight(bool swi, float bri): swi(swi), bri(bri) {
     }
 
-    bool operator==(DimmeredLight & aLight) {
+    bool operator==(DimmedLight & aLight) {
       return aLight.swi == swi && aLight.bri == bri;
     }
 
-    bool operator!=(DimmeredLight & aLight) {
+    bool operator!=(DimmedLight & aLight) {
       return !(operator==(aLight));
     }
 
 };
 
-class CloudDimmeredLight : public ArduinoCloudProperty {
+class CloudDimmedLight : public ArduinoCloudProperty {
   private:
-    DimmeredLight _value,
-                  _cloud_value;
+    DimmedLight _value,
+                _cloud_value;
 
   public:
-    CloudDimmeredLight() : _value(false, 0), _cloud_value(false, 0) {}
-    CloudDimmeredLight(bool swi, float brightness) : _value(swi, brightness), _cloud_value(swi, brightness) {}
+    CloudDimmedLight() : _value(false, 0), _cloud_value(false, 0) {}
+    CloudDimmedLight(bool swi, float brightness) : _value(swi, brightness), _cloud_value(swi, brightness) {}
 
     virtual bool isDifferentFromCloud() {
 
       return _value != _cloud_value;
     }
 
-    CloudDimmeredLight& operator=(DimmeredLight aLight) {
+    CloudDimmedLight& operator=(DimmedLight aLight) {
       _value.swi = aLight.swi;
       _value.bri = aLight.bri;
       updateLocalTimestamp();
       return *this;
     }
 
-    DimmeredLight getCloudValue() {
+    DimmedLight getCloudValue() {
       return _cloud_value;
     }
 
-    DimmeredLight getValue() {
+    DimmedLight getValue() {
       return _value;
     }
 
@@ -118,4 +118,4 @@ class CloudDimmeredLight : public ArduinoCloudProperty {
     }
 };
 
-#endif /* CLOUDDIMMEREDLIGHT_H_ */
+#endif /* CLOUDDIMMEDLIGHT_H_ */
