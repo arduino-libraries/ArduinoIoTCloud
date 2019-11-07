@@ -117,14 +117,7 @@ class Television {
     u_int16_t           cha;
 
 
-    Television(bool swi, u_int8_t vol, bool mut, PlaybackCommands pbc, InputValue inp, u_int16_t cha):
-        swi(swi),
-        vol(vol),
-        mut(mut),
-        pbc(pbc),
-        inp(inp),
-        cha(cha)
-    {
+    Television(bool swi, u_int8_t vol, bool mut, PlaybackCommands pbc, InputValue inp, u_int16_t cha): swi(swi), vol(vol), mut(mut), pbc(pbc), inp(inp), cha(cha) {
     }
 
     bool operator==(Television & aTV) {
