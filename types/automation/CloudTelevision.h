@@ -28,7 +28,7 @@
 /******************************************************************************
    ENUM
  ******************************************************************************/
-enum class PlaybackCommands : u_int8_t {
+enum class PlaybackCommands : uint8_t {
   FastForward   = 0,
   Next          = 1,
   Pause         = 2,
@@ -39,7 +39,7 @@ enum class PlaybackCommands : u_int8_t {
   Stop          = 7,
   None          = 255
 };
-enum class InputValue : u_int8_t {
+enum class InputValue : uint8_t {
   AUX1          = 0,
   AUX2          = 1,
   AUX3          = 2,
@@ -110,17 +110,17 @@ enum class InputValue : u_int8_t {
 class Television {
   public:
     bool                swi;
-    u_int8_t            vol;
+    uint8_t             vol;
     bool                mut;
     PlaybackCommands    pbc;
     InputValue          inp;
-    u_int16_t           cha;
+    uint16_t            cha;
 
 
-    Television(bool swi, u_int8_t vol, bool mut, PlaybackCommands pbc, InputValue inp, u_int16_t cha): swi(swi), vol(vol), mut(mut), pbc(pbc), inp(inp), cha(cha) {
+    Television(bool const swi, uint8_t const vol, bool const mut, PlaybackCommands const pbc, InputValue const inp, uint16_t const cha): swi(swi), vol(vol), mut(mut), pbc(pbc), inp(inp), cha(cha) {
     }
 
-    bool operator==(Television & aTV) {
+    bool operator==(Television const & aTV) {
       return
         aTV.swi == swi &&
         aTV.vol == vol &&
@@ -130,7 +130,7 @@ class Television {
         aTV.cha == cha;
     }
 
-    bool operator!=(Television & aTV) {
+    bool operator!=(Television const & aTV) {
       return !(operator==(aTV));
     }
 
@@ -142,14 +142,14 @@ class CloudTelevision : public ArduinoCloudProperty {
                _cloud_value;
   public:
     CloudTelevision() : _value(false, 0, false, PlaybackCommands::None, InputValue::TV, 0), _cloud_value(false, 0, false, PlaybackCommands::None, InputValue::TV, 0) {}
-    CloudTelevision(bool swi, u_int8_t vol, bool mut, PlaybackCommands pbc, InputValue inp, u_int16_t cha) : _value(swi, vol, mut, pbc, inp, cha), _cloud_value(swi, vol, mut, pbc, inp, cha) {}
+    CloudTelevision(bool const swi, uint8_t const vol, bool const mut, PlaybackCommands const pbc, InputValue const inp, uint16_t const cha) : _value(swi, vol, mut, pbc, inp, cha), _cloud_value(swi, vol, mut, pbc, inp, cha) {}
 
     virtual bool isDifferentFromCloud() {
 
       return _value != _cloud_value;
     }
 
-    CloudTelevision& operator=(Television aTV) {
+    CloudTelevision& operator=(Television const aTV) {
       _value.swi = aTV.swi;
       _value.vol = aTV.vol;
       _value.mut = aTV.mut;
@@ -172,7 +172,7 @@ class CloudTelevision : public ArduinoCloudProperty {
       return _value.swi;
     }
 
-    u_int8_t getVolume() {
+    uint8_t getVolume() {
       return _value.vol;
     }
 
@@ -188,7 +188,7 @@ class CloudTelevision : public ArduinoCloudProperty {
       return _value.inp;
     }
 
-    u_int16_t getChannel() {
+    uint16_t getChannel() {
       return _value.cha;
     }
 
