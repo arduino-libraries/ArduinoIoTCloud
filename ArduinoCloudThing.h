@@ -40,6 +40,7 @@
 #include "types/automation/CloudSmartPlug.h"
 #include "types/automation/CloudSwitch.h"
 #include "types/automation/CloudTemperature.h"
+#include "types/automation/CloudTelevision.h"
 
 
 /******************************************************************************
