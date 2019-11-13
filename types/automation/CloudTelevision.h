@@ -28,7 +28,7 @@
 /******************************************************************************
    ENUM
  ******************************************************************************/
-enum class PlaybackCommands : uint8_t {
+enum class PlaybackCommands : int {
   FastForward   = 0,
   Next          = 1,
   Pause         = 2,
@@ -39,7 +39,7 @@ enum class PlaybackCommands : uint8_t {
   Stop          = 7,
   None          = 255
 };
-enum class InputValue : uint8_t {
+enum class InputValue : int {
   AUX1          = 0,
   AUX2          = 1,
   AUX3          = 2,
@@ -110,14 +110,14 @@ enum class InputValue : uint8_t {
 class Television {
   public:
     bool                swi;
-    uint8_t             vol;
+    int                 vol;
     bool                mut;
     PlaybackCommands    pbc;
     InputValue          inp;
-    uint16_t            cha;
+    int                 cha;
 
 
-    Television(bool const swi, uint8_t const vol, bool const mut, PlaybackCommands const pbc, InputValue const inp, uint16_t const cha): swi(swi), vol(vol), mut(mut), pbc(pbc), inp(inp), cha(cha) {
+    Television(bool const swi, int const vol, bool const mut, PlaybackCommands const pbc, InputValue const inp, int const cha): swi(swi), vol(vol), mut(mut), pbc(pbc), inp(inp), cha(cha) {
     }
 
     bool operator==(Television const & aTV) {
@@ -142,7 +142,7 @@ class CloudTelevision : public ArduinoCloudProperty {
                _cloud_value;
   public:
     CloudTelevision() : _value(false, 0, false, PlaybackCommands::None, InputValue::TV, 0), _cloud_value(false, 0, false, PlaybackCommands::None, InputValue::TV, 0) {}
-    CloudTelevision(bool const swi, uint8_t const vol, bool const mut, PlaybackCommands const pbc, InputValue const inp, uint16_t const cha) : _value(swi, vol, mut, pbc, inp, cha), _cloud_value(swi, vol, mut, pbc, inp, cha) {}
+    CloudTelevision(bool const swi, int const vol, bool const mut, PlaybackCommands const pbc, InputValue const inp, int const cha) : _value(swi, vol, mut, pbc, inp, cha), _cloud_value(swi, vol, mut, pbc, inp, cha) {}
 
     virtual bool isDifferentFromCloud() {
 
@@ -208,11 +208,11 @@ class CloudTelevision : public ArduinoCloudProperty {
     }
     virtual void setAttributesFromCloud() {
       setAttribute(_cloud_value.swi);
-      setAttribute((int&)_cloud_value.vol);
+      setAttribute(_cloud_value.vol);
       setAttribute(_cloud_value.mut);
       setAttribute((int&)_cloud_value.pbc);
       setAttribute((int&)_cloud_value.inp);
-      setAttribute((int&)_cloud_value.cha);
+      setAttribute(_cloud_value.cha);
     }
 };
 
