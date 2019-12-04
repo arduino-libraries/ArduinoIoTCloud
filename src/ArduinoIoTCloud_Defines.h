@@ -22,6 +22,13 @@
   defined(ARDUINO_SAMD_MKR1000) || defined(ARDUINO_SAMD_NANO_33_IOT)      ||   \
   defined(ARDUINO_SAMD_MKRNB1500)
   #define BOARD_HAS_ECCX08
+  #define HAS_TCP
+#endif
+
+
+
+#if defined(ARDUINO_SAMD_MKR1300) || defined(ARDUINO_SAMD_MKR1310)
+// TODO set BOARD_HAS_LORA
 #endif
 
 #if defined(ARDUINO_ESP8266_ESP12) || defined(ARDUINO_ARCH_ESP32) || defined(ESP8266)

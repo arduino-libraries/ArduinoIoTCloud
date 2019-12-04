@@ -20,28 +20,19 @@
 
 #include <ArduinoIoTCloud_Defines.h>
 
-#ifdef BOARD_HAS_ECCX08
-  #include <ArduinoBearSSL.h>
-#elif defined(BOARD_ESP)
-  #include <WiFiClientSecure.h>
-#endif
+
 
 #include <ArduinoCloudThing.h>
-#include <ArduinoMqttClient.h>
+
 #include <Arduino_DebugUtils.h>
-#include <Arduino_ConnectionHandler.h>
-#include "types/CloudWrapperBool.h"
+#include "types/CloudWrapperBool.h" 
 #include "types/CloudWrapperFloat.h"
 #include "types/CloudWrapperInt.h"
 #include "types/CloudWrapperString.h"
-#include "utility/NTPUtils.h"
+
 
 #include "CloudSerial.h"
 
-static char const DEFAULT_BROKER_ADDRESS_SECURE_AUTH[] = "mqtts-sa.iot.arduino.cc";
-static uint16_t const DEFAULT_BROKER_PORT_SECURE_AUTH = 8883;
-static char const DEFAULT_BROKER_ADDRESS_USER_PASS_AUTH[] = "mqtts-up.iot.arduino.cc";
-static uint16_t const DEFAULT_BROKER_PORT_USER_PASS_AUTH = 8884;
 
 typedef enum {
   READ      = 0x01,
@@ -49,12 +40,6 @@ typedef enum {
   READWRITE = READ | WRITE
 } permissionType;
 
-// Declaration of the struct for the mqtt connection options
-typedef struct {
-  int keepAlive;
-  bool cleanSession;
-  int timeout;
-} mqttConnectionOptions;
 
 enum class ArduinoIoTConnectionStatus {
   IDLE,
@@ -78,59 +63,40 @@ enum class ArduinoIoTCloudEvent {
 typedef void (*CallbackFunc)(void);
 typedef void (*OnCloudEventCallback)(void * /* arg */);
 
+/*************************************************
+		Pure Virtual Class Definition
+**************************************************/
 class ArduinoIoTCloudClass {
 
   public:
-    ArduinoIoTCloudClass();
-    ~ArduinoIoTCloudClass();
+	static const int TIMEOUT_FOR_LASTVALUES_SYNC = 10000;
+	/*Public Virtual Functions*/
+    virtual int  connect() = 0;
+    virtual bool disconnect() = 0;
 
-    #ifdef BOARD_HAS_ECCX08
-    int begin(ConnectionHandler &connection, String brokerAddress = DEFAULT_BROKER_ADDRESS_SECURE_AUTH, uint16_t brokerPort = DEFAULT_BROKER_PORT_SECURE_AUTH);
-    #else
-    int begin(ConnectionHandler &connection, String brokerAddress = DEFAULT_BROKER_ADDRESS_USER_PASS_AUTH, uint16_t brokerPort = DEFAULT_BROKER_PORT_USER_PASS_AUTH);
-    #endif
-    int begin(Client &net, String brokerAddress = DEFAULT_BROKER_ADDRESS_SECURE_AUTH, uint16_t brokerPort = DEFAULT_BROKER_PORT_SECURE_AUTH);
-    // Class constant declaration
-    static const int MQTT_TRANSMIT_BUFFER_SIZE = 256;
-    static const int TIMEOUT_FOR_LASTVALUES_SYNC = 10000;
+    virtual void update() = 0;
+    virtual void update(int const reconnectionMaxRetries, int const reconnectionTimeoutMs) __attribute__((deprecated)) = 0;
+    virtual void update(CallbackFunc onSyncCompleteCallback) __attribute__((deprecated)) = 0; /* Attention: Function is deprecated - use 'addCallback(ArduinoIoTCloudConnectionEvent::SYNC, &onSync)' for adding a onSyncCallback instead */
 
-    int  connect();
-    bool disconnect();
+    virtual int connected() = 0;
+   
+	virtual void connectionCheck() = 0;
 
-    inline void update() {
-      update(NULL);
-    }
-    inline void update(int const reconnectionMaxRetries, int const reconnectionTimeoutMs) __attribute__((deprecated)) {
-      update(NULL);
-    }
-    void update(CallbackFunc onSyncCompleteCallback) __attribute__((deprecated)); /* Attention: Function is deprecated - use 'addCallback(ArduinoIoTCloudConnectionEvent::SYNC, &onSync)' for adding a onSyncCallback instead */
-
-    int connected();
-    // Clean up existing Mqtt connection, create a new one and initialize it
-    int reconnect(Client& /* net */);
+	virtual void printDebugInfo() = 0;
 
     inline void setThingId(String const thing_id) {
       _thing_id = thing_id;
     };
-    #ifdef BOARD_ESP
-    inline void setBoardId(String const device_id) {
-      _device_id = device_id;
-    }
-    inline void setSecretDeviceKey(String const password) {
-      _password = password;
-    }
-    #endif
+	
     inline String getThingId()  const {
       return _thing_id;
     };
-    inline String getDeviceId() const {
-      return _device_id;
-    };
-    inline ConnectionHandler * getConnection() {
-      return _connection;
-    }
 
-#define addProperty( v, ...) addPropertyReal(v, #v, __VA_ARGS__)
+	inline String getDeviceId() const {
+		return _device_id;
+	};
+
+	#define addProperty( v, ...) addPropertyReal(v, #v, __VA_ARGS__)
 
     static unsigned long const DEFAULT_MIN_TIME_BETWEEN_UPDATES_MILLIS = 500; /* Data rate throttled to 2 Hz */
 
@@ -183,76 +149,68 @@ class ArduinoIoTCloudClass {
       return Thing.addPropertyReal(*p, name, permission);
     }
 
-    void connectionCheck();
-    String getBrokerAddress() {
-      return _brokerAddress;
-    }
-    uint16_t getBrokerPort() {
-      return _brokerPort;
-    }
-    void printDebugInfo();
-    void addCallback(ArduinoIoTCloudEvent const event, OnCloudEventCallback callback);
+    void addCallback(ArduinoIoTCloudEvent const event, OnCloudEventCallback callback) {
+		switch (event) {
+		case ArduinoIoTCloudEvent::SYNC:       _on_sync_event_callback = callback; break;
+		case ArduinoIoTCloudEvent::CONNECT:    _on_connect_event_callback = callback; break;
+		case ArduinoIoTCloudEvent::DISCONNECT: _on_disconnect_event_callback = callback; break;
+		}
+	};
 
   protected:
-    friend class CloudSerialClass;
-    int writeStdout(const byte data[], int length);
-    int writeProperties(const byte data[], int length);
-    int writeShadowOut(const byte data[], int length);
+    
+    virtual int writeStdout(const byte data[], int length) = 0;
+    virtual int writeProperties(const byte data[], int length) = 0;
+    virtual int writeShadowOut(const byte data[], int length) = 0;
 
-    // Used to initialize MQTTClient
-    void mqttClientBegin();
-    // Function in charge of perform MQTT reconnection, basing on class parameters(retries,and timeout)
-    bool mqttReconnect(int const maxRetries, int const timeout);
-    // Used to retrieve last values from _shadowTopicIn
-    void requestLastValue();
+   
+  
 
     ArduinoIoTConnectionStatus getIoTStatus() {
       return _iotStatus;
     }
 
-  private:
     ArduinoIoTConnectionStatus _iotStatus = ArduinoIoTConnectionStatus::IDLE;
-    ConnectionHandler * _connection;
-    static void onMessage(int length);
-    void handleMessage(int length);
+	
+
+    
     ArduinoIoTSynchronizationStatus _syncStatus = ArduinoIoTSynchronizationStatus::SYNC_STATUS_SYNCHRONIZED;
 
-    void sendPropertiesToCloud();
-
-    String _device_id, _thing_id, _brokerAddress;
-    uint16_t _brokerPort;
+									
+    String _device_id, _thing_id;
+   
 
     ArduinoCloudThing Thing;
-
-    #ifdef BOARD_HAS_ECCX08
-    BearSSLClient *_sslClient;
-    #elif defined(BOARD_ESP)
-    WiFiClientSecure *_sslClient;
-    String _password;
-    #endif
-
-    MqttClient *_mqttClient;
+	
     int _lastSyncRequestTickTime;
-
-
-    // Class attribute to define MTTQ topics 2 for stdIn/out and 2 for data, in order to avoid getting previous pupblished payload
-    String _stdinTopic;
-    String _stdoutTopic;
-    String _shadowTopicOut;
-    String _shadowTopicIn;
-    String _dataTopicOut;
-    String _dataTopicIn;
-    String _otaTopic;
-    Client *_net;
 
     OnCloudEventCallback _on_sync_event_callback,
                          _on_connect_event_callback,
                          _on_disconnect_event_callback;
 
-    static void execCloudEventCallback(OnCloudEventCallback & callback, void * callback_arg);
-    static void printConnectionStatus(ArduinoIoTConnectionStatus status);
+    static void execCloudEventCallback(OnCloudEventCallback & callback, void * callback_arg) {
+		if (callback) {
+			(*callback)(callback_arg);
+		}
+	}
+    static void printConnectionStatus(ArduinoIoTConnectionStatus status) {
+		switch (status) {
+		case ArduinoIoTConnectionStatus::IDLE:         Debug.print(DBG_INFO, "Arduino IoT Cloud Connection status: IDLE");         break;
+		case ArduinoIoTConnectionStatus::ERROR:        Debug.print(DBG_ERROR, "Arduino IoT Cloud Connection status: ERROR");        break;
+		case ArduinoIoTConnectionStatus::CONNECTING:   Debug.print(DBG_INFO, "Arduino IoT Cloud Connection status: CONNECTING");   break;
+		case ArduinoIoTConnectionStatus::RECONNECTING: Debug.print(DBG_INFO, "Arduino IoT Cloud Connection status: RECONNECTING"); break;
+		case ArduinoIoTConnectionStatus::CONNECTED:    Debug.print(DBG_INFO, "Arduino IoT Cloud Connection status: CONNECTED");    break;
+		case ArduinoIoTConnectionStatus::DISCONNECTED: Debug.print(DBG_ERROR, "Arduino IoT Cloud Connection status: DISCONNECTED"); break;
+		}
+	}
 };
-
-extern ArduinoIoTCloudClass ArduinoCloud;
+#if defined(ARDUINO_SAMD_MKRGSM1400) || defined(ARDUINO_SAMD_MKRWIFI1010) ||   \
+  defined(ARDUINO_SAMD_MKR1000) || defined(ARDUINO_SAMD_NANO_33_IOT)
+#include "ArduinoIoTCloudTCP.h"
+extern ArduinoIoTCloudTCP ArduinoCloud;
+#elif defined(ARDUINO_SAMD_MKR1300) || defined(ARDUINO_SAMD_MKR1310)
+//#include "ArduinoIoTCloudLPWAN.h"
+//extern ArduinoIoTCloudLPWAN ArduinoCloud;
+#endif
 
 #endif
