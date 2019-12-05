@@ -15,17 +15,19 @@
    a commercial license, send an email to license@arduino.cc.
 */
 
+#if defined(ARDUINO_SAMD_MKRWAN1300) || defined(ARDUINO_SAMD_MKRWAN1310)
+
 #include<ArduinoIoTCloudLPWAN.h>
 
 ArduinoIoTCloudLPWAN::ArduinoIoTCloudLPWAN() :
 	_connection(NULL)
 {
-	_thing_id = "";
+	/*_thing_id = "";
 	_lastSyncRequestTickTime = 0;
 	_on_sync_event_callback(NULL);
 	_on_connect_event_callback(NULL);
 	_on_disconnect_event_callback(NULL);
-	_device_id = "";
+	_device_id = "";*/
 }
 
 ArduinoIoTCloudLPWAN::~ArduinoIoTCloudLPWAN() {
@@ -34,7 +36,8 @@ ArduinoIoTCloudLPWAN::~ArduinoIoTCloudLPWAN() {
 int ArduinoIoTCloudLPWAN::connect()
 {
 	_connection->connect();
-	return _connection->getStatus();
+	int state = _connection->getStatus() == NetworkConnectionState::INIT ? 1 : 0;
+	return state;
 }
 
 bool ArduinoIoTCloudLPWAN::disconnect()
@@ -45,7 +48,8 @@ bool ArduinoIoTCloudLPWAN::disconnect()
 
 int ArduinoIoTCloudLPWAN::connected()
 {
-	return _connection->getStatus();
+	int state = _connection->getStatus() == NetworkConnectionState::INIT ? 1 : 0;
+	return state;
 }
 
 int ArduinoIoTCloudLPWAN::begin(LPWANConnectionHandler& connection)
@@ -72,8 +76,6 @@ void ArduinoIoTCloudLPWAN::update(CallbackFunc onSyncCompleteCallback) {
 		while (_connection->available()) {
 			msgBuf[i++] = _connection->read();
 		}
-
-		CloudSerial.appendStdin(msgBuf, sizeof(msgBuf));
 
 		Thing.decode(msgBuf, sizeof(msgBuf));
 	}
@@ -132,33 +134,22 @@ void ArduinoIoTCloudLPWAN::connectionCheck() {
 	case ArduinoIoTConnectionStatus::RECONNECTING: {
 		int const ret_code = connect();
 		Debug.print(DBG_INFO, "ArduinoCloud.reconnect()");
-		if (ret_code == NetworkConnectionState::INIT) {
+		if (ret_code == 1) {
 			_iotStatus = ArduinoIoTConnectionStatus::IDLE;
 		}
 		else {
 			_iotStatus = ArduinoIoTConnectionStatus::ERROR;
 		}
 
-		/*int const ret_code_reconnect = reconnect(*_net);
-		Debug.print(DBG_INFO, "ArduinoCloud.reconnect(): %d", ret_code_reconnect);
-		if (ret_code_reconnect == CONNECT_SUCCESS) {
-			_iotStatus = ArduinoIoTConnectionStatus::CONNECTED;
-			printConnectionStatus(_iotStatus);
-			execCloudEventCallback(_on_connect_event_callback, 0 callback_arg );
-			CloudSerial.begin(9600);
-			CloudSerial.println("Hello from Cloud Serial!");
-		}*/
 	}
 												   break;
 	case ArduinoIoTConnectionStatus::CONNECTING: {	
-		int const net_status = _connection->getStatus();
+		NetworkConnectionState net_status = _connection->getStatus();
 		Debug.print(DBG_VERBOSE, "ArduinoCloud.connect(): %d", net_status);
 		if (net_status == NetworkConnectionState::CONNECTED) {
 			_iotStatus = ArduinoIoTConnectionStatus::CONNECTED;
 			printConnectionStatus(_iotStatus);
 			execCloudEventCallback(_on_connect_event_callback, 0 /* callback_arg */);
-			CloudSerial.begin(9600);
-			CloudSerial.println("Hello from Cloud Serial!");
 		}
 		
 	}
@@ -197,4 +188,7 @@ void ArduinoIoTCloudLPWAN::sendPropertiesToCloud() {
 		writeProperties(data, length);
 	}
 }
+//#error MULTIPLE_DEFINITION
 ArduinoIoTCloudLPWAN ArduinoCloud;
+
+#endif

@@ -28,11 +28,9 @@
 #define CLOUD_SERIAL_TX_BUFFER_SIZE 64
 #define CLOUD_SERIAL_RX_BUFFER_SIZE 512
 
-#ifdef HAS_TCP
+
 class ArduinoIoTCloudTCP;
-#else
-class ArduinoIoTCloudLPWAN;
-#endif
+
 
 class CloudSerialClass : public Stream {
   public:
@@ -52,11 +50,9 @@ class CloudSerialClass : public Stream {
     operator bool();
 
   protected:
-	#ifdef HAS_TCP
-	  friend class ArduinoIoTCloudTCP;
-	#else
-	  friend class ArduinoIoTCloudLPWAN;
-	#endif
+
+	friend class ArduinoIoTCloudTCP;
+
     
 
     void appendStdin(const uint8_t *buffer, size_t size);

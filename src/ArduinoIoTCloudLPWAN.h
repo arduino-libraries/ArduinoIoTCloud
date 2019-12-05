@@ -18,6 +18,8 @@
 #ifndef ARDUINO_IOT_CLOUD_LPWAN_H
 #define ARDUINO_IOT_CLOUD_LPWAN_H
 
+//#ifdef defined(ARDUINO_SAMD_MKRWAN1300) || defined(ARDUINO_SAMD_MKRWAN1310)
+
 #include <ArduinoIoTCloud.h>
 #include <Arduino_ConnectionHandler.h>
 
@@ -46,16 +48,18 @@ class ArduinoIoTCloudLPWAN : public ArduinoIoTCloudClass {
 
 
 	protected:
-		friend class CloudSerialClass;
 		int writeStdout(const byte data[], int length);
 		int writeProperties(const byte data[], int length);
 		int writeShadowOut(const byte data[], int length);
 
 	private:
 		LPWANConnectionHandler* _connection;
+		void sendPropertiesToCloud();
 	
 };
 
 extern ArduinoIoTCloudLPWAN ArduinoCloud;
+
+//#endif
 
 #endif

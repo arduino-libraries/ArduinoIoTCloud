@@ -177,16 +177,17 @@ class ArduinoIoTCloudClass {
     ArduinoIoTSynchronizationStatus _syncStatus = ArduinoIoTSynchronizationStatus::SYNC_STATUS_SYNCHRONIZED;
 
 									
-    String _device_id, _thing_id;
+	String _device_id = "";
+	String _thing_id = "";
    
 
     ArduinoCloudThing Thing;
 	
-    int _lastSyncRequestTickTime;
+    int _lastSyncRequestTickTime = 0;
 
-    OnCloudEventCallback _on_sync_event_callback,
-                         _on_connect_event_callback,
-                         _on_disconnect_event_callback;
+	OnCloudEventCallback _on_sync_event_callback = NULL;
+	OnCloudEventCallback _on_connect_event_callback = NULL;
+	OnCloudEventCallback _on_disconnect_event_callback = NULL;
 
     static void execCloudEventCallback(OnCloudEventCallback & callback, void * callback_arg) {
 		if (callback) {
@@ -204,13 +205,15 @@ class ArduinoIoTCloudClass {
 		}
 	}
 };
-#if defined(ARDUINO_SAMD_MKRGSM1400) || defined(ARDUINO_SAMD_MKRWIFI1010) ||   \
-  defined(ARDUINO_SAMD_MKR1000) || defined(ARDUINO_SAMD_NANO_33_IOT)
-#include "ArduinoIoTCloudTCP.h"
-extern ArduinoIoTCloudTCP ArduinoCloud;
-#elif defined(ARDUINO_SAMD_MKR1300) || defined(ARDUINO_SAMD_MKR1310)
-//#include "ArduinoIoTCloudLPWAN.h"
-//extern ArduinoIoTCloudLPWAN ArduinoCloud;
+
+#if defined(ARDUINO_SAMD_MKRGSM1400) || defined(ARDUINO_SAMD_MKRWIFI1010) ||  defined(ARDUINO_SAMD_MKR1000) || defined(ARDUINO_SAMD_NANO_33_IOT)
+  //#error HAS_TCP
+  #include "ArduinoIoTCloudTCP.h"
+  extern ArduinoIoTCloudTCP ArduinoCloud;
+#elif defined(ARDUINO_SAMD_MKRWAN1300) || defined(ARDUINO_SAMD_MKRWAN1310)
+  //#error HAS_LORA
+  #include "ArduinoIoTCloudLPWAN.h"
+  //extern ArduinoIoTCloudLPWAN ArduinoCloud;
 #endif
 
 #endif

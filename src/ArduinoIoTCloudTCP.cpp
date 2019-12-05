@@ -14,6 +14,8 @@
    software without disclosing the source code of your own applications. To purchase
    a commercial license, send an email to license@arduino.cc.
 */
+#if defined(ARDUINO_SAMD_MKRGSM1400) || defined(ARDUINO_SAMD_MKRWIFI1010) ||  defined(ARDUINO_SAMD_MKR1000) || defined(ARDUINO_SAMD_NANO_33_IOT)
+
 #include <ArduinoIoTCloudTCP.h>
 #ifdef BOARD_HAS_ECCX08
 #include "utility/ECCX08Cert.h"
@@ -71,12 +73,12 @@ ArduinoIoTCloudTCP::ArduinoIoTCloudTCP():
 	_dataTopicIn(""),
 	_otaTopic("")
 	 {
-	_thing_id="";
+	/*_thing_id="";
 	_lastSyncRequestTickTime=0;
 	_on_sync_event_callback(NULL);
 	_on_connect_event_callback(NULL);
 	_on_disconnect_event_callback(NULL);
-	_device_id="";
+	_device_id="";*/
 }
 
 
@@ -443,4 +445,8 @@ void ArduinoIoTCloudTCP::printDebugInfo() {
 	Debug.print(DBG_INFO, "Thing ID: %s", getThingId().c_str());
 	Debug.print(DBG_INFO, "MQTT Broker: %s:%d", _brokerAddress.c_str(), _brokerPort);
 }
+
+//#error DEFINING_ARDUINOCLOUD2
 ArduinoIoTCloudTCP ArduinoCloud;
+
+#endif

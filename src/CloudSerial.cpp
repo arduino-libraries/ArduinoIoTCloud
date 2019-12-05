@@ -14,6 +14,7 @@
    software without disclosing the source code of your own applications. To purchase
    a commercial license, send an email to license@arduino.cc.
 */
+#if defined(ARDUINO_SAMD_MKRGSM1400) || defined(ARDUINO_SAMD_MKRWIFI1010) ||  defined(ARDUINO_SAMD_MKR1000) || defined(ARDUINO_SAMD_NANO_33_IOT) || defined(ARDUINO_ESP8266_ESP12) || defined(ARDUINO_ARCH_ESP32) || defined(ESP8266)
 
 #include "ArduinoIoTCloud.h"
 #include "CloudSerial.h"
@@ -86,3 +87,5 @@ void CloudSerialClass::appendStdin(const uint8_t *buffer, size_t size) {
 }
 
 CloudSerialClass CloudSerial;
+
+#endif
