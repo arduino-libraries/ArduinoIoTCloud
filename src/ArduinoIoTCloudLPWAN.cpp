@@ -183,7 +183,7 @@ int ArduinoIoTCloudLPWAN::writeShadowOut(const byte data[], int length) {
 
 void ArduinoIoTCloudLPWAN::sendPropertiesToCloud() {
 	uint8_t data[DEFAULT_CBOR_LORA_MSG_SIZE];
-	int const length = Thing.encode(data, sizeof(data));
+	int const length = Thing.encode(data, sizeof(data), true);
 	if (length > 0) {
 		writeProperties(data, length);
 	}

@@ -100,7 +100,11 @@ class ArduinoIoTCloudClass {
 
     static unsigned long const DEFAULT_MIN_TIME_BETWEEN_UPDATES_MILLIS = 500; /* Data rate throttled to 2 Hz */
 
-    void addPropertyReal(ArduinoCloudProperty& property, String name, permissionType permission_type = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, float minDelta = 0.0f, void(*synFn)(ArduinoCloudProperty& property) = CLOUD_WINS) {
+	void addPropertyReal(ArduinoCloudProperty & property, String name, permissionType permission_type = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, float minDelta = 0.0f, void(*synFn)(ArduinoCloudProperty & property) = CLOUD_WINS) {
+		addPropertyReal( property, name, -1, permission_type, seconds, fn, minDelta, synFn);
+	}
+
+    void addPropertyReal( ArduinoCloudProperty& property, String name, int tag, permissionType permission_type = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL,  float minDelta = 0.0f, void(*synFn)(ArduinoCloudProperty& property) = CLOUD_WINS ) {
       Permission permission = Permission::ReadWrite;
       if (permission_type == READ) {
         permission = Permission::Read;
@@ -111,42 +115,80 @@ class ArduinoIoTCloudClass {
       }
 
       if (seconds == ON_CHANGE) {
-        Thing.addPropertyReal(property, name, permission).publishOnChange(minDelta, DEFAULT_MIN_TIME_BETWEEN_UPDATES_MILLIS).onUpdate(fn).onSync(synFn);
+        Thing.addPropertyReal(property, name, permission, tag).publishOnChange(minDelta, DEFAULT_MIN_TIME_BETWEEN_UPDATES_MILLIS).onUpdate(fn).onSync(synFn);
       } else {
-        Thing.addPropertyReal(property, name, permission).publishEvery(seconds).onUpdate(fn).onSync(synFn);
+        Thing.addPropertyReal(property, name, permission, tag).publishEvery(seconds).onUpdate(fn).onSync(synFn);
       }
     }
-    void addPropertyReal(bool& property, String name, permissionType permission_type = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, float minDelta = 0.0f, void(*synFn)(ArduinoCloudProperty & property) = CLOUD_WINS) {
+
+	void addPropertyReal(bool& property, String name, permissionType permission_type = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, float minDelta = 0.0f, void(*synFn)(ArduinoCloudProperty & property) = CLOUD_WINS) {
+		addPropertyReal( property, name, -1, permission_type, seconds, fn, minDelta, synFn);
+	}
+
+    void addPropertyReal( bool& property, String name, int tag, permissionType permission_type = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL,  float minDelta = 0.0f, void(*synFn)(ArduinoCloudProperty & property) = CLOUD_WINS) {
       ArduinoCloudProperty *p = new CloudWrapperBool(property);
-      addPropertyReal(*p, name, permission_type, seconds, fn, minDelta, synFn);
+      addPropertyReal(*p, name, tag, permission_type, seconds, fn, minDelta, synFn);
     }
-    ArduinoCloudProperty& addPropertyReal(bool& property, String name, Permission const permission) {
+	ArduinoCloudProperty& addPropertyReal(bool& property, String name, Permission const permission) {
+		return addPropertyReal(property, name, -1, permission);
+	}
+    ArduinoCloudProperty& addPropertyReal(bool& property, String name, int tag, Permission const permission) {
       ArduinoCloudProperty *p = new CloudWrapperBool(property);
-      return Thing.addPropertyReal(*p, name, permission);
+      return Thing.addPropertyReal(*p, name, permission, tag);
     }
-    void addPropertyReal(float& property, String name, permissionType permission_type = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, float minDelta = 0.0f, void(*synFn)(ArduinoCloudProperty & property) = CLOUD_WINS) {
+
+	void addPropertyReal(float& property, String name, permissionType permission_type = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, float minDelta = 0.0f, void(*synFn)(ArduinoCloudProperty & property) = CLOUD_WINS) {
+		addPropertyReal(property, name, -1, permission_type, seconds, fn, minDelta, synFn);
+	}
+
+    void addPropertyReal( float& property, String name, int tag, permissionType permission_type = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL,  float minDelta = 0.0f, void(*synFn)(ArduinoCloudProperty & property) = CLOUD_WINS) {
       ArduinoCloudProperty *p = new CloudWrapperFloat(property);
-      addPropertyReal(*p, name, permission_type, seconds, fn, minDelta, synFn);
+      addPropertyReal(*p, name, tag, permission_type, seconds, fn, minDelta, synFn);
     }
-    ArduinoCloudProperty& addPropertyReal(float& property, String name, Permission const permission) {
+
+	ArduinoCloudProperty& addPropertyReal(float& property, String name, Permission const permission) {
+		return addPropertyReal( property, name, -1, permission);
+	}
+
+    ArduinoCloudProperty& addPropertyReal( float& property, String name, int tag, Permission const permission ) {
       ArduinoCloudProperty *p = new CloudWrapperFloat(property);
-      return Thing.addPropertyReal(*p, name, permission);
+      return Thing.addPropertyReal(*p, name, permission, tag);
     }
-    void addPropertyReal(int& property, String name, permissionType permission_type = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, float minDelta = 0.0, void(*synFn)(ArduinoCloudProperty & property) = CLOUD_WINS) {
+
+	void addPropertyReal(int& property, String name, permissionType permission_type = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, float minDelta = 0.0, void(*synFn)(ArduinoCloudProperty & property) = CLOUD_WINS) {
+		addPropertyReal(property, name, -1, permission_type, seconds,fn,minDelta,synFn);
+	}
+
+    void addPropertyReal( int& property, String name, int tag, permissionType permission_type = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL,  float minDelta = 0.0, void(*synFn)(ArduinoCloudProperty & property) = CLOUD_WINS) {
       ArduinoCloudProperty *p = new CloudWrapperInt(property);
-      addPropertyReal(*p, name, permission_type, seconds, fn, minDelta, synFn);
+      addPropertyReal(*p, name, tag, permission_type, seconds, fn, minDelta, synFn);
     }
-    ArduinoCloudProperty& addPropertyReal(int& property, String name, Permission const permission) {
+
+	ArduinoCloudProperty& addPropertyReal(int& property, String name, Permission const permission) {
+		return addPropertyReal(property, name, -1, permission);
+	}
+
+    ArduinoCloudProperty& addPropertyReal( int& property, String name, int tag, Permission const permission) {
       ArduinoCloudProperty *p = new CloudWrapperInt(property);
-      return Thing.addPropertyReal(*p, name, permission);
+      return Thing.addPropertyReal(*p, name, permission, tag); 
     }
-    void addPropertyReal(String& property, String name, permissionType permission_type = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, float minDelta = 0.0f, void(*synFn)(ArduinoCloudProperty & property) = CLOUD_WINS) {
+
+	void addPropertyReal(String& property, String name, permissionType permission_type = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, float minDelta = 0.0f, void(*synFn)(ArduinoCloudProperty & property) = CLOUD_WINS) {
+		addPropertyReal( property, name, -1, permission_type, seconds, fn, minDelta, synFn);
+	}
+
+    void addPropertyReal( String& property, String name, int tag, permissionType permission_type = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL,  float minDelta = 0.0f, void(*synFn)(ArduinoCloudProperty & property) = CLOUD_WINS) {
       ArduinoCloudProperty *p = new CloudWrapperString(property);
-      addPropertyReal(*p, name, permission_type, seconds, fn, minDelta, synFn);
+      addPropertyReal(*p, name, tag, permission_type, seconds, fn, minDelta, synFn);
     }
-    ArduinoCloudProperty& addPropertyReal(String& property, String name, Permission const permission) {
+
+	ArduinoCloudProperty& addPropertyReal(String& property, String name, Permission const permission) {
+		return addPropertyReal(property, name, -1, permission);
+	}
+
+    ArduinoCloudProperty& addPropertyReal(String& property, String name, int tag, Permission const permission) {
       ArduinoCloudProperty *p = new CloudWrapperString(property);
-      return Thing.addPropertyReal(*p, name, permission);
+      return Thing.addPropertyReal(*p, name, permission, tag);
     }
 
     void addCallback(ArduinoIoTCloudEvent const event, OnCloudEventCallback callback) {
