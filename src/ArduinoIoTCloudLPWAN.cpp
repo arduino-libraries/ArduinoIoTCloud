@@ -52,10 +52,13 @@ int ArduinoIoTCloudLPWAN::connected()
 	return state;
 }
 
-int ArduinoIoTCloudLPWAN::begin(LPWANConnectionHandler& connection)
+int ArduinoIoTCloudLPWAN::begin(LPWANConnectionHandler& connection, bool retry)
 {
 	_connection = &connection;
 	_connection->init();
+	_retryEnable = retry;
+	_maxNumRetry = 5;
+	_intervalRetry = 1000;
 	Thing.begin();
 	return 1;
 }
@@ -166,18 +169,37 @@ void ArduinoIoTCloudLPWAN::printDebugInfo() {
 
 
 int ArduinoIoTCloudLPWAN::writeProperties(const byte data[], int length) {
-	_connection->write(data, length);
-
+	int retcode = _connection->write(data, length);
+	int i = 0;
+	while (_retryEnable && retcode < 0 && i < _maxNumRetry) {
+		delay(_intervalRetry);
+		retcode = _connection->write(data, length);
+		i++;
+	}
+	
 	return 1;
 }
 
 int ArduinoIoTCloudLPWAN::writeStdout(const byte data[], int length) {
-	_connection->write(data, length);
+	int retcode = _connection->write(data, length);
+	int i = 0;
+	while (_retryEnable && retcode < 0 && i < _maxNumRetry) {
+		delay(_intervalRetry);
+		retcode = _connection->write(data, length);
+		i++;
+	}
+
 	return 1;
 }
 
 int ArduinoIoTCloudLPWAN::writeShadowOut(const byte data[], int length) {
-	_connection->write(data, length);
+	int retcode = _connection->write(data, length);
+	int i = 0;
+	while (_retryEnable && retcode < 0 && i < _maxNumRetry) {
+		delay(_intervalRetry);
+		retcode = _connection->write(data, length);
+		i++;
+	}
 	return 1;
 }
 
