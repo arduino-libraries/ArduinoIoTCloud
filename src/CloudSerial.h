@@ -51,9 +51,9 @@ class CloudSerialClass : public Stream {
 
   protected:
 
-	friend class ArduinoIoTCloudTCP;
+    friend class ArduinoIoTCloudTCP;
 
-    
+
 
     void appendStdin(const uint8_t *buffer, size_t size);
 
