@@ -23,7 +23,6 @@
   defined(ARDUINO_SAMD_MKRNB1500)
   #define BOARD_HAS_ECCX08
   #define HAS_TCP
-  //#error HAS_TCP_SET
 #endif
 
 #if defined(ARDUINO_SAMD_MKRWAN1300) || defined(ARDUINO_SAMD_MKRWAN1310)

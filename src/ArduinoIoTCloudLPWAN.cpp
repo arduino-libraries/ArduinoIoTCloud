@@ -20,15 +20,7 @@
 #include<ArduinoIoTCloudLPWAN.h>
 
 ArduinoIoTCloudLPWAN::ArduinoIoTCloudLPWAN() :
-	_connection(NULL)
-{
-	/*_thing_id = "";
-	_lastSyncRequestTickTime = 0;
-	_on_sync_event_callback(NULL);
-	_on_connect_event_callback(NULL);
-	_on_disconnect_event_callback(NULL);
-	_device_id = "";*/
-}
+	_connection(NULL){}
 
 ArduinoIoTCloudLPWAN::~ArduinoIoTCloudLPWAN() {
 }
@@ -210,7 +202,7 @@ void ArduinoIoTCloudLPWAN::sendPropertiesToCloud() {
 		writeProperties(data, length);
 	}
 }
-//#error MULTIPLE_DEFINITION
+
 ArduinoIoTCloudLPWAN ArduinoCloud;
 
 #endif

@@ -18,8 +18,6 @@
 #ifndef ARDUINO_IOT_CLOUD_TCP_H
 #define ARDUINO_IOT_CLOUD_TCP_H
 
-//#ifdef defined(ARDUINO_SAMD_MKRGSM1400) || defined(ARDUINO_SAMD_MKRWIFI1010) ||  defined(ARDUINO_SAMD_MKR1000) || defined(ARDUINO_SAMD_NANO_33_IOT)
-
 
 #include <ArduinoIoTCloud.h>
 #include <Arduino_ConnectionHandler.h>
@@ -143,6 +141,5 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
 
 extern ArduinoIoTCloudTCP ArduinoCloud;
 
-//#endif
 
 #endif

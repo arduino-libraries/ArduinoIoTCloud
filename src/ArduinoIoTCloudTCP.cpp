@@ -72,14 +72,7 @@ ArduinoIoTCloudTCP::ArduinoIoTCloudTCP():
 	_dataTopicOut(""),
 	_dataTopicIn(""),
 	_otaTopic("")
-	 {
-	/*_thing_id="";
-	_lastSyncRequestTickTime=0;
-	_on_sync_event_callback(NULL);
-	_on_connect_event_callback(NULL);
-	_on_disconnect_event_callback(NULL);
-	_device_id="";*/
-}
+	 {}
 
 
 ArduinoIoTCloudTCP::~ArduinoIoTCloudTCP() {
@@ -446,7 +439,6 @@ void ArduinoIoTCloudTCP::printDebugInfo() {
 	Debug.print(DBG_INFO, "MQTT Broker: %s:%d", _brokerAddress.c_str(), _brokerPort);
 }
 
-//#error DEFINING_ARDUINOCLOUD2
 ArduinoIoTCloudTCP ArduinoCloud;
 
 #endif
