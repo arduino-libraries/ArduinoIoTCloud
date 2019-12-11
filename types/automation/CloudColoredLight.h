@@ -82,6 +82,7 @@ class CloudColoredLight : public CloudColor {
 
     void setSwitch(bool const swi) {
       _value.swi = swi;
+      updateLocalTimestamp();
     }
 
     float getHue() {
@@ -90,6 +91,7 @@ class CloudColoredLight : public CloudColor {
 
     void setHue(float const hue) {
       _value.hue = hue;
+      updateLocalTimestamp();
     }
 
     float getSaturation() {
@@ -98,6 +100,7 @@ class CloudColoredLight : public CloudColor {
 
     void setSaturation(float const sat) {
       _value.sat = sat;
+      updateLocalTimestamp();
     }
 
     float getBrightness() {
@@ -106,6 +109,7 @@ class CloudColoredLight : public CloudColor {
 
     void setBrightness(float const bri) {
       _value.bri = bri;
+      updateLocalTimestamp();
     }
 
     virtual void fromCloudToLocal() {
