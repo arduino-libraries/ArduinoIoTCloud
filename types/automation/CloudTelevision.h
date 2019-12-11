@@ -168,12 +168,27 @@ class CloudTelevision : public ArduinoCloudProperty {
       return _value;
     }
 
+    void setSwitch(bool const swi) {
+      _value.swi = swi;
+      updateLocalTimestamp();
+    }
+
     bool getSwitch() {
       return _value.swi;
     }
 
+    void setSwitch(uint8_t const vol) {
+      _value.vol = vol;
+      updateLocalTimestamp();
+    }
+
     uint8_t getVolume() {
       return _value.vol;
+    }
+
+    void setMute(bool const mut) {
+      _value.mut = mut;
+      updateLocalTimestamp();
     }
 
     bool getMute() {
