@@ -19,6 +19,11 @@
 
 #include<ArduinoIoTCloudLPWAN.h>
 
+#ifdef ARDUINO_ARCH_SAMD
+  #include <RTCZero.h>
+  RTCZero rtc;
+#endif
+
 ArduinoIoTCloudLPWAN::ArduinoIoTCloudLPWAN() :
   _connection(NULL) {}
 
