@@ -47,7 +47,10 @@ ArduinoCloudProperty::ArduinoCloudProperty()
       _update_interval_millis(0),
       _last_local_change_timestamp(0),
       _last_cloud_change_timestamp(0),
-      _map_data_list(nullptr) {
+      _map_data_list(nullptr),
+      _identifier(0),
+      _attributeIdentifier(0),
+      _lightPayload(false) {
 }
 
 /******************************************************************************
@@ -115,7 +118,9 @@ void ArduinoCloudProperty::execCallbackOnSync() {
   }
 }
 
-void ArduinoCloudProperty::append(CborEncoder *encoder) {
+void ArduinoCloudProperty::append(CborEncoder *encoder, bool lightPayload) {
+  _lightPayload = lightPayload;
+  _attributeIdentifier = 0;
   appendAttributesToCloudReal(encoder);
   fromLocalToCloud();
   _has_been_updated_once = true;
@@ -151,20 +156,35 @@ void ArduinoCloudProperty::appendAttributeReal(String value, String attributeNam
 }
 
 void ArduinoCloudProperty::appendAttributeName(String attributeName, std::function<void (CborEncoder& mapEncoder)>appendValue, CborEncoder *encoder) {
+  if (attributeName != "") {
+    // when the attribute name string is not empty, the attribute identifier is incremented in order to be encoded in the message if the _lightPayload flag is set
+    _attributeIdentifier++;
+  }
   CborEncoder mapEncoder;
   cbor_encoder_create_map(encoder, &mapEncoder, 2);
   cbor_encode_int(&mapEncoder, static_cast<int>(CborIntegerMapKey::Name));
-  String completeName = _name;
-  if (attributeName != "") {
-    completeName += ":" + attributeName;
+
+  // if _lightPayload is true, the property and attribute identifiers will be encoded instead of the property name
+  if (_lightPayload) {
+    // the most significant byte of the identifier to be encoded represent the property identifier
+    int completeIdentifier = _attributeIdentifier * 256;
+    // the least significant byte of the identifier to be encoded represent the attribute identifier
+    completeIdentifier += _identifier;
+    cbor_encode_int(&mapEncoder, completeIdentifier);
+  } else {
+    String completeName = _name;
+    if (attributeName != "") {
+      completeName += ":" + attributeName;
+    }
+    cbor_encode_text_stringz(&mapEncoder, completeName.c_str());
   }
-  cbor_encode_text_stringz(&mapEncoder, completeName.c_str());
   appendValue(mapEncoder);
   cbor_encoder_close_container(encoder, &mapEncoder);
 }
 
 void ArduinoCloudProperty::setAttributesFromCloud(LinkedList<CborMapData *> *map_data_list) {
   _map_data_list = map_data_list;
+  _attributeIdentifier = 0;
   setAttributesFromCloud();
 }
 
@@ -204,16 +224,30 @@ void ArduinoCloudProperty::setAttributeReal(String& value, String attributeName)
 }
 
 void ArduinoCloudProperty::setAttributeReal(String attributeName, std::function<void (CborMapData *md)>setValue) {
+  if (attributeName != "") {
+    _attributeIdentifier++;
+  }
   for (int i = 0; i < _map_data_list->size(); i++) {
     CborMapData *map = _map_data_list->get(i);
     if (map != nullptr) {
-      String an = map->attribute_name.get();
-      if (an == attributeName) {
-        setValue(map);
-        break;
+      if (map->light_payload.isSet() && map->light_payload.get()) {
+        // if a light payload is detected, the attribute identifier is retrieved from the cbor map and the corresponding attribute is updated
+        int attid = map->attribute_identifier.get();
+        if (attid == _attributeIdentifier) {
+          setValue(map);
+          break;
+        }
+      } else {
+        // if a normal payload is detected, the name of the attribute to be updated is extracted directly from the cbor map
+        String an = map->attribute_name.get();
+        if (an == attributeName) {
+          setValue(map);
+          break;
+        }
       }
     }
   }
+
 }
 
 String ArduinoCloudProperty::getAttributeName(String propertyName, char separator) {
@@ -243,4 +277,8 @@ unsigned long ArduinoCloudProperty::getLastCloudChangeTimestamp() {
 
 unsigned long ArduinoCloudProperty::getLastLocalChangeTimestamp() {
   return _last_local_change_timestamp;
+}
+
+void ArduinoCloudProperty::setIdentifier(int identifier) {
+  _identifier = identifier;
 }

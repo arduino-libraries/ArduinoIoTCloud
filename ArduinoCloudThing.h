@@ -77,23 +77,26 @@ class ArduinoCloudThing {
     ArduinoCloudThing();
 
     void begin();
-
-    ArduinoCloudProperty   & addPropertyReal(ArduinoCloudProperty   & property, String const & name, Permission const permission);
+    //if propertyIdentifier is different from -1, an integer identifier is associated to the added property to be use instead of the property name when the parameter lightPayload is true in the encode method
+    ArduinoCloudProperty   & addPropertyReal(ArduinoCloudProperty   & property, String const & name, Permission const permission, int propertyIdentifier = -1);
 
     /* encode return > 0 if a property has changed and encodes the changed properties in CBOR format into the provided buffer */
-    int encode(uint8_t * data, size_t const size);
+    /* if lightPayload is true the integer identifier of the property will be encoded in the message instead of the property name in order to reduce the size of the message payload*/
+    int encode(uint8_t * data, size_t const size, bool lightPayload = false);
     /* decode a CBOR payload received from the cloud */
     void decode(uint8_t const * const payload, size_t const length, bool isSyncMessage = false);
 
     bool isPropertyInContainer(String const & name);
-    int appendChangedProperties(CborEncoder * arrayEncoder);
+    int appendChangedProperties(CborEncoder * arrayEncoder, bool lightPayload);
     void updateTimestampOnLocallyChangedProperties();
     void updateProperty(String propertyName, unsigned long cloudChangeEventTime);
+    String getPropertyNameByIdentifier(int propertyIdentifier);
 
   private:
     LinkedList<ArduinoCloudProperty *>   _property_list;
     /* Keep track of the number of primitive properties in the Thing. If 0 it allows the early exit in updateTimestampOnLocallyChangedProperties() */
     int                                  _numPrimitivesProperties;
+    int                                  _numProperties;
     /* Indicates the if the message received to be decoded is a response to the getLastValues inquiry */
     bool                                 _isSyncMessage;
     /* List of map data that will hold all the attributes of a property */
@@ -135,11 +138,18 @@ class ArduinoCloudThing {
 
     static bool   ifNumericConvertToDouble(CborValue * value_iter, double * numeric_val);
     static double convertCborHalfFloatToDouble(uint16_t const half_val);
-    void freeMapDataList(LinkedList<CborMapData *> *map_data_list);
-    inline void addProperty(ArduinoCloudProperty   * property_obj) {
+    void freeMapDataList(LinkedList<CborMapData *> * map_data_list);
+    inline void addProperty(ArduinoCloudProperty   * property_obj, int propertyIdentifier) {
+      if (propertyIdentifier != -1) {
+        property_obj->setIdentifier(propertyIdentifier);
+      } else {
+        // if property identifier is -1, an incremental value will be assigned as identifier.
+        property_obj->setIdentifier(_numProperties);
+      }
       _property_list.add(property_obj);
     }
     ArduinoCloudProperty * getProperty(String const & name);
+    ArduinoCloudProperty * getProperty(int const & identifier);
 
 };
 

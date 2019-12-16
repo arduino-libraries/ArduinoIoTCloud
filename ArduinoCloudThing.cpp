@@ -45,6 +45,7 @@ void PrintFreeRam(void) {
 
 ArduinoCloudThing::ArduinoCloudThing() :
   _numPrimitivesProperties(0),
+  _numProperties(0),
   _isSyncMessage(false),
   _currentPropertyName(""),
   _currentPropertyBaseTime(0),
@@ -58,7 +59,8 @@ ArduinoCloudThing::ArduinoCloudThing() :
 void ArduinoCloudThing::begin() {
 }
 
-int ArduinoCloudThing::encode(uint8_t * data, size_t const size) {
+int ArduinoCloudThing::encode(uint8_t * data, size_t const size, bool lightPayload) {
+
   // check if backing storage and cloud has diverged
   // time interval may be elapsed or property may be changed
   CborEncoder encoder, arrayEncoder;
@@ -69,7 +71,7 @@ int ArduinoCloudThing::encode(uint8_t * data, size_t const size) {
     return -1;
   }
 
-  if (appendChangedProperties(&arrayEncoder) < 1) {
+  if (appendChangedProperties(&arrayEncoder, lightPayload) < 1) {
     return -1;
   }
 
@@ -84,7 +86,7 @@ int ArduinoCloudThing::encode(uint8_t * data, size_t const size) {
   return bytes_encoded;
 }
 
-ArduinoCloudProperty& ArduinoCloudThing::addPropertyReal(ArduinoCloudProperty & property, String const & name, Permission const permission) {
+ArduinoCloudProperty& ArduinoCloudThing::addPropertyReal(ArduinoCloudProperty & property, String const & name, Permission const permission, int propertyIdentifier) {
   property.init(name, permission);
   if (isPropertyInContainer(name)) {
     return (*getProperty(name));
@@ -92,9 +94,11 @@ ArduinoCloudProperty& ArduinoCloudThing::addPropertyReal(ArduinoCloudProperty & 
     if (property.isPrimitive()) {
       _numPrimitivesProperties++;
     }
-    addProperty(&property);
+    _numProperties++;
+    addProperty(&property, propertyIdentifier);
     return (property);
   }
+
 }
 
 void ArduinoCloudThing::decode(uint8_t const * const payload, size_t const length, bool isSyncMessage) {
@@ -158,22 +162,34 @@ bool ArduinoCloudThing::isPropertyInContainer(String const & name) {
   return false;
 }
 
-int ArduinoCloudThing::appendChangedProperties(CborEncoder * arrayEncoder) {
+int ArduinoCloudThing::appendChangedProperties(CborEncoder * arrayEncoder, bool lightPayload) {
   int appendedProperties = 0;
   for (int i = 0; i < _property_list.size(); i++) {
     ArduinoCloudProperty * p = _property_list.get(i);
     if (p->shouldBeUpdated() && p->isReadableByCloud()) {
-      p->append(arrayEncoder);
+      p->append(arrayEncoder, lightPayload);
       appendedProperties++;
     }
   }
   return appendedProperties;
 }
 
+//retrieve property by name
 ArduinoCloudProperty * ArduinoCloudThing::getProperty(String const & name) {
   for (int i = 0; i < _property_list.size(); i++) {
     ArduinoCloudProperty * p = _property_list.get(i);
     if (p->name() == name) {
+      return p;
+    }
+  }
+  return NULL;
+}
+
+//retrieve property by identifier
+ArduinoCloudProperty * ArduinoCloudThing::getProperty(int const & pos) {
+  for (int i = 0; i < _property_list.size(); i++) {
+    ArduinoCloudProperty * p = _property_list.get(i);
+    if (p->identifier() == pos) {
       return p;
     }
   }
@@ -312,6 +328,7 @@ ArduinoCloudThing::MapParserState ArduinoCloudThing::handle_Name(CborValue * val
   MapParserState next_state = MapParserState::Error;
 
   if (cbor_value_is_text_string(value_iter)) {
+    // if the value in the cbor message is a string, it corresponds to the name of the property to be updated (int the form [property_name]:[attribute_name])
     char * val      = nullptr;
     size_t val_size = 0;
     if (cbor_value_dup_text_string(value_iter, &val, &val_size, value_iter) == CborNoError) {
@@ -326,7 +343,25 @@ ArduinoCloudThing::MapParserState ArduinoCloudThing::handle_Name(CborValue * val
       map_data->attribute_name.set(attribute_name);
       next_state = MapParserState::MapKey;
     }
+  } else if (cbor_value_is_integer(value_iter)) {
+    // if the value in the cbor message is an integer, a light payload has been used and an integer identifier should be decode in order to retrieve the corresponding property and attribute name to be updated
+    int val = 0;
+    if (cbor_value_get_int(value_iter, &val) == CborNoError) {
+      map_data->light_payload.set(true);
+      map_data->name_identifier.set(val & 255);
+      map_data->attribute_identifier.set(val >> 8);
+      map_data->light_payload.set(true);
+      String name = getPropertyNameByIdentifier(val);
+      map_data->name.set(name);
+
+
+      if (cbor_value_advance(value_iter) == CborNoError) {
+        next_state = MapParserState::MapKey;
+      }
+    }
   }
+
+
 
   return next_state;
 }
@@ -404,7 +439,6 @@ ArduinoCloudThing::MapParserState ArduinoCloudThing::handle_LeaveMap(CborValue *
     }
 
     if (_currentPropertyName != "" && propertyName != _currentPropertyName) {
-
       /* Update the property containers depending on the parsed data */
       updateProperty(_currentPropertyName, _currentPropertyBaseTime + _currentPropertyTime);
       /* Reset current property data */
@@ -461,6 +495,18 @@ void ArduinoCloudThing::updateProperty(String propertyName, unsigned long cloudC
     }
   }
 }
+
+// retrieve the property name by the identifier
+String ArduinoCloudThing::getPropertyNameByIdentifier(int propertyIdentifier) {
+  ArduinoCloudProperty* property;
+  if (propertyIdentifier > 255) {
+    property = getProperty(propertyIdentifier & 255);
+  } else {
+    property = getProperty(propertyIdentifier);
+  }
+  return property->name();
+}
+
 bool ArduinoCloudThing::ifNumericConvertToDouble(CborValue * value_iter, double * numeric_val) {
 
   if (cbor_value_is_integer(value_iter)) {

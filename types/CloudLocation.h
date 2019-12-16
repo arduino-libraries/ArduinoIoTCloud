@@ -83,7 +83,6 @@ class CloudLocation : public ArduinoCloudProperty {
       return _value;
     }
 
-
     virtual void fromCloudToLocal() {
       _value = _cloud_value;
     }
