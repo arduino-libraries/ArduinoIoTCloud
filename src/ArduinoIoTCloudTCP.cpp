@@ -29,15 +29,15 @@
 #endif
 
 #ifdef BOARD_HAS_ECCX08
-  const static int keySlot = 0;
-  const static int compressedCertSlot = 10;
+  const static int keySlot									                 = 0;
+  const static int compressedCertSlot						             = 10;
   const static int serialNumberAndAuthorityKeyIdentifierSlot = 11;
-  const static int deviceIdSlot = 12;
+  const static int deviceIdSlot								               = 12;
 #endif
 
-const static int CONNECT_SUCCESS = 1;
-const static int CONNECT_FAILURE = 0;
-const static int CONNECT_FAILURE_SUBSCRIBE = -1;
+const static int CONNECT_SUCCESS							               = 1;
+const static int CONNECT_FAILURE							               = 0;
+const static int CONNECT_FAILURE_SUBSCRIBE					         = -1;
 
 static unsigned long getTime() {
   if (!ArduinoCloud.getConnection()) {
