@@ -17,8 +17,6 @@
 #include "ArduinoIoTCloud_Defines.h"
 #ifndef HAS_LORA
 
-//defined(ARDUINO_SAMD_MKRGSM1400) || defined(ARDUINO_SAMD_MKRWIFI1010) ||  defined(ARDUINO_SAMD_MKR1000) || defined(ARDUINO_SAMD_NANO_33_IOT) || defined(ARDUINO_ESP8266_ESP12) || defined(ARDUINO_ARCH_ESP32) || defined(ESP8266)
-
 #include "ArduinoIoTCloud.h"
 #include "CloudSerial.h"
 
