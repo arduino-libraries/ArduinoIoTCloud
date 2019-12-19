@@ -162,11 +162,11 @@ class ArduinoIoTCloudClass {
 
     int _lastSyncRequestTickTime = 0;
 
-    OnCloudEventCallback _on_sync_event_callback = NULL;
-    OnCloudEventCallback _on_connect_event_callback = NULL;
+    OnCloudEventCallback _on_sync_event_callback       = NULL;
+    OnCloudEventCallback _on_connect_event_callback    = NULL;
     OnCloudEventCallback _on_disconnect_event_callback = NULL;
 
-    static void execCloudEventCallback(OnCloudEventCallback& callback, void* callback_arg);
+    static void execCloudEventCallback(OnCloudEventCallback & callback, void * callback_arg);
     static void printConnectionStatus(ArduinoIoTConnectionStatus status);
 };
 

@@ -110,8 +110,8 @@ ArduinoCloudProperty& ArduinoIoTCloudClass::addPropertyReal(String& property, St
 
 void ArduinoIoTCloudClass::addCallback(ArduinoIoTCloudEvent const event, OnCloudEventCallback callback) {
   switch (event) {
-    case ArduinoIoTCloudEvent::SYNC:       _on_sync_event_callback = callback; break;
-    case ArduinoIoTCloudEvent::CONNECT:    _on_connect_event_callback = callback; break;
+    case ArduinoIoTCloudEvent::SYNC:       _on_sync_event_callback       = callback; break;
+    case ArduinoIoTCloudEvent::CONNECT:    _on_connect_event_callback    = callback; break;
     case ArduinoIoTCloudEvent::DISCONNECT: _on_disconnect_event_callback = callback; break;
   }
 };
@@ -123,11 +123,11 @@ void ArduinoIoTCloudClass::execCloudEventCallback(OnCloudEventCallback& callback
 }
 void ArduinoIoTCloudClass::printConnectionStatus(ArduinoIoTConnectionStatus status) {
   switch (status) {
-    case ArduinoIoTConnectionStatus::IDLE:         Debug.print(DBG_INFO, "Arduino IoT Cloud Connection status: IDLE");         break;
+    case ArduinoIoTConnectionStatus::IDLE:         Debug.print(DBG_INFO,  "Arduino IoT Cloud Connection status: IDLE");         break;
     case ArduinoIoTConnectionStatus::ERROR:        Debug.print(DBG_ERROR, "Arduino IoT Cloud Connection status: ERROR");        break;
-    case ArduinoIoTConnectionStatus::CONNECTING:   Debug.print(DBG_INFO, "Arduino IoT Cloud Connection status: CONNECTING");   break;
-    case ArduinoIoTConnectionStatus::RECONNECTING: Debug.print(DBG_INFO, "Arduino IoT Cloud Connection status: RECONNECTING"); break;
-    case ArduinoIoTConnectionStatus::CONNECTED:    Debug.print(DBG_INFO, "Arduino IoT Cloud Connection status: CONNECTED");    break;
+    case ArduinoIoTConnectionStatus::CONNECTING:   Debug.print(DBG_INFO,  "Arduino IoT Cloud Connection status: CONNECTING");   break;
+    case ArduinoIoTConnectionStatus::RECONNECTING: Debug.print(DBG_INFO,  "Arduino IoT Cloud Connection status: RECONNECTING"); break;
+    case ArduinoIoTConnectionStatus::CONNECTED:    Debug.print(DBG_INFO,  "Arduino IoT Cloud Connection status: CONNECTED");    break;
     case ArduinoIoTConnectionStatus::DISCONNECTED: Debug.print(DBG_ERROR, "Arduino IoT Cloud Connection status: DISCONNECTED"); break;
   }
 }

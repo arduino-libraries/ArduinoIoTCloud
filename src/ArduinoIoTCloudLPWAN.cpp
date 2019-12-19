@@ -32,7 +32,7 @@ ArduinoIoTCloudLPWAN::~ArduinoIoTCloudLPWAN() {
 
 int ArduinoIoTCloudLPWAN::connect() {
   _connection->connect();
-  int state = _connection->getStatus() == NetworkConnectionState::INIT ? 1 : 0;
+  const int state = _connection->getStatus() == NetworkConnectionState::INIT ? 1 : 0;
   return state;
 }
 
