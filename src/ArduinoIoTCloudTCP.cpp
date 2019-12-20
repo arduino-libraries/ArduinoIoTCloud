@@ -14,8 +14,9 @@
    software without disclosing the source code of your own applications. To purchase
    a commercial license, send an email to license@arduino.cc.
 */
-#if defined(ARDUINO_SAMD_MKRGSM1400) || defined(ARDUINO_SAMD_MKRWIFI1010) ||  defined(ARDUINO_SAMD_MKR1000) || defined(ARDUINO_SAMD_NANO_33_IOT)
+#include "ArduinoIoTCloud_Defines.h"
 
+#ifdef HAS_TCP
 #include <ArduinoIoTCloudTCP.h>
 #ifdef BOARD_HAS_ECCX08
   #include "utility/ECCX08Cert.h"

@@ -31,6 +31,7 @@
 
 #if defined(ARDUINO_ESP8266_ESP12) || defined(ARDUINO_ARCH_ESP32) || defined(ESP8266)
   #define BOARD_ESP
+  #define HAS_TCP
 #endif
 
 #endif /* ARDUINO_IOT_CLOUD_DEFINES_H_ */

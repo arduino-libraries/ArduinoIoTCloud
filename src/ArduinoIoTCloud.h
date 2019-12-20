@@ -170,10 +170,10 @@ class ArduinoIoTCloudClass {
     static void printConnectionStatus(ArduinoIoTConnectionStatus status);
 };
 
-#if defined(ARDUINO_SAMD_MKRGSM1400) || defined(ARDUINO_SAMD_MKRWIFI1010) ||  defined(ARDUINO_SAMD_MKR1000) || defined(ARDUINO_SAMD_NANO_33_IOT)
+#ifdef HAS_TCP
   #include "ArduinoIoTCloudTCP.h"
 
-#elif defined(ARDUINO_SAMD_MKRWAN1300) || defined(ARDUINO_SAMD_MKRWAN1310)
+#elif defined(HAS_LORA)
   #include "ArduinoIoTCloudLPWAN.h"
 
 #endif

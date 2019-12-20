@@ -14,8 +14,8 @@
    software without disclosing the source code of your own applications. To purchase
    a commercial license, send an email to license@arduino.cc.
 */
-
-#if defined(ARDUINO_SAMD_MKRWAN1300) || defined(ARDUINO_SAMD_MKRWAN1310)
+#include "ArduinoIoTCloud_Defines.h"
+#ifdef HAS_LORA
 
 #include<ArduinoIoTCloudLPWAN.h>
 
