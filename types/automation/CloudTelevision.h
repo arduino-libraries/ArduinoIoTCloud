@@ -177,7 +177,7 @@ class CloudTelevision : public ArduinoCloudProperty {
       return _value.swi;
     }
 
-    void setSwitch(uint8_t const vol) {
+    void setVolume(uint8_t const vol) {
       _value.vol = vol;
       updateLocalTimestamp();
     }
