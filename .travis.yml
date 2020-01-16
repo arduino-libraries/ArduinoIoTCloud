@@ -8,6 +8,8 @@ matrix:
     - env:
         - BOARD="arduino:samd:mkrgsm1400"
     - env:
+        - BOARD="arduino:samd:mkrwan1300"
+    - env:
         - BOARD="esp8266:esp8266:huzzah"
     - env:
         - NAME=Code Formatting Check
@@ -82,7 +84,7 @@ install:
   - ln -s $PWD $HOME/Arduino/libraries/.
 script:
   - |
-    if [ "$BOARD" == "arduino:samd:mkr1000" ] || [ "$BOARD" == "arduino:samd:mkrwifi1010" ] || [ "$BOARD" == "arduino:samd:mkrgsm1400" ]; then
+    if [ "$BOARD" == "arduino:samd:mkr1000" ] || [ "$BOARD" == "arduino:samd:mkrwifi1010" ] || [ "$BOARD" == "arduino:samd:mkrgsm1400" ] || [ "$BOARD" == "arduino:samd:mkrwan1300" ]; then
       buildExampleSketch ArduinoIoTCloud_LED_switch;
       buildExampleSketch ArduinoIoTCloud_Travis_CI;
       buildExampleUtilitySketch Provisioning;
