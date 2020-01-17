@@ -71,6 +71,7 @@ before_install:
   - installLibrary arduino-libraries/ArduinoBearSSL
   - installLibrary arduino-libraries/ArduinoMqttClient
   - installLibrary arduino-libraries/MKRGSM
+  - installLibrary arduino-libraries/MKRWAN
   - installLibrary arduino-libraries/RTCZero
   - installLibrary arduino-libraries/WiFi101
   - installLibrary arduino-libraries/WiFiNINA
