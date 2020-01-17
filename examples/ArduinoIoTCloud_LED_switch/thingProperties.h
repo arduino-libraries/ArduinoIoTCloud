@@ -20,11 +20,11 @@ int potentiometer;
 void initProperties() {
   ArduinoCloud.setThingId(THING_ID);
   #if defined(BOARD_HAS_WIFI) || defined(BOARD_HAS_GSM)
-    ArduinoCloud.addProperty(led, READWRITE, ON_CHANGE, onLedChange);
-    ArduinoCloud.addProperty(potentiometer, READ, ON_CHANGE);
+  ArduinoCloud.addProperty(led, READWRITE, ON_CHANGE, onLedChange);
+  ArduinoCloud.addProperty(potentiometer, READ, ON_CHANGE);
   #elif defined(BOARD_HAS_LORA)
-    ArduinoCloud.addProperty(led, 1, READWRITE, ON_CHANGE, onLedChange);
-    ArduinoCloud.addProperty(potentiometer, 2, READ, ON_CHANGE);
+  ArduinoCloud.addProperty(led, 1, READWRITE, ON_CHANGE, onLedChange);
+  ArduinoCloud.addProperty(potentiometer, 2, READ, ON_CHANGE);
   #endif
 
 }
@@ -34,5 +34,5 @@ void initProperties() {
 #elif defined(BOARD_HAS_GSM)
   GSMConnectionHandler ArduinoIoTPreferredConnection(SECRET_PIN, SECRET_APN, SECRET_LOGIN, SECRET_PASS);
 #elif defined(BOARD_HAS_LORA)
-  LoRaConnectionHandler ArduinoIoTPreferredConnection(SECRET_APP_EUI, SECRET_APP_KEY, _lora_band::EU868, _lora_class::CLASS_A );
+  LoRaConnectionHandler ArduinoIoTPreferredConnection(SECRET_APP_EUI, SECRET_APP_KEY, _lora_band::EU868, _lora_class::CLASS_A);
 #endif

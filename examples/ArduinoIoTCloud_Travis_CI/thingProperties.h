@@ -59,7 +59,7 @@ String str_property_8;
 #elif defined(BOARD_HAS_GSM)
   GSMConnectionHandler ArduinoIoTPreferredConnection(SECRET_PIN, SECRET_APN, SECRET_LOGIN, SECRET_PASS);
 #elif defined(BOARD_HAS_LORA)
-  LoRaConnectionHandler ArduinoIoTPreferredConnection(SECRET_APP_EUI, SECRET_APP_KEY,EU868);
+  LoRaConnectionHandler ArduinoIoTPreferredConnection(SECRET_APP_EUI, SECRET_APP_KEY, EU868);
 #endif
 
 /******************************************************************************
