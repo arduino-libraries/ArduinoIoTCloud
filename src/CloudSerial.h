@@ -28,7 +28,9 @@
 #define CLOUD_SERIAL_TX_BUFFER_SIZE 64
 #define CLOUD_SERIAL_RX_BUFFER_SIZE 512
 
-class ArduinoIoTCloudClass;
+
+class ArduinoIoTCloudTCP;
+
 
 class CloudSerialClass : public Stream {
   public:
@@ -48,7 +50,10 @@ class CloudSerialClass : public Stream {
     operator bool();
 
   protected:
-    friend class ArduinoIoTCloudClass;
+
+    friend class ArduinoIoTCloudTCP;
+
+
 
     void appendStdin(const uint8_t *buffer, size_t size);
 

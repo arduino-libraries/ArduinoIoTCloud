@@ -22,10 +22,16 @@
   defined(ARDUINO_SAMD_MKR1000) || defined(ARDUINO_SAMD_NANO_33_IOT)      ||   \
   defined(ARDUINO_SAMD_MKRNB1500)
   #define BOARD_HAS_ECCX08
+  #define HAS_TCP
+#endif
+
+#if defined(ARDUINO_SAMD_MKRWAN1300) || defined(ARDUINO_SAMD_MKRWAN1310)
+  #define HAS_LORA
 #endif
 
 #if defined(ARDUINO_ESP8266_ESP12) || defined(ARDUINO_ARCH_ESP32) || defined(ESP8266)
   #define BOARD_ESP
+  #define HAS_TCP
 #endif
 
 #endif /* ARDUINO_IOT_CLOUD_DEFINES_H_ */

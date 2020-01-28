@@ -6,14 +6,15 @@
   When you flip the switch in the Cloud dashboard the onboard LED lights gets turned ON or OFF.
 
   IMPORTANT:
-  This sketch will work with both WiFi and GSM enabled boards supported by Arduino IoT Cloud.
-  By default, settings for WiFi are chosen. If you prefer to use a GSM board take a look at thingProperties.h arduino_secrets.h,
-  to make sure you uncomment what's needed and comment incompatible instructions.
+  This sketch will work with WiFi, GSM and Lora enabled boards supported by Arduino IoT Cloud.
+  On a LoRa board, if it is configuered as a class A device (default and preferred option), values from Cloud dashboard are received
+  only after a value is sent to Cloud.
 
   This sketch is compatible with:
    - MKR 1000
    - MKR WIFI 1010
    - MKR GSM 1400
+   - MKR WAN 1300/1310
 */
 #include "arduino_secrets.h"
 #include "thingProperties.h"
@@ -30,7 +31,7 @@ void setup() {
 
   // initProperties takes care of connecting your sketch variables to the ArduinoIoTCloud object
   initProperties();
-  // tell ArduinoIoTCloud to use our WiFi connection
+  // tell ArduinoIoTCloud to use right connection handler
   ArduinoCloud.begin(ArduinoIoTPreferredConnection);
 
   /*

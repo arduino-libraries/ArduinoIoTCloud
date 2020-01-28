@@ -13,3 +13,10 @@
   #define SECRET_LOGIN ""
   #define SECRET_PASS ""
 #endif
+
+/* MKR WAN 1300/1310 */
+#if defined(BOARD_HAS_LORA)
+  #define SECRET_APP_EUI ""
+  #define SECRET_APP_KEY ""
+#endif
+

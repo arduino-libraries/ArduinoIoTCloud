@@ -7,6 +7,7 @@
      - MKR 1000
      - MKR WIFI 1010
      - MKR GSM 1400
+     - MKR WAN 1300/1310
 */
 
 #include "arduino_secrets.h"
