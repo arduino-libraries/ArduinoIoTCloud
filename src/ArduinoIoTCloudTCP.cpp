@@ -219,7 +219,7 @@ bool ArduinoIoTCloudTCP::disconnect() {
   return true;
 }
 
-void ArduinoIoTCloudTCP::update(CallbackFunc onSyncCompleteCallback) {
+void ArduinoIoTCloudTCP::update() {
   // Check if a primitive property wrapper is locally changed
   Thing.updateTimestampOnLocallyChangedProperties();
 
@@ -245,9 +245,6 @@ void ArduinoIoTCloudTCP::update(CallbackFunc onSyncCompleteCallback) {
       }
       break;
     case ArduinoIoTSynchronizationStatus::SYNC_STATUS_VALUES_PROCESSED: {
-        if (onSyncCompleteCallback != NULL) {
-          (*onSyncCompleteCallback)();
-        }
         execCloudEventCallback(_on_sync_event_callback, 0 /* callback_arg */);
         _syncStatus = ArduinoIoTSynchronizationStatus::SYNC_STATUS_SYNCHRONIZED;
       }
