@@ -75,8 +75,6 @@ class ArduinoIoTCloudClass {
     virtual bool disconnect() = 0;
 
     virtual void update() = 0;
-    virtual void update(int const reconnectionMaxRetries, int const reconnectionTimeoutMs) __attribute__((deprecated)) = 0;
-    virtual void update(CallbackFunc onSyncCompleteCallback) __attribute__((deprecated)) = 0; /* Attention: Function is deprecated - use 'addCallback(ArduinoIoTCloudConnectionEvent::SYNC, &onSync)' for adding a onSyncCallback instead */
 
     virtual int connected() = 0;
 

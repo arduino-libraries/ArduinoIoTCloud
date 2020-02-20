@@ -56,7 +56,7 @@ int ArduinoIoTCloudLPWAN::begin(LPWANConnectionHandler& connection, bool retry) 
   return 1;
 }
 
-void ArduinoIoTCloudLPWAN::update(CallbackFunc onSyncCompleteCallback) {
+void ArduinoIoTCloudLPWAN::update() {
   // Check if a primitive property wrapper is locally changed
   Thing.updateTimestampOnLocallyChangedProperties();
 
@@ -82,9 +82,6 @@ void ArduinoIoTCloudLPWAN::update(CallbackFunc onSyncCompleteCallback) {
   sendPropertiesToCloud();
 
 
-  if (onSyncCompleteCallback != NULL) {
-    (*onSyncCompleteCallback)();
-  }
   execCloudEventCallback(_on_sync_event_callback, 0 /* callback_arg */);
 
 }

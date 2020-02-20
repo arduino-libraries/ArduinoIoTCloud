@@ -30,13 +30,7 @@ class ArduinoIoTCloudLPWAN : public ArduinoIoTCloudClass {
     int connect();
     bool disconnect();
     int connected();
-    inline void update() {
-      update(NULL);
-    }
-    inline void update(int const reconnectionMaxRetries, int const reconnectionTimeoutMs) __attribute__((deprecated)) {
-      update(NULL);
-    }
-    void update(CallbackFunc onSyncCompleteCallback) __attribute__((deprecated));
+    void update();
     void connectionCheck();
     void printDebugInfo();
     int begin(LPWANConnectionHandler& connection, bool retry = false);
