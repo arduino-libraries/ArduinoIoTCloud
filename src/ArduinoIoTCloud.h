@@ -31,7 +31,6 @@
 #include "types/CloudWrapperString.h"
 
 
-#include "CloudSerial.h"
 
 
 typedef enum {

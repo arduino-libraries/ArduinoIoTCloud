@@ -338,9 +338,6 @@ void ArduinoIoTCloudTCP::handleMessage(int length) {
     bytes[i] = _mqttClient->read();
   }
 
-  if (_stdinTopic == topic) {
-    CloudSerial.appendStdin((uint8_t*)bytes, length);
-  }
   if (_dataTopicIn == topic) {
     Thing.decode((uint8_t*)bytes, length);
   }
@@ -405,8 +402,6 @@ void ArduinoIoTCloudTCP::connectionCheck() {
           _iotStatus = ArduinoIoTConnectionStatus::CONNECTED;
           printConnectionStatus(_iotStatus);
           execCloudEventCallback(_on_connect_event_callback, 0 /* callback_arg */);
-          CloudSerial.begin(9600);
-          CloudSerial.println("Hello from Cloud Serial!");
         }
       }
       break;
@@ -417,8 +412,6 @@ void ArduinoIoTCloudTCP::connectionCheck() {
           _iotStatus = ArduinoIoTConnectionStatus::CONNECTED;
           printConnectionStatus(_iotStatus);
           execCloudEventCallback(_on_connect_event_callback, 0 /* callback_arg */);
-          CloudSerial.begin(9600);
-          CloudSerial.println("Hello from Cloud Serial!");
         } else if (ret_code_connect == CONNECT_FAILURE_SUBSCRIBE) {
           Debug.print(DBG_INFO, "ERROR - Please verify your THING ID");
         }
