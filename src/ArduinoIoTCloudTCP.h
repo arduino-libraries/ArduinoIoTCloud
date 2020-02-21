@@ -38,14 +38,6 @@ static uint16_t const DEFAULT_BROKER_PORT_SECURE_AUTH = 8883;
 static char const DEFAULT_BROKER_ADDRESS_USER_PASS_AUTH[] = "mqtts-up.iot.arduino.cc";
 static uint16_t const DEFAULT_BROKER_PORT_USER_PASS_AUTH = 8884;
 
-// Declaration of the struct for the mqtt connection options
-typedef struct {
-  int keepAlive;
-  bool cleanSession;
-  int timeout;
-} mqttConnectionOptions;
-
-
 class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass {
   public:
     ArduinoIoTCloudTCP();
