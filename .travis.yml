@@ -12,25 +12,6 @@ matrix:
     - env:
         - BOARD="esp8266:esp8266:huzzah"
     - env:
-        - NAME=Code Formatting Check
-      # must define an empty before_install phase, otherwise the default one is used
-      before_install: true
-      install:
-        # install Artistic Style code formatter tool: http://astyle.sourceforge.net
-        - |
-          mkdir "${HOME}/astyle";
-          wget --no-verbose --output-document="${HOME}/astyle/astyle.tar.gz" "https://iweb.dl.sourceforge.net/project/astyle/astyle/astyle%203.1/astyle_3.1_linux.tar.gz";
-          tar --extract --file="${HOME}/astyle/astyle.tar.gz" --directory="${HOME}/astyle";
-          cd "${HOME}/astyle/astyle/build/gcc";
-          make;
-          export PATH=$PWD/bin:$PATH;
-          cd "$TRAVIS_BUILD_DIR"
-        # download Arduino's Artistic Style configuration file
-        - wget --directory-prefix="${HOME}/astyle" https://raw.githubusercontent.com/arduino/Arduino/master/build/shared/examples_formatter.conf
-      script:
-        # check code formatting
-        - find . -regextype posix-extended -path './.git' -prune -or \( -iregex '.*\.((ino)|(h)|(hpp)|(hh)|(hxx)|(h\+\+)|(cpp)|(cc)|(cxx)|(c\+\+)|(cp)|(c)|(ipp)|(ii)|(ixx)|(inl)|(tpp)|(txx)|(tpl))$' -and -type f \) -print0 | xargs -0 -L1 bash -c 'if ! diff "$0" <(astyle --options=${HOME}/astyle/examples_formatter.conf --dry-run < "$0"); then echo "Non-compliant code formatting in $0"; false; fi'
-    - env:
         - NAME=Spell Check
       language: python
       python: 3.6
