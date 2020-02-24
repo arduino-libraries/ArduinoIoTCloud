@@ -15,40 +15,36 @@
    a commercial license, send an email to license@arduino.cc.
 */
 
-#ifndef __NTP_UTILS__
-#define __NTP_UTILS__
-
-/*
-	This Utility Class is derived from the example code found here https://www.arduino.cc/en/Tutorial/UdpNTPClient
-	For more information on NTP (Network Time Protocol) you can refer to this Wikipedia article https://en.wikipedia.org/wiki/Network_Time_Protocol
-*/
+#ifndef ARDUINO_IOT_CLOUD_TIME_SERVICE_H_
+#define ARDUINO_IOT_CLOUD_TIME_SERVICE_H_
 
 /**************************************************************************************
  * INCLUDE
  **************************************************************************************/
 
-#include <Udp.h>
+#include <Arduino_ConnectionHandler.h>
 
 /**************************************************************************************
  * CLASS DECLARATION
  **************************************************************************************/
 
-class NTPUtils
+class TimeService
 {
+
 public:
 
-  static unsigned long getTime(UDP & udp);
+  TimeService();
+
+
+  void          begin  (ConnectionHandler * con_hdl);
+  unsigned long getTime();
 
 private:
 
-  static size_t        const NTP_PACKET_SIZE      = 48;
-  static int           const NTP_TIME_SERVER_PORT = 123;
-  static int           const NTP_LOCAL_PORT       = 8888;
-  static unsigned long const NTP_TIMEOUT_MS       = 1000;
-  static char constexpr *    NTP_TIME_SERVER      = "time.arduino.cc";
+  ConnectionHandler * _con_hdl;
 
-  static void sendNTPpacket(UDP & udp);
+  static bool isTimeValid(unsigned long const time);
 
 };
 
-#endif
+#endif /* ARDUINO_IOT_CLOUD_TIME_SERVICE_H_ */

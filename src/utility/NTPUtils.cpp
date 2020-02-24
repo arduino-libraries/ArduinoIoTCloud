@@ -1,83 +1,80 @@
-#include "NTPUtils.h"
-#include "Arduino.h"
 /*
-  This Utility Class is derived from the example code found here https://www.arduino.cc/en/Tutorial/UdpNTPClient
-  For more information on NTP (Network Time Protocol) you can refer to this Wikipedia article https://en.wikipedia.org/wiki/Network_Time_Protocol
+   This file is part of ArduinoIoTCloud.
+
+   Copyright 2020 ARDUINO SA (http://www.arduino.cc/)
+
+   This software is released under the GNU General Public License version 3,
+   which covers the main part of arduino-cli.
+   The terms of this license can be found at:
+   https://www.gnu.org/licenses/gpl-3.0.en.html
+
+   You can be released from the requirements of the above licenses by purchasing
+   a commercial license. Buying such a license is mandatory if you want to modify or
+   otherwise use the software for commercial activities involving the Arduino
+   software without disclosing the source code of your own applications. To purchase
+   a commercial license, send an email to license@arduino.cc.
 */
 
+/**************************************************************************************
+ * INCLUDE
+ **************************************************************************************/
 
-// could be a constexpr in C++14
-static time_t cvt_TIME(char const *time) {
-  char s_month[5];
-  int month, day, year;
-  struct tm t = {0 /* tm_sec   */,
-           0 /* tm_min   */,
-           0 /* tm_hour  */,
-           0 /* tm_mday  */,
-           0 /* tm_mon   */,
-           0 /* tm_year  */,
-           0 /* tm_wday  */,
-           0 /* tm_yday  */,
-           0 /* tm_isdst */
-  };
-  static const char month_names[] = "JanFebMarAprMayJunJulAugSepOctNovDec";
+#include "NTPUtils.h"
+#include "Arduino.h"
 
-  sscanf(time, "%s %d %d", s_month, &day, &year);
+/**************************************************************************************
+ * PUBLIC MEMBER FUNCTIONS
+ **************************************************************************************/
 
-  month = (strstr(month_names, s_month) - month_names) / 3;
+unsigned long NTPUtils::getTime(UDP & udp)
+{
+  udp.begin(NTP_LOCAL_PORT);
+  
+  sendNTPpacket(udp);
 
-  t.tm_mon = month;
-  t.tm_mday = day;
-  t.tm_year = year - 1900;
-  t.tm_isdst = -1;
+  bool is_timeout = false;
+  unsigned long const start = millis();
+  do
+  {
+    is_timeout = (millis() - start) >= NTP_TIMEOUT_MS;
+  } while(!is_timeout && !udp.parsePacket());
 
-  return mktime(&t);
-}
-
-
-NTPUtils::NTPUtils(UDP& Udp) : Udp(Udp) {}
-
-bool NTPUtils::isTimeValid(unsigned long time) {
-  return (time > static_cast<unsigned long>(cvt_TIME(__DATE__)));
-}
-
-void NTPUtils::sendNTPpacket(uint8_t* packetBuffer) {
-  memset(packetBuffer, 0, NTP_PACKET_SIZE);
-  packetBuffer[0] = 0b11100011;
-  packetBuffer[1] = 0;
-  packetBuffer[2] = 6;
-  packetBuffer[3] = 0xEC;
-  packetBuffer[12]  = 49;
-  packetBuffer[13]  = 0x4E;
-  packetBuffer[14]  = 49;
-  packetBuffer[15]  = 52;
-  Udp.beginPacket(timeServer, 123);
-  Udp.write(packetBuffer, NTP_PACKET_SIZE);
-  Udp.endPacket();
-}
-
-unsigned long NTPUtils::getTime() {
-
-  unsigned int localPort = 8888;
-  uint8_t packetBuffer[NTP_PACKET_SIZE];
-
-  Udp.begin(localPort);
-  sendNTPpacket(packetBuffer);
-  long start = millis();
-  while (!Udp.parsePacket() && (millis() - start < 10000)) {}
-  if (millis() - start >= 1000) {
-    //timeout reached
-    Udp.stop();
+  if(is_timeout) {
+    udp.stop();
     return 0;
   }
-  Udp.read(packetBuffer, NTP_PACKET_SIZE);
+  
+  uint8_t ntp_packet_buf[NTP_PACKET_SIZE];
+  udp.read(ntp_packet_buf, NTP_PACKET_SIZE);
+  udp.stop();
 
-  unsigned long highWord = word(packetBuffer[40], packetBuffer[41]);
-  unsigned long lowWord = word(packetBuffer[42], packetBuffer[43]);
-  unsigned long secsSince1900 = highWord << 16 | lowWord;
-  const unsigned long seventyYears = 2208988800UL;
-  unsigned long epoch = secsSince1900 - seventyYears;
+  unsigned long const highWord      = word(ntp_packet_buf[40], ntp_packet_buf[41]);
+  unsigned long const lowWord       = word(ntp_packet_buf[42], ntp_packet_buf[43]);
+  unsigned long const secsSince1900 = highWord << 16 | lowWord;
+  unsigned long const seventyYears  = 2208988800UL;
+  unsigned long const epoch         = secsSince1900 - seventyYears;
 
-  Udp.stop();
   return epoch;
+}
+
+/**************************************************************************************
+ * PRIVATE MEMBER FUNCTIONS
+ **************************************************************************************/
+
+void NTPUtils::sendNTPpacket(UDP & udp)
+{
+  uint8_t ntp_packet_buf[NTP_PACKET_SIZE] = {0};
+  
+  ntp_packet_buf[0]  = 0b11100011;
+  ntp_packet_buf[1]  = 0;
+  ntp_packet_buf[2]  = 6;
+  ntp_packet_buf[3]  = 0xEC;
+  ntp_packet_buf[12] = 49;
+  ntp_packet_buf[13] = 0x4E;
+  ntp_packet_buf[14] = 49;
+  ntp_packet_buf[15] = 52;
+  
+  udp.beginPacket(NTP_TIME_SERVER, NTP_TIME_SERVER_PORT);
+  udp.write(ntp_packet_buf, NTP_PACKET_SIZE);
+  udp.endPacket();
 }
