@@ -27,6 +27,10 @@
 
 #include <Arduino_ConnectionHandler.h>
 
+#ifdef ARDUINO_ARCH_SAMD
+  #include <RTCZero.h>
+#endif
+
 /**************************************************************************************
  * CLASS DECLARATION
  **************************************************************************************/
@@ -45,7 +49,11 @@ public:
 private:
 
   ConnectionHandler * _con_hdl;
+#ifdef ARDUINO_ARCH_SAMD
+  bool _is_rtc_configured;
+#endif
 
+  unsigned long getRemoteTime();
   static bool isTimeValid(unsigned long const time);
 
 };

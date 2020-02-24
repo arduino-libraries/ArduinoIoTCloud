@@ -29,6 +29,14 @@
 #include "NTPUtils.h"
 
 /**************************************************************************************
+ * GLOBAL VARIABLES
+ **************************************************************************************/
+
+#ifdef ARDUINO_ARCH_SAMD
+RTCZero rtc;
+#endif
+
+/**************************************************************************************
  * INTERNAL FUNCTION DECLARATION
  **************************************************************************************/
 
@@ -46,6 +54,9 @@ static time_t const EPOCH_AT_COMPILE_TIME = cvt_time(__DATE__);
 
 TimeService::TimeService()
 : _con_hdl(nullptr)
+#ifdef ARDUINO_ARCH_SAMD
+, _is_rtc_configured(false)
+#endif
 {
 
 }
@@ -57,9 +68,30 @@ TimeService::TimeService()
 void TimeService::begin(ConnectionHandler * con_hdl)
 {
   _con_hdl = con_hdl;
+#ifdef ARDUINO_ARCH_SAMD
+  rtc.begin();
+#endif
 }
 
 unsigned long TimeService::getTime()
+{
+#ifdef ARDUINO_ARCH_SAMD
+  if(!_is_rtc_configured)
+  {
+    rtc.setEpoch(getRemoteTime());
+    _is_rtc_configured = true;
+  }
+  return rtc.getEpoch();
+#else
+  return getRemoteTime();
+#endif
+}
+
+/**************************************************************************************
+ * PRIVATE MEMBER FUNCTIONS
+ **************************************************************************************/
+
+unsigned long TimeService::getRemoteTime()
 {
   if(_con_hdl == nullptr) return 0;
 
@@ -82,10 +114,6 @@ unsigned long TimeService::getTime()
 
   return 0;
 }
-
-/**************************************************************************************
- * PRIVATE MEMBER FUNCTIONS
- **************************************************************************************/
 
 bool TimeService::isTimeValid(unsigned long const time)
 {

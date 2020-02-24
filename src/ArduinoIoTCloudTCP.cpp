@@ -25,11 +25,6 @@
   #include <ArduinoECCX08.h>
 #endif
 
-#ifdef ARDUINO_ARCH_SAMD
-  #include <RTCZero.h>
-  RTCZero rtc;
-#endif
-
 TimeService time_service;
 
 #ifdef BOARD_HAS_ECCX08
@@ -44,11 +39,7 @@ const static int CONNECT_FAILURE							               = 0;
 const static int CONNECT_FAILURE_SUBSCRIBE					         = -1;
 
 static unsigned long getTime() {
-  unsigned long const time = time_service.getTime();
-  #ifdef ARDUINO_ARCH_SAMD
-  rtc.setEpoch(time);
-  #endif
-  return time;
+  return time_service.getTime();
 }
 
 ArduinoIoTCloudTCP::ArduinoIoTCloudTCP():
@@ -87,9 +78,6 @@ int ArduinoIoTCloudTCP::begin(TcpIpConnectionHandler & connection, String broker
   _brokerAddress = brokerAddress;
   _brokerPort = brokerPort;
   time_service.begin(&connection);
-  #ifdef ARDUINO_ARCH_SAMD
-  rtc.begin();
-  #endif
   return begin(_connection->getClient(), _brokerAddress, _brokerPort);
 }
 
