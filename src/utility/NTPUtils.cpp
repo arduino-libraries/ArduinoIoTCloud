@@ -19,6 +19,9 @@
  * INCLUDE
  **************************************************************************************/
 
+#include "../ArduinoIoTCloud_Defines.h"
+#ifndef HAS_LORA
+
 #include "NTPUtils.h"
 #include "Arduino.h"
 
@@ -78,3 +81,5 @@ void NTPUtils::sendNTPpacket(UDP & udp)
   udp.write(ntp_packet_buf, NTP_PACKET_SIZE);
   udp.endPacket();
 }
+
+#endif /* #ifndef HAS_LORA */

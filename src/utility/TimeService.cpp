@@ -19,6 +19,9 @@
  * INCLUDE
  **************************************************************************************/
 
+#include "../ArduinoIoTCloud_Defines.h"
+#ifndef HAS_LORA
+
 #include "TimeService.h"
 
 #include <time.h>
@@ -122,3 +125,5 @@ time_t cvt_time(char const * time)
 
   return mktime(&t);
 }
+
+#endif /* #ifndef HAS_LORA */

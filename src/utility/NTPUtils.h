@@ -18,6 +18,9 @@
 #ifndef __NTP_UTILS__
 #define __NTP_UTILS__
 
+#include "../ArduinoIoTCloud_Defines.h"
+#ifndef HAS_LORA
+
 /*
 	This Utility Class is derived from the example code found here https://www.arduino.cc/en/Tutorial/UdpNTPClient
 	For more information on NTP (Network Time Protocol) you can refer to this Wikipedia article https://en.wikipedia.org/wiki/Network_Time_Protocol
@@ -50,5 +53,7 @@ private:
   static void sendNTPpacket(UDP & udp);
 
 };
+
+#endif /* #ifndef HAS_LORA */
 
 #endif
