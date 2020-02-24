@@ -30,8 +30,6 @@
 
 #include <ArduinoMqttClient.h>
 
-#include "utility/NTPUtils.h"
-
 
 static char const DEFAULT_BROKER_ADDRESS_SECURE_AUTH[] = "mqtts-sa.iot.arduino.cc";
 static uint16_t const DEFAULT_BROKER_PORT_SECURE_AUTH = 8883;

@@ -19,11 +19,12 @@
  * INCLUDE
  **************************************************************************************/
 
-#include "../ArduinoIoTCloud_Defines.h"
+#include "../../ArduinoIoTCloud_Defines.h"
 #ifndef HAS_LORA
 
 #include "NTPUtils.h"
-#include "Arduino.h"
+
+#include <Arduino.h>
 
 /**************************************************************************************
  * PUBLIC MEMBER FUNCTIONS

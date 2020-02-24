@@ -18,7 +18,7 @@
 
 #ifdef HAS_TCP
 #include <ArduinoIoTCloudTCP.h>
-#include "utility/TimeService.h"
+#include "utility/time/TimeService.h"
 #ifdef BOARD_HAS_ECCX08
   #include "utility/ECCX08Cert.h"
   #include "utility/BearSSLTrustAnchor.h"

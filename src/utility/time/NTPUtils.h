@@ -15,49 +15,45 @@
    a commercial license, send an email to license@arduino.cc.
 */
 
-#ifndef ARDUINO_IOT_CLOUD_TIME_SERVICE_H_
-#define ARDUINO_IOT_CLOUD_TIME_SERVICE_H_
+#ifndef __NTP_UTILS__
+#define __NTP_UTILS__
+
+#include "../../ArduinoIoTCloud_Defines.h"
+#ifndef HAS_LORA
+
+/*
+	This Utility Class is derived from the example code found here https://www.arduino.cc/en/Tutorial/UdpNTPClient
+	For more information on NTP (Network Time Protocol) you can refer to this Wikipedia article https://en.wikipedia.org/wiki/Network_Time_Protocol
+*/
 
 /**************************************************************************************
  * INCLUDE
  **************************************************************************************/
 
-#include "../ArduinoIoTCloud_Defines.h"
-#ifndef HAS_LORA
-
-#include <Arduino_ConnectionHandler.h>
-
-#ifdef ARDUINO_ARCH_SAMD
-  #include <RTCZero.h>
-#endif
+#include <Udp.h>
 
 /**************************************************************************************
  * CLASS DECLARATION
  **************************************************************************************/
 
-class TimeService
+class NTPUtils
 {
-
 public:
 
-  TimeService();
-
-
-  void          begin  (ConnectionHandler * con_hdl);
-  unsigned long getTime();
+  static unsigned long getTime(UDP & udp);
 
 private:
 
-  ConnectionHandler * _con_hdl;
-#ifdef ARDUINO_ARCH_SAMD
-  bool _is_rtc_configured;
-#endif
+  static size_t        const NTP_PACKET_SIZE      = 48;
+  static int           const NTP_TIME_SERVER_PORT = 123;
+  static int           const NTP_LOCAL_PORT       = 8888;
+  static unsigned long const NTP_TIMEOUT_MS       = 1000;
+  static char constexpr *    NTP_TIME_SERVER      = "time.arduino.cc";
 
-  unsigned long getRemoteTime();
-  static bool isTimeValid(unsigned long const time);
+  static void sendNTPpacket(UDP & udp);
 
 };
 
 #endif /* #ifndef HAS_LORA */
 
-#endif /* ARDUINO_IOT_CLOUD_TIME_SERVICE_H_ */
+#endif

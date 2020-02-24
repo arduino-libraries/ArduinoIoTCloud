@@ -19,7 +19,7 @@
  * INCLUDE
  **************************************************************************************/
 
-#include "../ArduinoIoTCloud_Defines.h"
+#include "../../ArduinoIoTCloud_Defines.h"
 #ifndef HAS_LORA
 
 #include "TimeService.h"
