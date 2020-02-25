@@ -18,16 +18,14 @@
 
 #ifdef HAS_TCP
 #include <ArduinoIoTCloudTCP.h>
+#include "utility/time/TimeService.h"
 #ifdef BOARD_HAS_ECCX08
   #include "utility/ECCX08Cert.h"
   #include "utility/BearSSLTrustAnchor.h"
   #include <ArduinoECCX08.h>
 #endif
 
-#ifdef ARDUINO_ARCH_SAMD
-  #include <RTCZero.h>
-  RTCZero rtc;
-#endif
+TimeService time_service;
 
 #ifdef BOARD_HAS_ECCX08
   const static int keySlot									                 = 0;
@@ -41,20 +39,7 @@ const static int CONNECT_FAILURE							               = 0;
 const static int CONNECT_FAILURE_SUBSCRIBE					         = -1;
 
 static unsigned long getTime() {
-  if (!ArduinoCloud.getConnection()) {
-    return 0;
-  }
-  TcpIpConnectionHandler * connection = ArduinoCloud.getConnection();
-  unsigned long time = connection->getTime();
-  Debug.print(DBG_DEBUG, "NTP time: %lu", time);
-  if (!NTPUtils::isTimeValid(time)) {
-    Debug.print(DBG_ERROR, "Bogus NTP time from API, fallback to UDP method");
-    time = NTPUtils(connection->getUDP()).getTime();
-  }
-  #ifdef ARDUINO_ARCH_SAMD
-  rtc.setEpoch(time);
-  #endif
-  return time;
+  return time_service.getTime();
 }
 
 ArduinoIoTCloudTCP::ArduinoIoTCloudTCP():
@@ -92,9 +77,7 @@ int ArduinoIoTCloudTCP::begin(TcpIpConnectionHandler & connection, String broker
   _connection = &connection;
   _brokerAddress = brokerAddress;
   _brokerPort = brokerPort;
-  #ifdef ARDUINO_ARCH_SAMD
-  rtc.begin();
-  #endif
+  time_service.begin(&connection);
   return begin(_connection->getClient(), _brokerAddress, _brokerPort);
 }
 
