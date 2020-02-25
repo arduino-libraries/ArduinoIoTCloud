@@ -44,6 +44,7 @@ void PrintFreeRam(void) {
  ******************************************************************************/
 
 ArduinoCloudThing::ArduinoCloudThing() :
+  _get_time_func{nullptr},
   _numPrimitivesProperties(0),
   _numProperties(0),
   _isSyncMessage(false),
@@ -57,6 +58,10 @@ ArduinoCloudThing::ArduinoCloudThing() :
  ******************************************************************************/
 
 void ArduinoCloudThing::begin() {
+}
+
+void ArduinoCloudThing::registerGetTimeCallbackFunc(GetTimeCallbackFunc func) {
+  _get_time_func = func;
 }
 
 int ArduinoCloudThing::encode(uint8_t * data, size_t const size, bool lightPayload) {
@@ -87,7 +92,7 @@ int ArduinoCloudThing::encode(uint8_t * data, size_t const size, bool lightPaylo
 }
 
 ArduinoCloudProperty& ArduinoCloudThing::addPropertyReal(ArduinoCloudProperty & property, String const & name, Permission const permission, int propertyIdentifier) {
-  property.init(name, permission);
+  property.init(name, permission, _get_time_func);
   if (isPropertyInContainer(name)) {
     return (*getProperty(name));
   } else {

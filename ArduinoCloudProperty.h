@@ -122,6 +122,7 @@ enum class UpdatePolicy {
 };
 
 typedef void(*UpdateCallbackFunc)(void);
+typedef unsigned long(*GetTimeCallbackFunc)();
 
 /******************************************************************************
    CLASS DECLARATION
@@ -131,7 +132,7 @@ class ArduinoCloudProperty {
     typedef void(*SyncCallbackFunc)(ArduinoCloudProperty &property);
   public:
     ArduinoCloudProperty();
-    void init(String const name, Permission const permission);
+    void init(String const name, Permission const permission, GetTimeCallbackFunc func);
 
     /* Composable configuration of the ArduinoCloudProperty class */
     ArduinoCloudProperty & onUpdate(UpdateCallbackFunc func);
@@ -192,6 +193,7 @@ class ArduinoCloudProperty {
 
   private:
     Permission         _permission;
+    GetTimeCallbackFunc _get_time_func;
     UpdateCallbackFunc _update_callback_func;
     void (*_sync_callback_func)(ArduinoCloudProperty &property);
 

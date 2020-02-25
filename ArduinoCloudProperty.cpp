@@ -39,6 +39,7 @@ ArduinoCloudProperty::ArduinoCloudProperty()
       _min_delta_property(0.0f),
       _min_time_between_updates_millis(0),
       _permission(Permission::Read),
+      _get_time_func{nullptr},
       _update_callback_func(nullptr),
       _sync_callback_func(nullptr),
       _has_been_updated_once(false),
@@ -56,9 +57,10 @@ ArduinoCloudProperty::ArduinoCloudProperty()
 /******************************************************************************
    PUBLIC MEMBER FUNCTIONS
  ******************************************************************************/
-void ArduinoCloudProperty::init(String const name, Permission const permission) {
+void ArduinoCloudProperty::init(String const name, Permission const permission, GetTimeCallbackFunc func) {
   _name = name;
   _permission = permission;
+  _get_time_func = func;
 }
 
 ArduinoCloudProperty & ArduinoCloudProperty::onUpdate(UpdateCallbackFunc func) {
@@ -259,7 +261,11 @@ String ArduinoCloudProperty::getAttributeName(String propertyName, char separato
 
 void ArduinoCloudProperty::updateLocalTimestamp() {
   if (isReadableByCloud()) {
-    _last_local_change_timestamp = getTimestamp();
+    if (_get_time_func) {
+      _last_local_change_timestamp = _get_time_func();
+    } else {
+      _last_local_change_timestamp = getTimestamp();
+    }
   }
 }
 

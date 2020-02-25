@@ -77,6 +77,7 @@ class ArduinoCloudThing {
     ArduinoCloudThing();
 
     void begin();
+    void registerGetTimeCallbackFunc(GetTimeCallbackFunc func);
     //if propertyIdentifier is different from -1, an integer identifier is associated to the added property to be use instead of the property name when the parameter lightPayload is true in the encode method
     ArduinoCloudProperty   & addPropertyReal(ArduinoCloudProperty   & property, String const & name, Permission const permission, int propertyIdentifier = -1);
 
@@ -93,6 +94,7 @@ class ArduinoCloudThing {
     String getPropertyNameByIdentifier(int propertyIdentifier);
 
   private:
+    GetTimeCallbackFunc                  _get_time_func;
     LinkedList<ArduinoCloudProperty *>   _property_list;
     /* Keep track of the number of primitive properties in the Thing. If 0 it allows the early exit in updateTimestampOnLocallyChangedProperties() */
     int                                  _numPrimitivesProperties;
