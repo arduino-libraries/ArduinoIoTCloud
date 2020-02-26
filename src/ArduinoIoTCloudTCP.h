@@ -51,7 +51,7 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass {
     #else
     int begin(TcpIpConnectionHandler & connection, String brokerAddress = DEFAULT_BROKER_ADDRESS_USER_PASS_AUTH, uint16_t brokerPort = DEFAULT_BROKER_PORT_USER_PASS_AUTH);
     #endif
-    int begin(Client& net, String brokerAddress = DEFAULT_BROKER_ADDRESS_SECURE_AUTH, uint16_t brokerPort = DEFAULT_BROKER_PORT_SECURE_AUTH);
+    int begin(String brokerAddress = DEFAULT_BROKER_ADDRESS_SECURE_AUTH, uint16_t brokerPort = DEFAULT_BROKER_PORT_SECURE_AUTH);
     // Class constant declaration
     static const int MQTT_TRANSMIT_BUFFER_SIZE = 256;
 
@@ -76,7 +76,7 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass {
     }
 
     // Clean up existing Mqtt connection, create a new one and initialize it
-    int reconnect(Client& /* net */);
+    int reconnect();
 
   protected:
     friend class CloudSerialClass;
@@ -113,7 +113,6 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass {
     String _dataTopicOut;
     String _dataTopicIn;
     String _otaTopic;
-    Client* _net;
 
     static void onMessage(int length);
 

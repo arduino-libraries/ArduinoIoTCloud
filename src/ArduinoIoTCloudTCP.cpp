@@ -78,13 +78,11 @@ int ArduinoIoTCloudTCP::begin(TcpIpConnectionHandler & connection, String broker
   _brokerAddress = brokerAddress;
   _brokerPort = brokerPort;
   time_service.begin(&connection);
-  return begin(_connection->getClient(), _brokerAddress, _brokerPort);
+  return begin(_brokerAddress, _brokerPort);
 }
 
-int ArduinoIoTCloudTCP::begin(Client& net, String brokerAddress, uint16_t brokerPort) {
+int ArduinoIoTCloudTCP::begin(String brokerAddress, uint16_t brokerPort) {
 
-  _net = &net;
-  // store the broker address as class member
   _brokerAddress = brokerAddress;
   _brokerPort = brokerPort;
 
@@ -126,11 +124,7 @@ int ArduinoIoTCloudTCP::begin(Client& net, String brokerAddress, uint16_t broker
   }
 
   #ifdef BOARD_HAS_ECCX08
-  if (_connection != NULL) {
-    _sslClient = new BearSSLClient(_connection->getClient(), ArduinoIoTCloudTrustAnchor, ArduinoIoTCloudTrustAnchor_NUM);
-  } else {
-    _sslClient = new BearSSLClient(*_net, ArduinoIoTCloudTrustAnchor, ArduinoIoTCloudTrustAnchor_NUM);
-  }
+  _sslClient = new BearSSLClient(_connection->getClient(), ArduinoIoTCloudTrustAnchor, ArduinoIoTCloudTrustAnchor_NUM);
   _sslClient->setEccSlot(keySlot, ECCX08Cert.bytes(), ECCX08Cert.length());
   #elif defined(BOARD_ESP)
   _sslClient = new WiFiClientSecure();
@@ -246,7 +240,7 @@ void ArduinoIoTCloudTCP::sendPropertiesToCloud() {
 }
 
 
-int ArduinoIoTCloudTCP::reconnect(Client& /* net */) {
+int ArduinoIoTCloudTCP::reconnect() {
   if (_mqttClient->connected()) {
     _mqttClient->stop();
   }
@@ -382,7 +376,7 @@ void ArduinoIoTCloudTCP::connectionCheck() {
       }
       break;
     case ArduinoIoTConnectionStatus::RECONNECTING: {
-        int const ret_code_reconnect = reconnect(*_net);
+        int const ret_code_reconnect = reconnect();
         Debug.print(DBG_INFO, "ArduinoCloud.reconnect(): %d", ret_code_reconnect);
         if (ret_code_reconnect == CONNECT_SUCCESS) {
           _iotStatus = ArduinoIoTConnectionStatus::CONNECTED;
