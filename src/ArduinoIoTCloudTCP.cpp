@@ -146,6 +146,7 @@ int ArduinoIoTCloudTCP::begin(Client& net, String brokerAddress, uint16_t broker
   mqttClientBegin();
 
   Thing.begin();
+  Thing.registerGetTimeCallbackFunc(getTime);
   return 1;
 }
 
