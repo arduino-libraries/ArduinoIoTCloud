@@ -17,19 +17,9 @@
 
 #include "ArduinoCloudProperty.h"
 
-#ifdef ARDUINO_ARCH_SAMD
-  #include <RTCZero.h>
-  extern RTCZero rtc;
+#ifndef ARDUINO_ARCH_SAMD
+  #pragma message "No RTC available on this architecture - ArduinoIoTCloud will not keep track of local change timestamps ."
 #endif
-
-static unsigned long getTimestamp() {
-  #ifdef ARDUINO_ARCH_SAMD
-  return rtc.getEpoch();
-  #else
-#pragma message "No RTC available on this architecture - ArduinoIoTCloud will not keep track of local change timestamps ."
-  return 0;
-  #endif
-}
 
 /******************************************************************************
    CTOR/DTOR
@@ -263,8 +253,6 @@ void ArduinoCloudProperty::updateLocalTimestamp() {
   if (isReadableByCloud()) {
     if (_get_time_func) {
       _last_local_change_timestamp = _get_time_func();
-    } else {
-      _last_local_change_timestamp = getTimestamp();
     }
   }
 }
