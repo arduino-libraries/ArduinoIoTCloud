@@ -201,11 +201,7 @@ void ArduinoIoTCloudTCP::update() {
   // Check if a primitive property wrapper is locally changed
   Thing.updateTimestampOnLocallyChangedProperties();
 
-  connectionCheck();
-
-  if (_iotStatus != ArduinoIoTConnectionStatus::CONNECTED) {
-    return;
-  }
+  if(connectionCheck() != ArduinoIoTConnectionStatus::CONNECTED) return;
 
   // MTTQClient connected!, poll() used to retrieve data from MQTT broker
   _mqttClient->poll();
@@ -337,7 +333,7 @@ void ArduinoIoTCloudTCP::requestLastValue() {
   writeShadowOut(CBOR_REQUEST_LAST_VALUE_MSG, sizeof(CBOR_REQUEST_LAST_VALUE_MSG));
 }
 
-void ArduinoIoTCloudTCP::connectionCheck() {
+ArduinoIoTConnectionStatus ArduinoIoTCloudTCP::connectionCheck() {
 
   if (_connection != NULL) {
 
@@ -348,7 +344,7 @@ void ArduinoIoTCloudTCP::connectionCheck() {
         _iotStatus = ArduinoIoTConnectionStatus::DISCONNECTED;
         printConnectionStatus(_iotStatus);
       }
-      return;
+      return _iotStatus;
     }
   }
 
@@ -403,6 +399,8 @@ void ArduinoIoTCloudTCP::connectionCheck() {
       }
       break;
   }
+
+  return _iotStatus;
 }
 
 void ArduinoIoTCloudTCP::printDebugInfo() {

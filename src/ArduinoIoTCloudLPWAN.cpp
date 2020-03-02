@@ -60,11 +60,7 @@ void ArduinoIoTCloudLPWAN::update() {
   // Check if a primitive property wrapper is locally changed
   Thing.updateTimestampOnLocallyChangedProperties();
 
-  connectionCheck();
-
-  if (_iotStatus != ArduinoIoTConnectionStatus::CONNECTED) {
-    return;
-  }
+  if(connectionCheck() != ArduinoIoTConnectionStatus::CONNECTED) return;
 
   if (_connection->available()) {
     uint8_t msgBuf[DEFAULT_CBOR_LORA_MSG_SIZE];
@@ -86,7 +82,7 @@ void ArduinoIoTCloudLPWAN::update() {
 
 }
 
-void ArduinoIoTCloudLPWAN::connectionCheck() {
+ArduinoIoTConnectionStatus ArduinoIoTCloudLPWAN::connectionCheck() {
   if (_connection != NULL) {
 
     _connection->check();
@@ -96,7 +92,7 @@ void ArduinoIoTCloudLPWAN::connectionCheck() {
         _iotStatus = ArduinoIoTConnectionStatus::DISCONNECTED;
         printConnectionStatus(_iotStatus);
       }
-      return;
+      return _iotStatus;
     }
   }
 
@@ -147,6 +143,8 @@ void ArduinoIoTCloudLPWAN::connectionCheck() {
       }
       break;
   }
+
+  return _iotStatus;
 }
 
 void ArduinoIoTCloudLPWAN::printDebugInfo() {
