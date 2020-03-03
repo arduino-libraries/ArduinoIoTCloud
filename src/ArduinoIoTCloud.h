@@ -78,7 +78,7 @@ class ArduinoIoTCloudClass {
 
     virtual int connected() = 0;
 
-    virtual void connectionCheck() = 0;
+    virtual ArduinoIoTConnectionStatus connectionCheck() = 0;
 
     virtual void printDebugInfo() = 0;
 

@@ -44,7 +44,7 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass {
     bool disconnect();
     int connected();
     void update();
-    void connectionCheck();
+    ArduinoIoTConnectionStatus connectionCheck();
     void printDebugInfo();
     #ifdef BOARD_HAS_ECCX08
     int begin(TcpIpConnectionHandler & connection, String brokerAddress = DEFAULT_BROKER_ADDRESS_SECURE_AUTH, uint16_t brokerPort = DEFAULT_BROKER_PORT_SECURE_AUTH);
@@ -95,6 +95,9 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass {
     TcpIpConnectionHandler * _connection;
     String _brokerAddress;
     uint16_t _brokerPort;
+    uint8_t _mqtt_data_buf[MQTT_TRANSMIT_BUFFER_SIZE];
+    int _mqtt_data_len;
+    bool _mqtt_data_request_retransmit;
 
     #ifdef BOARD_HAS_ECCX08
     BearSSLClient* _sslClient;

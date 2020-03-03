@@ -31,7 +31,7 @@ class ArduinoIoTCloudLPWAN : public ArduinoIoTCloudClass {
     bool disconnect();
     int connected();
     void update();
-    void connectionCheck();
+    ArduinoIoTConnectionStatus connectionCheck();
     void printDebugInfo();
     int begin(LPWANConnectionHandler& connection, bool retry = false);
     inline LPWANConnectionHandler* getConnection() {
