@@ -44,7 +44,9 @@ static unsigned long getTime() {
 
 ArduinoIoTCloudTCP::ArduinoIoTCloudTCP():
   _connection(NULL),
-
+  _mqtt_data_buf{0},
+  _mqtt_data_len{0},
+  _mqtt_data_request_retransmit{false},
   _sslClient(NULL),
   #ifdef BOARD_ESP
   _password(""),
@@ -182,7 +184,6 @@ int ArduinoIoTCloudTCP::connect() {
     if (_mqttClient->subscribe(_shadowTopicIn) == 0) {
       return CONNECT_FAILURE_SUBSCRIBE;
     }
-
     _syncStatus = ArduinoIoTSynchronizationStatus::SYNC_STATUS_WAIT_FOR_CLOUD_VALUES;
     _lastSyncRequestTickTime = 0;
   }
@@ -202,6 +203,11 @@ void ArduinoIoTCloudTCP::update() {
   Thing.updateTimestampOnLocallyChangedProperties();
 
   if(connectionCheck() != ArduinoIoTConnectionStatus::CONNECTED) return;
+
+  if(_mqtt_data_request_retransmit && (_mqtt_data_len > 0)) {
+    writeProperties(_mqtt_data_buf, _mqtt_data_len);
+    _mqtt_data_request_retransmit = false;
+  }
 
   // MTTQClient connected!, poll() used to retrieve data from MQTT broker
   _mqttClient->poll();
@@ -231,8 +237,15 @@ void ArduinoIoTCloudTCP::update() {
 void ArduinoIoTCloudTCP::sendPropertiesToCloud() {
   uint8_t data[MQTT_TRANSMIT_BUFFER_SIZE];
   int const length = Thing.encode(data, sizeof(data));
-  if (length > 0) {
-    writeProperties(data, length);
+  if (length > 0)
+  {
+    /* If properties have been encoded store them in the back-up buffer
+     * in order to allow retransmission in case of failure.
+     */
+    _mqtt_data_len = length;
+    memcpy(_mqtt_data_buf, data, _mqtt_data_len);
+    /* Transmit the properties to the MQTT broker */
+    writeProperties(_mqtt_data_buf, _mqtt_data_len);
   }
 }
 
@@ -362,6 +375,7 @@ ArduinoIoTConnectionStatus ArduinoIoTCloudTCP::connectionCheck() {
     case ArduinoIoTConnectionStatus::CONNECTED: {
         if (!_mqttClient->connected()) {
           _iotStatus = ArduinoIoTConnectionStatus::DISCONNECTED;
+          _mqtt_data_request_retransmit = true;
           printConnectionStatus(_iotStatus);
           execCloudEventCallback(_on_disconnect_event_callback, 0 /* callback_arg - e.g. could be error code casted to void * */);
         }

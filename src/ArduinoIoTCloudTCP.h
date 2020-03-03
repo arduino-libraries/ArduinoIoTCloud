@@ -95,6 +95,9 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass {
     TcpIpConnectionHandler * _connection;
     String _brokerAddress;
     uint16_t _brokerPort;
+    uint8_t _mqtt_data_buf[MQTT_TRANSMIT_BUFFER_SIZE];
+    int _mqtt_data_len;
+    bool _mqtt_data_request_retransmit;
 
     #ifdef BOARD_HAS_ECCX08
     BearSSLClient* _sslClient;
