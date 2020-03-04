@@ -47,9 +47,9 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass {
     ArduinoIoTConnectionStatus connectionCheck();
     void printDebugInfo();
     #ifdef BOARD_HAS_ECCX08
-    int begin(TcpIpConnectionHandler & connection, String brokerAddress = DEFAULT_BROKER_ADDRESS_SECURE_AUTH, uint16_t brokerPort = DEFAULT_BROKER_PORT_SECURE_AUTH);
+    int begin(ConnectionHandler & connection, String brokerAddress = DEFAULT_BROKER_ADDRESS_SECURE_AUTH, uint16_t brokerPort = DEFAULT_BROKER_PORT_SECURE_AUTH);
     #else
-    int begin(TcpIpConnectionHandler & connection, String brokerAddress = DEFAULT_BROKER_ADDRESS_USER_PASS_AUTH, uint16_t brokerPort = DEFAULT_BROKER_PORT_USER_PASS_AUTH);
+    int begin(ConnectionHandler & connection, String brokerAddress = DEFAULT_BROKER_ADDRESS_USER_PASS_AUTH, uint16_t brokerPort = DEFAULT_BROKER_PORT_USER_PASS_AUTH);
     #endif
     int begin(String brokerAddress = DEFAULT_BROKER_ADDRESS_SECURE_AUTH, uint16_t brokerPort = DEFAULT_BROKER_PORT_SECURE_AUTH);
     // Class constant declaration
@@ -64,7 +64,7 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass {
     }
     #endif
 
-    inline TcpIpConnectionHandler * getConnection() {
+    inline ConnectionHandler * getConnection() {
       return _connection;
     }
 
@@ -92,7 +92,7 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass {
     void requestLastValue();
 
   private:
-    TcpIpConnectionHandler * _connection;
+    ConnectionHandler * _connection;
     String _brokerAddress;
     uint16_t _brokerPort;
     uint8_t _mqtt_data_buf[MQTT_TRANSMIT_BUFFER_SIZE];

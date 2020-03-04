@@ -33,8 +33,8 @@ class ArduinoIoTCloudLPWAN : public ArduinoIoTCloudClass {
     void update();
     ArduinoIoTConnectionStatus connectionCheck();
     void printDebugInfo();
-    int begin(LPWANConnectionHandler& connection, bool retry = false);
-    inline LPWANConnectionHandler* getConnection() {
+    int begin(ConnectionHandler& connection, bool retry = false);
+    inline ConnectionHandler* getConnection() {
       return _connection;
     }
     bool isRetryEnabled() {
@@ -67,7 +67,7 @@ class ArduinoIoTCloudLPWAN : public ArduinoIoTCloudClass {
     int writeShadowOut(const byte data[], int length);
 
   private:
-    LPWANConnectionHandler* _connection;
+    ConnectionHandler* _connection;
     void sendPropertiesToCloud();
     bool _retryEnable;
     int _maxNumRetry;
