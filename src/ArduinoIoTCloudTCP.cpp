@@ -75,7 +75,7 @@ ArduinoIoTCloudTCP::~ArduinoIoTCloudTCP() {
   }
 }
 
-int ArduinoIoTCloudTCP::begin(TcpIpConnectionHandler & connection, String brokerAddress, uint16_t brokerPort) {
+int ArduinoIoTCloudTCP::begin(ConnectionHandler & connection, String brokerAddress, uint16_t brokerPort) {
   _connection = &connection;
   _brokerAddress = brokerAddress;
   _brokerPort = brokerPort;
