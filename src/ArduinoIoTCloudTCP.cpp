@@ -202,7 +202,8 @@ void ArduinoIoTCloudTCP::update() {
   // Check if a primitive property wrapper is locally changed
   Thing.updateTimestampOnLocallyChangedProperties();
 
-  if(connectionCheck() != ArduinoIoTConnectionStatus::CONNECTED) return;
+  if(checkPhyConnection()   != NetworkConnectionState::CONNECTED)     return;
+  if(checkCloudConnection() != ArduinoIoTConnectionStatus::CONNECTED) return;
 
   if(_mqtt_data_request_retransmit && (_mqtt_data_len > 0)) {
     writeProperties(_mqtt_data_buf, _mqtt_data_len);
@@ -346,21 +347,23 @@ void ArduinoIoTCloudTCP::requestLastValue() {
   writeShadowOut(CBOR_REQUEST_LAST_VALUE_MSG, sizeof(CBOR_REQUEST_LAST_VALUE_MSG));
 }
 
-ArduinoIoTConnectionStatus ArduinoIoTCloudTCP::connectionCheck() {
+NetworkConnectionState ArduinoIoTCloudTCP::checkPhyConnection()
+{
+  NetworkConnectionState const connect_state = _connection->check();
 
-  if (_connection != NULL) {
-
-    _connection->check();
-
-    if (_connection->getStatus() != NetworkConnectionState::CONNECTED) {
-      if (_iotStatus == ArduinoIoTConnectionStatus::CONNECTED) {
-        _iotStatus = ArduinoIoTConnectionStatus::DISCONNECTED;
-        printConnectionStatus(_iotStatus);
-      }
-      return _iotStatus;
+  if (_connection->check() != NetworkConnectionState::CONNECTED)
+  {
+    if (_iotStatus == ArduinoIoTConnectionStatus::CONNECTED)
+    {
+      disconnect();
     }
   }
 
+  return connect_state;
+}
+
+ArduinoIoTConnectionStatus ArduinoIoTCloudTCP::checkCloudConnection()
+{
   switch (_iotStatus) {
     case ArduinoIoTConnectionStatus::IDLE: {
         _iotStatus = ArduinoIoTConnectionStatus::CONNECTING;
