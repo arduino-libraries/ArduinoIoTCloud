@@ -44,7 +44,6 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass {
     bool disconnect();
     int connected();
     void update();
-    ArduinoIoTConnectionStatus connectionCheck();
     void printDebugInfo();
     #ifdef BOARD_HAS_ECCX08
     int begin(ConnectionHandler & connection, String brokerAddress = DEFAULT_BROKER_ADDRESS_SECURE_AUTH, uint16_t brokerPort = DEFAULT_BROKER_PORT_SECURE_AUTH);
@@ -122,6 +121,8 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass {
     void handleMessage(int length);
 
     void sendPropertiesToCloud();
+    NetworkConnectionState checkPhyConnection();
+    ArduinoIoTConnectionStatus checkCloudConnection();
 };
 
 extern ArduinoIoTCloudTCP ArduinoCloud;
