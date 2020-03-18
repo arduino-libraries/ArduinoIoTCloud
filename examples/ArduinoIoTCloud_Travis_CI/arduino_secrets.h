@@ -20,3 +20,10 @@
   #define SECRET_APP_KEY ""
 #endif
 
+/* MKR NB 1500 */
+#if defined(BOARD_HAS_NB)
+  #define SECRET_PIN ""
+  #define SECRET_APN ""
+  #define SECRET_LOGIN ""
+  #define SECRET_PASS ""
+#endif
