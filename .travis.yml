@@ -10,6 +10,8 @@ matrix:
     - env:
         - BOARD="arduino:samd:mkrwan1300"
     - env:
+        - BOARD="arduino:samd:mkrnb1500"
+    - env:
         - BOARD="esp8266:esp8266:huzzah"
     - env:
         - NAME=Spell Check
@@ -53,6 +55,7 @@ before_install:
   - installLibrary arduino-libraries/ArduinoMqttClient
   - installLibrary arduino-libraries/MKRGSM
   - installLibrary arduino-libraries/MKRWAN
+  - installLibrary arduino-libraries/MKRNB
   - installLibrary arduino-libraries/RTCZero
   - installLibrary arduino-libraries/WiFi101
   - installLibrary arduino-libraries/WiFiNINA
@@ -75,7 +78,7 @@ install:
   - ln -s $PWD $HOME/Arduino/libraries/.
 script:
   - |
-    if [ "$BOARD" == "arduino:samd:mkr1000" ] || [ "$BOARD" == "arduino:samd:mkrwifi1010" ] || [ "$BOARD" == "arduino:samd:mkrgsm1400" ]; then
+    if [ "$BOARD" == "arduino:samd:mkr1000" ] || [ "$BOARD" == "arduino:samd:mkrwifi1010" ] || [ "$BOARD" == "arduino:samd:mkrgsm1400" ] || [ "$BOARD" == "arduino:samd:mkrnb1500" ]; then
       buildSketch \
         "ArduinoIoTCloud_LED_switch" \
         "ArduinoIoTCloud_Travis_CI" \
