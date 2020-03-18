@@ -59,35 +59,47 @@ before_install:
   - installLibrary arduino-libraries/Ethernet
   - installLibrary arduino-libraries/Arduino_ConnectionHandler
   - installLibrary arduino-libraries/Arduino_DebugUtils
-  - buildExampleSketch() { arduino-cli compile --warnings all --fqbn $BOARD $PWD/examples/$1; }
-  - buildExampleUtilitySketch() { arduino-cli compile --warnings all --fqbn $BOARD $PWD/examples/utility/$1; }
+  - |
+    buildSketch() {
+      local exitStatus=0
+      local example
+      for example in "$@"; do
+        arduino-cli compile --warnings all --fqbn "$BOARD" "${TRAVIS_BUILD_DIR}/examples/${example}" || {
+          exitStatus=$?
+        }
+      done
+      return $exitStatus
+    }
 install:
   - mkdir -p $HOME/Arduino/libraries
   - ln -s $PWD $HOME/Arduino/libraries/.
 script:
   - |
     if [ "$BOARD" == "arduino:samd:mkr1000" ] || [ "$BOARD" == "arduino:samd:mkrwifi1010" ] || [ "$BOARD" == "arduino:samd:mkrgsm1400" ]; then
-      buildExampleSketch ArduinoIoTCloud_LED_switch;
-      buildExampleSketch ArduinoIoTCloud_Travis_CI;
-      buildExampleUtilitySketch Provisioning;
+      buildSketch \
+        "ArduinoIoTCloud_LED_switch" \
+        "ArduinoIoTCloud_Travis_CI" \
+        "utility/Provisioning"
     fi
   - |
     if [ "$BOARD" == "arduino:samd:mkrwan1300" ]; then
-      buildExampleSketch ArduinoIoTCloud_LED_switch;
-      buildExampleSketch ArduinoIoTCloud_Travis_CI;
+      buildSketch \
+        "ArduinoIoTCloud_LED_switch" \
+        "ArduinoIoTCloud_Travis_CI"
     fi
   - |
     if [ "$BOARD" == "arduino:samd:mkr1000" ] || [ "$BOARD" == "arduino:samd:mkrwifi1010" ]; then
-      buildExampleSketch WiFi_Cloud_Blink;
-      buildExampleSketch MultiValue_example;
+      buildSketch \
+        "WiFi_Cloud_Blink" \
+        "MultiValue_example"
     fi
   - |
     if [ "$BOARD" == "arduino:samd:mkrgsm1400" ]; then
-      buildExampleSketch GSM_Cloud_Blink;
+      buildSketch "GSM_Cloud_Blink"
     fi
   - |
     if [ "$BOARD" == "esp8266:esp8266:huzzah" ]; then
-      buildExampleSketch ArduinoIoTCloud_ESP8266;
+      buildSketch "ArduinoIoTCloud_ESP8266"
     fi
 notifications:
   webhooks:
