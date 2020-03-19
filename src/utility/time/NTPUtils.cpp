@@ -77,8 +77,12 @@ void NTPUtils::sendNTPpacket(UDP & udp)
   ntp_packet_buf[13] = 0x4E;
   ntp_packet_buf[14] = 49;
   ntp_packet_buf[15] = 52;
-  
+
+#ifdef ARDUINO_SAMD_MKRNB1500
+  udp.beginPacket(NTP_TIME_SERVER_IP_1, NTP_TIME_SERVER_PORT);
+#else
   udp.beginPacket(NTP_TIME_SERVER, NTP_TIME_SERVER_PORT);
+#endif
   udp.write(ntp_packet_buf, NTP_PACKET_SIZE);
   udp.endPacket();
 }
