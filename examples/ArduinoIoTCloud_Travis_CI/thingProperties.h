@@ -8,8 +8,9 @@
 #if defined(BOARD_HAS_WIFI)
 #elif defined(BOARD_HAS_GSM)
 #elif defined(BOARD_HAS_LORA)
+#elif defined(BOARD_HAS_NB)
 #else
-  #error "Arduino IoT Cloud currently only supports MKR1000, MKR WiFi 1010, MKR GSM 1400 and MKR WAN 1300/1310"
+  #error "Arduino IoT Cloud currently only supports MKR1000, MKR WiFi 1010, MKR WAN 1300/1310, MKR NB 1500 and MKR GSM 1400"
 #endif
 
 /******************************************************************************
@@ -60,6 +61,8 @@ String str_property_8;
   GSMConnectionHandler ArduinoIoTPreferredConnection(SECRET_PIN, SECRET_APN, SECRET_LOGIN, SECRET_PASS);
 #elif defined(BOARD_HAS_LORA)
   LoRaConnectionHandler ArduinoIoTPreferredConnection(SECRET_APP_EUI, SECRET_APP_KEY, EU868);
+#elif defined(BOARD_HAS_NB)
+  NBConnectionHandler ArduinoIoTPreferredConnection(SECRET_PIN, SECRET_APN, SECRET_LOGIN, SECRET_PASS);
 #endif
 
 /******************************************************************************
@@ -74,7 +77,7 @@ void onStringPropertyChange();
 /******************************************************************************
    FUNCTIONS
  ******************************************************************************/
-#if defined(BOARD_HAS_WIFI) || defined(BOARD_HAS_GSM)
+#if defined(BOARD_HAS_WIFI) || defined(BOARD_HAS_GSM) || defined (BOARD_HAS_NB)
 void initProperties() {
   ArduinoCloud.setThingId(THING_ID);
 
