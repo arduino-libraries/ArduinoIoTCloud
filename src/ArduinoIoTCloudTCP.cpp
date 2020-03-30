@@ -62,17 +62,9 @@ ArduinoIoTCloudTCP::ArduinoIoTCloudTCP():
   _otaTopic("")
 {}
 
-
 ArduinoIoTCloudTCP::~ArduinoIoTCloudTCP() {
-  if (_mqttClient) {
-    delete _mqttClient;
-    _mqttClient = NULL;
-  }
-
-  if (_sslClient) {
-    delete _sslClient;
-    _sslClient = NULL;
-  }
+  delete _mqttClient; _mqttClient = NULL;
+  delete _sslClient;  _sslClient = NULL;
 }
 
 int ArduinoIoTCloudTCP::begin(ConnectionHandler & connection, String brokerAddress, uint16_t brokerPort) {
