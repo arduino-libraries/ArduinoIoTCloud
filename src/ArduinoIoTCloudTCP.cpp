@@ -20,8 +20,8 @@
 #include <ArduinoIoTCloudTCP.h>
 #include "utility/time/TimeService.h"
 #ifdef BOARD_HAS_ECCX08
-  #include "utility/ECCX08Cert.h"
-  #include "utility/BearSSLTrustAnchor.h"
+  #include "utility/crypto/ECCX08Cert.h"
+  #include "utility/crypto/BearSSLTrustAnchor.h"
   #include <ArduinoECCX08.h>
 #endif
 

@@ -1,6 +1,6 @@
 #include <ArduinoIoTCloud.h>
-#include <utility/ECCX08Cert.h>
-#include <utility/ECCX08TLSConfig.h>
+#include <utility/crypto/ECCX08Cert.h>
+#include <utility/crypto/ECCX08TLSConfig.h>
 
 #include <ArduinoBearSSL.h>
 #include <ArduinoECCX08.h>
