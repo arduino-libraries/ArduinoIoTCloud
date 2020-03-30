@@ -122,29 +122,6 @@ int ArduinoIoTCloudTCP::begin(String brokerAddress, uint16_t brokerPort) {
   return 1;
 }
 
-// private class method used to initialize mqttClient class member. (called in the begin class method)
-void ArduinoIoTCloudTCP::mqttClientBegin() {
-  // MQTT topics definition
-  _stdoutTopic = "/a/d/" + _device_id + "/s/o";
-  _stdinTopic = "/a/d/" + _device_id + "/s/i";
-  if (_thing_id == "") {
-    _dataTopicIn = "/a/d/" + _device_id + "/e/i";
-    _dataTopicOut = "/a/d/" + _device_id + "/e/o";
-  } else {
-    _dataTopicIn = "/a/t/" + _thing_id + "/e/i";
-    _dataTopicOut = "/a/t/" + _thing_id + "/e/o";
-    _shadowTopicIn = "/a/t/" + _thing_id + "/shadow/i";
-    _shadowTopicOut = "/a/t/" + _thing_id + "/shadow/o";
-  }
-
-  // use onMessage as callback for received mqtt messages
-  _mqttClient->onMessage(ArduinoIoTCloudTCP::onMessage);
-  _mqttClient->setKeepAliveInterval(30 * 1000);
-  _mqttClient->setConnectionTimeout(1500);
-  _mqttClient->setId(_device_id.c_str());
-}
-
-
 int ArduinoIoTCloudTCP::connect() {
 
   if (!_mqttClient->connect(_brokerAddress.c_str(), _brokerPort)) {
@@ -228,54 +205,6 @@ int ArduinoIoTCloudTCP::reconnect() {
 
 int ArduinoIoTCloudTCP::connected() {
   return _mqttClient->connected();
-}
-
-int ArduinoIoTCloudTCP::writeProperties(const byte data[], int length) {
-  if (!_mqttClient->beginMessage(_dataTopicOut, length, false, 0)) {
-    return 0;
-  }
-
-  if (!_mqttClient->write(data, length)) {
-    return 0;
-  }
-
-  if (!_mqttClient->endMessage()) {
-    return 0;
-  }
-
-  return 1;
-}
-
-int ArduinoIoTCloudTCP::writeStdout(const byte data[], int length) {
-  if (!_mqttClient->beginMessage(_stdoutTopic, length, false, 0)) {
-    return 0;
-  }
-
-  if (!_mqttClient->write(data, length)) {
-    return 0;
-  }
-
-  if (!_mqttClient->endMessage()) {
-    return 0;
-  }
-
-  return 1;
-}
-
-int ArduinoIoTCloudTCP::writeShadowOut(const byte data[], int length) {
-  if (!_mqttClient->beginMessage(_shadowTopicOut, length, false, 0)) {
-    return 0;
-  }
-
-  if (!_mqttClient->write(data, length)) {
-    return 0;
-  }
-
-  if (!_mqttClient->endMessage()) {
-    return 0;
-  }
-
-  return 1;
 }
 
 /******************************************************************************
@@ -402,6 +331,75 @@ ArduinoIoTConnectionStatus ArduinoIoTCloudTCP::checkCloudConnection()
   }
 
   return _iotStatus;
+}
+
+void ArduinoIoTCloudTCP::mqttClientBegin() {
+  // MQTT topics definition
+  _stdoutTopic = "/a/d/" + _device_id + "/s/o";
+  _stdinTopic = "/a/d/" + _device_id + "/s/i";
+  if (_thing_id == "") {
+    _dataTopicIn = "/a/d/" + _device_id + "/e/i";
+    _dataTopicOut = "/a/d/" + _device_id + "/e/o";
+  } else {
+    _dataTopicIn = "/a/t/" + _thing_id + "/e/i";
+    _dataTopicOut = "/a/t/" + _thing_id + "/e/o";
+    _shadowTopicIn = "/a/t/" + _thing_id + "/shadow/i";
+    _shadowTopicOut = "/a/t/" + _thing_id + "/shadow/o";
+  }
+
+  // use onMessage as callback for received mqtt messages
+  _mqttClient->onMessage(ArduinoIoTCloudTCP::onMessage);
+  _mqttClient->setKeepAliveInterval(30 * 1000);
+  _mqttClient->setConnectionTimeout(1500);
+  _mqttClient->setId(_device_id.c_str());
+}
+
+int ArduinoIoTCloudTCP::writeProperties(const byte data[], int length) {
+  if (!_mqttClient->beginMessage(_dataTopicOut, length, false, 0)) {
+    return 0;
+  }
+
+  if (!_mqttClient->write(data, length)) {
+    return 0;
+  }
+
+  if (!_mqttClient->endMessage()) {
+    return 0;
+  }
+
+  return 1;
+}
+
+int ArduinoIoTCloudTCP::writeStdout(const byte data[], int length) {
+  if (!_mqttClient->beginMessage(_stdoutTopic, length, false, 0)) {
+    return 0;
+  }
+
+  if (!_mqttClient->write(data, length)) {
+    return 0;
+  }
+
+  if (!_mqttClient->endMessage()) {
+    return 0;
+  }
+
+  return 1;
+}
+
+int ArduinoIoTCloudTCP::writeShadowOut(const byte data[], int length) {
+  if (!_mqttClient->beginMessage(_shadowTopicOut, length, false, 0)) {
+    return 0;
+  }
+
+  if (!_mqttClient->write(data, length)) {
+    return 0;
+  }
+
+  if (!_mqttClient->endMessage()) {
+    return 0;
+  }
+
+  return 1;
 }
 
 /******************************************************************************

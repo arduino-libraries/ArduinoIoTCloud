@@ -91,18 +91,7 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass {
     // Clean up existing Mqtt connection, create a new one and initialize it
     int reconnect();
 
-  protected:
     friend class CloudSerialClass;
-    // Used to initialize MQTTClient
-    void mqttClientBegin();
-    // Function in charge of perform MQTT reconnection, basing on class parameters(retries,and timeout)
-    bool mqttReconnect(int const maxRetries, int const timeout);
-    // Used to retrieve last values from _shadowTopicIn
-    int writeStdout(const byte data[], int length);
-    int writeProperties(const byte data[], int length);
-    int writeShadowOut(const byte data[], int length);
-
-    void requestLastValue();
 
   private:
     ConnectionHandler * _connection;
@@ -132,12 +121,16 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass {
     String _otaTopic;
 
     static void onMessage(int length);
-
     void handleMessage(int length);
-
     void sendPropertiesToCloud();
+    void requestLastValue();
     NetworkConnectionState checkPhyConnection();
     ArduinoIoTConnectionStatus checkCloudConnection();
+    void mqttClientBegin();
+    bool mqttReconnect(int const maxRetries, int const timeout);
+    int writeStdout(const byte data[], int length);
+    int writeProperties(const byte data[], int length);
+    int writeShadowOut(const byte data[], int length);
 };
 
 /******************************************************************************
