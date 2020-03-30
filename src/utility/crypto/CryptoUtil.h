@@ -28,6 +28,7 @@
 
 #include <Arduino.h>
 #include <ArduinoECCX08.h>
+#include "ECCX08Cert.h"
 
 /******************************************************************************
    TYPEDEF
@@ -50,6 +51,7 @@ class CryptoUtil
 public:
 
   static String readDeviceId(ECCX08Class & eccx08, ECCX08Slot const slot);
+  static bool   reconstructCertificate(ECCX08CertClass & cert, String const & device_id, ECCX08Slot const key, ECCX08Slot const compressed_certificate, ECCX08Slot const serial_number_and_authority_key);
 
 
 private:

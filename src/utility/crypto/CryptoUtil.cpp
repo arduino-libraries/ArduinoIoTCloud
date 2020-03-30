@@ -35,7 +35,24 @@ String CryptoUtil::readDeviceId(ECCX08Class & eccx08, ECCX08Slot const slot)
    return String(reinterpret_cast<char *>(device_id_bytes));
   } else {
    return String("");
-  }  
+  }
+}
+
+bool CryptoUtil::reconstructCertificate(ECCX08CertClass & cert, String const & device_id, ECCX08Slot const key, ECCX08Slot const compressed_certificate, ECCX08Slot const serial_number_and_authority_key)
+{
+  if (cert.beginReconstruction(static_cast<int>(key), static_cast<int>(compressed_certificate), static_cast<int>(serial_number_and_authority_key)))
+  {
+    cert.setSubjectCommonName(device_id);
+    cert.setIssuerCountryName("US");
+    cert.setIssuerOrganizationName("Arduino LLC US");
+    cert.setIssuerOrganizationalUnitName("IT");
+    cert.setIssuerCommonName("Arduino");
+    return cert.endReconstruction();
+  }
+  else
+  {
+   return false;
+  }
 }
 
 #endif /* BOARD_HAS_ECCX08 */
