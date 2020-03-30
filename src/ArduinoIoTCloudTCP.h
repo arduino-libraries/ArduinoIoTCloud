@@ -118,7 +118,13 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass {
     String _shadowTopicIn;
     String _dataTopicOut;
     String _dataTopicIn;
-    String _otaTopic;
+
+    inline String getTopic_stdin    () const { return String("/a/d/" + _device_id + "/s/i"); }
+    inline String getTopic_stdout   () const { return String("/a/d/" + _device_id + "/s/o"); }
+    inline String getTopic_shadowout() const { return (_thing_id.length() == 0) ? String("")                            : String("/a/t/" + _thing_id + "/shadow/o"); }
+    inline String getTopic_shadowin () const { return (_thing_id.length() == 0) ? String("")                            : String("/a/t/" + _thing_id + "/shadow/i"); }
+    inline String getTopic_dataout  () const { return (_thing_id.length() == 0) ? String("/a/d/" + _device_id + "/e/o") : String("/a/t/" + _thing_id + "/e/o"); }
+    inline String getTopic_datain   () const { return (_thing_id.length() == 0) ? String("/a/d/" + _device_id + "/e/i") : String("/a/t/" + _thing_id + "/e/i"); }
 
     static void onMessage(int length);
     void handleMessage(int length);
@@ -126,7 +132,6 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass {
     void requestLastValue();
     NetworkConnectionState checkPhyConnection();
     ArduinoIoTConnectionStatus checkCloudConnection();
-    void mqttClientBegin();
     int writeStdout(const byte data[], int length);
     int writeProperties(const byte data[], int length);
     int writeShadowOut(const byte data[], int length);

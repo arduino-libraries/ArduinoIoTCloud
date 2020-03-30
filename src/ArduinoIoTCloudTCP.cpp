@@ -71,8 +71,7 @@ ArduinoIoTCloudTCP::ArduinoIoTCloudTCP():
   _shadowTopicOut(""),
   _shadowTopicIn(""),
   _dataTopicOut(""),
-  _dataTopicIn(""),
-  _otaTopic("")
+  _dataTopicIn("")
 {}
 
 ArduinoIoTCloudTCP::~ArduinoIoTCloudTCP() {
@@ -118,7 +117,12 @@ int ArduinoIoTCloudTCP::begin(String brokerAddress, uint16_t brokerPort) {
   _mqttClient->setConnectionTimeout(1500);
   _mqttClient->setId(_device_id.c_str());
 
-  mqttClientBegin();
+  _stdinTopic     = getTopic_stdin();
+  _stdoutTopic    = getTopic_stdout();
+  _shadowTopicOut = getTopic_shadowout();
+  _shadowTopicIn  = getTopic_shadowin();
+  _dataTopicOut   = getTopic_dataout();
+  _dataTopicIn    = getTopic_datain();
 
   Thing.begin();
   Thing.registerGetTimeCallbackFunc(getTime);
@@ -334,21 +338,6 @@ ArduinoIoTConnectionStatus ArduinoIoTCloudTCP::checkCloudConnection()
   }
 
   return _iotStatus;
-}
-
-void ArduinoIoTCloudTCP::mqttClientBegin() {
-  // MQTT topics definition
-  _stdoutTopic = "/a/d/" + _device_id + "/s/o";
-  _stdinTopic = "/a/d/" + _device_id + "/s/i";
-  if (_thing_id == "") {
-    _dataTopicIn = "/a/d/" + _device_id + "/e/i";
-    _dataTopicOut = "/a/d/" + _device_id + "/e/o";
-  } else {
-    _dataTopicIn = "/a/t/" + _thing_id + "/e/i";
-    _dataTopicOut = "/a/t/" + _thing_id + "/e/o";
-    _shadowTopicIn = "/a/t/" + _thing_id + "/shadow/i";
-    _shadowTopicOut = "/a/t/" + _thing_id + "/shadow/o";
-  }
 }
 
 int ArduinoIoTCloudTCP::writeProperties(const byte data[], int length) {
