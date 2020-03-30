@@ -23,6 +23,7 @@
   #include "utility/crypto/ECCX08Cert.h"
   #include "utility/crypto/BearSSLTrustAnchor.h"
   #include <ArduinoECCX08.h>
+  #include "utility/crypto/CryptoUtil.h"
 #endif
 
 TimeService time_service;
@@ -31,7 +32,6 @@ TimeService time_service;
   const static int keySlot									                 = 0;
   const static int compressedCertSlot						             = 10;
   const static int serialNumberAndAuthorityKeyIdentifierSlot = 11;
-  const static int deviceIdSlot								               = 12;
 #endif
 
 const static int CONNECT_SUCCESS							               = 1;
@@ -81,17 +81,13 @@ int ArduinoIoTCloudTCP::begin(String brokerAddress, uint16_t brokerPort) {
   _brokerPort = brokerPort;
 
   #ifdef BOARD_HAS_ECCX08
-  byte deviceIdBytes[72];
   if (!ECCX08.begin()) {
     Debug.print(DBG_ERROR, "Cryptography processor failure. Make sure you have a compatible board.");
     return 0;
   }
 
-  if (!ECCX08.readSlot(deviceIdSlot, deviceIdBytes, sizeof(deviceIdBytes))) {
-    Debug.print(DBG_ERROR, "Cryptography processor read failure.");
-    return 0;
-  }
-  _device_id = (char*)deviceIdBytes;
+  _device_id = CryptoUtil::readDeviceId(ECCX08, ECCX08Slot::DeviceId);
+  if(_device_id.length() == 0) { Debug.print(DBG_ERROR, "Cryptography processor read failure."); return 0; }
 
   if (!ECCX08Cert.beginReconstruction(keySlot, compressedCertSlot, serialNumberAndAuthorityKeyIdentifierSlot)) {
     Debug.print(DBG_ERROR, "Cryptography certificate reconstruction failure.");
