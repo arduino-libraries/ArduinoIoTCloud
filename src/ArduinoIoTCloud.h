@@ -128,10 +128,6 @@ class ArduinoIoTCloudClass
 
   protected:
 
-    virtual int writeStdout(const byte data[], int length) = 0;
-    virtual int writeProperties(const byte data[], int length) = 0;
-    virtual int writeShadowOut(const byte data[], int length) = 0;
-
     inline ArduinoIoTConnectionStatus getIoTStatus() { return _iotStatus; }
 
     String _device_id = "";

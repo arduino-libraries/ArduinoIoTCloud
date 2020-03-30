@@ -74,9 +74,7 @@ class ArduinoIoTCloudLPWAN : public ArduinoIoTCloudClass {
     }
 
   protected:
-    int writeStdout(const byte data[], int length);
     int writeProperties(const byte data[], int length);
-    int writeShadowOut(const byte data[], int length);
 
   private:
     ConnectionHandler* _connection;

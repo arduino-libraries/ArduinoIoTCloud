@@ -180,29 +180,6 @@ int ArduinoIoTCloudLPWAN::writeProperties(const byte data[], int length) {
   return 1;
 }
 
-int ArduinoIoTCloudLPWAN::writeStdout(const byte data[], int length) {
-  int retcode = _connection->write(data, length);
-  int i = 0;
-  while (_retryEnable && retcode < 0 && i < _maxNumRetry) {
-    delay(_intervalRetry);
-    retcode = _connection->write(data, length);
-    i++;
-  }
-
-  return 1;
-}
-
-int ArduinoIoTCloudLPWAN::writeShadowOut(const byte data[], int length) {
-  int retcode = _connection->write(data, length);
-  int i = 0;
-  while (_retryEnable && retcode < 0 && i < _maxNumRetry) {
-    delay(_intervalRetry);
-    retcode = _connection->write(data, length);
-    i++;
-  }
-  return 1;
-}
-
 /******************************************************************************
  * PRIVATE MEMBER FUNCTIONS
  ******************************************************************************/
