@@ -112,11 +112,6 @@ int ArduinoIoTCloudTCP::begin(String brokerAddress, uint16_t brokerPort) {
   ArduinoBearSSL.onGetTime(getTime);
   #endif /* BOARD_HAS_ECCX08 */
 
-  if (_sslClient) {
-    delete _sslClient;
-    _sslClient = NULL;
-  }
-
   #ifdef BOARD_HAS_ECCX08
   _sslClient = new BearSSLClient(_connection->getClient(), ArduinoIoTCloudTrustAnchor, ArduinoIoTCloudTrustAnchor_NUM);
   _sslClient->setEccSlot(keySlot, ECCX08Cert.bytes(), ECCX08Cert.length());
