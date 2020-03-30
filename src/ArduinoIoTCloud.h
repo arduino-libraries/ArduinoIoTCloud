@@ -78,8 +78,6 @@ class ArduinoIoTCloudClass
 {
   public:
 
-    static const int TIMEOUT_FOR_LASTVALUES_SYNC = 10000;
-
     virtual int  connect       () = 0;
     virtual bool disconnect    () = 0;
     virtual void update        () = 0;

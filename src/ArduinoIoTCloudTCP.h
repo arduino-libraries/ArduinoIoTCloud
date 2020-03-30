@@ -49,6 +49,9 @@ static uint16_t const DEFAULT_BROKER_PORT_USER_PASS_AUTH = 8884;
 
 class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass {
   public:
+
+    static const int TIMEOUT_FOR_LASTVALUES_SYNC = 10000;
+
     ArduinoIoTCloudTCP();
     ~ArduinoIoTCloudTCP();
     int connect();
