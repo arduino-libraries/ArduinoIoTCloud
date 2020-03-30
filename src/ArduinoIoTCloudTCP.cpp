@@ -110,10 +110,13 @@ int ArduinoIoTCloudTCP::begin(String brokerAddress, uint16_t brokerPort) {
   #endif
 
   _mqttClient = new MqttClient(*_sslClient);
-
   #ifdef BOARD_ESP
   _mqttClient->setUsernamePassword(_device_id, _password);
   #endif
+  _mqttClient->onMessage(ArduinoIoTCloudTCP::onMessage);
+  _mqttClient->setKeepAliveInterval(30 * 1000);
+  _mqttClient->setConnectionTimeout(1500);
+  _mqttClient->setId(_device_id.c_str());
 
   mqttClientBegin();
 
@@ -346,12 +349,6 @@ void ArduinoIoTCloudTCP::mqttClientBegin() {
     _shadowTopicIn = "/a/t/" + _thing_id + "/shadow/i";
     _shadowTopicOut = "/a/t/" + _thing_id + "/shadow/o";
   }
-
-  // use onMessage as callback for received mqtt messages
-  _mqttClient->onMessage(ArduinoIoTCloudTCP::onMessage);
-  _mqttClient->setKeepAliveInterval(30 * 1000);
-  _mqttClient->setConnectionTimeout(1500);
-  _mqttClient->setId(_device_id.c_str());
 }
 
 int ArduinoIoTCloudTCP::writeProperties(const byte data[], int length) {
