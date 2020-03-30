@@ -76,8 +76,7 @@ int ArduinoIoTCloudTCP::begin(String brokerAddress, uint16_t brokerPort) {
   #ifdef BOARD_HAS_ECCX08
   if (!ECCX08.begin()) { Debug.print(DBG_ERROR, "Cryptography processor failure. Make sure you have a compatible board."); return 0; }
 
-  _device_id = CryptoUtil::readDeviceId(ECCX08, ECCX08Slot::DeviceId);
-  if(_device_id.length() == 0) { Debug.print(DBG_ERROR, "Cryptography processor read failure."); return 0; }
+  if (!CryptoUtil::readDeviceId(ECCX08, _device_id, ECCX08Slot::DeviceId)) { Debug.print(DBG_ERROR, "Cryptography processor read failure."); return 0; }
 
   if (!CryptoUtil::reconstructCertificate(ECCX08Cert, _device_id, ECCX08Slot::Key, ECCX08Slot::CompressedCertificate, ECCX08Slot::SerialNumberAndAuthorityKeyIdentifier)) { Debug.print(DBG_ERROR, "Cryptography certificate reconstruction failure."); return 0; }
 

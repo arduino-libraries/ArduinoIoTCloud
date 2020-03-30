@@ -27,14 +27,17 @@
    PUBLIC MEMBER FUNCTIONS
  ******************************************************************************/
 
-String CryptoUtil::readDeviceId(ECCX08Class & eccx08, ECCX08Slot const slot)
+bool CryptoUtil::readDeviceId(ECCX08Class & eccx08, String & device_id, ECCX08Slot const device_id_slot)
 {
   byte device_id_bytes[72] = {0};
   
-  if (eccx08.readSlot(static_cast<int>(slot), device_id_bytes, sizeof(device_id_bytes))) {
-   return String(reinterpret_cast<char *>(device_id_bytes));
-  } else {
-   return String("");
+  if (eccx08.readSlot(static_cast<int>(device_id_slot), device_id_bytes, sizeof(device_id_bytes))) {
+   device_id = String(reinterpret_cast<char *>(device_id_bytes));
+   return true;
+  }
+  else
+  {
+   return false;
   }
 }
 
