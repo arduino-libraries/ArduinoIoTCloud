@@ -25,11 +25,23 @@
  * PUBLIC MEMBER FUNCTIONS
  ******************************************************************************/
 
-void ArduinoIoTCloudClass::addPropertyReal(ArduinoCloudProperty& property, String name, permissionType permission_type, long seconds, void(*fn)(void), float minDelta, void(*synFn)(ArduinoCloudProperty & property)) {
+void ArduinoIoTCloudClass::addCallback(ArduinoIoTCloudEvent const event, OnCloudEventCallback callback)
+{
+  switch (event)
+  {
+    case ArduinoIoTCloudEvent::SYNC:       _on_sync_event_callback       = callback; break;
+    case ArduinoIoTCloudEvent::CONNECT:    _on_connect_event_callback    = callback; break;
+    case ArduinoIoTCloudEvent::DISCONNECT: _on_disconnect_event_callback = callback; break;
+  }
+};
+
+void ArduinoIoTCloudClass::addPropertyReal(ArduinoCloudProperty& property, String name, permissionType permission_type, long seconds, void(*fn)(void), float minDelta, void(*synFn)(ArduinoCloudProperty & property))
+{
   addPropertyReal(property, name, -1, permission_type, seconds, fn, minDelta, synFn);
 }
 
-void ArduinoIoTCloudClass::addPropertyReal(ArduinoCloudProperty& property, String name, int tag, permissionType permission_type, long seconds, void(*fn)(void), float minDelta, void(*synFn)(ArduinoCloudProperty & property)) {
+void ArduinoIoTCloudClass::addPropertyReal(ArduinoCloudProperty& property, String name, int tag, permissionType permission_type, long seconds, void(*fn)(void), float minDelta, void(*synFn)(ArduinoCloudProperty & property))
+{
   Permission permission = Permission::ReadWrite;
   if (permission_type == READ) {
     permission = Permission::Read;
@@ -46,95 +58,109 @@ void ArduinoIoTCloudClass::addPropertyReal(ArduinoCloudProperty& property, Strin
   }
 }
 
-void ArduinoIoTCloudClass::addPropertyReal(bool& property, String name, permissionType permission_type, long seconds, void(*fn)(void), float minDelta, void(*synFn)(ArduinoCloudProperty & property)) {
+void ArduinoIoTCloudClass::addPropertyReal(bool& property, String name, permissionType permission_type, long seconds, void(*fn)(void), float minDelta, void(*synFn)(ArduinoCloudProperty & property))
+{
   addPropertyReal(property, name, -1, permission_type, seconds, fn, minDelta, synFn);
 }
 
-void ArduinoIoTCloudClass::addPropertyReal(bool& property, String name, int tag, permissionType permission_type, long seconds, void(*fn)(void), float minDelta, void(*synFn)(ArduinoCloudProperty & property)) {
+void ArduinoIoTCloudClass::addPropertyReal(bool& property, String name, int tag, permissionType permission_type, long seconds, void(*fn)(void), float minDelta, void(*synFn)(ArduinoCloudProperty & property))
+{
   ArduinoCloudProperty* p = new CloudWrapperBool(property);
   addPropertyReal(*p, name, tag, permission_type, seconds, fn, minDelta, synFn);
 }
-ArduinoCloudProperty& ArduinoIoTCloudClass::addPropertyReal(bool& property, String name, Permission const permission) {
+
+ArduinoCloudProperty& ArduinoIoTCloudClass::addPropertyReal(bool& property, String name, Permission const permission)
+{
   return addPropertyReal(property, name, -1, permission);
 }
-ArduinoCloudProperty& ArduinoIoTCloudClass::addPropertyReal(bool& property, String name, int tag, Permission const permission) {
+
+ArduinoCloudProperty& ArduinoIoTCloudClass::addPropertyReal(bool& property, String name, int tag, Permission const permission)
+{
   ArduinoCloudProperty* p = new CloudWrapperBool(property);
   return Thing.addPropertyReal(*p, name, permission, tag);
 }
 
-void ArduinoIoTCloudClass::addPropertyReal(float& property, String name, permissionType permission_type, long seconds, void(*fn)(void), float minDelta, void(*synFn)(ArduinoCloudProperty & property)) {
+void ArduinoIoTCloudClass::addPropertyReal(float& property, String name, permissionType permission_type, long seconds, void(*fn)(void), float minDelta, void(*synFn)(ArduinoCloudProperty & property))
+{
   addPropertyReal(property, name, -1, permission_type, seconds, fn, minDelta, synFn);
 }
 
-void ArduinoIoTCloudClass::addPropertyReal(float& property, String name, int tag, permissionType permission_type, long seconds, void(*fn)(void), float minDelta, void(*synFn)(ArduinoCloudProperty & property)) {
+void ArduinoIoTCloudClass::addPropertyReal(float& property, String name, int tag, permissionType permission_type, long seconds, void(*fn)(void), float minDelta, void(*synFn)(ArduinoCloudProperty & property))
+{
   ArduinoCloudProperty* p = new CloudWrapperFloat(property);
   addPropertyReal(*p, name, tag, permission_type, seconds, fn, minDelta, synFn);
 }
 
-ArduinoCloudProperty& ArduinoIoTCloudClass::addPropertyReal(float& property, String name, Permission const permission) {
+ArduinoCloudProperty& ArduinoIoTCloudClass::addPropertyReal(float& property, String name, Permission const permission)
+{
   return addPropertyReal(property, name, -1, permission);
 }
 
-ArduinoCloudProperty& ArduinoIoTCloudClass::addPropertyReal(float& property, String name, int tag, Permission const permission) {
+ArduinoCloudProperty& ArduinoIoTCloudClass::addPropertyReal(float& property, String name, int tag, Permission const permission)
+{
   ArduinoCloudProperty* p = new CloudWrapperFloat(property);
   return Thing.addPropertyReal(*p, name, permission, tag);
 }
 
-void ArduinoIoTCloudClass::addPropertyReal(int& property, String name, permissionType permission_type, long seconds, void(*fn)(void), float minDelta, void(*synFn)(ArduinoCloudProperty & property)) {
+void ArduinoIoTCloudClass::addPropertyReal(int& property, String name, permissionType permission_type, long seconds, void(*fn)(void), float minDelta, void(*synFn)(ArduinoCloudProperty & property))
+{
   addPropertyReal(property, name, -1, permission_type, seconds, fn, minDelta, synFn);
 }
 
-void ArduinoIoTCloudClass::addPropertyReal(int& property, String name, int tag, permissionType permission_type, long seconds, void(*fn)(void), float minDelta, void(*synFn)(ArduinoCloudProperty & property)) {
+void ArduinoIoTCloudClass::addPropertyReal(int& property, String name, int tag, permissionType permission_type, long seconds, void(*fn)(void), float minDelta, void(*synFn)(ArduinoCloudProperty & property))
+{
   ArduinoCloudProperty* p = new CloudWrapperInt(property);
   addPropertyReal(*p, name, tag, permission_type, seconds, fn, minDelta, synFn);
 }
 
-ArduinoCloudProperty& ArduinoIoTCloudClass::addPropertyReal(int& property, String name, Permission const permission) {
+ArduinoCloudProperty& ArduinoIoTCloudClass::addPropertyReal(int& property, String name, Permission const permission)
+{
   return addPropertyReal(property, name, -1, permission);
 }
 
-ArduinoCloudProperty& ArduinoIoTCloudClass::addPropertyReal(int& property, String name, int tag, Permission const permission) {
+ArduinoCloudProperty& ArduinoIoTCloudClass::addPropertyReal(int& property, String name, int tag, Permission const permission)
+{
   ArduinoCloudProperty* p = new CloudWrapperInt(property);
   return Thing.addPropertyReal(*p, name, permission, tag);
 }
 
-void ArduinoIoTCloudClass::addPropertyReal(String& property, String name, permissionType permission_type, long seconds, void(*fn)(void), float minDelta, void(*synFn)(ArduinoCloudProperty & property)) {
+void ArduinoIoTCloudClass::addPropertyReal(String& property, String name, permissionType permission_type, long seconds, void(*fn)(void), float minDelta, void(*synFn)(ArduinoCloudProperty & property))
+{
   addPropertyReal(property, name, -1, permission_type, seconds, fn, minDelta, synFn);
 }
 
-void ArduinoIoTCloudClass::addPropertyReal(String& property, String name, int tag, permissionType permission_type, long seconds, void(*fn)(void), float minDelta, void(*synFn)(ArduinoCloudProperty & property)) {
+void ArduinoIoTCloudClass::addPropertyReal(String& property, String name, int tag, permissionType permission_type, long seconds, void(*fn)(void), float minDelta, void(*synFn)(ArduinoCloudProperty & property))
+{
   ArduinoCloudProperty* p = new CloudWrapperString(property);
   addPropertyReal(*p, name, tag, permission_type, seconds, fn, minDelta, synFn);
 }
 
-ArduinoCloudProperty& ArduinoIoTCloudClass::addPropertyReal(String& property, String name, Permission const permission) {
+ArduinoCloudProperty& ArduinoIoTCloudClass::addPropertyReal(String& property, String name, Permission const permission)
+{
   return addPropertyReal(property, name, -1, permission);
 }
 
-ArduinoCloudProperty& ArduinoIoTCloudClass::addPropertyReal(String& property, String name, int tag, Permission const permission) {
+ArduinoCloudProperty& ArduinoIoTCloudClass::addPropertyReal(String& property, String name, int tag, Permission const permission)
+{
   ArduinoCloudProperty* p = new CloudWrapperString(property);
   return Thing.addPropertyReal(*p, name, permission, tag);
 }
-
-void ArduinoIoTCloudClass::addCallback(ArduinoIoTCloudEvent const event, OnCloudEventCallback callback) {
-  switch (event) {
-    case ArduinoIoTCloudEvent::SYNC:       _on_sync_event_callback       = callback; break;
-    case ArduinoIoTCloudEvent::CONNECT:    _on_connect_event_callback    = callback; break;
-    case ArduinoIoTCloudEvent::DISCONNECT: _on_disconnect_event_callback = callback; break;
-  }
-};
 
 /******************************************************************************
  * PRIVATE MEMBER FUNCTIONS
  ******************************************************************************/
 
-void ArduinoIoTCloudClass::execCloudEventCallback(OnCloudEventCallback& callback, void* callback_arg) {
+void ArduinoIoTCloudClass::execCloudEventCallback(OnCloudEventCallback& callback, void* callback_arg)
+{
   if (callback) {
     (*callback)(callback_arg);
   }
 }
-void ArduinoIoTCloudClass::printConnectionStatus(ArduinoIoTConnectionStatus status) {
-  switch (status) {
+
+void ArduinoIoTCloudClass::printConnectionStatus(ArduinoIoTConnectionStatus status)
+{
+  switch (status)
+  {
     case ArduinoIoTConnectionStatus::IDLE:         Debug.print(DBG_INFO,  "Arduino IoT Cloud Connection status: IDLE");         break;
     case ArduinoIoTConnectionStatus::ERROR:        Debug.print(DBG_ERROR, "Arduino IoT Cloud Connection status: ERROR");        break;
     case ArduinoIoTConnectionStatus::CONNECTING:   Debug.print(DBG_INFO,  "Arduino IoT Cloud Connection status: CONNECTING");   break;

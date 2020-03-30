@@ -24,8 +24,6 @@
 
 #include <ArduinoIoTCloud_Defines.h>
 
-
-
 #include <ArduinoCloudThing.h>
 
 #include <Arduino_DebugUtils.h>
@@ -34,21 +32,21 @@
 #include "types/CloudWrapperInt.h"
 #include "types/CloudWrapperString.h"
 
-
 #include "CloudSerial.h"
 
 /******************************************************************************
    TYPEDEF
  ******************************************************************************/
 
-typedef enum {
+typedef enum
+{
   READ      = 0x01,
   WRITE     = 0x02,
   READWRITE = READ | WRITE
 } permissionType;
 
-
-enum class ArduinoIoTConnectionStatus {
+enum class ArduinoIoTConnectionStatus
+{
   IDLE,
   CONNECTING,
   CONNECTED,
@@ -57,13 +55,15 @@ enum class ArduinoIoTConnectionStatus {
   ERROR,
 };
 
-enum class ArduinoIoTSynchronizationStatus {
+enum class ArduinoIoTSynchronizationStatus
+{
   SYNC_STATUS_SYNCHRONIZED,
   SYNC_STATUS_WAIT_FOR_CLOUD_VALUES,
   SYNC_STATUS_VALUES_PROCESSED
 };
 
-enum class ArduinoIoTCloudEvent {
+enum class ArduinoIoTCloudEvent
+{
   SYNC, CONNECT, DISCONNECT
 };
 
@@ -74,69 +74,59 @@ typedef void (*OnCloudEventCallback)(void * /* arg */);
  * CLASS DECLARATION
  ******************************************************************************/
 
-class ArduinoIoTCloudClass {
-
+class ArduinoIoTCloudClass
+{
   public:
+
     static const int TIMEOUT_FOR_LASTVALUES_SYNC = 10000;
-    /*Public Virtual Functions*/
-    virtual int  connect() = 0;
-    virtual bool disconnect() = 0;
 
-    virtual void update() = 0;
-
-    virtual int connected() = 0;
-
+    virtual int  connect       () = 0;
+    virtual bool disconnect    () = 0;
+    virtual void update        () = 0;
+    virtual int connected      () = 0;
     virtual void printDebugInfo() = 0;
 
-    inline void setThingId(String const thing_id) {
-      _thing_id = thing_id;
-    };
+    inline void   setThingId (String const thing_id) { _thing_id = thing_id; };
+    inline String getThingId () const                { return _thing_id; };
+    inline String getDeviceId() const                { return _device_id; };
 
-    inline String getThingId()  const {
-      return _thing_id;
-    };
-
-    inline String getDeviceId() const {
-      return _device_id;
-    };
+    void addCallback(ArduinoIoTCloudEvent const event, OnCloudEventCallback callback);
 
 #define addProperty( v, ...) addPropertyReal(v, #v, __VA_ARGS__)
 
     static unsigned long const DEFAULT_MIN_TIME_BETWEEN_UPDATES_MILLIS = 500; /* Data rate throttled to 2 Hz */
 
+    /* The following methods are used for non-LoRa boards which can use the 
+     * name of the property to identify a given property within a CBOR message.
+     */
+
     void addPropertyReal(ArduinoCloudProperty& property, String name, permissionType permission_type = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, float minDelta = 0.0f, void(*synFn)(ArduinoCloudProperty & property) = CLOUD_WINS);
-
-    void addPropertyReal(ArduinoCloudProperty& property, String name, int tag, permissionType permission_type = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, float minDelta = 0.0f, void(*synFn)(ArduinoCloudProperty & property) = CLOUD_WINS);
-
     void addPropertyReal(bool& property, String name, permissionType permission_type = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, float minDelta = 0.0f, void(*synFn)(ArduinoCloudProperty & property) = CLOUD_WINS);
-    void addPropertyReal(bool& property, String name, int tag, permissionType permission_type = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, float minDelta = 0.0f, void(*synFn)(ArduinoCloudProperty & property) = CLOUD_WINS);
-    ArduinoCloudProperty& addPropertyReal(bool& property, String name, Permission const permission);
-    ArduinoCloudProperty& addPropertyReal(bool& property, String name, int tag, Permission const permission);
-
     void addPropertyReal(float& property, String name, permissionType permission_type = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, float minDelta = 0.0f, void(*synFn)(ArduinoCloudProperty & property) = CLOUD_WINS);
-
-    void addPropertyReal(float& property, String name, int tag, permissionType permission_type = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, float minDelta = 0.0f, void(*synFn)(ArduinoCloudProperty & property) = CLOUD_WINS);
-
-    ArduinoCloudProperty& addPropertyReal(float& property, String name, Permission const permission);
-
-    ArduinoCloudProperty& addPropertyReal(float& property, String name, int tag, Permission const permission);
-
     void addPropertyReal(int& property, String name, permissionType permission_type = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, float minDelta = 0.0, void(*synFn)(ArduinoCloudProperty & property) = CLOUD_WINS);
-
-    void addPropertyReal(int& property, String name, int tag, permissionType permission_type = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, float minDelta = 0.0, void(*synFn)(ArduinoCloudProperty & property) = CLOUD_WINS);
-
-    ArduinoCloudProperty& addPropertyReal(int& property, String name, Permission const permission);
-
-    ArduinoCloudProperty& addPropertyReal(int& property, String name, int tag, Permission const permission);
-
     void addPropertyReal(String& property, String name, permissionType permission_type = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, float minDelta = 0.0f, void(*synFn)(ArduinoCloudProperty & property) = CLOUD_WINS);
-    void addPropertyReal(String& property, String name, int tag, permissionType permission_type = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, float minDelta = 0.0f, void(*synFn)(ArduinoCloudProperty & property) = CLOUD_WINS);
-    ArduinoCloudProperty& addPropertyReal(String& property, String name, Permission const permission);
 
+    ArduinoCloudProperty& addPropertyReal(bool& property, String name, Permission const permission);
+    ArduinoCloudProperty& addPropertyReal(float& property, String name, Permission const permission);
+    ArduinoCloudProperty& addPropertyReal(int& property, String name, Permission const permission);
     ArduinoCloudProperty& addPropertyReal(String& property, String name, int tag, Permission const permission);
 
-    void addCallback(ArduinoIoTCloudEvent const event, OnCloudEventCallback callback);
+    /* The following methods are for MKR WAN 1300/1310 LoRa boards since
+     * they use a number to identify a given property within a CBOR message.
+     * This approach reduces the required amount of data which is of great
+     * important when using LoRa.
+     */
 
+    void addPropertyReal(ArduinoCloudProperty& property, String name, int tag, permissionType permission_type = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, float minDelta = 0.0f, void(*synFn)(ArduinoCloudProperty & property) = CLOUD_WINS);
+    void addPropertyReal(bool& property, String name, int tag, permissionType permission_type = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, float minDelta = 0.0f, void(*synFn)(ArduinoCloudProperty & property) = CLOUD_WINS);
+    void addPropertyReal(float& property, String name, int tag, permissionType permission_type = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, float minDelta = 0.0f, void(*synFn)(ArduinoCloudProperty & property) = CLOUD_WINS);
+    void addPropertyReal(int& property, String name, int tag, permissionType permission_type = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, float minDelta = 0.0, void(*synFn)(ArduinoCloudProperty & property) = CLOUD_WINS);
+    void addPropertyReal(String& property, String name, int tag, permissionType permission_type = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, float minDelta = 0.0f, void(*synFn)(ArduinoCloudProperty & property) = CLOUD_WINS);
+
+    ArduinoCloudProperty& addPropertyReal(bool& property, String name, int tag, Permission const permission);
+    ArduinoCloudProperty& addPropertyReal(float& property, String name, int tag, Permission const permission);
+    ArduinoCloudProperty& addPropertyReal(int& property, String name, int tag, Permission const permission);
+    ArduinoCloudProperty& addPropertyReal(String& property, String name, Permission const permission);
 
   protected:
 
@@ -144,23 +134,13 @@ class ArduinoIoTCloudClass {
     virtual int writeProperties(const byte data[], int length) = 0;
     virtual int writeShadowOut(const byte data[], int length) = 0;
 
-
-
-
-    ArduinoIoTConnectionStatus getIoTStatus() {
-      return _iotStatus;
-    }
-
-    ArduinoIoTConnectionStatus _iotStatus = ArduinoIoTConnectionStatus::IDLE;
-
-
-
-    ArduinoIoTSynchronizationStatus _syncStatus = ArduinoIoTSynchronizationStatus::SYNC_STATUS_SYNCHRONIZED;
-
+    inline ArduinoIoTConnectionStatus getIoTStatus() { return _iotStatus; }
 
     String _device_id = "";
     String _thing_id = "";
 
+    ArduinoIoTConnectionStatus _iotStatus = ArduinoIoTConnectionStatus::IDLE;
+    ArduinoIoTSynchronizationStatus _syncStatus = ArduinoIoTSynchronizationStatus::SYNC_STATUS_SYNCHRONIZED;
 
     ArduinoCloudThing Thing;
 
@@ -176,10 +156,8 @@ class ArduinoIoTCloudClass {
 
 #ifdef HAS_TCP
   #include "ArduinoIoTCloudTCP.h"
-
 #elif defined(HAS_LORA)
   #include "ArduinoIoTCloudLPWAN.h"
-
 #endif
 
 #endif
