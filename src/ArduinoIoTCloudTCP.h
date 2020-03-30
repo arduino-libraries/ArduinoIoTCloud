@@ -18,6 +18,9 @@
 #ifndef ARDUINO_IOT_CLOUD_TCP_H
 #define ARDUINO_IOT_CLOUD_TCP_H
 
+/******************************************************************************
+ * INCLUDE
+ ******************************************************************************/
 
 #include <ArduinoIoTCloud.h>
 #include <Arduino_ConnectionHandler.h>
@@ -31,11 +34,18 @@
 
 #include <ArduinoMqttClient.h>
 
+/******************************************************************************
+   CONSTANTS
+ ******************************************************************************/
 
 static char const DEFAULT_BROKER_ADDRESS_SECURE_AUTH[] = "mqtts-sa.iot.arduino.cc";
 static uint16_t const DEFAULT_BROKER_PORT_SECURE_AUTH = 8883;
 static char const DEFAULT_BROKER_ADDRESS_USER_PASS_AUTH[] = "mqtts-up.iot.arduino.cc";
 static uint16_t const DEFAULT_BROKER_PORT_USER_PASS_AUTH = 8884;
+
+/******************************************************************************
+ * CLASS DECLARATION
+ ******************************************************************************/
 
 class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass {
   public:
@@ -127,7 +137,10 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass {
     ArduinoIoTConnectionStatus checkCloudConnection();
 };
 
-extern ArduinoIoTCloudTCP ArduinoCloud;
+/******************************************************************************
+ * EXTERN DECLARATION
+ ******************************************************************************/
 
+extern ArduinoIoTCloudTCP ArduinoCloud;
 
 #endif

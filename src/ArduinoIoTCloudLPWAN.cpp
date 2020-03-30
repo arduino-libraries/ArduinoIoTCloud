@@ -14,7 +14,13 @@
    software without disclosing the source code of your own applications. To purchase
    a commercial license, send an email to license@arduino.cc.
 */
+
+/******************************************************************************
+ * INCLUDE
+ ******************************************************************************/
+
 #include "ArduinoIoTCloud_Defines.h"
+
 #ifdef HAS_LORA
 
 #include<ArduinoIoTCloudLPWAN.h>
@@ -24,11 +30,19 @@
   RTCZero rtc;
 #endif
 
+/******************************************************************************
+   CTOR/DTOR
+ ******************************************************************************/
+
 ArduinoIoTCloudLPWAN::ArduinoIoTCloudLPWAN() :
   _connection(NULL) {}
 
 ArduinoIoTCloudLPWAN::~ArduinoIoTCloudLPWAN() {
 }
+
+/******************************************************************************
+ * PUBLIC MEMBER FUNCTIONS
+ ******************************************************************************/
 
 int ArduinoIoTCloudLPWAN::connect() {
   _connection->connect();
@@ -189,6 +203,10 @@ int ArduinoIoTCloudLPWAN::writeShadowOut(const byte data[], int length) {
   return 1;
 }
 
+/******************************************************************************
+ * PRIVATE MEMBER FUNCTIONS
+ ******************************************************************************/
+
 void ArduinoIoTCloudLPWAN::sendPropertiesToCloud() {
   uint8_t data[DEFAULT_CBOR_LORA_MSG_SIZE];
   int const length = Thing.encode(data, sizeof(data), true);
@@ -196,6 +214,10 @@ void ArduinoIoTCloudLPWAN::sendPropertiesToCloud() {
     writeProperties(data, length);
   }
 }
+
+/******************************************************************************
+ * EXTERN DEFINITION
+ ******************************************************************************/
 
 ArduinoIoTCloudLPWAN ArduinoCloud;
 

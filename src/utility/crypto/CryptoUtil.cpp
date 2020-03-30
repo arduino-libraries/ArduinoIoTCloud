@@ -16,7 +16,7 @@
 */
 
 /******************************************************************************
-   INCLUDE
+ * INCLUDE
  ******************************************************************************/
 
 #include "CryptoUtil.h"
@@ -24,7 +24,7 @@
 #ifdef BOARD_HAS_ECCX08
 
 /******************************************************************************
-   PUBLIC MEMBER FUNCTIONS
+ * PUBLIC MEMBER FUNCTIONS
  ******************************************************************************/
 
 bool CryptoUtil::readDeviceId(ECCX08Class & eccx08, String & device_id, ECCX08Slot const device_id_slot)

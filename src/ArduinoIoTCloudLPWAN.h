@@ -18,10 +18,22 @@
 #ifndef ARDUINO_IOT_CLOUD_LPWAN_H
 #define ARDUINO_IOT_CLOUD_LPWAN_H
 
+/******************************************************************************
+ * INCLUDE
+ ******************************************************************************/
+
 #include <ArduinoIoTCloud.h>
 #include <Arduino_ConnectionHandler.h>
 
+/******************************************************************************
+   CONSTANTS
+ ******************************************************************************/
+
 static uint8_t const DEFAULT_CBOR_LORA_MSG_SIZE = 255;
+
+/******************************************************************************
+ * CLASS DECLARATION
+ ******************************************************************************/
 
 class ArduinoIoTCloudLPWAN : public ArduinoIoTCloudClass {
   public:
@@ -75,7 +87,10 @@ class ArduinoIoTCloudLPWAN : public ArduinoIoTCloudClass {
 
 };
 
-extern ArduinoIoTCloudLPWAN ArduinoCloud;
+/******************************************************************************
+ * EXTERN DECLARATION
+ ******************************************************************************/
 
+extern ArduinoIoTCloudLPWAN ArduinoCloud;
 
 #endif

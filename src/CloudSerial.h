@@ -18,6 +18,10 @@
 #ifndef CLOUD_SERIAL_H
 #define CLOUD_SERIAL_H
 
+/******************************************************************************
+ * INCLUDE
+ ******************************************************************************/
+
 #include <Arduino.h>
 #if defined(ARDUINO_ESP8266_ESP12) || defined(ARDUINO_ARCH_ESP32) || defined(ESP8266)
   #include "utility/RingBuffer.h"
@@ -25,9 +29,16 @@
   #include <RingBuffer.h>
 #endif
 
+/******************************************************************************
+ * DEFINES
+ ******************************************************************************/
+
 #define CLOUD_SERIAL_TX_BUFFER_SIZE 64
 #define CLOUD_SERIAL_RX_BUFFER_SIZE 512
 
+/******************************************************************************
+ * CLASS DECLARATION
+ ******************************************************************************/
 
 class ArduinoIoTCloudTCP;
 
@@ -61,6 +72,10 @@ class CloudSerialClass : public Stream {
     RingBufferN<CLOUD_SERIAL_TX_BUFFER_SIZE> _txBuffer;
     RingBufferN<CLOUD_SERIAL_RX_BUFFER_SIZE> _rxBuffer;
 };
+
+/******************************************************************************
+ * EXTERN DECLARATION
+ ******************************************************************************/
 
 extern CloudSerialClass CloudSerial;
 

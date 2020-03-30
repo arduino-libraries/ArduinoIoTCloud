@@ -14,17 +14,30 @@
    software without disclosing the source code of your own applications. To purchase
    a commercial license, send an email to license@arduino.cc.
 */
+
+/******************************************************************************
+ * INCLUDE
+ ******************************************************************************/
+
 #include "ArduinoIoTCloud_Defines.h"
 #ifndef HAS_LORA
 
 #include "ArduinoIoTCloud.h"
 #include "CloudSerial.h"
 
+/******************************************************************************
+   CTOR/DTOR
+ ******************************************************************************/
+
 CloudSerialClass::CloudSerialClass() {
 }
 
 CloudSerialClass::~CloudSerialClass() {
 }
+
+/******************************************************************************
+ * PUBLIC MEMBER FUNCTIONS
+ ******************************************************************************/
 
 void CloudSerialClass::begin(int /*baud*/) {
   _txBuffer.clear();
@@ -86,6 +99,10 @@ void CloudSerialClass::appendStdin(const uint8_t *buffer, size_t size) {
     _rxBuffer.store_char(*buffer++);
   }
 }
+
+/******************************************************************************
+ * EXTERN DEFINITION
+ ******************************************************************************/
 
 CloudSerialClass CloudSerial;
 

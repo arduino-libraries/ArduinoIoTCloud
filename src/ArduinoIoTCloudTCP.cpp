@@ -14,6 +14,11 @@
    software without disclosing the source code of your own applications. To purchase
    a commercial license, send an email to license@arduino.cc.
 */
+
+/******************************************************************************
+ * INCLUDE
+ ******************************************************************************/
+
 #include "ArduinoIoTCloud_Defines.h"
 
 #ifdef HAS_TCP
@@ -24,15 +29,31 @@
   #include "utility/crypto/BearSSLTrustAnchor.h"
 #endif
 
+/******************************************************************************
+   GLOBAL VARIABLES
+ ******************************************************************************/
+
 TimeService time_service;
+
+/******************************************************************************
+   GLOBAL CONSTANTS
+ ******************************************************************************/
 
 const static int CONNECT_SUCCESS							               = 1;
 const static int CONNECT_FAILURE							               = 0;
 const static int CONNECT_FAILURE_SUBSCRIBE					         = -1;
 
+/******************************************************************************
+   LOCAL MODULE FUNCTIONS
+ ******************************************************************************/
+
 static unsigned long getTime() {
   return time_service.getTime();
 }
+
+/******************************************************************************
+   CTOR/DTOR
+ ******************************************************************************/
 
 ArduinoIoTCloudTCP::ArduinoIoTCloudTCP():
   _connection(NULL),
@@ -58,6 +79,10 @@ ArduinoIoTCloudTCP::~ArduinoIoTCloudTCP() {
   delete _mqttClient; _mqttClient = NULL;
   delete _sslClient;  _sslClient = NULL;
 }
+
+/******************************************************************************
+ * PUBLIC MEMBER FUNCTIONS
+ ******************************************************************************/
 
 int ArduinoIoTCloudTCP::begin(ConnectionHandler & connection, String brokerAddress, uint16_t brokerPort) {
   _connection = &connection;
@@ -184,23 +209,12 @@ void ArduinoIoTCloudTCP::update() {
   }
 }
 
-
-
-void ArduinoIoTCloudTCP::sendPropertiesToCloud() {
-  uint8_t data[MQTT_TRANSMIT_BUFFER_SIZE];
-  int const length = Thing.encode(data, sizeof(data));
-  if (length > 0)
-  {
-    /* If properties have been encoded store them in the back-up buffer
-     * in order to allow retransmission in case of failure.
-     */
-    _mqtt_data_len = length;
-    memcpy(_mqtt_data_buf, data, _mqtt_data_len);
-    /* Transmit the properties to the MQTT broker */
-    writeProperties(_mqtt_data_buf, _mqtt_data_len);
-  }
+void ArduinoIoTCloudTCP::printDebugInfo() {
+  Debug.print(DBG_INFO, "***** Arduino IoT Cloud - configuration info *****");
+  Debug.print(DBG_INFO, "Device ID: %s", getDeviceId().c_str());
+  Debug.print(DBG_INFO, "Thing ID: %s", getThingId().c_str());
+  Debug.print(DBG_INFO, "MQTT Broker: %s:%d", _brokerAddress.c_str(), _brokerPort);
 }
-
 
 int ArduinoIoTCloudTCP::reconnect() {
   if (_mqttClient->connected()) {
@@ -264,6 +278,10 @@ int ArduinoIoTCloudTCP::writeShadowOut(const byte data[], int length) {
   return 1;
 }
 
+/******************************************************************************
+ * PRIVATE MEMBER FUNCTIONS
+ ******************************************************************************/
+
 void ArduinoIoTCloudTCP::onMessage(int length) {
   ArduinoCloud.handleMessage(length);
 }
@@ -287,6 +305,21 @@ void ArduinoIoTCloudTCP::handleMessage(int length) {
     Thing.decode((uint8_t*)bytes, length, true);
     sendPropertiesToCloud();
     _syncStatus = ArduinoIoTSynchronizationStatus::SYNC_STATUS_VALUES_PROCESSED;
+  }
+}
+
+void ArduinoIoTCloudTCP::sendPropertiesToCloud() {
+  uint8_t data[MQTT_TRANSMIT_BUFFER_SIZE];
+  int const length = Thing.encode(data, sizeof(data));
+  if (length > 0)
+  {
+    /* If properties have been encoded store them in the back-up buffer
+     * in order to allow retransmission in case of failure.
+     */
+    _mqtt_data_len = length;
+    memcpy(_mqtt_data_buf, data, _mqtt_data_len);
+    /* Transmit the properties to the MQTT broker */
+    writeProperties(_mqtt_data_buf, _mqtt_data_len);
   }
 }
 
@@ -371,12 +404,9 @@ ArduinoIoTConnectionStatus ArduinoIoTCloudTCP::checkCloudConnection()
   return _iotStatus;
 }
 
-void ArduinoIoTCloudTCP::printDebugInfo() {
-  Debug.print(DBG_INFO, "***** Arduino IoT Cloud - configuration info *****");
-  Debug.print(DBG_INFO, "Device ID: %s", getDeviceId().c_str());
-  Debug.print(DBG_INFO, "Thing ID: %s", getThingId().c_str());
-  Debug.print(DBG_INFO, "MQTT Broker: %s:%d", _brokerAddress.c_str(), _brokerPort);
-}
+/******************************************************************************
+ * EXTERN DEFINITION
+ ******************************************************************************/
 
 ArduinoIoTCloudTCP ArduinoCloud;
 

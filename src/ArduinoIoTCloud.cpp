@@ -15,7 +15,15 @@
    a commercial license, send an email to license@arduino.cc.
 */
 
+/******************************************************************************
+ * INCLUDE
+ ******************************************************************************/
+
 #include <ArduinoIoTCloud.h>
+
+/******************************************************************************
+ * PUBLIC MEMBER FUNCTIONS
+ ******************************************************************************/
 
 void ArduinoIoTCloudClass::addPropertyReal(ArduinoCloudProperty& property, String name, permissionType permission_type, long seconds, void(*fn)(void), float minDelta, void(*synFn)(ArduinoCloudProperty & property)) {
   addPropertyReal(property, name, -1, permission_type, seconds, fn, minDelta, synFn);
@@ -115,6 +123,10 @@ void ArduinoIoTCloudClass::addCallback(ArduinoIoTCloudEvent const event, OnCloud
     case ArduinoIoTCloudEvent::DISCONNECT: _on_disconnect_event_callback = callback; break;
   }
 };
+
+/******************************************************************************
+ * PRIVATE MEMBER FUNCTIONS
+ ******************************************************************************/
 
 void ArduinoIoTCloudClass::execCloudEventCallback(OnCloudEventCallback& callback, void* callback_arg) {
   if (callback) {
