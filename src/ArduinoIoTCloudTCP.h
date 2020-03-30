@@ -127,7 +127,6 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass {
     NetworkConnectionState checkPhyConnection();
     ArduinoIoTConnectionStatus checkCloudConnection();
     void mqttClientBegin();
-    bool mqttReconnect(int const maxRetries, int const timeout);
     int writeStdout(const byte data[], int length);
     int writeProperties(const byte data[], int length);
     int writeShadowOut(const byte data[], int length);
