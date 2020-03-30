@@ -22,7 +22,6 @@
 #ifdef BOARD_HAS_ECCX08
   #include <ArduinoECCX08.h>
   #include "utility/crypto/BearSSLTrustAnchor.h"
-  #include "utility/crypto/CryptoUtil.h"
 #endif
 
 TimeService time_service;
@@ -76,10 +75,10 @@ int ArduinoIoTCloudTCP::begin(String brokerAddress, uint16_t brokerPort) {
   #ifdef BOARD_HAS_ECCX08
   if (!ECCX08.begin())                                                                                                                                                    { Debug.print(DBG_ERROR, "Cryptography processor failure. Make sure you have a compatible board."); return 0; }
   if (!CryptoUtil::readDeviceId(ECCX08, _device_id, ECCX08Slot::DeviceId))                                                                                                { Debug.print(DBG_ERROR, "Cryptography processor read failure."); return 0; }
-  if (!CryptoUtil::reconstructCertificate(ECCX08Cert, _device_id, ECCX08Slot::Key, ECCX08Slot::CompressedCertificate, ECCX08Slot::SerialNumberAndAuthorityKeyIdentifier)) { Debug.print(DBG_ERROR, "Cryptography certificate reconstruction failure."); return 0; }
+  if (!CryptoUtil::reconstructCertificate(_eccx08_cert, _device_id, ECCX08Slot::Key, ECCX08Slot::CompressedCertificate, ECCX08Slot::SerialNumberAndAuthorityKeyIdentifier)) { Debug.print(DBG_ERROR, "Cryptography certificate reconstruction failure."); return 0; }
   ArduinoBearSSL.onGetTime(getTime);
   _sslClient = new BearSSLClient(_connection->getClient(), ArduinoIoTCloudTrustAnchor, ArduinoIoTCloudTrustAnchor_NUM);
-  _sslClient->setEccSlot(static_cast<int>(ECCX08Slot::Key), ECCX08Cert.bytes(), ECCX08Cert.length());
+  _sslClient->setEccSlot(static_cast<int>(ECCX08Slot::Key), _eccx08_cert.bytes(), _eccx08_cert.length());
   #elif defined(BOARD_ESP)
   _sslClient = new WiFiClientSecure();
   _sslClient->setInsecure();

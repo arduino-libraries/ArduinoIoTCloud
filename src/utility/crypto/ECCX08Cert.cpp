@@ -923,6 +923,4 @@ int ECCX08CertClass::appendEcdsaWithSHA256(byte out[]) {
   return 12;
 }
 
-ECCX08CertClass ECCX08Cert;
-
 #endif /* BOARD_HAS_ECCX08 */

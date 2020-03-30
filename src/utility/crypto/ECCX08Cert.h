@@ -134,8 +134,6 @@ class ECCX08CertClass {
     int _length;
 };
 
-extern ECCX08CertClass ECCX08Cert;
-
 #endif /* BOARD_HAS_ECCX08 */
 
 #endif /* _ECCX08_CERT_H_ */
