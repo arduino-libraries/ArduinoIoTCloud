@@ -43,29 +43,14 @@ class ArduinoIoTCloudLPWAN : public ArduinoIoTCloudClass {
     ArduinoIoTConnectionStatus connectionCheck();
     int begin(ConnectionHandler& connection, bool retry = false);
 
-    bool isRetryEnabled() {
-      return _retryEnable;
-    }
+    inline bool isRetryEnabled  () const { return _retryEnable; }
+    inline int  getMaxRetry     () const { return _maxNumRetry; }
+    inline long getIntervalRetry() const { return _intervalRetry; }
 
-    void enableRetry(bool val) {
-      _retryEnable = val;
-    }
+    inline void enableRetry     (bool val) { _retryEnable = val; }
+    inline void setMaxRetry     (int val)  { _maxNumRetry = val; }
+    inline void setIntervalRetry(long val) { _intervalRetry = val; }
 
-    int getMaxRetry() {
-      return _maxNumRetry;
-    }
-
-    void setMaxRetry(int val) {
-      _maxNumRetry = val;
-    }
-
-    long getIntervalRetry() {
-      return _intervalRetry;
-    }
-
-    void setIntervalRetry(long val) {
-      _intervalRetry = val;
-    }
 
   private:
 

@@ -70,20 +70,12 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass {
     static const int MQTT_TRANSMIT_BUFFER_SIZE = 256;
 
     #ifdef BOARD_ESP
-    inline void setBoardId(String const device_id) {
-      setDeviveId(device_id);
-    }
-    inline void setSecretDeviceKey(String const password) {
-      _password = password;
-    }
+    inline void setBoardId        (String const device_id) { setDeviveId(device_id); }
+    inline void setSecretDeviceKey(String const password)  { _password = password;  }
     #endif
 
-    String getBrokerAddress() {
-      return _brokerAddress;
-    }
-    uint16_t getBrokerPort() {
-      return _brokerPort;
-    }
+    inline String   getBrokerAddress() const { return _brokerAddress; }
+    inline uint16_t getBrokerPort   () const { return _brokerPort; }
 
     // Clean up existing Mqtt connection, create a new one and initialize it
     int reconnect();
