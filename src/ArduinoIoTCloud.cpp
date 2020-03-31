@@ -150,10 +150,10 @@ ArduinoCloudProperty& ArduinoIoTCloudClass::addPropertyReal(String& property, St
  * PRIVATE MEMBER FUNCTIONS
  ******************************************************************************/
 
-void ArduinoIoTCloudClass::execCloudEventCallback(OnCloudEventCallback& callback, void* callback_arg)
+void ArduinoIoTCloudClass::execCloudEventCallback(OnCloudEventCallback& callback)
 {
   if (callback) {
-    (*callback)(callback_arg);
+    (*callback)();
   }
 }
 

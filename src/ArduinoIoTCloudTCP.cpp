@@ -188,7 +188,7 @@ void ArduinoIoTCloudTCP::update() {
       }
       break;
     case ArduinoIoTSynchronizationStatus::SYNC_STATUS_VALUES_PROCESSED: {
-        execCloudEventCallback(_on_sync_event_callback, 0 /* callback_arg */);
+        execCloudEventCallback(_on_sync_event_callback);
         _syncStatus = ArduinoIoTSynchronizationStatus::SYNC_STATUS_SYNCHRONIZED;
       }
       break;
@@ -302,7 +302,7 @@ ArduinoIoTConnectionStatus ArduinoIoTCloudTCP::checkCloudConnection()
           _iotStatus = ArduinoIoTConnectionStatus::DISCONNECTED;
           _mqtt_data_request_retransmit = true;
           printConnectionStatus(_iotStatus);
-          execCloudEventCallback(_on_disconnect_event_callback, 0 /* callback_arg - e.g. could be error code casted to void * */);
+          execCloudEventCallback(_on_disconnect_event_callback);
         }
       }
       break;
@@ -317,7 +317,7 @@ ArduinoIoTConnectionStatus ArduinoIoTCloudTCP::checkCloudConnection()
         if (ret_code_reconnect == CONNECT_SUCCESS) {
           _iotStatus = ArduinoIoTConnectionStatus::CONNECTED;
           printConnectionStatus(_iotStatus);
-          execCloudEventCallback(_on_connect_event_callback, 0 /* callback_arg */);
+          execCloudEventCallback(_on_connect_event_callback);
           CloudSerial.begin(9600);
           CloudSerial.println("Hello from Cloud Serial!");
         }
@@ -329,7 +329,7 @@ ArduinoIoTConnectionStatus ArduinoIoTCloudTCP::checkCloudConnection()
         if (ret_code_connect == CONNECT_SUCCESS) {
           _iotStatus = ArduinoIoTConnectionStatus::CONNECTED;
           printConnectionStatus(_iotStatus);
-          execCloudEventCallback(_on_connect_event_callback, 0 /* callback_arg */);
+          execCloudEventCallback(_on_connect_event_callback);
           CloudSerial.begin(9600);
           CloudSerial.println("Hello from Cloud Serial!");
         } else if (ret_code_connect == CONNECT_FAILURE_SUBSCRIBE) {

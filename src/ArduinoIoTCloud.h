@@ -67,7 +67,7 @@ enum class ArduinoIoTCloudEvent
   SYNC, CONNECT, DISCONNECT
 };
 
-typedef void (*OnCloudEventCallback)(void * /* arg */);
+typedef void (*OnCloudEventCallback)(void);
 
 /******************************************************************************
  * CLASS DECLARATION
@@ -138,7 +138,7 @@ class ArduinoIoTCloudClass
     OnCloudEventCallback _on_connect_event_callback    = NULL;
     OnCloudEventCallback _on_disconnect_event_callback = NULL;
 
-    static void execCloudEventCallback(OnCloudEventCallback & callback, void * callback_arg);
+    static void execCloudEventCallback(OnCloudEventCallback & callback);
     static void printConnectionStatus(ArduinoIoTConnectionStatus status);
 
   private:
