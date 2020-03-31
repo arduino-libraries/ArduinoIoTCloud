@@ -121,10 +121,10 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass {
 
     inline String getTopic_stdin    () const { return String("/a/d/" + _device_id + "/s/i"); }
     inline String getTopic_stdout   () const { return String("/a/d/" + _device_id + "/s/o"); }
-    inline String getTopic_shadowout() const { return (_thing_id.length() == 0) ? String("")                            : String("/a/t/" + _thing_id + "/shadow/o"); }
-    inline String getTopic_shadowin () const { return (_thing_id.length() == 0) ? String("")                            : String("/a/t/" + _thing_id + "/shadow/i"); }
-    inline String getTopic_dataout  () const { return (_thing_id.length() == 0) ? String("/a/d/" + _device_id + "/e/o") : String("/a/t/" + _thing_id + "/e/o"); }
-    inline String getTopic_datain   () const { return (_thing_id.length() == 0) ? String("/a/d/" + _device_id + "/e/i") : String("/a/t/" + _thing_id + "/e/i"); }
+    inline String getTopic_shadowout() const { return ( getThingId().length() == 0) ? String("")                            : String("/a/t/" + getThingId() + "/shadow/o"); }
+    inline String getTopic_shadowin () const { return ( getThingId().length() == 0) ? String("")                            : String("/a/t/" + getThingId() + "/shadow/i"); }
+    inline String getTopic_dataout  () const { return ( getThingId().length() == 0) ? String("/a/d/" + _device_id + "/e/o") : String("/a/t/" + getThingId() + "/e/o"); }
+    inline String getTopic_datain   () const { return ( getThingId().length() == 0) ? String("/a/d/" + _device_id + "/e/i") : String("/a/t/" + getThingId() + "/e/i"); }
 
     static void onMessage(int length);
     void handleMessage(int length);

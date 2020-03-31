@@ -131,7 +131,6 @@ class ArduinoIoTCloudClass
     inline ArduinoIoTConnectionStatus getIoTStatus() { return _iotStatus; }
 
     String _device_id = "";
-    String _thing_id = "";
 
     ArduinoIoTConnectionStatus _iotStatus = ArduinoIoTConnectionStatus::IDLE;
     ArduinoIoTSynchronizationStatus _syncStatus = ArduinoIoTSynchronizationStatus::SYNC_STATUS_SYNCHRONIZED;
@@ -146,6 +145,10 @@ class ArduinoIoTCloudClass
 
     static void execCloudEventCallback(OnCloudEventCallback & callback, void * callback_arg);
     static void printConnectionStatus(ArduinoIoTConnectionStatus status);
+
+  private:
+
+    String _thing_id = "";
 };
 
 #ifdef HAS_TCP
