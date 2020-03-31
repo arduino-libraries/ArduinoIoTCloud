@@ -67,7 +67,6 @@ enum class ArduinoIoTCloudEvent
   SYNC, CONNECT, DISCONNECT
 };
 
-typedef void (*CallbackFunc)(void);
 typedef void (*OnCloudEventCallback)(void * /* arg */);
 
 /******************************************************************************
