@@ -97,9 +97,9 @@ int ArduinoIoTCloudTCP::begin(String brokerAddress, uint16_t brokerPort) {
   _brokerPort = brokerPort;
 
   #ifdef BOARD_HAS_ECCX08
-  if (!ECCX08.begin())                                                                                                                                                    { Debug.print(DBG_ERROR, "Cryptography processor failure. Make sure you have a compatible board."); return 0; }
-  if (!CryptoUtil::readDeviceId(ECCX08, _device_id, ECCX08Slot::DeviceId))                                                                                                { Debug.print(DBG_ERROR, "Cryptography processor read failure."); return 0; }
-  if (!CryptoUtil::reconstructCertificate(_eccx08_cert, _device_id, ECCX08Slot::Key, ECCX08Slot::CompressedCertificate, ECCX08Slot::SerialNumberAndAuthorityKeyIdentifier)) { Debug.print(DBG_ERROR, "Cryptography certificate reconstruction failure."); return 0; }
+  if (!ECCX08.begin())                                                                                                                                                         { Debug.print(DBG_ERROR, "Cryptography processor failure. Make sure you have a compatible board."); return 0; }
+  if (!CryptoUtil::readDeviceId(ECCX08, getDeviceId(), ECCX08Slot::DeviceId))                                                                                                  { Debug.print(DBG_ERROR, "Cryptography processor read failure."); return 0; }
+  if (!CryptoUtil::reconstructCertificate(_eccx08_cert, getDeviceId(), ECCX08Slot::Key, ECCX08Slot::CompressedCertificate, ECCX08Slot::SerialNumberAndAuthorityKeyIdentifier)) { Debug.print(DBG_ERROR, "Cryptography certificate reconstruction failure."); return 0; }
   ArduinoBearSSL.onGetTime(getTime);
   _sslClient = new BearSSLClient(_connection->getClient(), ArduinoIoTCloudTrustAnchor, ArduinoIoTCloudTrustAnchor_NUM);
   _sslClient->setEccSlot(static_cast<int>(ECCX08Slot::Key), _eccx08_cert.bytes(), _eccx08_cert.length());
@@ -110,12 +110,12 @@ int ArduinoIoTCloudTCP::begin(String brokerAddress, uint16_t brokerPort) {
 
   _mqttClient = new MqttClient(*_sslClient);
   #ifdef BOARD_ESP
-  _mqttClient->setUsernamePassword(_device_id, _password);
+  _mqttClient->setUsernamePassword(getDeviceId(), _password);
   #endif
   _mqttClient->onMessage(ArduinoIoTCloudTCP::onMessage);
   _mqttClient->setKeepAliveInterval(30 * 1000);
   _mqttClient->setConnectionTimeout(1500);
-  _mqttClient->setId(_device_id.c_str());
+  _mqttClient->setId(getDeviceId().c_str());
 
   _stdinTopic     = getTopic_stdin();
   _stdoutTopic    = getTopic_stdout();

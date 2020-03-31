@@ -70,7 +70,7 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass {
 
     #ifdef BOARD_ESP
     inline void setBoardId(String const device_id) {
-      _device_id = device_id;
+      setDeviveId(device_id);
     }
     inline void setSecretDeviceKey(String const password) {
       _password = password;
@@ -119,12 +119,12 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass {
     String _dataTopicOut;
     String _dataTopicIn;
 
-    inline String getTopic_stdin    () const { return String("/a/d/" + _device_id + "/s/i"); }
-    inline String getTopic_stdout   () const { return String("/a/d/" + _device_id + "/s/o"); }
-    inline String getTopic_shadowout() const { return ( getThingId().length() == 0) ? String("")                            : String("/a/t/" + getThingId() + "/shadow/o"); }
-    inline String getTopic_shadowin () const { return ( getThingId().length() == 0) ? String("")                            : String("/a/t/" + getThingId() + "/shadow/i"); }
-    inline String getTopic_dataout  () const { return ( getThingId().length() == 0) ? String("/a/d/" + _device_id + "/e/o") : String("/a/t/" + getThingId() + "/e/o"); }
-    inline String getTopic_datain   () const { return ( getThingId().length() == 0) ? String("/a/d/" + _device_id + "/e/i") : String("/a/t/" + getThingId() + "/e/i"); }
+    inline String getTopic_stdin    () { return String("/a/d/" + getDeviceId() + "/s/i"); }
+    inline String getTopic_stdout   () { return String("/a/d/" + getDeviceId() + "/s/o"); }
+    inline String getTopic_shadowout() { return ( getThingId().length() == 0) ? String("")                            : String("/a/t/" + getThingId() + "/shadow/o"); }
+    inline String getTopic_shadowin () { return ( getThingId().length() == 0) ? String("")                            : String("/a/t/" + getThingId() + "/shadow/i"); }
+    inline String getTopic_dataout  () { return ( getThingId().length() == 0) ? String("/a/d/" + getDeviceId() + "/e/o") : String("/a/t/" + getThingId() + "/e/o"); }
+    inline String getTopic_datain   () { return ( getThingId().length() == 0) ? String("/a/d/" + getDeviceId() + "/e/i") : String("/a/t/" + getThingId() + "/e/i"); }
 
     static void onMessage(int length);
     void handleMessage(int length);

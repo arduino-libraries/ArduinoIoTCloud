@@ -84,9 +84,10 @@ class ArduinoIoTCloudClass
     virtual int connected      () = 0;
     virtual void printDebugInfo() = 0;
 
-    inline void   setThingId (String const thing_id) { _thing_id = thing_id; };
-    inline String getThingId () const                { return _thing_id; };
-    inline String getDeviceId() const                { return _device_id; };
+    inline void     setThingId (String const thing_id)  { _thing_id = thing_id; };
+    inline String & getThingId ()                       { return _thing_id; };
+    inline void     setDeviveId(String const device_id) { _device_id = device_id; };
+    inline String & getDeviceId()                       { return _device_id; };
 
     void addCallback(ArduinoIoTCloudEvent const event, OnCloudEventCallback callback);
 
@@ -130,8 +131,6 @@ class ArduinoIoTCloudClass
 
     inline ArduinoIoTConnectionStatus getIoTStatus() { return _iotStatus; }
 
-    String _device_id = "";
-
     ArduinoIoTConnectionStatus _iotStatus = ArduinoIoTConnectionStatus::IDLE;
     ArduinoIoTSynchronizationStatus _syncStatus = ArduinoIoTSynchronizationStatus::SYNC_STATUS_SYNCHRONIZED;
 
@@ -149,6 +148,7 @@ class ArduinoIoTCloudClass
   private:
 
     String _thing_id = "";
+    String _device_id = "";
 };
 
 #ifdef HAS_TCP
