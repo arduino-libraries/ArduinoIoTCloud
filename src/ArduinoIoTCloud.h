@@ -77,10 +77,13 @@ class ArduinoIoTCloudClass
 {
   public:
 
+    virtual ~ArduinoIoTCloudClass() { }
+
+
     virtual int  connect       () = 0;
     virtual bool disconnect    () = 0;
     virtual void update        () = 0;
-    virtual int connected      () = 0;
+    virtual int  connected     () = 0;
     virtual void printDebugInfo() = 0;
 
     inline void     setThingId (String const thing_id)  { _thing_id = thing_id; };

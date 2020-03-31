@@ -37,9 +37,6 @@
 ArduinoIoTCloudLPWAN::ArduinoIoTCloudLPWAN() :
   _connection(NULL) {}
 
-ArduinoIoTCloudLPWAN::~ArduinoIoTCloudLPWAN() {
-}
-
 /******************************************************************************
  * PUBLIC MEMBER FUNCTIONS
  ******************************************************************************/

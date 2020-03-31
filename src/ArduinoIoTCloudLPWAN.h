@@ -37,14 +37,17 @@ static uint8_t const DEFAULT_CBOR_LORA_MSG_SIZE = 255;
 
 class ArduinoIoTCloudLPWAN : public ArduinoIoTCloudClass {
   public:
-    ArduinoIoTCloudLPWAN();
-    ~ArduinoIoTCloudLPWAN();
-    int connect();
-    bool disconnect();
-    int connected();
-    void update();
+
+             ArduinoIoTCloudLPWAN();
+    virtual ~ArduinoIoTCloudLPWAN() { }
+
+    virtual int  connect       () override;
+    virtual bool disconnect    () override;
+    virtual void update        () override;
+    virtual int  connected     () override;
+    virtual void printDebugInfo() override;
+
     ArduinoIoTConnectionStatus connectionCheck();
-    void printDebugInfo();
     int begin(ConnectionHandler& connection, bool retry = false);
     inline ConnectionHandler* getConnection() {
       return _connection;

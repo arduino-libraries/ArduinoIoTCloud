@@ -52,13 +52,15 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass {
 
     static const int TIMEOUT_FOR_LASTVALUES_SYNC = 10000;
 
-    ArduinoIoTCloudTCP();
-    ~ArduinoIoTCloudTCP();
-    int connect();
-    bool disconnect();
-    int connected();
-    void update();
-    void printDebugInfo();
+             ArduinoIoTCloudTCP();
+    virtual ~ArduinoIoTCloudTCP();
+
+    virtual int  connect       () override;
+    virtual bool disconnect    () override;
+    virtual void update        () override;
+    virtual int  connected     () override;
+    virtual void printDebugInfo() override;
+
     #ifdef BOARD_HAS_ECCX08
     int begin(ConnectionHandler & connection, String brokerAddress = DEFAULT_BROKER_ADDRESS_SECURE_AUTH, uint16_t brokerPort = DEFAULT_BROKER_PORT_SECURE_AUTH);
     #else
