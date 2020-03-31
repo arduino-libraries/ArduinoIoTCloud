@@ -16,7 +16,7 @@
 */
 
 #ifndef _ECCX08_CERT_H_
-#define _ECCC08_CERT_H_
+#define _ECCX08_CERT_H_
 
 /******************************************************************************
  * INCLUDE
