@@ -132,7 +132,7 @@ class ArduinoIoTCloudClass
 
     ArduinoIoTConnectionStatus _iotStatus = ArduinoIoTConnectionStatus::IDLE;
 
-    ArduinoCloudThing Thing;
+    ArduinoCloudThing _thing;
 
     OnCloudEventCallback _on_sync_event_callback       = NULL;
     OnCloudEventCallback _on_connect_event_callback    = NULL;

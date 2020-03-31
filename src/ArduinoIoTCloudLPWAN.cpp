@@ -65,13 +65,13 @@ int ArduinoIoTCloudLPWAN::begin(ConnectionHandler& connection, bool retry) {
   _retryEnable = retry;
   _maxNumRetry = 5;
   _intervalRetry = 1000;
-  Thing.begin();
+  _thing.begin();
   return 1;
 }
 
 void ArduinoIoTCloudLPWAN::update() {
   // Check if a primitive property wrapper is locally changed
-  Thing.updateTimestampOnLocallyChangedProperties();
+  _thing.updateTimestampOnLocallyChangedProperties();
 
   if(connectionCheck() != ArduinoIoTConnectionStatus::CONNECTED) return;
 
@@ -82,7 +82,7 @@ void ArduinoIoTCloudLPWAN::update() {
       msgBuf[i++] = _connection->read();
     }
 
-    Thing.decode(msgBuf, sizeof(msgBuf));
+    _thing.decode(msgBuf, sizeof(msgBuf));
   }
 
 
@@ -186,7 +186,7 @@ int ArduinoIoTCloudLPWAN::writeProperties(const byte data[], int length) {
 
 void ArduinoIoTCloudLPWAN::sendPropertiesToCloud() {
   uint8_t data[DEFAULT_CBOR_LORA_MSG_SIZE];
-  int const length = Thing.encode(data, sizeof(data), true);
+  int const length = _thing.encode(data, sizeof(data), true);
   if (length > 0) {
     writeProperties(data, length);
   }

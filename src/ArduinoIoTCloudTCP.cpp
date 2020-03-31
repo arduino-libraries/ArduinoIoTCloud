@@ -125,8 +125,8 @@ int ArduinoIoTCloudTCP::begin(String brokerAddress, uint16_t brokerPort) {
   _dataTopicOut   = getTopic_dataout();
   _dataTopicIn    = getTopic_datain();
 
-  Thing.begin();
-  Thing.registerGetTimeCallbackFunc(getTime);
+  _thing.begin();
+  _thing.registerGetTimeCallbackFunc(getTime);
   return 1;
 }
 
@@ -161,7 +161,7 @@ bool ArduinoIoTCloudTCP::disconnect() {
 
 void ArduinoIoTCloudTCP::update() {
   // Check if a primitive property wrapper is locally changed
-  Thing.updateTimestampOnLocallyChangedProperties();
+  _thing.updateTimestampOnLocallyChangedProperties();
 
   if(checkPhyConnection()   != NetworkConnectionState::CONNECTED)     return;
   if(checkCloudConnection() != ArduinoIoTConnectionStatus::CONNECTED) return;
@@ -236,10 +236,10 @@ void ArduinoIoTCloudTCP::handleMessage(int length) {
     CloudSerial.appendStdin((uint8_t*)bytes, length);
   }
   if (_dataTopicIn == topic) {
-    Thing.decode((uint8_t*)bytes, length);
+    _thing.decode((uint8_t*)bytes, length);
   }
   if ((_shadowTopicIn == topic) && _syncStatus == ArduinoIoTSynchronizationStatus::SYNC_STATUS_WAIT_FOR_CLOUD_VALUES) {
-    Thing.decode((uint8_t*)bytes, length, true);
+    _thing.decode((uint8_t*)bytes, length, true);
     sendPropertiesToCloud();
     _syncStatus = ArduinoIoTSynchronizationStatus::SYNC_STATUS_VALUES_PROCESSED;
   }
@@ -247,7 +247,7 @@ void ArduinoIoTCloudTCP::handleMessage(int length) {
 
 void ArduinoIoTCloudTCP::sendPropertiesToCloud() {
   uint8_t data[MQTT_TRANSMIT_BUFFER_SIZE];
-  int const length = Thing.encode(data, sizeof(data));
+  int const length = _thing.encode(data, sizeof(data));
   if (length > 0)
   {
     /* If properties have been encoded store them in the back-up buffer
