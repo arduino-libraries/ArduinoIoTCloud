@@ -90,6 +90,36 @@ void ArduinoIoTCloudLPWAN::update() {
   execCloudEventCallback(ArduinoIoTCloudEvent::SYNC);
 }
 
+void ArduinoIoTCloudLPWAN::printDebugInfo() {
+  Debug.print(DBG_INFO, "***** Arduino IoT Cloud LPWAN- configuration info *****");
+  Debug.print(DBG_INFO, "Device ID: %s", getDeviceId().c_str());
+  Debug.print(DBG_INFO, "Thing ID: %s", getThingId().c_str());
+}
+
+/******************************************************************************
+ * PRIVATE MEMBER FUNCTIONS
+ ******************************************************************************/
+
+void ArduinoIoTCloudLPWAN::sendPropertiesToCloud() {
+  uint8_t data[CBOR_LORA_MSG_MAX_SIZE];
+  int const length = _thing.encode(data, sizeof(data), true);
+  if (length > 0) {
+    writeProperties(data, length);
+  }
+}
+
+int ArduinoIoTCloudLPWAN::writeProperties(const byte data[], int length) {
+  int retcode = _connection->write(data, length);
+  int i = 0;
+  while (_retryEnable && retcode < 0 && i < _maxNumRetry) {
+    delay(_intervalRetry);
+    retcode = _connection->write(data, length);
+    i++;
+  }
+
+  return 1;
+}
+
 ArduinoIoTConnectionStatus ArduinoIoTCloudLPWAN::connectionCheck() {
   if (_connection != NULL) {
 
@@ -153,36 +183,6 @@ ArduinoIoTConnectionStatus ArduinoIoTCloudLPWAN::connectionCheck() {
   }
 
   return _iotStatus;
-}
-
-void ArduinoIoTCloudLPWAN::printDebugInfo() {
-  Debug.print(DBG_INFO, "***** Arduino IoT Cloud LPWAN- configuration info *****");
-  Debug.print(DBG_INFO, "Device ID: %s", getDeviceId().c_str());
-  Debug.print(DBG_INFO, "Thing ID: %s", getThingId().c_str());
-}
-
-/******************************************************************************
- * PRIVATE MEMBER FUNCTIONS
- ******************************************************************************/
-
-void ArduinoIoTCloudLPWAN::sendPropertiesToCloud() {
-  uint8_t data[CBOR_LORA_MSG_MAX_SIZE];
-  int const length = _thing.encode(data, sizeof(data), true);
-  if (length > 0) {
-    writeProperties(data, length);
-  }
-}
-
-int ArduinoIoTCloudLPWAN::writeProperties(const byte data[], int length) {
-  int retcode = _connection->write(data, length);
-  int i = 0;
-  while (_retryEnable && retcode < 0 && i < _maxNumRetry) {
-    delay(_intervalRetry);
-    retcode = _connection->write(data, length);
-    i++;
-  }
-
-  return 1;
 }
 
 /******************************************************************************
