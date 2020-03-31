@@ -112,6 +112,8 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass {
 
     MqttClient* _mqttClient;
 
+    ArduinoIoTSynchronizationStatus _syncStatus;
+
     // Class attribute to define MTTQ topics 2 for stdIn/out and 2 for data, in order to avoid getting previous pupblished payload
     String _stdinTopic;
     String _stdoutTopic;

@@ -66,7 +66,7 @@ ArduinoIoTCloudTCP::ArduinoIoTCloudTCP():
   _password(""),
   #endif
   _mqttClient(NULL),
-
+  _syncStatus{ArduinoIoTSynchronizationStatus::SYNC_STATUS_SYNCHRONIZED},
   _stdinTopic(""),
   _stdoutTopic(""),
   _shadowTopicOut(""),

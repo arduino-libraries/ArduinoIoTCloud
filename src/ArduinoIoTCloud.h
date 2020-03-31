@@ -131,7 +131,6 @@ class ArduinoIoTCloudClass
     inline ArduinoIoTConnectionStatus getIoTStatus() { return _iotStatus; }
 
     ArduinoIoTConnectionStatus _iotStatus = ArduinoIoTConnectionStatus::IDLE;
-    ArduinoIoTSynchronizationStatus _syncStatus = ArduinoIoTSynchronizationStatus::SYNC_STATUS_SYNCHRONIZED;
 
     ArduinoCloudThing Thing;
 
