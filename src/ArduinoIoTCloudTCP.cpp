@@ -57,6 +57,7 @@ static unsigned long getTime() {
 
 ArduinoIoTCloudTCP::ArduinoIoTCloudTCP():
   _connection(NULL),
+  _lastSyncRequestTickTime{0},
   _mqtt_data_buf{0},
   _mqtt_data_len{0},
   _mqtt_data_request_retransmit{false},

@@ -95,6 +95,7 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass {
 
   private:
     ConnectionHandler * _connection;
+    int _lastSyncRequestTickTime;
     String _brokerAddress;
     uint16_t _brokerPort;
     uint8_t _mqtt_data_buf[MQTT_TRANSMIT_BUFFER_SIZE];

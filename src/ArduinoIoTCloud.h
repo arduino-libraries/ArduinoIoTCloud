@@ -135,8 +135,6 @@ class ArduinoIoTCloudClass
 
     ArduinoCloudThing Thing;
 
-    int _lastSyncRequestTickTime = 0;
-
     OnCloudEventCallback _on_sync_event_callback       = NULL;
     OnCloudEventCallback _on_connect_event_callback    = NULL;
     OnCloudEventCallback _on_disconnect_event_callback = NULL;
