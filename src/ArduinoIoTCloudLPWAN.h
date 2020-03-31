@@ -73,15 +73,14 @@ class ArduinoIoTCloudLPWAN : public ArduinoIoTCloudClass {
       _intervalRetry = val;
     }
 
-  protected:
-    int writeProperties(const byte data[], int length);
-
   private:
-    void sendPropertiesToCloud();
+
     bool _retryEnable;
     int _maxNumRetry;
     long _intervalRetry;
 
+    void sendPropertiesToCloud();
+    int writeProperties(const byte data[], int length);
 };
 
 /******************************************************************************

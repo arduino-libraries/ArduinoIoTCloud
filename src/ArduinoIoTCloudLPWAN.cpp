@@ -155,6 +155,17 @@ void ArduinoIoTCloudLPWAN::printDebugInfo() {
   Debug.print(DBG_INFO, "Thing ID: %s", getThingId().c_str());
 }
 
+/******************************************************************************
+ * PRIVATE MEMBER FUNCTIONS
+ ******************************************************************************/
+
+void ArduinoIoTCloudLPWAN::sendPropertiesToCloud() {
+  uint8_t data[DEFAULT_CBOR_LORA_MSG_SIZE];
+  int const length = _thing.encode(data, sizeof(data), true);
+  if (length > 0) {
+    writeProperties(data, length);
+  }
+}
 
 int ArduinoIoTCloudLPWAN::writeProperties(const byte data[], int length) {
   int retcode = _connection->write(data, length);
@@ -166,18 +177,6 @@ int ArduinoIoTCloudLPWAN::writeProperties(const byte data[], int length) {
   }
 
   return 1;
-}
-
-/******************************************************************************
- * PRIVATE MEMBER FUNCTIONS
- ******************************************************************************/
-
-void ArduinoIoTCloudLPWAN::sendPropertiesToCloud() {
-  uint8_t data[DEFAULT_CBOR_LORA_MSG_SIZE];
-  int const length = _thing.encode(data, sizeof(data), true);
-  if (length > 0) {
-    writeProperties(data, length);
-  }
 }
 
 /******************************************************************************
