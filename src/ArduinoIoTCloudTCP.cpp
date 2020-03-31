@@ -40,6 +40,8 @@ TimeService time_service;
    GLOBAL CONSTANTS
  ******************************************************************************/
 
+static const int TIMEOUT_FOR_LASTVALUES_SYNC = 10000;
+
 const static int CONNECT_SUCCESS							               = 1;
 const static int CONNECT_FAILURE							               = 0;
 const static int CONNECT_FAILURE_SUBSCRIBE					         = -1;
