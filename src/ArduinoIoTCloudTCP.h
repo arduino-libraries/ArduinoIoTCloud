@@ -27,7 +27,7 @@
 
 #ifdef BOARD_HAS_ECCX08
   #include <ArduinoBearSSL.h>
-  #include "utility/crypto/CryptoUtil.h"
+  #include "utility/crypto/ECCX08Cert.h"
 #elif defined(BOARD_ESP)
   #include <WiFiClientSecure.h>
 #endif
