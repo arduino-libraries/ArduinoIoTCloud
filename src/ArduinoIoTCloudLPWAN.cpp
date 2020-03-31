@@ -91,7 +91,7 @@ void ArduinoIoTCloudLPWAN::update() {
   sendPropertiesToCloud();
 
 
-  execCloudEventCallback(_on_sync_event_callback);
+  execCloudEventCallback(ArduinoIoTCloudEvent::SYNC);
 
 }
 
@@ -124,7 +124,7 @@ ArduinoIoTConnectionStatus ArduinoIoTCloudLPWAN::connectionCheck() {
         if (_connection->getStatus() != NetworkConnectionState::CONNECTED) {
           _iotStatus = ArduinoIoTConnectionStatus::DISCONNECTED;
           printConnectionStatus(_iotStatus);
-          execCloudEventCallback(_on_disconnect_event_callback);
+          execCloudEventCallback(ArduinoIoTCloudEvent::DISCONNECT);
         }
       }
       break;
@@ -150,7 +150,7 @@ ArduinoIoTConnectionStatus ArduinoIoTCloudLPWAN::connectionCheck() {
         if (net_status == NetworkConnectionState::CONNECTED) {
           _iotStatus = ArduinoIoTConnectionStatus::CONNECTED;
           printConnectionStatus(_iotStatus);
-          execCloudEventCallback(_on_connect_event_callback);
+          execCloudEventCallback(ArduinoIoTCloudEvent::CONNECT);
         }
 
       }

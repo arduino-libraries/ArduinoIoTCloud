@@ -62,9 +62,9 @@ enum class ArduinoIoTSynchronizationStatus
   SYNC_STATUS_VALUES_PROCESSED
 };
 
-enum class ArduinoIoTCloudEvent
+enum class ArduinoIoTCloudEvent : size_t
 {
-  SYNC, CONNECT, DISCONNECT
+  SYNC = 0, CONNECT = 1, DISCONNECT = 2
 };
 
 typedef void (*OnCloudEventCallback)(void);
@@ -134,17 +134,14 @@ class ArduinoIoTCloudClass
 
     ArduinoCloudThing _thing;
 
-    OnCloudEventCallback _on_sync_event_callback       = NULL;
-    OnCloudEventCallback _on_connect_event_callback    = NULL;
-    OnCloudEventCallback _on_disconnect_event_callback = NULL;
-
-    static void execCloudEventCallback(OnCloudEventCallback & callback);
+           void execCloudEventCallback(ArduinoIoTCloudEvent const event);
     static void printConnectionStatus(ArduinoIoTConnectionStatus status);
 
   private:
 
     String _thing_id = "";
     String _device_id = "";
+    OnCloudEventCallback _cloud_event_callback[3] = {nullptr};
 };
 
 #ifdef HAS_TCP

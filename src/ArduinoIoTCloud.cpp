@@ -27,13 +27,8 @@
 
 void ArduinoIoTCloudClass::addCallback(ArduinoIoTCloudEvent const event, OnCloudEventCallback callback)
 {
-  switch (event)
-  {
-    case ArduinoIoTCloudEvent::SYNC:       _on_sync_event_callback       = callback; break;
-    case ArduinoIoTCloudEvent::CONNECT:    _on_connect_event_callback    = callback; break;
-    case ArduinoIoTCloudEvent::DISCONNECT: _on_disconnect_event_callback = callback; break;
-  }
-};
+  _cloud_event_callback[static_cast<size_t>(event)] = callback;
+}
 
 void ArduinoIoTCloudClass::addPropertyReal(ArduinoCloudProperty& property, String name, permissionType permission_type, long seconds, void(*fn)(void), float minDelta, void(*synFn)(ArduinoCloudProperty & property))
 {
@@ -150,8 +145,9 @@ ArduinoCloudProperty& ArduinoIoTCloudClass::addPropertyReal(String& property, St
  * PRIVATE MEMBER FUNCTIONS
  ******************************************************************************/
 
-void ArduinoIoTCloudClass::execCloudEventCallback(OnCloudEventCallback& callback)
+void ArduinoIoTCloudClass::execCloudEventCallback(ArduinoIoTCloudEvent const event)
 {
+  OnCloudEventCallback callback = _cloud_event_callback[static_cast<size_t>(event)];
   if (callback) {
     (*callback)();
   }
