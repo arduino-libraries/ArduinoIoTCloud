@@ -64,8 +64,6 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass {
     int begin(ConnectionHandler & connection, String brokerAddress = DEFAULT_BROKER_ADDRESS_USER_PASS_AUTH, uint16_t brokerPort = DEFAULT_BROKER_PORT_USER_PASS_AUTH);
     #endif
     int begin(String brokerAddress = DEFAULT_BROKER_ADDRESS_SECURE_AUTH, uint16_t brokerPort = DEFAULT_BROKER_PORT_SECURE_AUTH);
-    // Class constant declaration
-    static const int MQTT_TRANSMIT_BUFFER_SIZE = 256;
 
     #ifdef BOARD_ESP
     inline void setBoardId        (String const device_id) { setDeviveId(device_id); }
@@ -81,6 +79,8 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass {
     friend class CloudSerialClass;
 
   private:
+    static const int MQTT_TRANSMIT_BUFFER_SIZE = 256;
+
     int _lastSyncRequestTickTime;
     String _brokerAddress;
     uint16_t _brokerPort;
