@@ -26,6 +26,12 @@
 #include<ArduinoIoTCloudLPWAN.h>
 
 /******************************************************************************
+   CONSTANTS
+ ******************************************************************************/
+
+static size_t const CBOR_LORA_MSG_MAX_SIZE = 255;
+
+/******************************************************************************
    CTOR/DTOR
  ******************************************************************************/
 
@@ -71,7 +77,7 @@ void ArduinoIoTCloudLPWAN::update() {
   if(connectionCheck() != ArduinoIoTConnectionStatus::CONNECTED) return;
 
   if (_connection->available()) {
-    uint8_t msgBuf[DEFAULT_CBOR_LORA_MSG_SIZE];
+    uint8_t msgBuf[CBOR_LORA_MSG_MAX_SIZE];
     uint8_t i = 0;
     while (_connection->available()) {
       msgBuf[i++] = _connection->read();
@@ -160,7 +166,7 @@ void ArduinoIoTCloudLPWAN::printDebugInfo() {
  ******************************************************************************/
 
 void ArduinoIoTCloudLPWAN::sendPropertiesToCloud() {
-  uint8_t data[DEFAULT_CBOR_LORA_MSG_SIZE];
+  uint8_t data[CBOR_LORA_MSG_MAX_SIZE];
   int const length = _thing.encode(data, sizeof(data), true);
   if (length > 0) {
     writeProperties(data, length);
