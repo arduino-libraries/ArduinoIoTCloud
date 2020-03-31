@@ -166,7 +166,7 @@ void ArduinoIoTCloudTCP::update() {
   if(checkCloudConnection() != ArduinoIoTConnectionStatus::CONNECTED) return;
 
   if(_mqtt_data_request_retransmit && (_mqtt_data_len > 0)) {
-    writeProperties(_mqtt_data_buf, _mqtt_data_len);
+    write(_dataTopicOut, _mqtt_data_buf, _mqtt_data_len);
     _mqtt_data_request_retransmit = false;
   }
 
@@ -255,7 +255,7 @@ void ArduinoIoTCloudTCP::sendPropertiesToCloud() {
     _mqtt_data_len = length;
     memcpy(_mqtt_data_buf, data, _mqtt_data_len);
     /* Transmit the properties to the MQTT broker */
-    writeProperties(_mqtt_data_buf, _mqtt_data_len);
+    write(_dataTopicOut, _mqtt_data_buf, _mqtt_data_len);
   }
 }
 
@@ -264,7 +264,7 @@ void ArduinoIoTCloudTCP::requestLastValue() {
   // [{0: "r:m", 3: "getLastValues"}] = 81 A2 00 63 72 3A 6D 03 6D 67 65 74 4C 61 73 74 56 61 6C 75 65 73
   // Use http://cbor.me to easily generate CBOR encoding
   const uint8_t CBOR_REQUEST_LAST_VALUE_MSG[] = { 0x81, 0xA2, 0x00, 0x63, 0x72, 0x3A, 0x6D, 0x03, 0x6D, 0x67, 0x65, 0x74, 0x4C, 0x61, 0x73, 0x74, 0x56, 0x61, 0x6C, 0x75, 0x65, 0x73 };
-  writeShadowOut(CBOR_REQUEST_LAST_VALUE_MSG, sizeof(CBOR_REQUEST_LAST_VALUE_MSG));
+  write(_shadowTopicOut, CBOR_REQUEST_LAST_VALUE_MSG, sizeof(CBOR_REQUEST_LAST_VALUE_MSG));
 }
 
 NetworkConnectionState ArduinoIoTCloudTCP::checkPhyConnection()
@@ -340,52 +340,16 @@ ArduinoIoTConnectionStatus ArduinoIoTCloudTCP::checkCloudConnection()
   return _iotStatus;
 }
 
-int ArduinoIoTCloudTCP::writeProperties(const byte data[], int length) {
-  if (!_mqttClient->beginMessage(_dataTopicOut, length, false, 0)) {
-    return 0;
+int ArduinoIoTCloudTCP::write(String const topic, byte const data[], int const length)
+{
+  if (_mqttClient->beginMessage(topic, length, false, 0)) {
+    if (_mqttClient->write(data, length)) {
+      if (_mqttClient->endMessage()) {
+        return 1;
+      }
+    }
   }
-
-  if (!_mqttClient->write(data, length)) {
-    return 0;
-  }
-
-  if (!_mqttClient->endMessage()) {
-    return 0;
-  }
-
-  return 1;
-}
-
-int ArduinoIoTCloudTCP::writeStdout(const byte data[], int length) {
-  if (!_mqttClient->beginMessage(_stdoutTopic, length, false, 0)) {
-    return 0;
-  }
-
-  if (!_mqttClient->write(data, length)) {
-    return 0;
-  }
-
-  if (!_mqttClient->endMessage()) {
-    return 0;
-  }
-
-  return 1;
-}
-
-int ArduinoIoTCloudTCP::writeShadowOut(const byte data[], int length) {
-  if (!_mqttClient->beginMessage(_shadowTopicOut, length, false, 0)) {
-    return 0;
-  }
-
-  if (!_mqttClient->write(data, length)) {
-    return 0;
-  }
-
-  if (!_mqttClient->endMessage()) {
-    return 0;
-  }
-
-  return 1;
+  return 0;
 }
 
 /******************************************************************************

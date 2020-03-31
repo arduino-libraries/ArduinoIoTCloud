@@ -76,7 +76,7 @@ void CloudSerialClass::flush() {
     out[length++] = _txBuffer.read_char();
   }
 
-  ArduinoCloud.writeStdout(out, length);
+  ArduinoCloud.write(ArduinoCloud._stdoutTopic, out, length);
 }
 
 size_t CloudSerialClass::write(const uint8_t data) {
