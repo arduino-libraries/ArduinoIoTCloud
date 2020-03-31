@@ -29,8 +29,13 @@
    CTOR/DTOR
  ******************************************************************************/
 
-ArduinoIoTCloudLPWAN::ArduinoIoTCloudLPWAN() :
-  _connection(NULL) {}
+ArduinoIoTCloudLPWAN::ArduinoIoTCloudLPWAN()
+: _retryEnable{false}
+, _maxNumRetry{5}
+, _intervalRetry{1000}
+{
+
+}
 
 /******************************************************************************
  * PUBLIC MEMBER FUNCTIONS
@@ -55,8 +60,6 @@ int ArduinoIoTCloudLPWAN::connected() {
 int ArduinoIoTCloudLPWAN::begin(ConnectionHandler& connection, bool retry) {
   _connection = &connection;
   _retryEnable = retry;
-  _maxNumRetry = 5;
-  _intervalRetry = 1000;
   _thing.begin();
   return 1;
 }
@@ -77,14 +80,8 @@ void ArduinoIoTCloudLPWAN::update() {
     _thing.decode(msgBuf, sizeof(msgBuf));
   }
 
-
-
-
   sendPropertiesToCloud();
-
-
   execCloudEventCallback(ArduinoIoTCloudEvent::SYNC);
-
 }
 
 ArduinoIoTConnectionStatus ArduinoIoTCloudLPWAN::connectionCheck() {
@@ -156,7 +153,6 @@ void ArduinoIoTCloudLPWAN::printDebugInfo() {
   Debug.print(DBG_INFO, "***** Arduino IoT Cloud LPWAN- configuration info *****");
   Debug.print(DBG_INFO, "Device ID: %s", getDeviceId().c_str());
   Debug.print(DBG_INFO, "Thing ID: %s", getThingId().c_str());
-
 }
 
 

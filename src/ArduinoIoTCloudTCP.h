@@ -23,7 +23,6 @@
  ******************************************************************************/
 
 #include <ArduinoIoTCloud.h>
-#include <Arduino_ConnectionHandler.h>
 
 #ifdef BOARD_HAS_ECCX08
   #include <ArduinoBearSSL.h>
@@ -79,10 +78,6 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass {
     }
     #endif
 
-    inline ConnectionHandler * getConnection() {
-      return _connection;
-    }
-
     String getBrokerAddress() {
       return _brokerAddress;
     }
@@ -96,7 +91,6 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass {
     friend class CloudSerialClass;
 
   private:
-    ConnectionHandler * _connection;
     int _lastSyncRequestTickTime;
     String _brokerAddress;
     uint16_t _brokerPort;

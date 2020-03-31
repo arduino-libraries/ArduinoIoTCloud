@@ -25,8 +25,9 @@
 #include <ArduinoIoTCloud_Defines.h>
 
 #include <ArduinoCloudThing.h>
-
+#include <Arduino_ConnectionHandler.h>
 #include <Arduino_DebugUtils.h>
+
 #include "types/CloudWrapperBool.h"
 #include "types/CloudWrapperFloat.h"
 #include "types/CloudWrapperInt.h"
@@ -91,6 +92,8 @@ class ArduinoIoTCloudClass
     inline void     setDeviveId(String const device_id) { _device_id = device_id; };
     inline String & getDeviceId()                       { return _device_id; };
 
+    inline ConnectionHandler * getConnection()          { return _connection; }
+
     void addCallback(ArduinoIoTCloudEvent const event, OnCloudEventCallback callback);
 
 #define addProperty( v, ...) addPropertyReal(v, #v, __VA_ARGS__)
@@ -133,9 +136,9 @@ class ArduinoIoTCloudClass
 
     inline ArduinoIoTConnectionStatus getIoTStatus() { return _iotStatus; }
 
-    ArduinoIoTConnectionStatus _iotStatus = ArduinoIoTConnectionStatus::IDLE;
-
+    ConnectionHandler * _connection = nullptr;
     ArduinoCloudThing _thing;
+    ArduinoIoTConnectionStatus _iotStatus = ArduinoIoTConnectionStatus::IDLE;
 
            void execCloudEventCallback(ArduinoIoTCloudEvent const event);
     static void printConnectionStatus(ArduinoIoTConnectionStatus status);

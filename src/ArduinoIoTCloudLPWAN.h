@@ -23,7 +23,6 @@
  ******************************************************************************/
 
 #include <ArduinoIoTCloud.h>
-#include <Arduino_ConnectionHandler.h>
 
 /******************************************************************************
    CONSTANTS
@@ -49,9 +48,7 @@ class ArduinoIoTCloudLPWAN : public ArduinoIoTCloudClass {
 
     ArduinoIoTConnectionStatus connectionCheck();
     int begin(ConnectionHandler& connection, bool retry = false);
-    inline ConnectionHandler* getConnection() {
-      return _connection;
-    }
+
     bool isRetryEnabled() {
       return _retryEnable;
     }
@@ -80,7 +77,6 @@ class ArduinoIoTCloudLPWAN : public ArduinoIoTCloudClass {
     int writeProperties(const byte data[], int length);
 
   private:
-    ConnectionHandler* _connection;
     void sendPropertiesToCloud();
     bool _retryEnable;
     int _maxNumRetry;
