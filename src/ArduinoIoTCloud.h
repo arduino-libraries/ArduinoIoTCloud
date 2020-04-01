@@ -134,11 +134,11 @@ class ArduinoIoTCloudClass
 
   protected:
 
-    inline ArduinoIoTConnectionStatus getIoTStatus() { return _iotStatus; }
+    inline ArduinoIoTConnectionStatus getIoTStatus() { return _iot_status; }
 
     ConnectionHandler * _connection = nullptr;
     ArduinoCloudThing _thing;
-    ArduinoIoTConnectionStatus _iotStatus = ArduinoIoTConnectionStatus::IDLE;
+    ArduinoIoTConnectionStatus _iot_status = ArduinoIoTConnectionStatus::IDLE;
 
            NetworkConnectionState checkPhyConnection();
            void execCloudEventCallback(ArduinoIoTCloudEvent const event);

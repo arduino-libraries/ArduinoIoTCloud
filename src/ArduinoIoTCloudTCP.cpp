@@ -130,7 +130,7 @@ int ArduinoIoTCloudTCP::begin(String brokerAddress, uint16_t brokerPort) {
   _thing.begin();
   _thing.registerGetTimeCallbackFunc(getTime);
 
-  printConnectionStatus(_iotStatus);
+  printConnectionStatus(_iot_status);
 
   return 1;
 }
@@ -275,9 +275,9 @@ void ArduinoIoTCloudTCP::requestLastValue() {
 
 ArduinoIoTConnectionStatus ArduinoIoTCloudTCP::checkCloudConnection()
 {
-  ArduinoIoTConnectionStatus next_iot_status = _iotStatus;
+  ArduinoIoTConnectionStatus next_iot_status = _iot_status;
 
-  switch (_iotStatus)
+  switch (_iot_status)
   {
     case ArduinoIoTConnectionStatus::IDLE:         next_iot_status = ArduinoIoTConnectionStatus::CONNECTING;   break;
     case ArduinoIoTConnectionStatus::ERROR:        next_iot_status = ArduinoIoTConnectionStatus::RECONNECTING; break;
@@ -322,15 +322,15 @@ ArduinoIoTConnectionStatus ArduinoIoTCloudTCP::checkCloudConnection()
     break;
   }
 
-  if(next_iot_status != _iotStatus)
+  if(next_iot_status != _iot_status)
   {
     printConnectionStatus(next_iot_status);
     if     (next_iot_status == ArduinoIoTConnectionStatus::DISCONNECTED) execCloudEventCallback(ArduinoIoTCloudEvent::DISCONNECT);
     else if(next_iot_status == ArduinoIoTConnectionStatus::CONNECTED)    execCloudEventCallback(ArduinoIoTCloudEvent::CONNECT);
-    _iotStatus = next_iot_status;
+    _iot_status = next_iot_status;
   }
 
-  return _iotStatus;
+  return _iot_status;
 }
 
 int ArduinoIoTCloudTCP::write(String const topic, byte const data[], int const length)

@@ -151,7 +151,7 @@ NetworkConnectionState ArduinoIoTCloudClass::checkPhyConnection()
 
   if (_connection->check() != NetworkConnectionState::CONNECTED)
   {
-    if (_iotStatus == ArduinoIoTConnectionStatus::CONNECTED)
+    if (_iot_status == ArduinoIoTConnectionStatus::CONNECTED)
     {
       disconnect();
     }

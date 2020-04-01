@@ -73,7 +73,7 @@ void ArduinoIoTCloudLPWAN::update() {
   // Check if a primitive property wrapper is locally changed
   _thing.updateTimestampOnLocallyChangedProperties();
 
-  ArduinoIoTConnectionStatus next_iot_status = _iotStatus;
+  ArduinoIoTConnectionStatus next_iot_status = _iot_status;
 
   /* Since we do not have a direct connection to the Arduino IoT Cloud servers
    * there is no such thing is a 'cloud connection state' since the LoRa
@@ -84,10 +84,10 @@ void ArduinoIoTCloudLPWAN::update() {
   else if(net_con_state == NetworkConnectionState::CONNECTING)   { next_iot_status = ArduinoIoTConnectionStatus::CONNECTING; }
   else if(net_con_state == NetworkConnectionState::DISCONNECTED) { next_iot_status = ArduinoIoTConnectionStatus::DISCONNECTED; execCloudEventCallback(ArduinoIoTCloudEvent::DISCONNECT); }
 
-  if(next_iot_status != _iotStatus)
+  if(next_iot_status != _iot_status)
   {
     printConnectionStatus(next_iot_status);
-    _iotStatus = next_iot_status;
+    _iot_status = next_iot_status;
   }
 
   if(net_con_state != NetworkConnectionState::CONNECTED) return;
