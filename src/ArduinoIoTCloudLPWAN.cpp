@@ -75,7 +75,7 @@ void ArduinoIoTCloudLPWAN::update() {
   _thing.updateTimestampOnLocallyChangedProperties();
 
   if(checkPhyConnection()   != NetworkConnectionState::CONNECTED)     return;
-  if(connectionCheck() != ArduinoIoTConnectionStatus::CONNECTED) return;
+  if(checkCloudConnection() != ArduinoIoTConnectionStatus::CONNECTED) return;
 
   if (_connection->available()) {
     uint8_t msgBuf[CBOR_LORA_MSG_MAX_SIZE];
@@ -136,7 +136,7 @@ NetworkConnectionState ArduinoIoTCloudLPWAN::checkPhyConnection()
   return connect_state;
 }
 
-ArduinoIoTConnectionStatus ArduinoIoTCloudLPWAN::connectionCheck()
+ArduinoIoTConnectionStatus ArduinoIoTCloudLPWAN::checkCloudConnection()
 {
   switch (_iotStatus) {
     case ArduinoIoTConnectionStatus::IDLE: {
