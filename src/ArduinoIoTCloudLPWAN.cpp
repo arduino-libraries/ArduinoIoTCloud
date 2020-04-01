@@ -121,21 +121,6 @@ int ArduinoIoTCloudLPWAN::writeProperties(const byte data[], int length) {
   return 1;
 }
 
-NetworkConnectionState ArduinoIoTCloudLPWAN::checkPhyConnection()
-{
-  NetworkConnectionState const connect_state = _connection->check();
-
-  if (_connection->check() != NetworkConnectionState::CONNECTED)
-  {
-    if (_iotStatus == ArduinoIoTConnectionStatus::CONNECTED)
-    {
-      disconnect();
-    }
-  }
-
-  return connect_state;
-}
-
 ArduinoIoTConnectionStatus ArduinoIoTCloudLPWAN::checkCloudConnection()
 {
   switch (_iotStatus) {

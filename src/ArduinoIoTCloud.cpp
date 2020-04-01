@@ -142,8 +142,23 @@ ArduinoCloudProperty& ArduinoIoTCloudClass::addPropertyReal(String& property, St
 }
 
 /******************************************************************************
- * PRIVATE MEMBER FUNCTIONS
+ * PROTECTED MEMBER FUNCTIONS
  ******************************************************************************/
+
+NetworkConnectionState ArduinoIoTCloudClass::checkPhyConnection()
+{
+  NetworkConnectionState const connect_state = _connection->check();
+
+  if (_connection->check() != NetworkConnectionState::CONNECTED)
+  {
+    if (_iotStatus == ArduinoIoTConnectionStatus::CONNECTED)
+    {
+      disconnect();
+    }
+  }
+
+  return connect_state;
+}
 
 void ArduinoIoTCloudClass::execCloudEventCallback(ArduinoIoTCloudEvent const event)
 {

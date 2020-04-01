@@ -59,7 +59,6 @@ class ArduinoIoTCloudLPWAN : public ArduinoIoTCloudClass {
 
     void sendPropertiesToCloud();
     int writeProperties(const byte data[], int length);
-    NetworkConnectionState checkPhyConnection();
     ArduinoIoTConnectionStatus checkCloudConnection();
 };
 

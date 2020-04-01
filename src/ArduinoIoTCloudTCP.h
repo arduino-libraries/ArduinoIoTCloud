@@ -119,7 +119,6 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass {
     void handleMessage(int length);
     void sendPropertiesToCloud();
     void requestLastValue();
-    NetworkConnectionState checkPhyConnection();
     ArduinoIoTConnectionStatus checkCloudConnection();
     int write(String const topic, byte const data[], int const length);
 };

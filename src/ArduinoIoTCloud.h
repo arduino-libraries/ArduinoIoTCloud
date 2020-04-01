@@ -140,6 +140,7 @@ class ArduinoIoTCloudClass
     ArduinoCloudThing _thing;
     ArduinoIoTConnectionStatus _iotStatus = ArduinoIoTConnectionStatus::IDLE;
 
+           NetworkConnectionState checkPhyConnection();
            void execCloudEventCallback(ArduinoIoTCloudEvent const event);
     static void printConnectionStatus(ArduinoIoTConnectionStatus status);
 

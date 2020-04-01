@@ -273,21 +273,6 @@ void ArduinoIoTCloudTCP::requestLastValue() {
   write(_shadowTopicOut, CBOR_REQUEST_LAST_VALUE_MSG, sizeof(CBOR_REQUEST_LAST_VALUE_MSG));
 }
 
-NetworkConnectionState ArduinoIoTCloudTCP::checkPhyConnection()
-{
-  NetworkConnectionState const connect_state = _connection->check();
-
-  if (_connection->check() != NetworkConnectionState::CONNECTED)
-  {
-    if (_iotStatus == ArduinoIoTConnectionStatus::CONNECTED)
-    {
-      disconnect();
-    }
-  }
-
-  return connect_state;
-}
-
 ArduinoIoTConnectionStatus ArduinoIoTCloudTCP::checkCloudConnection()
 {
   ArduinoIoTConnectionStatus next_iot_status = _iotStatus;
