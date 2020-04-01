@@ -129,14 +129,6 @@ ArduinoIoTConnectionStatus ArduinoIoTCloudLPWAN::checkCloudConnection()
     case ArduinoIoTConnectionStatus::IDLE:         next_iot_status = ArduinoIoTConnectionStatus::CONNECTING;   break;
     case ArduinoIoTConnectionStatus::ERROR:        next_iot_status = ArduinoIoTConnectionStatus::RECONNECTING; break;
     case ArduinoIoTConnectionStatus::DISCONNECTED: next_iot_status = ArduinoIoTConnectionStatus::RECONNECTING; break;
-    case ArduinoIoTConnectionStatus::RECONNECTING:
-    {
-      Debug.print(DBG_INFO, "Arduino IoT Cloud reconnecting ...");
-      if (connect()) next_iot_status = ArduinoIoTConnectionStatus::IDLE;
-      else           next_iot_status = ArduinoIoTConnectionStatus::ERROR;
-    }
-    break;
-
     case ArduinoIoTConnectionStatus::CONNECTING:
     {
       Debug.print(DBG_INFO, "Arduino IoT Cloud connecting ...");
@@ -144,6 +136,14 @@ ArduinoIoTConnectionStatus ArduinoIoTCloudLPWAN::checkCloudConnection()
       {
         next_iot_status = ArduinoIoTConnectionStatus::CONNECTED;
       }
+    }
+    break;
+
+    case ArduinoIoTConnectionStatus::RECONNECTING:
+    {
+      Debug.print(DBG_INFO, "Arduino IoT Cloud reconnecting ...");
+      if (connect()) next_iot_status = ArduinoIoTConnectionStatus::IDLE;
+      else           next_iot_status = ArduinoIoTConnectionStatus::ERROR;
     }
     break;
 
