@@ -58,9 +58,9 @@ bool ArduinoIoTCloudLPWAN::disconnect() {
   return true;
 }
 
-int ArduinoIoTCloudLPWAN::connected() {
-  int state = _connection->getStatus() == NetworkConnectionState::INIT ? 1 : 0;
-  return state;
+int ArduinoIoTCloudLPWAN::connected()
+{
+  return (_connection->getStatus() == NetworkConnectionState::CONNECTED) ? 1 : 0;
 }
 
 int ArduinoIoTCloudLPWAN::begin(ConnectionHandler& connection, bool retry) {
@@ -141,7 +141,7 @@ ArduinoIoTConnectionStatus ArduinoIoTCloudLPWAN::checkCloudConnection()
     case ArduinoIoTConnectionStatus::CONNECTING:
     {
       Debug.print(DBG_INFO, "Arduino IoT Cloud connecting ...");
-      if (_connection->getStatus() == NetworkConnectionState::CONNECTED)
+      if (connected())
       {
         next_iot_status = ArduinoIoTConnectionStatus::CONNECTED;
       }
