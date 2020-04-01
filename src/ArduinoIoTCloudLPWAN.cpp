@@ -47,12 +47,14 @@ ArduinoIoTCloudLPWAN::ArduinoIoTCloudLPWAN()
  * PUBLIC MEMBER FUNCTIONS
  ******************************************************************************/
 
-int ArduinoIoTCloudLPWAN::connect() {
+int ArduinoIoTCloudLPWAN::connect()
+{
   _connection->connect();
   return 1;
 }
 
-bool ArduinoIoTCloudLPWAN::disconnect() {
+bool ArduinoIoTCloudLPWAN::disconnect()
+{
   _connection->disconnect();
   return true;
 }
@@ -62,14 +64,16 @@ int ArduinoIoTCloudLPWAN::connected()
   return (_connection->getStatus() == NetworkConnectionState::CONNECTED) ? 1 : 0;
 }
 
-int ArduinoIoTCloudLPWAN::begin(ConnectionHandler& connection, bool retry) {
+int ArduinoIoTCloudLPWAN::begin(ConnectionHandler& connection, bool retry)
+{
   _connection = &connection;
   _retryEnable = retry;
   _thing.begin();
   return 1;
 }
 
-void ArduinoIoTCloudLPWAN::update() {
+void ArduinoIoTCloudLPWAN::update()
+{
   // Check if a primitive property wrapper is locally changed
   _thing.updateTimestampOnLocallyChangedProperties();
 
@@ -106,7 +110,8 @@ void ArduinoIoTCloudLPWAN::update() {
   execCloudEventCallback(ArduinoIoTCloudEvent::SYNC);
 }
 
-void ArduinoIoTCloudLPWAN::printDebugInfo() {
+void ArduinoIoTCloudLPWAN::printDebugInfo()
+{
   Debug.print(DBG_INFO, "***** Arduino IoT Cloud LPWAN - configuration info *****");
   Debug.print(DBG_INFO, "Thing ID: %s", getThingId().c_str());
 }
@@ -115,7 +120,8 @@ void ArduinoIoTCloudLPWAN::printDebugInfo() {
  * PRIVATE MEMBER FUNCTIONS
  ******************************************************************************/
 
-void ArduinoIoTCloudLPWAN::sendPropertiesToCloud() {
+void ArduinoIoTCloudLPWAN::sendPropertiesToCloud()
+{
   uint8_t data[CBOR_LORA_MSG_MAX_SIZE];
   int const length = _thing.encode(data, sizeof(data), true);
   if (length > 0) {
@@ -123,7 +129,8 @@ void ArduinoIoTCloudLPWAN::sendPropertiesToCloud() {
   }
 }
 
-int ArduinoIoTCloudLPWAN::writeProperties(const byte data[], int length) {
+int ArduinoIoTCloudLPWAN::writeProperties(const byte data[], int length)
+{
   int retcode = _connection->write(data, length);
   int i = 0;
   while (_retryEnable && retcode < 0 && i < _maxNumRetry) {

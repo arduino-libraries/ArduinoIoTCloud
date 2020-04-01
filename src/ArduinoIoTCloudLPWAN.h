@@ -28,7 +28,8 @@
  * CLASS DECLARATION
  ******************************************************************************/
 
-class ArduinoIoTCloudLPWAN : public ArduinoIoTCloudClass {
+class ArduinoIoTCloudLPWAN : public ArduinoIoTCloudClass
+{
   public:
 
              ArduinoIoTCloudLPWAN();

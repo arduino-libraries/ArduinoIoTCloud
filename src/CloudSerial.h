@@ -43,7 +43,8 @@
 class ArduinoIoTCloudTCP;
 
 
-class CloudSerialClass : public Stream {
+class CloudSerialClass : public Stream
+{
   public:
     CloudSerialClass();
     ~CloudSerialClass();

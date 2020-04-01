@@ -46,7 +46,8 @@ static uint16_t const DEFAULT_BROKER_PORT_USER_PASS_AUTH = 8884;
  * CLASS DECLARATION
  ******************************************************************************/
 
-class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass {
+class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
+{
   public:
 
              ArduinoIoTCloudTCP();

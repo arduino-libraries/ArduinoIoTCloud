@@ -50,7 +50,8 @@ const static int CONNECT_FAILURE_SUBSCRIBE					         = -1;
    LOCAL MODULE FUNCTIONS
  ******************************************************************************/
 
-static unsigned long getTime() {
+static unsigned long getTime()
+{
   return time_service.getTime();
 }
 
@@ -75,9 +76,12 @@ ArduinoIoTCloudTCP::ArduinoIoTCloudTCP():
   _shadowTopicIn(""),
   _dataTopicOut(""),
   _dataTopicIn("")
-{}
+{
 
-ArduinoIoTCloudTCP::~ArduinoIoTCloudTCP() {
+}
+
+ArduinoIoTCloudTCP::~ArduinoIoTCloudTCP()
+{
   delete _mqttClient; _mqttClient = NULL;
   delete _sslClient;  _sslClient = NULL;
 }
@@ -86,7 +90,8 @@ ArduinoIoTCloudTCP::~ArduinoIoTCloudTCP() {
  * PUBLIC MEMBER FUNCTIONS
  ******************************************************************************/
 
-int ArduinoIoTCloudTCP::begin(ConnectionHandler & connection, String brokerAddress, uint16_t brokerPort) {
+int ArduinoIoTCloudTCP::begin(ConnectionHandler & connection, String brokerAddress, uint16_t brokerPort)
+{
   _connection = &connection;
   _brokerAddress = brokerAddress;
   _brokerPort = brokerPort;
@@ -94,7 +99,8 @@ int ArduinoIoTCloudTCP::begin(ConnectionHandler & connection, String brokerAddre
   return begin(_brokerAddress, _brokerPort);
 }
 
-int ArduinoIoTCloudTCP::begin(String brokerAddress, uint16_t brokerPort) {
+int ArduinoIoTCloudTCP::begin(String brokerAddress, uint16_t brokerPort)
+{
 
   _brokerAddress = brokerAddress;
   _brokerPort = brokerPort;
@@ -135,8 +141,8 @@ int ArduinoIoTCloudTCP::begin(String brokerAddress, uint16_t brokerPort) {
   return 1;
 }
 
-int ArduinoIoTCloudTCP::connect() {
-
+int ArduinoIoTCloudTCP::connect()
+{
   if (!_mqttClient->connect(_brokerAddress.c_str(), _brokerPort)) {
     return CONNECT_FAILURE;
   }
@@ -158,13 +164,14 @@ int ArduinoIoTCloudTCP::connect() {
 }
 
 
-bool ArduinoIoTCloudTCP::disconnect() {
+bool ArduinoIoTCloudTCP::disconnect()
+{
   _mqttClient->stop();
-
   return true;
 }
 
-void ArduinoIoTCloudTCP::update() {
+void ArduinoIoTCloudTCP::update()
+{
   // Check if a primitive property wrapper is locally changed
   _thing.updateTimestampOnLocallyChangedProperties();
 
@@ -199,24 +206,25 @@ void ArduinoIoTCloudTCP::update() {
   }
 }
 
-void ArduinoIoTCloudTCP::printDebugInfo() {
+void ArduinoIoTCloudTCP::printDebugInfo()
+{
   Debug.print(DBG_INFO, "***** Arduino IoT Cloud - configuration info *****");
   Debug.print(DBG_INFO, "Device ID: %s", getDeviceId().c_str());
   Debug.print(DBG_INFO, "Thing ID: %s", getThingId().c_str());
   Debug.print(DBG_INFO, "MQTT Broker: %s:%d", _brokerAddress.c_str(), _brokerPort);
 }
 
-int ArduinoIoTCloudTCP::reconnect() {
+int ArduinoIoTCloudTCP::reconnect()
+{
   if (_mqttClient->connected()) {
     _mqttClient->stop();
   }
-
-  // Connect to the broker
   return connect();
 }
 
 
-int ArduinoIoTCloudTCP::connected() {
+int ArduinoIoTCloudTCP::connected()
+{
   return _mqttClient->connected();
 }
 
@@ -224,11 +232,13 @@ int ArduinoIoTCloudTCP::connected() {
  * PRIVATE MEMBER FUNCTIONS
  ******************************************************************************/
 
-void ArduinoIoTCloudTCP::onMessage(int length) {
+void ArduinoIoTCloudTCP::onMessage(int length)
+{
   ArduinoCloud.handleMessage(length);
 }
 
-void ArduinoIoTCloudTCP::handleMessage(int length) {
+void ArduinoIoTCloudTCP::handleMessage(int length)
+{
   String topic = _mqttClient->messageTopic();
 
   byte bytes[length];
@@ -250,7 +260,8 @@ void ArduinoIoTCloudTCP::handleMessage(int length) {
   }
 }
 
-void ArduinoIoTCloudTCP::sendPropertiesToCloud() {
+void ArduinoIoTCloudTCP::sendPropertiesToCloud()
+{
   uint8_t data[MQTT_TRANSMIT_BUFFER_SIZE];
   int const length = _thing.encode(data, sizeof(data));
   if (length > 0)
@@ -265,7 +276,8 @@ void ArduinoIoTCloudTCP::sendPropertiesToCloud() {
   }
 }
 
-void ArduinoIoTCloudTCP::requestLastValue() {
+void ArduinoIoTCloudTCP::requestLastValue()
+{
   // Send the getLastValues CBOR message to the cloud
   // [{0: "r:m", 3: "getLastValues"}] = 81 A2 00 63 72 3A 6D 03 6D 67 65 74 4C 61 73 74 56 61 6C 75 65 73
   // Use http://cbor.me to easily generate CBOR encoding
