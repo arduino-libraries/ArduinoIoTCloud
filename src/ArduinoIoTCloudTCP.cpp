@@ -129,6 +129,9 @@ int ArduinoIoTCloudTCP::begin(String brokerAddress, uint16_t brokerPort) {
 
   _thing.begin();
   _thing.registerGetTimeCallbackFunc(getTime);
+
+  printConnectionStatus(_iotStatus);
+
   return 1;
 }
 
@@ -287,37 +290,34 @@ NetworkConnectionState ArduinoIoTCloudTCP::checkPhyConnection()
 
 ArduinoIoTConnectionStatus ArduinoIoTCloudTCP::checkCloudConnection()
 {
+  ArduinoIoTConnectionStatus next_iot_status = _iotStatus;
+
   switch (_iotStatus) {
     case ArduinoIoTConnectionStatus::IDLE: {
-        _iotStatus = ArduinoIoTConnectionStatus::CONNECTING;
-        printConnectionStatus(_iotStatus);
+        next_iot_status = ArduinoIoTConnectionStatus::CONNECTING;
       }
       break;
     case ArduinoIoTConnectionStatus::ERROR: {
-        _iotStatus = ArduinoIoTConnectionStatus::RECONNECTING;
-        printConnectionStatus(_iotStatus);
+        next_iot_status = ArduinoIoTConnectionStatus::RECONNECTING;
       }
       break;
     case ArduinoIoTConnectionStatus::CONNECTED: {
         if (!_mqttClient->connected()) {
-          _iotStatus = ArduinoIoTConnectionStatus::DISCONNECTED;
+          next_iot_status = ArduinoIoTConnectionStatus::DISCONNECTED;
           _mqtt_data_request_retransmit = true;
-          printConnectionStatus(_iotStatus);
           execCloudEventCallback(ArduinoIoTCloudEvent::DISCONNECT);
         }
       }
       break;
     case ArduinoIoTConnectionStatus::DISCONNECTED: {
-        _iotStatus = ArduinoIoTConnectionStatus::RECONNECTING;
-        printConnectionStatus(_iotStatus);
+        next_iot_status = ArduinoIoTConnectionStatus::RECONNECTING;
       }
       break;
     case ArduinoIoTConnectionStatus::RECONNECTING: {
         int const ret_code_reconnect = reconnect();
         Debug.print(DBG_INFO, "ArduinoCloud.reconnect(): %d", ret_code_reconnect);
         if (ret_code_reconnect == CONNECT_SUCCESS) {
-          _iotStatus = ArduinoIoTConnectionStatus::CONNECTED;
-          printConnectionStatus(_iotStatus);
+          next_iot_status = ArduinoIoTConnectionStatus::CONNECTED;
           execCloudEventCallback(ArduinoIoTCloudEvent::CONNECT);
           CloudSerial.begin(9600);
           CloudSerial.println("Hello from Cloud Serial!");
@@ -328,8 +328,7 @@ ArduinoIoTConnectionStatus ArduinoIoTCloudTCP::checkCloudConnection()
         int const ret_code_connect = connect();
         Debug.print(DBG_VERBOSE, "ArduinoCloud.connect(): %d", ret_code_connect);
         if (ret_code_connect == CONNECT_SUCCESS) {
-          _iotStatus = ArduinoIoTConnectionStatus::CONNECTED;
-          printConnectionStatus(_iotStatus);
+          next_iot_status = ArduinoIoTConnectionStatus::CONNECTED;
           execCloudEventCallback(ArduinoIoTCloudEvent::CONNECT);
           CloudSerial.begin(9600);
           CloudSerial.println("Hello from Cloud Serial!");
@@ -338,6 +337,12 @@ ArduinoIoTConnectionStatus ArduinoIoTCloudTCP::checkCloudConnection()
         }
       }
       break;
+  }
+
+  if(next_iot_status != _iotStatus)
+  {
+    _iotStatus = next_iot_status;
+    printConnectionStatus(_iotStatus);
   }
 
   return _iotStatus;
