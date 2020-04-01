@@ -292,51 +292,54 @@ ArduinoIoTConnectionStatus ArduinoIoTCloudTCP::checkCloudConnection()
 {
   ArduinoIoTConnectionStatus next_iot_status = _iotStatus;
 
-  switch (_iotStatus) {
-    case ArduinoIoTConnectionStatus::IDLE: {
-        next_iot_status = ArduinoIoTConnectionStatus::CONNECTING;
+  switch (_iotStatus)
+  {
+    case ArduinoIoTConnectionStatus::IDLE:         next_iot_status = ArduinoIoTConnectionStatus::CONNECTING;   break;
+    case ArduinoIoTConnectionStatus::ERROR:        next_iot_status = ArduinoIoTConnectionStatus::RECONNECTING; break;
+    case ArduinoIoTConnectionStatus::DISCONNECTED: next_iot_status = ArduinoIoTConnectionStatus::RECONNECTING; break;
+    case ArduinoIoTConnectionStatus::CONNECTING:
+    {
+      Debug.print(DBG_INFO, "Arduino IoT Cloud connecting ...");
+      int const ret = connect();
+      if (ret == CONNECT_SUCCESS)
+      {
+        next_iot_status = ArduinoIoTConnectionStatus::CONNECTED;
+        execCloudEventCallback(ArduinoIoTCloudEvent::CONNECT);
+
+        CloudSerial.begin(9600);
+        CloudSerial.println("Hello from Cloud Serial!");
       }
-      break;
-    case ArduinoIoTConnectionStatus::ERROR: {
-        next_iot_status = ArduinoIoTConnectionStatus::RECONNECTING;
+      else if (ret == CONNECT_FAILURE_SUBSCRIBE)
+      {
+        Debug.print(DBG_ERROR, "ERROR - Please verify your THING ID");
       }
-      break;
-    case ArduinoIoTConnectionStatus::CONNECTED: {
-        if (!_mqttClient->connected()) {
-          next_iot_status = ArduinoIoTConnectionStatus::DISCONNECTED;
-          _mqtt_data_request_retransmit = true;
-          execCloudEventCallback(ArduinoIoTCloudEvent::DISCONNECT);
-        }
+    }
+    break;
+
+    case ArduinoIoTConnectionStatus::RECONNECTING:
+    {
+      Debug.print(DBG_INFO, "Arduino IoT Cloud reconnecting ...");
+      if (reconnect() == CONNECT_SUCCESS)
+      {
+        next_iot_status = ArduinoIoTConnectionStatus::CONNECTED;
+        execCloudEventCallback(ArduinoIoTCloudEvent::CONNECT);
+
+        CloudSerial.begin(9600);
+        CloudSerial.println("Hello from Cloud Serial!");
       }
-      break;
-    case ArduinoIoTConnectionStatus::DISCONNECTED: {
-        next_iot_status = ArduinoIoTConnectionStatus::RECONNECTING;
+    }
+    break;
+
+    case ArduinoIoTConnectionStatus::CONNECTED:
+    {
+      if (!_mqttClient->connected())
+      {
+        next_iot_status = ArduinoIoTConnectionStatus::DISCONNECTED;
+        _mqtt_data_request_retransmit = true;
+        execCloudEventCallback(ArduinoIoTCloudEvent::DISCONNECT);
       }
-      break;
-    case ArduinoIoTConnectionStatus::RECONNECTING: {
-        int const ret_code_reconnect = reconnect();
-        Debug.print(DBG_INFO, "ArduinoCloud.reconnect(): %d", ret_code_reconnect);
-        if (ret_code_reconnect == CONNECT_SUCCESS) {
-          next_iot_status = ArduinoIoTConnectionStatus::CONNECTED;
-          execCloudEventCallback(ArduinoIoTCloudEvent::CONNECT);
-          CloudSerial.begin(9600);
-          CloudSerial.println("Hello from Cloud Serial!");
-        }
-      }
-      break;
-    case ArduinoIoTConnectionStatus::CONNECTING: {
-        int const ret_code_connect = connect();
-        Debug.print(DBG_VERBOSE, "ArduinoCloud.connect(): %d", ret_code_connect);
-        if (ret_code_connect == CONNECT_SUCCESS) {
-          next_iot_status = ArduinoIoTConnectionStatus::CONNECTED;
-          execCloudEventCallback(ArduinoIoTCloudEvent::CONNECT);
-          CloudSerial.begin(9600);
-          CloudSerial.println("Hello from Cloud Serial!");
-        } else if (ret_code_connect == CONNECT_FAILURE_SUBSCRIBE) {
-          Debug.print(DBG_INFO, "ERROR - Please verify your THING ID");
-        }
-      }
-      break;
+    }
+    break;
   }
 
   if(next_iot_status != _iotStatus)
