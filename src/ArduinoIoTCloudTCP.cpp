@@ -186,23 +186,26 @@ void ArduinoIoTCloudTCP::update()
   // MTTQClient connected!, poll() used to retrieve data from MQTT broker
   _mqttClient->poll();
 
-  switch (_syncStatus) {
-    case ArduinoIoTSynchronizationStatus::SYNC_STATUS_SYNCHRONIZED: {
-        sendPropertiesToCloud();
+  switch (_syncStatus)
+  {
+    case ArduinoIoTSynchronizationStatus::SYNC_STATUS_SYNCHRONIZED: sendPropertiesToCloud(); break;
+
+    case ArduinoIoTSynchronizationStatus::SYNC_STATUS_WAIT_FOR_CLOUD_VALUES:
+    {
+      if (millis() - _lastSyncRequestTickTime > TIMEOUT_FOR_LASTVALUES_SYNC)
+      {
+        requestLastValue();
+        _lastSyncRequestTickTime = millis();
       }
-      break;
-    case ArduinoIoTSynchronizationStatus::SYNC_STATUS_WAIT_FOR_CLOUD_VALUES: {
-        if (millis() - _lastSyncRequestTickTime > TIMEOUT_FOR_LASTVALUES_SYNC) {
-          requestLastValue();
-          _lastSyncRequestTickTime = millis();
-        }
-      }
-      break;
-    case ArduinoIoTSynchronizationStatus::SYNC_STATUS_VALUES_PROCESSED: {
-        execCloudEventCallback(ArduinoIoTCloudEvent::SYNC);
-        _syncStatus = ArduinoIoTSynchronizationStatus::SYNC_STATUS_SYNCHRONIZED;
-      }
-      break;
+    }
+    break;
+
+    case ArduinoIoTSynchronizationStatus::SYNC_STATUS_VALUES_PROCESSED:
+    {
+      execCloudEventCallback(ArduinoIoTCloudEvent::SYNC);
+      _syncStatus = ArduinoIoTSynchronizationStatus::SYNC_STATUS_SYNCHRONIZED;
+    }
+    break;
   }
 }
 
