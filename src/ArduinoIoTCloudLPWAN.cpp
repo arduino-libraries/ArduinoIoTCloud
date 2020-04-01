@@ -92,8 +92,7 @@ void ArduinoIoTCloudLPWAN::update() {
 }
 
 void ArduinoIoTCloudLPWAN::printDebugInfo() {
-  Debug.print(DBG_INFO, "***** Arduino IoT Cloud LPWAN- configuration info *****");
-  Debug.print(DBG_INFO, "Device ID: %s", getDeviceId().c_str());
+  Debug.print(DBG_INFO, "***** Arduino IoT Cloud LPWAN - configuration info *****");
   Debug.print(DBG_INFO, "Thing ID: %s", getThingId().c_str());
 }
 
