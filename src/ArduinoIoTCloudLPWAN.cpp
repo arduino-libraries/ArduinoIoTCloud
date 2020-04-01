@@ -74,6 +74,7 @@ void ArduinoIoTCloudLPWAN::update() {
   // Check if a primitive property wrapper is locally changed
   _thing.updateTimestampOnLocallyChangedProperties();
 
+  if(checkPhyConnection()   != NetworkConnectionState::CONNECTED)     return;
   if(connectionCheck() != ArduinoIoTConnectionStatus::CONNECTED) return;
 
   if (_connection->available()) {
@@ -120,20 +121,23 @@ int ArduinoIoTCloudLPWAN::writeProperties(const byte data[], int length) {
   return 1;
 }
 
-ArduinoIoTConnectionStatus ArduinoIoTCloudLPWAN::connectionCheck() {
-  if (_connection != NULL) {
+NetworkConnectionState ArduinoIoTCloudLPWAN::checkPhyConnection()
+{
+  NetworkConnectionState const connect_state = _connection->check();
 
-    _connection->check();
-
-    if (_connection->getStatus() != NetworkConnectionState::CONNECTED) {
-      if (_iotStatus == ArduinoIoTConnectionStatus::CONNECTED) {
-        _iotStatus = ArduinoIoTConnectionStatus::DISCONNECTED;
-        printConnectionStatus(_iotStatus);
-      }
-      return _iotStatus;
+  if (_connection->check() != NetworkConnectionState::CONNECTED)
+  {
+    if (_iotStatus == ArduinoIoTConnectionStatus::CONNECTED)
+    {
+      disconnect();
     }
   }
 
+  return connect_state;
+}
+
+ArduinoIoTConnectionStatus ArduinoIoTCloudLPWAN::connectionCheck()
+{
   switch (_iotStatus) {
     case ArduinoIoTConnectionStatus::IDLE: {
         _iotStatus = ArduinoIoTConnectionStatus::CONNECTING;
