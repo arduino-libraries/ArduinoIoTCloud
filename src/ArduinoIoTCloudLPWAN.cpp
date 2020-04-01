@@ -125,45 +125,37 @@ ArduinoIoTConnectionStatus ArduinoIoTCloudLPWAN::checkCloudConnection()
 {
   ArduinoIoTConnectionStatus next_iot_status = _iotStatus;
 
-  switch (_iotStatus) {
-    case ArduinoIoTConnectionStatus::IDLE: {
-        next_iot_status = ArduinoIoTConnectionStatus::CONNECTING;
-      }
-      break;
-    case ArduinoIoTConnectionStatus::ERROR: {
-        next_iot_status = ArduinoIoTConnectionStatus::RECONNECTING;
-      }
-      break;
-    case ArduinoIoTConnectionStatus::CONNECTED: {
-        if (_connection->getStatus() != NetworkConnectionState::CONNECTED) {
-          next_iot_status = ArduinoIoTConnectionStatus::DISCONNECTED;
-        }
-      }
-      break;
-    case ArduinoIoTConnectionStatus::DISCONNECTED: {
-        next_iot_status = ArduinoIoTConnectionStatus::RECONNECTING;
-      }
-      break;
-    case ArduinoIoTConnectionStatus::RECONNECTING: {
-        int const ret_code = connect();
-        Debug.print(DBG_INFO, "ArduinoCloud.reconnect()");
-        if (ret_code == 1) {
-          next_iot_status = ArduinoIoTConnectionStatus::IDLE;
-        } else {
-          next_iot_status = ArduinoIoTConnectionStatus::ERROR;
-        }
+  switch (_iotStatus)
+  {
+    case ArduinoIoTConnectionStatus::IDLE:         next_iot_status = ArduinoIoTConnectionStatus::CONNECTING;   break;
+    case ArduinoIoTConnectionStatus::ERROR:        next_iot_status = ArduinoIoTConnectionStatus::RECONNECTING; break;
+    case ArduinoIoTConnectionStatus::DISCONNECTED: next_iot_status = ArduinoIoTConnectionStatus::RECONNECTING; break;
+    case ArduinoIoTConnectionStatus::RECONNECTING:
+    {
+      Debug.print(DBG_INFO, "Arduino IoT Cloud reconnecting ...");
+      if (connect()) next_iot_status = ArduinoIoTConnectionStatus::IDLE;
+      else           next_iot_status = ArduinoIoTConnectionStatus::ERROR;
+    }
+    break;
 
+    case ArduinoIoTConnectionStatus::CONNECTING:
+    {
+      Debug.print(DBG_INFO, "Arduino IoT Cloud connecting ...");
+      if (_connection->getStatus() == NetworkConnectionState::CONNECTED)
+      {
+        next_iot_status = ArduinoIoTConnectionStatus::CONNECTED;
       }
-      break;
-    case ArduinoIoTConnectionStatus::CONNECTING: {
-        NetworkConnectionState net_status = _connection->getStatus();
-        Debug.print(DBG_VERBOSE, "ArduinoCloud.connect(): %d", net_status);
-        if (net_status == NetworkConnectionState::CONNECTED) {
-          next_iot_status = ArduinoIoTConnectionStatus::CONNECTED;
-        }
+    }
+    break;
 
+    case ArduinoIoTConnectionStatus::CONNECTED:
+    {
+      if (_connection->getStatus() != NetworkConnectionState::CONNECTED)
+      {
+        next_iot_status = ArduinoIoTConnectionStatus::DISCONNECTED;
       }
-      break;
+    }
+    break;
   }
 
   if(next_iot_status != _iotStatus)
