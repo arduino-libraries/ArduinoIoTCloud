@@ -93,16 +93,22 @@ script:
   - |
     if [ "$BOARD" == "arduino:samd:mkr1000" ] || [ "$BOARD" == "arduino:samd:mkrwifi1010" ]; then
       buildSketch \
-        "WiFi_Cloud_Blink" \
+        "utility/WiFi_Cloud_Blink" \
         "MultiValue_example"
     fi
   - |
     if [ "$BOARD" == "arduino:samd:mkrgsm1400" ]; then
-      buildSketch "GSM_Cloud_Blink"
+      buildSketch "utility/GSM_Cloud_Blink"
+    fi
+  - |
+    if [ "$BOARD" == "arduino:samd:mkrnb1500" ]; then
+      buildSketch "utility/NB_Cloud_Blink"
     fi
   - |
     if [ "$BOARD" == "esp8266:esp8266:huzzah" ]; then
-      buildSketch "ArduinoIoTCloud_ESP8266"
+      buildSketch \
+        "ArduinoIoTCloud_ESP8266" \
+        "utility/WiFi_Cloud_Blink_with_security_credentials"
     fi
 notifications:
   webhooks:
