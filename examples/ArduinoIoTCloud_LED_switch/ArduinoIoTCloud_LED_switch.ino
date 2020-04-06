@@ -48,11 +48,8 @@ void setup() {
 
 void loop() {
   ArduinoCloud.update();
-
-  int potentiometer = analogRead(A0);
-
+  potentiometer = analogRead(A0);
 }
-
 
 /*
   this function is called when the "led" property of your Thing changes
