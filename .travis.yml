@@ -107,6 +107,7 @@ script:
   - |
     if [ "$BOARD" == "esp8266:esp8266:huzzah" ]; then
       buildSketch \
+        "ArduinoIoTCloud_LED_switch" \
         "ArduinoIoTCloud_ESP8266" \
         "utility/WiFi_Cloud_Blink_with_security_credentials"
     fi
