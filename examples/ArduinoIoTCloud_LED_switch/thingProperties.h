@@ -23,7 +23,7 @@ void initProperties() {
   ArduinoCloud.setSecretDeviceKey(SECRET_DEVICE_KEY);
 #endif
   ArduinoCloud.setThingId(THING_ID);
-#if defined(BOARD_HAS_WIFI) || defined(BOARD_HAS_GSM)
+#if defined(BOARD_HAS_WIFI) || defined(BOARD_HAS_GSM) || defined(BOARD_HAS_NB)
   ArduinoCloud.addProperty(led, READWRITE, ON_CHANGE, onLedChange);
   ArduinoCloud.addProperty(potentiometer, READ, ON_CHANGE);
 #elif defined(BOARD_HAS_LORA)
