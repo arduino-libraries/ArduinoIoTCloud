@@ -18,11 +18,11 @@ void initProperties() {
 #endif
   ArduinoCloud.setThingId(THING_ID);
 #if defined(BOARD_HAS_WIFI) || defined(BOARD_HAS_GSM) || defined(BOARD_HAS_NB)
-  ArduinoCloud.addProperty(switchButton, READWRITE, ON_CHANGE, onSwitchButtonChange);
+  ArduinoCloud.addProperty(switchButton, WRITE, ON_CHANGE, onSwitchButtonChange);
   ArduinoCloud.addProperty(location, READ, ON_CHANGE);
   ArduinoCloud.addProperty(color, READWRITE, ON_CHANGE, onColorChange);
 #elif defined(BOARD_HAS_LORA)
-  ArduinoCloud.addProperty(switchButton, 1, READWRITE, ON_CHANGE, onSwitchButtonChange);
+  ArduinoCloud.addProperty(switchButton, 1, WRITE, ON_CHANGE, onSwitchButtonChange);
   ArduinoCloud.addProperty(location, 2, READ, ON_CHANGE);
   ArduinoCloud.addProperty(color, 3, READWRITE, ON_CHANGE, onColorChange);
 #endif
