@@ -89,8 +89,8 @@ script:
        [ "$BOARD" == "arduino:samd:mkrnb1500" ]   || \
        [ "$BOARD" == "arduino:samd:mkrwan1300" ]; then
       buildSketch \
+        "ArduinoIoTCloud-Advanced" \
         "ArduinoIoTCloud-Basic" \
-        "MultiValue_example" \
         "utility/ArduinoIoTCloud_Travis_CI"
     fi
   # Sketches to build for selected boards
