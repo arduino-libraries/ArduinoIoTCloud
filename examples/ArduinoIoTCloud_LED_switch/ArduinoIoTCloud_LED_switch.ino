@@ -49,7 +49,7 @@ void setup() {
 void loop() {
   ArduinoCloud.update();
 
-  int potentiometer = analogRead(A1);
+  int potentiometer = analogRead(A0);
 
 }
 
