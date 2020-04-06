@@ -16,6 +16,7 @@ void onLedChange();
 
 bool led;
 int potentiometer;
+int seconds;
 
 void initProperties() {
 #if defined(BOARD_ESP8266)
@@ -24,11 +25,13 @@ void initProperties() {
 #endif
   ArduinoCloud.setThingId(THING_ID);
 #if defined(BOARD_HAS_WIFI) || defined(BOARD_HAS_GSM) || defined(BOARD_HAS_NB)
-  ArduinoCloud.addProperty(led, READWRITE, ON_CHANGE, onLedChange);
-  ArduinoCloud.addProperty(potentiometer, READ, ON_CHANGE);
+  ArduinoCloud.addProperty(led, Permission::Write).onUpdate(onLedChange);
+  ArduinoCloud.addProperty(potentiometer, Permission::Read).publishOnChange(10);
+  ArduinoCloud.addProperty(seconds, Permission::Read).publishOnChange(1);
 #elif defined(BOARD_HAS_LORA)
   ArduinoCloud.addProperty(led, 1, READWRITE, ON_CHANGE, onLedChange);
   ArduinoCloud.addProperty(potentiometer, 2, READ, ON_CHANGE);
+  ArduinoCloud.addProperty(seconds, 3, READ, 5 * MINUTES);
 #endif
 }
 

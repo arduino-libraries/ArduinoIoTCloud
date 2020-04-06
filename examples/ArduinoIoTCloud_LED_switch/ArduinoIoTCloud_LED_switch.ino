@@ -43,6 +43,7 @@ void setup() {
 void loop() {
   ArduinoCloud.update();
   potentiometer = analogRead(A0);
+  seconds = millis() / 1000;
 }
 
 /*
