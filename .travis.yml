@@ -81,14 +81,14 @@ script:
     if [ "$BOARD" == "arduino:samd:mkr1000" ] || [ "$BOARD" == "arduino:samd:mkrwifi1010" ] || [ "$BOARD" == "arduino:samd:mkrgsm1400" ] || [ "$BOARD" == "arduino:samd:mkrnb1500" ]; then
       buildSketch \
         "ArduinoIoTCloud_LED_switch" \
-        "ArduinoIoTCloud_Travis_CI" \
+        "utility/ArduinoIoTCloud_Travis_CI" \
         "utility/Provisioning"
     fi
   - |
     if [ "$BOARD" == "arduino:samd:mkrwan1300" ]; then
       buildSketch \
         "ArduinoIoTCloud_LED_switch" \
-        "ArduinoIoTCloud_Travis_CI"
+        "utility/ArduinoIoTCloud_Travis_CI"
     fi
   - |
     if [ "$BOARD" == "arduino:samd:mkr1000" ] || [ "$BOARD" == "arduino:samd:mkrwifi1010" ]; then
