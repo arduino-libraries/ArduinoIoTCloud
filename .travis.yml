@@ -90,6 +90,7 @@ script:
        [ "$BOARD" == "arduino:samd:mkrwan1300" ]; then
       buildSketch \
         "ArduinoIoTCloud-Basic" \
+        "MultiValue_example" \
         "utility/ArduinoIoTCloud_Travis_CI"
     fi
   # Sketches to build for selected boards
@@ -97,8 +98,7 @@ script:
     if [ "$BOARD" == "arduino:samd:mkr1000" ] || [ "$BOARD" == "arduino:samd:mkrwifi1010" ] || [ "$BOARD" == "arduino:samd:nano_33_iot"]; then
       buildSketch \
         "utility/Provisioning" \
-        "utility/WiFi_Cloud_Blink" \
-        "MultiValue_example"
+        "utility/WiFi_Cloud_Blink"
     fi
   - |
     if [ "$BOARD" == "arduino:samd:mkrgsm1400" ]; then
