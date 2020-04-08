@@ -81,8 +81,6 @@ class ArduinoIoTCloudClass
     virtual ~ArduinoIoTCloudClass() { }
 
 
-    virtual int  connect       () = 0;
-    virtual bool disconnect    () = 0;
     virtual void update        () = 0;
     virtual int  connected     () = 0;
     virtual void printDebugInfo() = 0;
@@ -133,6 +131,9 @@ class ArduinoIoTCloudClass
     ArduinoCloudProperty& addPropertyReal(String& property, String name, Permission const permission);
 
   protected:
+
+    virtual int  connect   () = 0;
+    virtual bool disconnect() = 0;
 
     inline ArduinoIoTConnectionStatus getIoTStatus() { return _iot_status; }
 

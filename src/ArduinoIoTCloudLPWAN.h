@@ -35,8 +35,6 @@ class ArduinoIoTCloudLPWAN : public ArduinoIoTCloudClass
              ArduinoIoTCloudLPWAN();
     virtual ~ArduinoIoTCloudLPWAN() { }
 
-    virtual int  connect       () override;
-    virtual bool disconnect    () override;
     virtual void update        () override;
     virtual int  connected     () override;
     virtual void printDebugInfo() override;
@@ -50,6 +48,12 @@ class ArduinoIoTCloudLPWAN : public ArduinoIoTCloudClass
     inline void enableRetry     (bool val) { _retryEnable = val; }
     inline void setMaxRetry     (int val)  { _maxNumRetry = val; }
     inline void setIntervalRetry(long val) { _intervalRetry = val; }
+
+
+  protected:
+
+    virtual int  connect       () override;
+    virtual bool disconnect    () override;
 
 
   private:
