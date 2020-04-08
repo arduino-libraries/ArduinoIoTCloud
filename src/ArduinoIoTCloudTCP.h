@@ -53,8 +53,7 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
              ArduinoIoTCloudTCP();
     virtual ~ArduinoIoTCloudTCP();
 
-    virtual int  connect       () override;
-    virtual bool disconnect    () override;
+
     virtual void update        () override;
     virtual int  connected     () override;
     virtual void printDebugInfo() override;
@@ -78,6 +77,13 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
     int reconnect();
 
     friend class CloudSerialClass;
+
+
+  protected:
+
+    virtual int  connect       () override;
+    virtual bool disconnect    () override;
+
 
   private:
     static const int MQTT_TRANSMIT_BUFFER_SIZE = 256;
