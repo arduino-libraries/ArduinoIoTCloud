@@ -227,10 +227,9 @@ int ArduinoIoTCloudTCP::connect()
   return CONNECT_SUCCESS;
 }
 
-bool ArduinoIoTCloudTCP::disconnect()
+void ArduinoIoTCloudTCP::disconnect()
 {
   _mqttClient->stop();
-  return true;
 }
 
 /******************************************************************************
