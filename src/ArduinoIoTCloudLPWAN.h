@@ -18,64 +18,54 @@
 #ifndef ARDUINO_IOT_CLOUD_LPWAN_H
 #define ARDUINO_IOT_CLOUD_LPWAN_H
 
+/******************************************************************************
+ * INCLUDE
+ ******************************************************************************/
+
 #include <ArduinoIoTCloud.h>
-#include <Arduino_ConnectionHandler.h>
 
-static uint8_t const DEFAULT_CBOR_LORA_MSG_SIZE = 255;
+/******************************************************************************
+ * CLASS DECLARATION
+ ******************************************************************************/
 
-class ArduinoIoTCloudLPWAN : public ArduinoIoTCloudClass {
+class ArduinoIoTCloudLPWAN : public ArduinoIoTCloudClass
+{
   public:
-    ArduinoIoTCloudLPWAN();
-    ~ArduinoIoTCloudLPWAN();
-    int connect();
-    bool disconnect();
-    int connected();
-    void update();
-    ArduinoIoTConnectionStatus connectionCheck();
-    void printDebugInfo();
+
+             ArduinoIoTCloudLPWAN();
+    virtual ~ArduinoIoTCloudLPWAN() { }
+
+    virtual int  connect       () override;
+    virtual bool disconnect    () override;
+    virtual void update        () override;
+    virtual int  connected     () override;
+    virtual void printDebugInfo() override;
+
     int begin(ConnectionHandler& connection, bool retry = false);
-    inline ConnectionHandler* getConnection() {
-      return _connection;
-    }
-    bool isRetryEnabled() {
-      return _retryEnable;
-    }
 
-    void enableRetry(bool val) {
-      _retryEnable = val;
-    }
+    inline bool isRetryEnabled  () const { return _retryEnable; }
+    inline int  getMaxRetry     () const { return _maxNumRetry; }
+    inline long getIntervalRetry() const { return _intervalRetry; }
 
-    int getMaxRetry() {
-      return _maxNumRetry;
-    }
+    inline void enableRetry     (bool val) { _retryEnable = val; }
+    inline void setMaxRetry     (int val)  { _maxNumRetry = val; }
+    inline void setIntervalRetry(long val) { _intervalRetry = val; }
 
-    void setMaxRetry(int val) {
-      _maxNumRetry = val;
-    }
-
-    long getIntervalRetry() {
-      return _intervalRetry;
-    }
-
-    void setIntervalRetry(long val) {
-      _intervalRetry = val;
-    }
-
-  protected:
-    int writeStdout(const byte data[], int length);
-    int writeProperties(const byte data[], int length);
-    int writeShadowOut(const byte data[], int length);
 
   private:
-    ConnectionHandler* _connection;
-    void sendPropertiesToCloud();
+
     bool _retryEnable;
     int _maxNumRetry;
     long _intervalRetry;
 
+    void sendPropertiesToCloud();
+    int writeProperties(const byte data[], int length);
 };
 
-extern ArduinoIoTCloudLPWAN ArduinoCloud;
+/******************************************************************************
+ * EXTERN DECLARATION
+ ******************************************************************************/
 
+extern ArduinoIoTCloudLPWAN ArduinoCloud;
 
 #endif

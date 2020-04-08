@@ -15,69 +15,52 @@
    a commercial license, send an email to license@arduino.cc.
 */
 
-#ifndef CLOUD_SERIAL_H
-#define CLOUD_SERIAL_H
+#ifndef ARDUINO_IOT_CLOUD_UTILITY_CRYPTO_CRYPTO_UTIL_H_
+#define ARDUINO_IOT_CLOUD_UTILITY_CRYPTO_CRYPTO_UTIL_H_
 
 /******************************************************************************
  * INCLUDE
  ******************************************************************************/
 
+#include <ArduinoIoTCloud_Defines.h>
+
+#ifdef BOARD_HAS_ECCX08
+
 #include <Arduino.h>
-#if defined(ARDUINO_ESP8266_ESP12) || defined(ARDUINO_ARCH_ESP32) || defined(ESP8266)
-  #include "utility/RingBuffer.h"
-#else
-  #include <RingBuffer.h>
-#endif
+#include <ArduinoECCX08.h>
+#include "ECCX08Cert.h"
 
 /******************************************************************************
- * DEFINES
+   TYPEDEF
  ******************************************************************************/
 
-#define CLOUD_SERIAL_TX_BUFFER_SIZE 64
-#define CLOUD_SERIAL_RX_BUFFER_SIZE 512
+enum class ECCX08Slot : int
+{
+  Key                                   = 0,
+  CompressedCertificate                 = 10,
+  SerialNumberAndAuthorityKeyIdentifier = 11,
+  DeviceId                              = 12
+};
 
 /******************************************************************************
  * CLASS DECLARATION
  ******************************************************************************/
 
-class ArduinoIoTCloudTCP;
-
-
-class CloudSerialClass : public Stream
+class CryptoUtil
 {
-  public:
-    CloudSerialClass();
-    ~CloudSerialClass();
+public:
 
-    void begin(int baud);
-    void end();
-    int available();
-    int availableForWrite();
-    int peek();
-    int read();
-    void flush();
-    size_t write(const uint8_t data);
-    using Print::write; // pull in write(str) and write(buf, size) from Print
-
-    operator bool();
-
-  protected:
-
-    friend class ArduinoIoTCloudTCP;
+  static bool readDeviceId(ECCX08Class & eccx08, String & device_id, ECCX08Slot const device_id_slot);
+  static bool reconstructCertificate(ECCX08CertClass & cert, String const & device_id, ECCX08Slot const key, ECCX08Slot const compressed_certificate, ECCX08Slot const serial_number_and_authority_key);
 
 
+private:
 
-    void appendStdin(const uint8_t *buffer, size_t size);
+  CryptoUtil() { }
+  CryptoUtil(CryptoUtil const & other) { }
 
-  private:
-    RingBufferN<CLOUD_SERIAL_TX_BUFFER_SIZE> _txBuffer;
-    RingBufferN<CLOUD_SERIAL_RX_BUFFER_SIZE> _rxBuffer;
 };
 
-/******************************************************************************
- * EXTERN DECLARATION
- ******************************************************************************/
+#endif /* BOARD_HAS_ECCX08 */
 
-extern CloudSerialClass CloudSerial;
-
-#endif
+#endif /* ARDUINO_IOT_CLOUD_UTILITY_CRYPTO_CRYPTO_UTIL_H_ */

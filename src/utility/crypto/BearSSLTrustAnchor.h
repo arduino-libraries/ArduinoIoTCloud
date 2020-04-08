@@ -19,11 +19,19 @@
 #ifndef _BEAR_SSL_TRUST_ANCHOR_H_
 #define _BEAR_SSL_TRUST_ANCHOR_H_
 
+/******************************************************************************
+ * INCLUDE
+ ******************************************************************************/
+
 #include <ArduinoIoTCloud_Defines.h>
 
 #ifdef BOARD_HAS_ECCX08
 
 #include "bearssl/bearssl_ssl.h"
+
+/******************************************************************************
+ * CONSTANTS
+ ******************************************************************************/
 
 // The following was created by running the BearSSL "brssl" tool in the
 // extras/TrustAnchors directory:

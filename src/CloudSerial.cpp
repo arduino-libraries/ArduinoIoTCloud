@@ -14,48 +14,68 @@
    software without disclosing the source code of your own applications. To purchase
    a commercial license, send an email to license@arduino.cc.
 */
+
+/******************************************************************************
+ * INCLUDE
+ ******************************************************************************/
+
 #include "ArduinoIoTCloud_Defines.h"
 #ifndef HAS_LORA
 
 #include "ArduinoIoTCloud.h"
 #include "CloudSerial.h"
 
-CloudSerialClass::CloudSerialClass() {
+/******************************************************************************
+   CTOR/DTOR
+ ******************************************************************************/
+
+CloudSerialClass::CloudSerialClass()
+{
+
 }
 
-CloudSerialClass::~CloudSerialClass() {
+CloudSerialClass::~CloudSerialClass()
+{
+
 }
 
-void CloudSerialClass::begin(int /*baud*/) {
+/******************************************************************************
+ * PUBLIC MEMBER FUNCTIONS
+ ******************************************************************************/
+
+void CloudSerialClass::begin(int /*baud*/)
+{
   _txBuffer.clear();
   _rxBuffer.clear();
 }
 
-void CloudSerialClass::end() {
+void CloudSerialClass::end()
+{
+
 }
 
-int CloudSerialClass::available() {
-
+int CloudSerialClass::available()
+{
   return _rxBuffer.available();
 }
 
-int CloudSerialClass::availableForWrite() {
-
+int CloudSerialClass::availableForWrite()
+{
   return _txBuffer.availableForStore();
 }
 
-int CloudSerialClass::peek() {
-
+int CloudSerialClass::peek()
+{
   return _rxBuffer.peek();
 }
 
-int CloudSerialClass::read() {
-
+int CloudSerialClass::read()
+{
   return _rxBuffer.read_char();
 }
 
-void CloudSerialClass::flush() {
-
+void CloudSerialClass::flush()
+{
   byte out[CLOUD_SERIAL_TX_BUFFER_SIZE];
   int length = 0;
 
@@ -63,10 +83,11 @@ void CloudSerialClass::flush() {
     out[length++] = _txBuffer.read_char();
   }
 
-  ArduinoCloud.writeStdout(out, length);
+  ArduinoCloud.write(ArduinoCloud._stdoutTopic, out, length);
 }
 
-size_t CloudSerialClass::write(const uint8_t data) {
+size_t CloudSerialClass::write(const uint8_t data)
+{
   _txBuffer.store_char(data);
 
   if (_txBuffer.isFull() || data == '\n') {
@@ -76,16 +97,21 @@ size_t CloudSerialClass::write(const uint8_t data) {
   return 1;
 }
 
-CloudSerialClass::operator bool() {
-
+CloudSerialClass::operator bool()
+{
   return ArduinoCloud.connected();
 }
 
-void CloudSerialClass::appendStdin(const uint8_t *buffer, size_t size) {
+void CloudSerialClass::appendStdin(const uint8_t *buffer, size_t size)
+{
   while (!_rxBuffer.isFull() && size--) {
     _rxBuffer.store_char(*buffer++);
   }
 }
+
+/******************************************************************************
+ * EXTERN DEFINITION
+ ******************************************************************************/
 
 CloudSerialClass CloudSerial;
 

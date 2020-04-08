@@ -15,6 +15,10 @@
    a commercial license, send an email to license@arduino.cc.
 */
 
+/******************************************************************************
+ * INCLUDE
+ ******************************************************************************/
+
 #include <ArduinoIoTCloud_Defines.h>
 
 #ifdef BOARD_HAS_ECCX08
@@ -24,6 +28,10 @@
 #include <ArduinoECCX08.h>
 
 #include "ECCX08Cert.h"
+
+/******************************************************************************
+ * DEFINE
+ ******************************************************************************/
 
 #define ASN1_INTEGER           0x02
 #define ASN1_BIT_STRING        0x03
@@ -46,6 +54,10 @@ struct __attribute__((__packed__)) SerialNumberAndAuthorityKeyIdentifier {
   byte serialNumber[SERIAL_NUMBER_LENGTH];
   byte authorityKeyIdentifier[AUTHORITY_KEY_IDENTIFIER_LENGTH];
 };
+
+/******************************************************************************
+ * LOCAL MODULE FUNCTIONS
+ ******************************************************************************/
 
 static String base64Encode(const byte in[], unsigned int length, const char* prefix, const char* suffix) {
   static const char* CODES = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
@@ -95,6 +107,10 @@ static String base64Encode(const byte in[], unsigned int length, const char* pre
   return out;
 }
 
+/******************************************************************************
+ * CTOR/DTOR
+ ******************************************************************************/
+
 ECCX08CertClass::ECCX08CertClass() :
   _keySlot(-1),
   _compressedCertSlot(-1),
@@ -109,6 +125,10 @@ ECCX08CertClass::~ECCX08CertClass() {
     _bytes = NULL;
   }
 }
+
+/******************************************************************************
+ * PUBLIC MEMBER FUNCTIONS
+ ******************************************************************************/
 
 int ECCX08CertClass::beginCSR(int keySlot, bool newPrivateKey) {
   if (keySlot < 0 || keySlot > 8) {
@@ -922,7 +942,5 @@ int ECCX08CertClass::appendEcdsaWithSHA256(byte out[]) {
 
   return 12;
 }
-
-ECCX08CertClass ECCX08Cert;
 
 #endif /* BOARD_HAS_ECCX08 */

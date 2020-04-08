@@ -16,13 +16,21 @@
 */
 
 #ifndef _ECCX08_CERT_H_
-#define _ECCC08_CERT_H_
+#define _ECCX08_CERT_H_
+
+/******************************************************************************
+ * INCLUDE
+ ******************************************************************************/
 
 #include <ArduinoIoTCloud_Defines.h>
 
 #ifdef BOARD_HAS_ECCX08
 
 #include <Arduino.h>
+
+/******************************************************************************
+ * CLASS DECLARATION
+ ******************************************************************************/
 
 class ECCX08CertClass {
 
@@ -133,8 +141,6 @@ class ECCX08CertClass {
     byte* _bytes;
     int _length;
 };
-
-extern ECCX08CertClass ECCX08Cert;
 
 #endif /* BOARD_HAS_ECCX08 */
 

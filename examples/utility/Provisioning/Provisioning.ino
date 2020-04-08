@@ -1,6 +1,5 @@
 #include <ArduinoIoTCloud.h>
-#include <utility/ECCX08Cert.h>
-#include <utility/ECCX08TLSConfig.h>
+#include "ECCX08TLSConfig.h"
 
 #include <ArduinoBearSSL.h>
 #include <ArduinoECCX08.h>
@@ -10,6 +9,8 @@ const int keySlot                                   = 0;
 const int compressedCertSlot                        = 10;
 const int serialNumberAndAuthorityKeyIdentifierSlot = 11;
 const int deviceIdSlot                              = 12;
+
+ECCX08CertClass ECCX08Cert;
 
 void setup() {
   Serial.begin(9600);
