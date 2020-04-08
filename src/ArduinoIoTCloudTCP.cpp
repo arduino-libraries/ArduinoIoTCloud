@@ -207,19 +207,13 @@ int ArduinoIoTCloudTCP::reconnect()
 
 int ArduinoIoTCloudTCP::connect()
 {
-  if (!_mqttClient->connect(_brokerAddress.c_str(), _brokerPort)) {
-    return CONNECT_FAILURE;
-  }
-  if (_mqttClient->subscribe(_stdinTopic) == 0) {
-    return CONNECT_FAILURE_SUBSCRIBE;
-  }
-  if (_mqttClient->subscribe(_dataTopicIn) == 0) {
-    return CONNECT_FAILURE_SUBSCRIBE;
-  }
-  if (_shadowTopicIn != "") {
-    if (_mqttClient->subscribe(_shadowTopicIn) == 0) {
-      return CONNECT_FAILURE_SUBSCRIBE;
-    }
+  if (!_mqttClient->connect(_brokerAddress.c_str(), _brokerPort)) return CONNECT_FAILURE;
+  if (_mqttClient->subscribe(_stdinTopic) == 0)                   return CONNECT_FAILURE_SUBSCRIBE;
+  if (_mqttClient->subscribe(_dataTopicIn) == 0)                  return CONNECT_FAILURE_SUBSCRIBE;
+
+  if (_shadowTopicIn != "")
+  {
+    if (_mqttClient->subscribe(_shadowTopicIn) == 0)              return CONNECT_FAILURE_SUBSCRIBE;
     _syncStatus = ArduinoIoTSynchronizationStatus::SYNC_STATUS_WAIT_FOR_CLOUD_VALUES;
     _lastSyncRequestTickTime = 0;
   }
