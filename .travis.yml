@@ -6,6 +6,8 @@ matrix:
     - env:
         - BOARD="arduino:samd:mkrwifi1010"
     - env:
+        - BOARD="arduino:samd:nano_33_iot"
+    - env:
         - BOARD="arduino:samd:mkrgsm1400"
     - env:
         - BOARD="arduino:samd:mkrwan1300"
@@ -77,32 +79,43 @@ install:
   - mkdir -p $HOME/Arduino/libraries
   - ln -s $PWD $HOME/Arduino/libraries/.
 script:
+  # Sketches to build for all boards
   - |
-    if [ "$BOARD" == "arduino:samd:mkr1000" ] || [ "$BOARD" == "arduino:samd:mkrwifi1010" ] || [ "$BOARD" == "arduino:samd:mkrgsm1400" ] || [ "$BOARD" == "arduino:samd:mkrnb1500" ]; then
+    if [ "$BOARD" == "arduino:samd:mkr1000" ]     || \
+       [ "$BOARD" == "arduino:samd:mkrwifi1010" ] || \
+       [ "$BOARD" == "esp8266:esp8266:huzzah" ]   || \
+       [ "$BOARD" == "arduino:samd:nano_33_iot"]  || \
+       [ "$BOARD" == "arduino:samd:mkrgsm1400" ]  || \
+       [ "$BOARD" == "arduino:samd:mkrnb1500" ]   || \
+       [ "$BOARD" == "arduino:samd:mkrwan1300" ]; then
       buildSketch \
-        "ArduinoIoTCloud_LED_switch" \
-        "ArduinoIoTCloud_Travis_CI" \
-        "utility/Provisioning"
+        "ArduinoIoTCloud-Advanced" \
+        "ArduinoIoTCloud-Basic" \
+        "utility/ArduinoIoTCloud_Travis_CI"
     fi
+  # Sketches to build for selected boards
   - |
-    if [ "$BOARD" == "arduino:samd:mkrwan1300" ]; then
+    if [ "$BOARD" == "arduino:samd:mkr1000" ] || [ "$BOARD" == "arduino:samd:mkrwifi1010" ] || [ "$BOARD" == "arduino:samd:nano_33_iot"]; then
       buildSketch \
-        "ArduinoIoTCloud_LED_switch" \
-        "ArduinoIoTCloud_Travis_CI"
-    fi
-  - |
-    if [ "$BOARD" == "arduino:samd:mkr1000" ] || [ "$BOARD" == "arduino:samd:mkrwifi1010" ]; then
-      buildSketch \
-        "WiFi_Cloud_Blink" \
-        "MultiValue_example"
+        "utility/Provisioning" \
+        "utility/WiFi_Cloud_Blink"
     fi
   - |
     if [ "$BOARD" == "arduino:samd:mkrgsm1400" ]; then
-      buildSketch "GSM_Cloud_Blink"
+      buildSketch \
+        "utility/Provisioning" \
+        "utility/GSM_Cloud_Blink"
+    fi
+  - |
+    if [ "$BOARD" == "arduino:samd:mkrnb1500" ]; then
+      buildSketch \
+        "utility/Provisioning" \
+        "utility/NB_Cloud_Blink"
     fi
   - |
     if [ "$BOARD" == "esp8266:esp8266:huzzah" ]; then
-      buildSketch "ArduinoIoTCloud_ESP8266"
+      buildSketch \
+        "utility/WiFi_Cloud_Blink_with_security_credentials"
     fi
 notifications:
   webhooks:
