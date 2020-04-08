@@ -33,8 +33,6 @@
 #include "types/CloudWrapperInt.h"
 #include "types/CloudWrapperString.h"
 
-#include "CloudSerial.h"
-
 /******************************************************************************
    TYPEDEF
  ******************************************************************************/

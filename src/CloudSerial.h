@@ -22,7 +22,11 @@
  * INCLUDE
  ******************************************************************************/
 
+#include <ArduinoIoTCloud_Defines.h>
+#if defined(HAS_TCP)
+
 #include <Arduino.h>
+
 #if defined(ARDUINO_ESP8266_ESP12) || defined(ARDUINO_ARCH_ESP32) || defined(ESP8266)
   #include "utility/RingBuffer.h"
 #else
@@ -39,9 +43,6 @@
 /******************************************************************************
  * CLASS DECLARATION
  ******************************************************************************/
-
-class ArduinoIoTCloudTCP;
-
 
 class CloudSerialClass : public Stream
 {
@@ -61,17 +62,14 @@ class CloudSerialClass : public Stream
 
     operator bool();
 
-  protected:
-
-    friend class ArduinoIoTCloudTCP;
-
-
-
-    void appendStdin(const uint8_t *buffer, size_t size);
-
   private:
+
     RingBufferN<CLOUD_SERIAL_TX_BUFFER_SIZE> _txBuffer;
     RingBufferN<CLOUD_SERIAL_RX_BUFFER_SIZE> _rxBuffer;
+
+    static void onCloudSerialDataReceived       (uint8_t const * buffer, size_t size);
+           void onCloudSerialDataReceivedHandler(uint8_t const * buffer, size_t size);
+
 };
 
 /******************************************************************************
@@ -79,5 +77,7 @@ class CloudSerialClass : public Stream
  ******************************************************************************/
 
 extern CloudSerialClass CloudSerial;
+
+#endif /* defined(HAS_TCP) */
 
 #endif

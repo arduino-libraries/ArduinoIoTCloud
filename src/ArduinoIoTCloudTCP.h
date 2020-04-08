@@ -34,6 +34,12 @@
 #include <ArduinoMqttClient.h>
 
 /******************************************************************************
+   TYPEDEF
+ ******************************************************************************/
+
+typedef void (*OnCloudSerialDataReceived)(uint8_t const *, size_t);
+
+/******************************************************************************
    CONSTANTS
  ******************************************************************************/
 
@@ -73,10 +79,11 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
     inline String   getBrokerAddress() const { return _brokerAddress; }
     inline uint16_t getBrokerPort   () const { return _brokerPort; }
 
+    inline int writeCloudSerial(byte const data[], int const length) { return write(_stdoutTopic, data, length); }
+    inline void registerOnCloudSerialDataReceived(OnCloudSerialDataReceived func) { _on_cloud_serial_data_received = func; }
+
     // Clean up existing Mqtt connection, create a new one and initialize it
     int reconnect();
-
-    friend class CloudSerialClass;
 
 
   protected:
@@ -94,6 +101,7 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
     uint8_t _mqtt_data_buf[MQTT_TRANSMIT_BUFFER_SIZE];
     int _mqtt_data_len;
     bool _mqtt_data_request_retransmit;
+    OnCloudSerialDataReceived _on_cloud_serial_data_received;
 
     #ifdef BOARD_HAS_ECCX08
     ECCX08CertClass _eccx08_cert;

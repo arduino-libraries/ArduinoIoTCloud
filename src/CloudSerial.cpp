@@ -20,10 +20,12 @@
  ******************************************************************************/
 
 #include "ArduinoIoTCloud_Defines.h"
-#ifndef HAS_LORA
 
-#include "ArduinoIoTCloud.h"
+#if defined(HAS_TCP)
+
 #include "CloudSerial.h"
+
+#include "ArduinoIoTCloudTCP.h"
 
 /******************************************************************************
    CTOR/DTOR
@@ -45,6 +47,7 @@ CloudSerialClass::~CloudSerialClass()
 
 void CloudSerialClass::begin(int /*baud*/)
 {
+  ArduinoCloud.registerOnCloudSerialDataReceived(CloudSerialClass::onCloudSerialDataReceived);
   _txBuffer.clear();
   _rxBuffer.clear();
 }
@@ -83,7 +86,7 @@ void CloudSerialClass::flush()
     out[length++] = _txBuffer.read_char();
   }
 
-  ArduinoCloud.write(ArduinoCloud._stdoutTopic, out, length);
+  ArduinoCloud.writeCloudSerial(out, length);
 }
 
 size_t CloudSerialClass::write(const uint8_t data)
@@ -102,9 +105,19 @@ CloudSerialClass::operator bool()
   return ArduinoCloud.connected();
 }
 
-void CloudSerialClass::appendStdin(const uint8_t *buffer, size_t size)
+/******************************************************************************
+ * PRIVATE MEMBER FUNCTIONS
+ ******************************************************************************/
+
+void CloudSerialClass::onCloudSerialDataReceived(uint8_t const * buffer, size_t size)
 {
-  while (!_rxBuffer.isFull() && size--) {
+  CloudSerial.onCloudSerialDataReceivedHandler(buffer, size);
+}
+
+void CloudSerialClass::onCloudSerialDataReceivedHandler(uint8_t const * buffer, size_t size)
+{
+  while (!_rxBuffer.isFull() && size--)
+  {
     _rxBuffer.store_char(*buffer++);
   }
 }
@@ -115,4 +128,4 @@ void CloudSerialClass::appendStdin(const uint8_t *buffer, size_t size)
 
 CloudSerialClass CloudSerial;
 
-#endif
+#endif /* defined(HAS_TCP) */

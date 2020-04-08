@@ -30,6 +30,8 @@
   #include "utility/crypto/BearSSLTrustAnchor.h"
 #endif
 
+#include "CloudSerial.h"
+
 /******************************************************************************
    GLOBAL VARIABLES
  ******************************************************************************/
@@ -64,6 +66,7 @@ ArduinoIoTCloudTCP::ArduinoIoTCloudTCP():
   _mqtt_data_buf{0},
   _mqtt_data_len{0},
   _mqtt_data_request_retransmit{false},
+  _on_cloud_serial_data_received{nullptr},
   _sslClient(NULL),
   #ifdef BOARD_ESP
   _password(""),
@@ -246,7 +249,9 @@ void ArduinoIoTCloudTCP::handleMessage(int length)
   }
 
   if (_stdinTopic == topic) {
-    CloudSerial.appendStdin((uint8_t*)bytes, length);
+    if(_on_cloud_serial_data_received) {
+      _on_cloud_serial_data_received((uint8_t*)bytes, length);
+    }
   }
   if (_dataTopicIn == topic) {
     _thing.decode((uint8_t*)bytes, length);
