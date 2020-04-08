@@ -30,7 +30,7 @@
   #include "utility/crypto/BearSSLTrustAnchor.h"
 #endif
 
-#include "CloudSerial.h"
+#include "utility/serial/CloudSerial.h"
 
 /******************************************************************************
    GLOBAL VARIABLES

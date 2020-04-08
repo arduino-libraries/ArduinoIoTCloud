@@ -22,13 +22,13 @@
  * INCLUDE
  ******************************************************************************/
 
-#include <ArduinoIoTCloud_Defines.h>
+#include "../../ArduinoIoTCloud_Defines.h"
 #if defined(HAS_TCP)
 
 #include <Arduino.h>
 
 #if defined(ARDUINO_ESP8266_ESP12) || defined(ARDUINO_ARCH_ESP32) || defined(ESP8266)
-  #include "utility/RingBuffer.h"
+  #include "utility/serial/RingBuffer.h"
 #else
   #include <RingBuffer.h>
 #endif

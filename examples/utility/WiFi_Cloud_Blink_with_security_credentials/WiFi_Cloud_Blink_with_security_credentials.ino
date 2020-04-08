@@ -8,7 +8,7 @@
 
 #include <ArduinoIoTCloud.h>
 #include <Arduino_ConnectionHandler.h>
-#include <CloudSerial.h>
+#include <utility/serial/CloudSerial.h>
 
 #include "arduino_secrets.h"
 

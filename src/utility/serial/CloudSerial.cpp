@@ -19,13 +19,12 @@
  * INCLUDE
  ******************************************************************************/
 
-#include "ArduinoIoTCloud_Defines.h"
-
+#include "../../ArduinoIoTCloud_Defines.h"
 #if defined(HAS_TCP)
 
 #include "CloudSerial.h"
 
-#include "ArduinoIoTCloudTCP.h"
+#include "../../ArduinoIoTCloudTCP.h"
 
 /******************************************************************************
    CTOR/DTOR
