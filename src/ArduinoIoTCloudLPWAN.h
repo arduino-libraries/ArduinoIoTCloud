@@ -53,7 +53,7 @@ class ArduinoIoTCloudLPWAN : public ArduinoIoTCloudClass
   protected:
 
     virtual int  connect       () override;
-    virtual bool disconnect    () override;
+    virtual void disconnect    () override;
 
 
   private:

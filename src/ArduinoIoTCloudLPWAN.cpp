@@ -114,10 +114,9 @@ int ArduinoIoTCloudLPWAN::connect()
   return 1;
 }
 
-bool ArduinoIoTCloudLPWAN::disconnect()
+void ArduinoIoTCloudLPWAN::disconnect()
 {
   _connection->disconnect();
-  return true;
 }
 
 /******************************************************************************

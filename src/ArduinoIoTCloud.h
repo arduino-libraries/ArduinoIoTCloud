@@ -133,7 +133,7 @@ class ArduinoIoTCloudClass
   protected:
 
     virtual int  connect   () = 0;
-    virtual bool disconnect() = 0;
+    virtual void disconnect() = 0;
 
     inline ArduinoIoTConnectionStatus getIoTStatus() { return _iot_status; }
 
