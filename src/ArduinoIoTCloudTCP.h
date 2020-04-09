@@ -49,6 +49,9 @@ static uint16_t const DEFAULT_BROKER_PORT_SECURE_AUTH = 8883;
 static char const DEFAULT_BROKER_ADDRESS_USER_PASS_AUTH[] = "mqtts-up.iot.arduino.cc";
 static uint16_t const DEFAULT_BROKER_PORT_USER_PASS_AUTH = 8884;
 
+static IPAddress const DEFAULT_BROKER_SECURE_AUTH_IP_1(34,206,248,111);
+static IPAddress const DEFAULT_BROKER_SECURE_AUTH_IP_2(3,209,5,114);
+
 /******************************************************************************
  * CLASS DECLARATION
  ******************************************************************************/
@@ -70,7 +73,9 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
     #else
     int begin(ConnectionHandler & connection, String brokerAddress = DEFAULT_BROKER_ADDRESS_USER_PASS_AUTH, uint16_t brokerPort = DEFAULT_BROKER_PORT_USER_PASS_AUTH);
     #endif
-    int begin(String brokerAddress = DEFAULT_BROKER_ADDRESS_SECURE_AUTH, uint16_t brokerPort = DEFAULT_BROKER_PORT_SECURE_AUTH);
+    int begin(ConnectionHandler & connection, IPAddress const brokerIp, uint16_t const brokerPort = DEFAULT_BROKER_PORT_SECURE_AUTH);
+    int begin(ConnectionHandler & connection, uint16_t brokerPort);
+
 
     #ifdef BOARD_ESP
     inline void setBoardId        (String const device_id) { setDeviceId(device_id); }
@@ -101,6 +106,7 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
 
     int _lastSyncRequestTickTime;
     String _brokerAddress;
+    IPAddress _brokerIp;
     uint16_t _brokerPort;
     uint8_t _mqtt_data_buf[MQTT_TRANSMIT_BUFFER_SIZE];
     int _mqtt_data_len;

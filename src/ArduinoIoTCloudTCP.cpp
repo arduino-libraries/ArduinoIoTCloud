@@ -102,17 +102,21 @@ ArduinoIoTCloudTCP::ArduinoIoTCloudTCP()
 
 int ArduinoIoTCloudTCP::begin(ConnectionHandler & connection, String brokerAddress, uint16_t brokerPort)
 {
-  _connection = &connection;
   _brokerAddress = brokerAddress;
-  _brokerPort = brokerPort;
-  time_service.begin(&connection);
-  return begin(_brokerAddress, _brokerPort);
+  _brokerIp = INADDR_NONE;
+  return begin(connection, brokerPort);
 }
 
-int ArduinoIoTCloudTCP::begin(String brokerAddress, uint16_t brokerPort)
+int ArduinoIoTCloudTCP::begin(ConnectionHandler & connection, IPAddress const brokerIp, uint16_t const brokerPort)
 {
+  _brokerAddress = "";
+  _brokerIp = brokerIp;
+  return begin(connection, brokerPort);
+}
 
-  _brokerAddress = brokerAddress;
+int ArduinoIoTCloudTCP::begin(ConnectionHandler & connection, uint16_t brokerPort)
+{
+  _connection = &connection;
   _brokerPort = brokerPort;
 
   #ifdef BOARD_HAS_ECCX08
@@ -242,7 +246,11 @@ int ArduinoIoTCloudTCP::reconnect()
 
 int ArduinoIoTCloudTCP::connect()
 {
-  if (!_mqttClient.connect(_brokerAddress.c_str(), _brokerPort)) return CONNECT_FAILURE;
+  if (_brokerIp == INADDR_NONE) {
+    if (!_mqttClient.connect(_brokerAddress.c_str(), _brokerPort)) return CONNECT_FAILURE;
+  } else {
+    if (!_mqttClient.connect(_brokerIp, _brokerPort))              return CONNECT_FAILURE;
+  }  
   if (_mqttClient.subscribe(_stdinTopic) == 0)                   return CONNECT_FAILURE_SUBSCRIBE;
   if (_mqttClient.subscribe(_dataTopicIn) == 0)                  return CONNECT_FAILURE_SUBSCRIBE;
   if (_mqttClient.subscribe(_ota_topic_in) == 0)                 return CONNECT_FAILURE_SUBSCRIBE;
