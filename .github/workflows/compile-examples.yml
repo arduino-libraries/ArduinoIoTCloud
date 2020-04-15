@@ -1,0 +1,50 @@
+name: Compile Examples
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    env:
+      # libraries to install
+      UNIVERSAL_LIBRARIES: '"ArduinoCloudThing" "Arduino_ConnectionHandler" "Arduino_DebugUtils" "ArduinoMqttClient"'
+      # board-specific libraries
+      WIFI_LIBRARIES: '"ArduinoBearSSL" "ArduinoECCX08" "RTCZero" "WiFi101" "WiFiNINA"'
+      WAN_LIBRARIES: '"ArduinoBearSSL" "ArduinoECCX08" "RTCZero" "MKRWAN"'
+      GSM_LIBRARIES: '"ArduinoBearSSL" "ArduinoECCX08" "RTCZero" "MKRGSM"'
+      NB_LIBRARIES: '"ArduinoBearSSL" "ArduinoECCX08" "RTCZero" "MKRNB"'
+      ESP8266_LIBRARIES: ''
+      # sketch paths to compile (recursive)
+      UNIVERSAL_SKETCH_PATHS: '"examples/ArduinoIoTCloud-Advanced" "examples/ArduinoIoTCloud-Basic" "examples/utility/ArduinoIoTCloud_Travis_CI"'
+      # board-specific sketches
+      WIFI_SKETCH_PATHS: '"examples/utility/Provisioning" "examples/utility/WiFi_Cloud_Blink"'
+      WAN_SKETCH_PATHS: ''
+      GSM_SKETCH_PATHS: '"examples/utility/Provisioning" "examples/utility/GSM_Cloud_Blink"'
+      NB_SKETCH_PATHS: '"examples/utility/Provisioning" "examples/utility/NB_Cloud_Blink"'
+      ESP8266_SKETCH_PATHS: '"examples/utility/WiFi_Cloud_Blink_with_security_credentials"'
+
+    strategy:
+      fail-fast: false
+
+      matrix:
+        board: [
+          {"fqbn": "arduino:samd:mkr1000", "type": "WIFI"},
+          {"fqbn": "arduino:samd:mkrwifi1010", "type": "WIFI"},
+          {"fqbn": "arduino:samd:nano_33_iot", "type": "WIFI"},
+          {"fqbn": "arduino:samd:mkrwan1300", "type": "WAN"},
+          {"fqbn": "arduino:samd:mkrgsm1400", "type": "GSM"},
+          {"fqbn": "arduino:samd:mkrnb1500", "type": "NB"},
+          {"fqbn": '"esp8266:esp8266:huzzah" "https://arduino.esp8266.com/stable/package_esp8266com_index.json"', "type": "ESP8266"}
+        ]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Compile examples
+        uses: arduino/actions/libraries/compile-examples@master
+        with:
+          fqbn: ${{ matrix.board.fqbn }}
+          libraries: "${{ env.UNIVERSAL_LIBRARIES }} ${{ env[format('{0}{1}', matrix.board.type, '_LIBRARIES')] }}"
+          sketch-paths: "${{ env.UNIVERSAL_SKETCH_PATHS }} ${{ env[format('{0}{1}', matrix.board.type, '_SKETCH_PATHS')] }}"
