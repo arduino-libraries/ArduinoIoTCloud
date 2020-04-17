@@ -48,3 +48,12 @@ jobs:
           fqbn: ${{ matrix.board.fqbn }}
           libraries: "${{ env.UNIVERSAL_LIBRARIES }} ${{ env[format('{0}{1}', matrix.board.type, '_LIBRARIES')] }}"
           sketch-paths: "${{ env.UNIVERSAL_SKETCH_PATHS }} ${{ env[format('{0}{1}', matrix.board.type, '_SKETCH_PATHS')] }}"
+          size-report-sketch: 'ArduinoIoTCloud_Travis_CI'
+          enable-size-deltas-report: 'true'
+
+      - name: Save memory usage change report as artifact
+        if: github.event_name == 'pull_request'
+        uses: actions/upload-artifact@v1
+        with:
+          name: 'size-deltas-reports'
+          path: 'size-deltas-reports'
