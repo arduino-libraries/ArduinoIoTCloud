@@ -87,7 +87,7 @@ class ArduinoIoTCloudClass
 
     inline void     setThingId (String const thing_id)  { _thing_id = thing_id; };
     inline String & getThingId ()                       { return _thing_id; };
-    inline void     setDeviveId(String const device_id) { _device_id = device_id; };
+    inline void     setDeviceId(String const device_id) { _device_id = device_id; };
     inline String & getDeviceId()                       { return _device_id; };
 
     inline ConnectionHandler * getConnection()          { return _connection; }
