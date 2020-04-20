@@ -141,35 +141,6 @@ int ArduinoIoTCloudTCP::begin(String brokerAddress, uint16_t brokerPort)
   return 1;
 }
 
-int ArduinoIoTCloudTCP::connect()
-{
-  if (!_mqttClient->connect(_brokerAddress.c_str(), _brokerPort)) {
-    return CONNECT_FAILURE;
-  }
-  if (_mqttClient->subscribe(_stdinTopic) == 0) {
-    return CONNECT_FAILURE_SUBSCRIBE;
-  }
-  if (_mqttClient->subscribe(_dataTopicIn) == 0) {
-    return CONNECT_FAILURE_SUBSCRIBE;
-  }
-  if (_shadowTopicIn != "") {
-    if (_mqttClient->subscribe(_shadowTopicIn) == 0) {
-      return CONNECT_FAILURE_SUBSCRIBE;
-    }
-    _syncStatus = ArduinoIoTSynchronizationStatus::SYNC_STATUS_WAIT_FOR_CLOUD_VALUES;
-    _lastSyncRequestTickTime = 0;
-  }
-
-  return CONNECT_SUCCESS;
-}
-
-
-bool ArduinoIoTCloudTCP::disconnect()
-{
-  _mqttClient->stop();
-  return true;
-}
-
 void ArduinoIoTCloudTCP::update()
 {
   // Check if a primitive property wrapper is locally changed
@@ -209,6 +180,11 @@ void ArduinoIoTCloudTCP::update()
   }
 }
 
+int ArduinoIoTCloudTCP::connected()
+{
+  return _mqttClient->connected();
+}
+
 void ArduinoIoTCloudTCP::printDebugInfo()
 {
   Debug.print(DBG_INFO, "***** Arduino IoT Cloud - configuration info *****");
@@ -225,10 +201,29 @@ int ArduinoIoTCloudTCP::reconnect()
   return connect();
 }
 
+/******************************************************************************
+ * PROTECTED MEMBER FUNCTIONS
+ ******************************************************************************/
 
-int ArduinoIoTCloudTCP::connected()
+int ArduinoIoTCloudTCP::connect()
 {
-  return _mqttClient->connected();
+  if (!_mqttClient->connect(_brokerAddress.c_str(), _brokerPort)) return CONNECT_FAILURE;
+  if (_mqttClient->subscribe(_stdinTopic) == 0)                   return CONNECT_FAILURE_SUBSCRIBE;
+  if (_mqttClient->subscribe(_dataTopicIn) == 0)                  return CONNECT_FAILURE_SUBSCRIBE;
+
+  if (_shadowTopicIn != "")
+  {
+    if (_mqttClient->subscribe(_shadowTopicIn) == 0)              return CONNECT_FAILURE_SUBSCRIBE;
+    _syncStatus = ArduinoIoTSynchronizationStatus::SYNC_STATUS_WAIT_FOR_CLOUD_VALUES;
+    _lastSyncRequestTickTime = 0;
+  }
+
+  return CONNECT_SUCCESS;
+}
+
+void ArduinoIoTCloudTCP::disconnect()
+{
+  _mqttClient->stop();
 }
 
 /******************************************************************************

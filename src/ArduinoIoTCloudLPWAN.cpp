@@ -47,18 +47,6 @@ ArduinoIoTCloudLPWAN::ArduinoIoTCloudLPWAN()
  * PUBLIC MEMBER FUNCTIONS
  ******************************************************************************/
 
-int ArduinoIoTCloudLPWAN::connect()
-{
-  _connection->connect();
-  return 1;
-}
-
-bool ArduinoIoTCloudLPWAN::disconnect()
-{
-  _connection->disconnect();
-  return true;
-}
-
 int ArduinoIoTCloudLPWAN::connected()
 {
   return (_connection->getStatus() == NetworkConnectionState::CONNECTED) ? 1 : 0;
@@ -114,6 +102,21 @@ void ArduinoIoTCloudLPWAN::printDebugInfo()
 {
   Debug.print(DBG_INFO, "***** Arduino IoT Cloud LPWAN - configuration info *****");
   Debug.print(DBG_INFO, "Thing ID: %s", getThingId().c_str());
+}
+
+/******************************************************************************
+ * PROTECTED MEMBER FUNCTIONS
+ ******************************************************************************/
+
+int ArduinoIoTCloudLPWAN::connect()
+{
+  _connection->connect();
+  return 1;
+}
+
+void ArduinoIoTCloudLPWAN::disconnect()
+{
+  _connection->disconnect();
 }
 
 /******************************************************************************
