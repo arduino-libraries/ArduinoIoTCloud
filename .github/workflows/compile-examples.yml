@@ -8,7 +8,7 @@ jobs:
 
     env:
       # libraries to install
-      UNIVERSAL_LIBRARIES: '"ArduinoCloudThing" "Arduino_ConnectionHandler" "Arduino_DebugUtils" "ArduinoMqttClient"'
+      UNIVERSAL_LIBRARIES: '"ArduinoCloudThing" "Arduino_ConnectionHandler" "Arduino_DebugUtils" "ArduinoMqttClient" "Arduino_MKRMEM"'
       # board-specific libraries
       WIFI_LIBRARIES: '"ArduinoBearSSL" "ArduinoECCX08" "RTCZero" "WiFi101" "WiFiNINA"'
       WAN_LIBRARIES: '"ArduinoBearSSL" "ArduinoECCX08" "RTCZero" "MKRWAN"'

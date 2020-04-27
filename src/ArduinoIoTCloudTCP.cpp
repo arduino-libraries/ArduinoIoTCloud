@@ -107,6 +107,12 @@ int ArduinoIoTCloudTCP::begin(String brokerAddress, uint16_t brokerPort)
   _brokerAddress = brokerAddress;
   _brokerPort = brokerPort;
 
+#if OTA_STORAGE_MKRMEM
+  if (!_ota.init()) {
+    Debug.print(DBG_ERROR, "OTA storage medium initialisation failed - can't perform OTA");
+  }
+#endif /* OTA_ENABLE */
+
   #ifdef BOARD_HAS_ECCX08
   if (!ECCX08.begin())                                                                                                                                                         { Debug.print(DBG_ERROR, "Cryptography processor failure. Make sure you have a compatible board."); return 0; }
   if (!CryptoUtil::readDeviceId(ECCX08, getDeviceId(), ECCX08Slot::DeviceId))                                                                                                  { Debug.print(DBG_ERROR, "Cryptography processor read failure."); return 0; }
