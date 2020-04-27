@@ -33,6 +33,11 @@
 
 #include <ArduinoMqttClient.h>
 
+#include "utility/ota/OTAConfig.h"
+#if OTA_STORAGE_MKRMEM
+  #include "utility/ota/OTAStorage_MKRMEM.h"
+#endif /* OTA_STORAGE_MKRMEM */
+
 /******************************************************************************
    CONSTANTS
  ******************************************************************************/
@@ -117,6 +122,10 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
     String _ota_topic_in;
     String _ota_topic_out;
 
+#if OTA_STORAGE_MKRMEM
+    OTAStorage_MKRMEM _ota;
+#endif /* OTA_STORAGE_MKRMEM */
+
     inline String getTopic_stdin    () { return String("/a/d/" + getDeviceId() + "/s/i"); }
     inline String getTopic_stdout   () { return String("/a/d/" + getDeviceId() + "/s/o"); }
     inline String getTopic_shadowout() { return ( getThingId().length() == 0) ? String("")                            : String("/a/t/" + getThingId() + "/shadow/o"); }
@@ -132,6 +141,7 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
     void requestLastValue();
     ArduinoIoTConnectionStatus checkCloudConnection();
     int write(String const topic, byte const data[], int const length);
+
 };
 
 /******************************************************************************
