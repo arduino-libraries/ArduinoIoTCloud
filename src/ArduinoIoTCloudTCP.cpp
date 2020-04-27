@@ -75,7 +75,9 @@ ArduinoIoTCloudTCP::ArduinoIoTCloudTCP():
   _shadowTopicOut(""),
   _shadowTopicIn(""),
   _dataTopicOut(""),
-  _dataTopicIn("")
+  _dataTopicIn(""),
+  _ota_topic_in{""},
+  _ota_topic_out{""}
 {
 
 }
@@ -132,6 +134,8 @@ int ArduinoIoTCloudTCP::begin(String brokerAddress, uint16_t brokerPort)
   _shadowTopicIn  = getTopic_shadowin();
   _dataTopicOut   = getTopic_dataout();
   _dataTopicIn    = getTopic_datain();
+  _ota_topic_in   = getTopic_ota_in();
+  _ota_topic_out  = getTopic_ota_out();
 
   _thing.begin();
   _thing.registerGetTimeCallbackFunc(getTime);

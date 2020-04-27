@@ -114,6 +114,8 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
     String _shadowTopicIn;
     String _dataTopicOut;
     String _dataTopicIn;
+    String _ota_topic_in;
+    String _ota_topic_out;
 
     inline String getTopic_stdin    () { return String("/a/d/" + getDeviceId() + "/s/i"); }
     inline String getTopic_stdout   () { return String("/a/d/" + getDeviceId() + "/s/o"); }
@@ -121,6 +123,8 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
     inline String getTopic_shadowin () { return ( getThingId().length() == 0) ? String("")                            : String("/a/t/" + getThingId() + "/shadow/i"); }
     inline String getTopic_dataout  () { return ( getThingId().length() == 0) ? String("/a/d/" + getDeviceId() + "/e/o") : String("/a/t/" + getThingId() + "/e/o"); }
     inline String getTopic_datain   () { return ( getThingId().length() == 0) ? String("/a/d/" + getDeviceId() + "/e/i") : String("/a/t/" + getThingId() + "/e/i"); }
+    inline String getTopic_ota_in   () { return String("/a/d/" + getDeviceId() + "/ota/i"); }
+    inline String getTopic_ota_out  () { return String("/a/d/" + getDeviceId() + "/ota/o"); }
 
     static void onMessage(int length);
     void handleMessage(int length);
