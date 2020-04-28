@@ -11,6 +11,8 @@
 
 #include <OTAStorage.h>
 
+#include <vector>
+
 /**************************************************************************************
    CLASS DECLARATION
  **************************************************************************************/
@@ -27,10 +29,12 @@ public:
   virtual bool   open  () override;
   virtual size_t write (uint8_t const * const buf, size_t const num_bytes) override;
   virtual void   close () override;
+  virtual void   remove() override;
   virtual void   deinit() override;
 
   bool _init_return_val;
   bool _open_return_val;
+  std::vector <uint8_t> _binary;
 
 };
 

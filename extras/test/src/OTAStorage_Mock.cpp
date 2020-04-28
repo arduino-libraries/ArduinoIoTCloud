@@ -30,15 +30,22 @@ bool OTAStorage_Mock::init()
 
 bool OTAStorage_Mock::open()
 {
+  _binary.clear();
   return _open_return_val;
 }
 
-size_t OTAStorage_Mock::write(uint8_t const * const /* buf */, size_t const num_bytes)
+size_t OTAStorage_Mock::write(uint8_t const * const buf, size_t const num_bytes)
 {
+  std::copy(buf, buf + num_bytes, std::back_inserter(_binary));
   return num_bytes;
 }
 
 void OTAStorage_Mock::close()
+{
+  /* Do nothing */
+}
+
+void OTAStorage_Mock::remove()
 {
   /* Do nothing */
 }

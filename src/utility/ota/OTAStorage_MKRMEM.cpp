@@ -77,6 +77,11 @@ void OTAStorage_MKRMEM::close()
   delete _file;
 }
 
+void OTAStorage_MKRMEM::remove()
+{
+  filesystem.remove("UPDATE.bin");
+}
+
 void OTAStorage_MKRMEM::deinit()
 {
   filesystem.unmount();

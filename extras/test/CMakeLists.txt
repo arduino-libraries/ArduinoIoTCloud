@@ -26,11 +26,14 @@ set(TEST_SRCS
   src/test_main.cpp
   src/test_OTALogic.cpp
   src/OTAStorage_Mock.cpp
+  src/OTATestData.cpp
+  ../../src/utility/ota/crc.cpp
   ../../src/utility/ota/OTALogic.cpp
 )
 
 ##########################################################################
 
+add_compile_definitions(HOST)
 add_compile_options(-Wall -Wextra -Wpedantic -Werror)
 
 ##########################################################################

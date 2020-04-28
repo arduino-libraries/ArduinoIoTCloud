@@ -4,3 +4,4 @@
 .vscode
 *.orig
 .vs
+build

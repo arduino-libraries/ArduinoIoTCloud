@@ -45,6 +45,7 @@ public:
   virtual bool   open  () override;
   virtual size_t write (uint8_t const * const buf, size_t const num_bytes) override;
   virtual void   close () override;
+  virtual void   remove() override;
   virtual void   deinit() override;
 
 

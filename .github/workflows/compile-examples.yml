@@ -8,12 +8,12 @@ jobs:
 
     env:
       # libraries to install
-      UNIVERSAL_LIBRARIES: '"ArduinoCloudThing" "Arduino_ConnectionHandler" "Arduino_DebugUtils" "ArduinoMqttClient" "Arduino_MKRMEM"'
+      UNIVERSAL_LIBRARIES: '"ArduinoCloudThing" "Arduino_ConnectionHandler" "Arduino_DebugUtils" "ArduinoMqttClient" "Arduino_CRC32"'
       # board-specific libraries
-      WIFI_LIBRARIES: '"ArduinoBearSSL" "ArduinoECCX08" "RTCZero" "WiFi101" "WiFiNINA"'
+      WIFI_LIBRARIES: '"ArduinoBearSSL" "ArduinoECCX08" "RTCZero" "WiFi101" "WiFiNINA" "Arduino_MKRMEM"'
       WAN_LIBRARIES: '"ArduinoBearSSL" "ArduinoECCX08" "RTCZero" "MKRWAN"'
-      GSM_LIBRARIES: '"ArduinoBearSSL" "ArduinoECCX08" "RTCZero" "MKRGSM"'
-      NB_LIBRARIES: '"ArduinoBearSSL" "ArduinoECCX08" "RTCZero" "MKRNB"'
+      GSM_LIBRARIES: '"ArduinoBearSSL" "ArduinoECCX08" "RTCZero" "MKRGSM" "Arduino_MKRMEM"'
+      NB_LIBRARIES: '"ArduinoBearSSL" "ArduinoECCX08" "RTCZero" "MKRNB" "Arduino_MKRMEM"'
       ESP8266_LIBRARIES: ''
       # sketch paths to compile (recursive)
       UNIVERSAL_SKETCH_PATHS: '"examples/ArduinoIoTCloud-Advanced" "examples/ArduinoIoTCloud-Basic" "examples/utility/ArduinoIoTCloud_Travis_CI"'

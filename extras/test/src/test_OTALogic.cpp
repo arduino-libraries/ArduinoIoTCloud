@@ -6,49 +6,64 @@
    INCLUDE
  **************************************************************************************/
 
+#include <algorithm>
+
 #include <catch.hpp>
 
+#include <OTATestData.h>
 #include <OTAStorage_Mock.h>
 
 #include <OTALogic.h>
 
 /**************************************************************************************
-   TEST CODE
+   TEST HELPER
  **************************************************************************************/
 
-TEST_CASE("A OTALogic object is instantiated", "[OTALogic::OTALogic]")
+void simulateOTABinaryReception(OTALogic & ota_logic, OTAStorage_Mock & ota_storage, OTAData const & ota_test_data)
 {
-  OTALogic ota_logic;
-
-  REQUIRE(ota_logic.state() == OTAState::Init);
-
-  WHEN("update(nullptr) is run")
+  uint32_t bytes_written = 0;
+  uint32_t const bytes_to_write = sizeof(uint32_t) + sizeof(uint32_t) + ota_test_data.data.len;
+  for(; bytes_written < (bytes_to_write - MQTT_OTA_BUF_SIZE); bytes_written += MQTT_OTA_BUF_SIZE)
   {
-    ota_logic.update(nullptr);
-    THEN("the logic shall transitition to the Error state") {
-      REQUIRE(ota_logic.state() == OTAState::Error);
-    }
+    ota_logic.onOTADataReceived(ota_test_data.buf + bytes_written, MQTT_OTA_BUF_SIZE);
+    ota_logic.update(&ota_storage);
+  }
+
+  if(bytes_written < bytes_to_write)
+  {
+    uint32_t const remaining_bytes = (bytes_to_write - bytes_written);
+    ota_logic.onOTADataReceived(ota_test_data.buf + bytes_written, remaining_bytes);
+    ota_logic.update(&ota_storage);
   }
 }
 
-TEST_CASE("A OTALogic object checks is valid OTAStorage is available", "[OTALogic::update-1]")
+/**************************************************************************************
+   TEST CODE
+ **************************************************************************************/
+
+TEST_CASE("A valid OTA binary is received ", "[OTALogic - valid data]")
 {
   OTALogic ota_logic;
+  OTAData valid_ota_test_data;
   OTAStorage_Mock ota_storage;
 
-  WHEN("update(&ota_storage) is run")
+  ota_storage._init_return_val = true;
+  ota_storage._open_return_val = true;
+
+  generate_valid_ota_data(valid_ota_test_data);
+
+  simulateOTABinaryReception(ota_logic, ota_storage, valid_ota_test_data);
+
+  THEN("the complete binary file should have been written to the OTA storage")
   {
-    WHEN("OTAStorage::init() succeeds")
-    {
-      ota_storage._init_return_val = true;
-      ota_logic.update(&ota_storage);
-      THEN("the logic shall transitition to the Idle state") REQUIRE(ota_logic.state() == OTAState::Idle);
-    }
-    WHEN("OTAStorage::init() fails")
-    {
-      ota_storage._init_return_val = false;
-      ota_logic.update(&ota_storage);
-      THEN("the logic shall transitition to the Error state") REQUIRE(ota_logic.state() == OTAState::Error);
-    }
+    REQUIRE(ota_storage._binary.size() == valid_ota_test_data.data.len);
+    REQUIRE(std::equal(ota_storage._binary.begin(),
+                       ota_storage._binary.end(),
+                       valid_ota_test_data.data.bin));
+  }
+
+  THEN("The OTA logic should be in the 'Reset' state")
+  {
+    REQUIRE(ota_logic.state() == OTAState::Reset);
   }
 }
