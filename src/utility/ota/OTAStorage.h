@@ -41,6 +41,7 @@ public:
   virtual bool   open  () = 0;
   virtual size_t write (uint8_t const * const buf, size_t const num_bytes) = 0;
   virtual void   close () = 0;
+  virtual void   remove() = 0;
   virtual void   deinit() = 0;
 
 };

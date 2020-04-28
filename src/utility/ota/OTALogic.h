@@ -24,6 +24,8 @@
 
 #include "OTAStorage.h"
 
+#include "crc.h"
+
 /******************************************************************************
  * CONSTANT
  ******************************************************************************/
@@ -36,7 +38,7 @@ static size_t const MQTT_OTA_BUF_SIZE = 256;
 
 enum class OTAState
 {
-  Init, Idle, Error
+  Init, Idle, StartDownload, WaitForHeader, HeaderReceived, WaitForBinary, BinaryReceived, Verify, Reset, Error
 };
 
 /******************************************************************************
@@ -59,11 +61,35 @@ public:
 
 private:
 
+  typedef struct
+  {
+    size_t  num_bytes;
+    uint8_t buf[MQTT_OTA_BUF_SIZE];
+  } sMQTTOTABuffer;
+
+  typedef struct
+  {
+    uint32_t hdr_len;
+    uint32_t hdr_crc32;
+    uint32_t bytes_received;
+    crc_t    crc32;
+  } sOTABinaryData;
+
   OTAState _ota_state;
-  size_t _mqtt_ota_buf_length;
-  uint8_t _mqtt_ota_buf[MQTT_OTA_BUF_SIZE];
+  sMQTTOTABuffer _mqtt_ota_buf;
+  sOTABinaryData _ota_bin_data;
+
+  static size_t const OTA_BINARY_HEADER_SIZE = sizeof(_ota_bin_data.hdr_len) + sizeof(_ota_bin_data.hdr_crc32);
 
   OTAState handle_Init(OTAStorage * ota_storage);
+  OTAState handle_Idle();
+  OTAState handle_StartDownload(OTAStorage * ota_storage);
+  OTAState handle_WaitForHeader();
+  OTAState handle_HeaderReceived();
+  OTAState handle_WaitForBinary();
+  OTAState handle_BinaryReceived(OTAStorage * ota_storage);
+  OTAState handle_Verify(OTAStorage * ota_storage);
+  OTAState handle_Reset();
 
 };
 
