@@ -219,6 +219,7 @@ int ArduinoIoTCloudTCP::connect()
   if (!_mqttClient->connect(_brokerAddress.c_str(), _brokerPort)) return CONNECT_FAILURE;
   if (_mqttClient->subscribe(_stdinTopic) == 0)                   return CONNECT_FAILURE_SUBSCRIBE;
   if (_mqttClient->subscribe(_dataTopicIn) == 0)                  return CONNECT_FAILURE_SUBSCRIBE;
+  if (_mqttClient->subscribe(_ota_topic_in) == 0)                 return CONNECT_FAILURE_SUBSCRIBE;
 
   if (_shadowTopicIn != "")
   {
