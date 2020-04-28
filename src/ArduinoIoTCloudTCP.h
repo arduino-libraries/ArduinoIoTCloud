@@ -33,10 +33,7 @@
 
 #include <ArduinoMqttClient.h>
 
-#include "utility/ota/OTAConfig.h"
-#if OTA_STORAGE_MKRMEM
-  #include "utility/ota/OTAStorage_MKRMEM.h"
-#endif /* OTA_STORAGE_MKRMEM */
+#include "utility/ota/OTAStorage.h"
 
 /******************************************************************************
    CONSTANTS
@@ -77,6 +74,8 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
 
     inline String   getBrokerAddress() const { return _brokerAddress; }
     inline uint16_t getBrokerPort   () const { return _brokerPort; }
+
+    inline void     setOTAStorage   (OTAStorage & ota_storage) { _ota_storage = &ota_storage; }
 
     // Clean up existing Mqtt connection, create a new one and initialize it
     int reconnect();
@@ -122,9 +121,7 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
     String _ota_topic_in;
     String _ota_topic_out;
 
-#if OTA_STORAGE_MKRMEM
-    OTAStorage_MKRMEM _ota;
-#endif /* OTA_STORAGE_MKRMEM */
+    OTAStorage * _ota_storage;
 
     inline String getTopic_stdin    () { return String("/a/d/" + getDeviceId() + "/s/i"); }
     inline String getTopic_stdout   () { return String("/a/d/" + getDeviceId() + "/s/o"); }
