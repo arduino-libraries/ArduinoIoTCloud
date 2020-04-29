@@ -47,7 +47,7 @@ void OTAStorage_Mock::close()
 
 void OTAStorage_Mock::remove()
 {
-  /* Do nothing */
+  _binary.clear();
 }
 
 void OTAStorage_Mock::deinit()

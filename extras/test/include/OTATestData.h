@@ -31,5 +31,7 @@ union OTAData
  **************************************************************************************/
 
 void generate_valid_ota_data(OTAData & ota_data);
+void generate_invalid_ota_data_crc_wrong(OTAData & ota_data);
+
 
 #endif /* OTA_TEST_DATA_H_ */
