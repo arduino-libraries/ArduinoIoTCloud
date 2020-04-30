@@ -75,7 +75,7 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
     inline String   getBrokerAddress() const { return _brokerAddress; }
     inline uint16_t getBrokerPort   () const { return _brokerPort; }
 
-    inline void     setOTAStorage   (OTAStorage & ota_storage) { _ota_storage = &ota_storage; }
+    void setOTAStorage(OTAStorage & ota_storage);
 
     // Clean up existing Mqtt connection, create a new one and initialize it
     int reconnect();
@@ -122,6 +122,7 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
     String _ota_topic_out;
 
     OTAStorage * _ota_storage;
+    int _ota_storage_type;
 
     inline String getTopic_stdin    () { return String("/a/d/" + getDeviceId() + "/s/i"); }
     inline String getTopic_stdout   () { return String("/a/d/" + getDeviceId() + "/s/o"); }

@@ -78,7 +78,8 @@ ArduinoIoTCloudTCP::ArduinoIoTCloudTCP():
   _dataTopicIn(""),
   _ota_topic_in{""},
   _ota_topic_out{""},
-  _ota_storage{nullptr}
+  _ota_storage{nullptr},
+  _ota_storage_type{static_cast<int>(OTAStorage::Type::NotAvailable)}
 {
 
 }
@@ -200,6 +201,13 @@ void ArduinoIoTCloudTCP::printDebugInfo()
   Debug.print(DBG_INFO, "Device ID: %s", getDeviceId().c_str());
   Debug.print(DBG_INFO, "Thing ID: %s", getThingId().c_str());
   Debug.print(DBG_INFO, "MQTT Broker: %s:%d", _brokerAddress.c_str(), _brokerPort);
+}
+
+void ArduinoIoTCloudTCP::setOTAStorage(OTAStorage & ota_storage)
+{
+  _ota_storage = &ota_storage;
+  _ota_storage_type = static_cast<int>(_ota_storage->type());
+  addPropertyReal(_ota_storage_type, "OTA_STORAGE_TYPE", Permission::Read);
 }
 
 int ArduinoIoTCloudTCP::reconnect()
