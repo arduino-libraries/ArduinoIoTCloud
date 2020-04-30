@@ -50,10 +50,10 @@ class OTALogic
 
 public:
 
-  OTALogic();
+  OTALogic(OTAStorage & ota_storage);
 
 
-  void update(OTAStorage * ota_storage);
+  void update();
   void onOTADataReceived(uint8_t const * const data, size_t const length);
 
   inline OTAState state() const { return _ota_state; }
@@ -75,20 +75,21 @@ private:
     crc_t    crc32;
   } sOTABinaryData;
 
+  OTAStorage & _ota_storage;
   OTAState _ota_state;
   sMQTTOTABuffer _mqtt_ota_buf;
   sOTABinaryData _ota_bin_data;
 
   static size_t const OTA_BINARY_HEADER_SIZE = sizeof(_ota_bin_data.hdr_len) + sizeof(_ota_bin_data.hdr_crc32);
 
-  OTAState handle_Init(OTAStorage * ota_storage);
+  OTAState handle_Init();
   OTAState handle_Idle();
-  OTAState handle_StartDownload(OTAStorage * ota_storage);
+  OTAState handle_StartDownload();
   OTAState handle_WaitForHeader();
   OTAState handle_HeaderReceived();
   OTAState handle_WaitForBinary();
-  OTAState handle_BinaryReceived(OTAStorage * ota_storage);
-  OTAState handle_Verify(OTAStorage * ota_storage);
+  OTAState handle_BinaryReceived();
+  OTAState handle_Verify();
   OTAState handle_Reset();
 
 };

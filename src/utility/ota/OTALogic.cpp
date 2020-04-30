@@ -34,8 +34,9 @@
  * CTOR/DTOR
  ******************************************************************************/
 
-OTALogic::OTALogic()
-: _ota_state{OTAState::Init}
+OTALogic::OTALogic(OTAStorage & ota_storage)
+: _ota_storage{ota_storage}
+, _ota_state{OTAState::Init}
 , _mqtt_ota_buf{0, {0}}
 , _ota_bin_data{0, 0, 0, crc_init()}
 {
@@ -46,7 +47,7 @@ OTALogic::OTALogic()
  * PUBLIC MEMBER FUNCTIONS
  ******************************************************************************/
 
-void OTALogic::update(OTAStorage * ota_storage)
+void OTALogic::update()
 {
   OTAState prev_ota_state;
   /* The purpose of this loop is to allow the transition of
@@ -60,16 +61,16 @@ void OTALogic::update(OTAStorage * ota_storage)
     prev_ota_state = _ota_state;
     switch(_ota_state)
     {
-    case OTAState::Init:           _ota_state = handle_Init          (ota_storage); break;
-    case OTAState::Idle:           _ota_state = handle_Idle          ();            break;
-    case OTAState::StartDownload:  _ota_state = handle_StartDownload (ota_storage); break;
-    case OTAState::WaitForHeader:  _ota_state = handle_WaitForHeader ();            break;
-    case OTAState::HeaderReceived: _ota_state = handle_HeaderReceived();            break;
-    case OTAState::WaitForBinary:  _ota_state = handle_WaitForBinary ();            break;
-    case OTAState::BinaryReceived: _ota_state = handle_BinaryReceived(ota_storage); break;
-    case OTAState::Verify:         _ota_state = handle_Verify        (ota_storage); break;
-    case OTAState::Reset:          _ota_state = handle_Reset         ();            break;
-    case OTAState::Error:                                                           break;
+    case OTAState::Init:           _ota_state = handle_Init          (); break;
+    case OTAState::Idle:           _ota_state = handle_Idle          (); break;
+    case OTAState::StartDownload:  _ota_state = handle_StartDownload (); break;
+    case OTAState::WaitForHeader:  _ota_state = handle_WaitForHeader (); break;
+    case OTAState::HeaderReceived: _ota_state = handle_HeaderReceived(); break;
+    case OTAState::WaitForBinary:  _ota_state = handle_WaitForBinary (); break;
+    case OTAState::BinaryReceived: _ota_state = handle_BinaryReceived(); break;
+    case OTAState::Verify:         _ota_state = handle_Verify        (); break;
+    case OTAState::Reset:          _ota_state = handle_Reset         (); break;
+    case OTAState::Error:                                                break;
     }
   } while(_ota_state != prev_ota_state);
 }
@@ -86,9 +87,9 @@ void OTALogic::onOTADataReceived(uint8_t const * const data, size_t const length
  * PRIVATE MEMBER FUNCTIONS
  ******************************************************************************/
 
-OTAState OTALogic::handle_Init(OTAStorage * ota_storage)
+OTAState OTALogic::handle_Init()
 {
-  if (ota_storage && ota_storage->init()) {
+  if (_ota_storage.init()) {
     return OTAState::Idle;
   }
   return OTAState::Error;
@@ -102,9 +103,9 @@ OTAState OTALogic::handle_Idle()
   return OTAState::Idle;
 }
 
-OTAState OTALogic::handle_StartDownload(OTAStorage * ota_storage)
+OTAState OTALogic::handle_StartDownload()
 {
-  if(ota_storage && ota_storage->open()) {
+  if(_ota_storage.open()) {
     return OTAState::WaitForHeader;
   }
   return OTAState::Error;
@@ -163,12 +164,12 @@ OTAState OTALogic::handle_WaitForBinary()
   return OTAState::WaitForBinary;
 }
 
-OTAState OTALogic::handle_BinaryReceived(OTAStorage * ota_storage)
+OTAState OTALogic::handle_BinaryReceived()
 {
-  if(!ota_storage) return OTAState::Error;
-
   /* Write to OTA storage */
-  ota_storage->write(_mqtt_ota_buf.buf, _mqtt_ota_buf.num_bytes);
+  if(_ota_storage.write(_mqtt_ota_buf.buf, _mqtt_ota_buf.num_bytes) != _mqtt_ota_buf.num_bytes) {
+    return OTAState::Error;
+  }
 
   /* Update CRC32 */
   _ota_bin_data.crc32 = crc_update(_ota_bin_data.crc32, _mqtt_ota_buf.buf, _mqtt_ota_buf.num_bytes);
@@ -178,7 +179,7 @@ OTAState OTALogic::handle_BinaryReceived(OTAStorage * ota_storage)
   _mqtt_ota_buf.num_bytes = 0;
 
   if(_ota_bin_data.bytes_received >= _ota_bin_data.hdr_len) {
-    ota_storage->close();
+    _ota_storage.close();
     _ota_bin_data.crc32 = crc_finalize(_ota_bin_data.crc32);
     return OTAState::Verify;
   }
@@ -186,15 +187,13 @@ OTAState OTALogic::handle_BinaryReceived(OTAStorage * ota_storage)
   return OTAState::WaitForBinary;
 }
 
-OTAState OTALogic::handle_Verify(OTAStorage * ota_storage)
+OTAState OTALogic::handle_Verify()
 {
-  if(!ota_storage) return OTAState::Error;
-
   if(_ota_bin_data.crc32 == _ota_bin_data.hdr_crc32) {
-    ota_storage->deinit();
+    _ota_storage.deinit();
     return OTAState::Reset;
   } else {
-    ota_storage->remove();
+    _ota_storage.remove();
     return OTAState::Error;
   }
 }
