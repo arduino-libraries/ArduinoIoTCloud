@@ -33,6 +33,7 @@
 
 #include <ArduinoMqttClient.h>
 
+#include "utility/ota/OTALogic.h"
 #include "utility/ota/OTAStorage.h"
 
 /******************************************************************************
@@ -121,7 +122,7 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
     String _ota_topic_in;
     String _ota_topic_out;
 
-    OTAStorage * _ota_storage;
+    OTALogic * _ota_logic;
     int _ota_storage_type;
 
     inline String getTopic_stdin    () { return String("/a/d/" + getDeviceId() + "/s/i"); }
