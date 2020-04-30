@@ -37,8 +37,11 @@ public:
   virtual ~OTAStorage() { }
 
 
-  enum class Type { MKRMEM };
-
+  enum class Type : int
+  {
+    NotAvailable = -1,
+    MKRMEM       =  0
+  };
 
   virtual Type   type  () = 0;
   virtual bool   init  () = 0;
