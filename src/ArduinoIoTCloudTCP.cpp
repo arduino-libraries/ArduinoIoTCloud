@@ -279,6 +279,9 @@ void ArduinoIoTCloudTCP::handleMessage(int length)
     sendPropertiesToCloud();
     _syncStatus = ArduinoIoTSynchronizationStatus::SYNC_STATUS_VALUES_PROCESSED;
   }
+  if (_ota_logic && (_ota_topic_in == topic)) {
+    _ota_logic->onOTADataReceived(bytes, length);
+  }
 }
 
 void ArduinoIoTCloudTCP::sendPropertiesToCloud()
