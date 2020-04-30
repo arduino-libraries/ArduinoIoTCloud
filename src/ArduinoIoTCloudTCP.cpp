@@ -78,7 +78,7 @@ ArduinoIoTCloudTCP::ArduinoIoTCloudTCP():
   _dataTopicIn(""),
   _ota_topic_in{""},
   _ota_topic_out{""},
-  _ota_storage{nullptr},
+  _ota_logic{nullptr},
   _ota_storage_type{static_cast<int>(OTAStorage::Type::NotAvailable)}
 {
 
@@ -108,10 +108,6 @@ int ArduinoIoTCloudTCP::begin(String brokerAddress, uint16_t brokerPort)
 
   _brokerAddress = brokerAddress;
   _brokerPort = brokerPort;
-
-  if (_ota_storage && !_ota_storage->init()) {
-    Debug.print(DBG_ERROR, "OTA storage medium initialisation failed - can't perform OTA");
-  }
 
   #ifdef BOARD_HAS_ECCX08
   if (!ECCX08.begin())                                                                                                                                                         { Debug.print(DBG_ERROR, "Cryptography processor failure. Make sure you have a compatible board."); return 0; }
@@ -153,6 +149,14 @@ int ArduinoIoTCloudTCP::begin(String brokerAddress, uint16_t brokerPort)
 
 void ArduinoIoTCloudTCP::update()
 {
+  /* If a _ota_logic object has been instantiated then we are spinning its
+   * 'update' method here in order to process incoming data and generally
+   * to transition to the OTA logic update states.
+   */
+  if (_ota_logic) {
+    _ota_logic->update();
+  }
+
   // Check if a primitive property wrapper is locally changed
   _thing.updateTimestampOnLocallyChangedProperties();
 
@@ -205,9 +209,10 @@ void ArduinoIoTCloudTCP::printDebugInfo()
 
 void ArduinoIoTCloudTCP::setOTAStorage(OTAStorage & ota_storage)
 {
-  _ota_storage = &ota_storage;
-  _ota_storage_type = static_cast<int>(_ota_storage->type());
+  _ota_storage_type = static_cast<int>(ota_storage.type());
   addPropertyReal(_ota_storage_type, "OTA_STORAGE_TYPE", Permission::Read);
+  if(_ota_logic) delete _ota_logic;
+  _ota_logic = new OTALogic(ota_storage);
 }
 
 int ArduinoIoTCloudTCP::reconnect()
