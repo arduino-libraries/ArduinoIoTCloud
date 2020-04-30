@@ -25,6 +25,7 @@ public:
   virtual ~OTAStorage_Mock() { }
 
 
+  virtual Type   type  () override { return Type::MKRMEM; }
   virtual bool   init  () override;
   virtual bool   open  () override;
   virtual size_t write (uint8_t const * const buf, size_t const num_bytes) override;
