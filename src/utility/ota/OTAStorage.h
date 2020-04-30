@@ -37,6 +37,10 @@ public:
   virtual ~OTAStorage() { }
 
 
+  enum class Type { MKRMEM };
+
+
+  virtual Type   type  () = 0;
   virtual bool   init  () = 0;
   virtual bool   open  () = 0;
   virtual size_t write (uint8_t const * const buf, size_t const num_bytes) = 0;
