@@ -58,7 +58,7 @@ public:
   OTALogic(OTAStorage & ota_storage);
 
 
-  void update();
+  OTAError update();
   void onOTADataReceived(uint8_t const * const data, size_t const length);
 
 #ifdef HOST

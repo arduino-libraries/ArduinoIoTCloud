@@ -48,7 +48,7 @@ OTALogic::OTALogic(OTAStorage & ota_storage)
  * PUBLIC MEMBER FUNCTIONS
  ******************************************************************************/
 
-void OTALogic::update()
+OTAError OTALogic::update()
 {
   OTAState prev_ota_state;
   /* The purpose of this loop is to allow the transition of
@@ -74,6 +74,8 @@ void OTALogic::update()
     case OTAState::Error:                                                break;
     }
   } while(_ota_state != prev_ota_state);
+
+  return _ota_error;
 }
 
 void OTALogic::onOTADataReceived(uint8_t const * const data, size_t const length)
