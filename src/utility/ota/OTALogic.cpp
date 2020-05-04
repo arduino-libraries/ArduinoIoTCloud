@@ -94,8 +94,10 @@ OTAState OTALogic::handle_Init()
 {
   if (_ota_storage.init()) {
     return OTAState::Idle;
+  } else {
+    _ota_error = OTAError::StorageInitFailed;
+    return OTAState::Error;
   }
-  return OTAState::Error;
 }
 
 OTAState OTALogic::handle_Idle()
