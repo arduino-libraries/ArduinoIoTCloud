@@ -11,6 +11,7 @@ project(testArduinoIoTCloud)
 include_directories(include)
 include_directories(../../src/utility/ota)
 include_directories(external/catch/v2.12.1/include)
+include_directories(external/fakeit/v2.0.5/include)
 
 ##########################################################################
 
@@ -25,7 +26,6 @@ set(TEST_TARGET testArduinoIoTCloud)
 set(TEST_SRCS
   src/test_main.cpp
   src/test_OTALogic.cpp
-  src/OTAStorage_Mock.cpp
   src/OTATestData.cpp
   ../../src/utility/ota/crc.cpp
   ../../src/utility/ota/OTALogic.cpp

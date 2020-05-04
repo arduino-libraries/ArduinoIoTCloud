@@ -6,14 +6,22 @@
    INCLUDE
  **************************************************************************************/
 
+#include <vector>
 #include <algorithm>
 
 #include <catch.hpp>
+#include <fakeit.hpp>
 
 #include <OTATestData.h>
-#include <OTAStorage_Mock.h>
 
 #include <OTALogic.h>
+#include <OTAStorage.h>
+
+/**************************************************************************************
+   NAMESPACE
+ **************************************************************************************/
+
+using namespace fakeit;
 
 /**************************************************************************************
    TEST HELPER
@@ -43,22 +51,39 @@ void simulateOTABinaryReception(OTALogic & ota_logic, OTAData const & ota_test_d
 
 TEST_CASE("Valid OTA data is received ", "[OTALogic]")
 {
-  OTAStorage_Mock ota_storage;
-  OTALogic ota_logic(ota_storage);
+  Mock<OTAStorage> ota_storage;
+  std::vector<uint8_t> ota_binary_data;
+
+  /* Configure mock object */
+  When(Method(ota_storage, init)).Return(true);
+  When(Method(ota_storage, open)).Return(true);
+  When(Method(ota_storage, write)).AlwaysDo(
+    [&ota_binary_data](uint8_t const * const buf, size_t const num_bytes) -> size_t
+    {
+      std::copy(buf, buf + num_bytes, std::back_inserter(ota_binary_data));
+      return num_bytes;
+    });
+  Fake(Method(ota_storage, close)); 
+  Fake(Method(ota_storage, remove)); 
+  Fake(Method(ota_storage, deinit)); 
+
+
+  /* Generate test data */
   OTAData valid_ota_test_data;
-
-  ota_storage._init_return_val = true;
-  ota_storage._open_return_val = true;
-
   generate_valid_ota_data(valid_ota_test_data);
 
+
+  /* Perform test */
+  OTALogic ota_logic(ota_storage.get());
   simulateOTABinaryReception(ota_logic, valid_ota_test_data);
 
+
+  /* Perform checks */
   THEN("the complete binary file should have been written to the OTA storage")
   {
-    REQUIRE(ota_storage._binary.size() == valid_ota_test_data.data.len);
-    REQUIRE(std::equal(ota_storage._binary.begin(),
-                       ota_storage._binary.end(),
+    REQUIRE(ota_binary_data.size() == valid_ota_test_data.data.len);
+    REQUIRE(std::equal(ota_binary_data.begin(),
+                       ota_binary_data.end(),
                        valid_ota_test_data.data.bin));
   }
 
@@ -75,20 +100,32 @@ TEST_CASE("Valid OTA data is received ", "[OTALogic]")
 
 TEST_CASE("Invalid OTA data is received ", "[OTALogic - CRC wrong]")
 {
-  OTAStorage_Mock ota_storage;
-  OTALogic ota_logic(ota_storage);
+  Mock<OTAStorage> ota_storage;
+
+
+  /* Configure mock object */
+  When(Method(ota_storage, init)).Return(true);
+  When(Method(ota_storage, open)).Return(true);
+  When(Method(ota_storage, write)).AlwaysDo([](uint8_t const * const /* buf */, size_t const num_bytes) -> size_t { return num_bytes; });
+  Fake(Method(ota_storage, close)); 
+  Fake(Method(ota_storage, remove)); 
+  Fake(Method(ota_storage, deinit)); 
+
+
+  /* Generate test data */
   OTAData invalid_valid_ota_test_data_crc_wrong;
-
-  ota_storage._init_return_val = true;
-  ota_storage._open_return_val = true;
-
   generate_invalid_ota_data_crc_wrong(invalid_valid_ota_test_data_crc_wrong);
 
+
+  /* Perform test */
+  OTALogic ota_logic(ota_storage.get());
   simulateOTABinaryReception(ota_logic, invalid_valid_ota_test_data_crc_wrong);
 
+  
+  /* Perform checks */
   THEN("there should be no binary file be stored on the OTA storage")
   {
-    REQUIRE(ota_storage._binary.size() == 0);
+    Verify(Method(ota_storage, remove)).Once();
   }
 
   THEN("The OTA logic should be in the 'Error' state")
