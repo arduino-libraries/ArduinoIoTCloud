@@ -195,6 +195,7 @@ OTAState OTALogic::handle_Verify()
     return OTAState::Reset;
   } else {
     _ota_storage.remove();
+    _ota_error = OTAError::ChecksumMismatch;
     return OTAState::Error;
   }
 }

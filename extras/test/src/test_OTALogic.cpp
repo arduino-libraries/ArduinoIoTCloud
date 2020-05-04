@@ -95,4 +95,9 @@ TEST_CASE("Invalid OTA data is received ", "[OTALogic - CRC wrong]")
   {
     REQUIRE(ota_logic.state() == OTAState::Error);
   }
+
+  THEN("The OTA error should be set to OTAError::ChecksumMismatch")
+  {
+    REQUIRE(ota_logic.error() == OTAError::ChecksumMismatch);
+  }
 }
