@@ -49,7 +49,7 @@ void simulateOTABinaryReception(OTALogic & ota_logic, OTAData const & ota_test_d
    TEST CODE
  **************************************************************************************/
 
-TEST_CASE("OTAStorage initialisation failed ", "[OTAStorage::init() -> returns false]")
+TEST_CASE("OTAStorage initialisation fails ", "[OTAStorage::init() -> returns false]")
 {
   Mock<OTAStorage> ota_storage;
 
@@ -65,7 +65,7 @@ TEST_CASE("OTAStorage initialisation failed ", "[OTAStorage::init() -> returns f
   /* Perform test */
   OTALogic ota_logic(ota_storage.get());
 
-  WHEN("OTALogic::update() is called ")
+  WHEN("OTALogic::update() is called")
   {
     ota_logic.update();
     THEN("The OTA logic should be in the 'Error' state")
@@ -74,7 +74,42 @@ TEST_CASE("OTAStorage initialisation failed ", "[OTAStorage::init() -> returns f
     }
     THEN("The OTA error should be set to OTAError::StorageInitFailed")
     {
-      REQUIRE(ota_logic.update() == OTAError::StorageInitFailed);
+      REQUIRE(ota_logic.error() == OTAError::StorageInitFailed);
+    }
+  }
+}
+
+/**************************************************************************************/
+
+TEST_CASE("OTAStorage opening of storage file fails ", "[OTAStorage::open() -> returns false]")
+{
+  Mock<OTAStorage> ota_storage;
+
+  /* Configure mock object */
+  When(Method(ota_storage, init)).Return(true);
+  When(Method(ota_storage, open)).Return(false);
+  Fake(Method(ota_storage, write));
+  Fake(Method(ota_storage, close));
+  Fake(Method(ota_storage, remove));
+  Fake(Method(ota_storage, deinit));
+
+
+  /* Perform test */
+  OTALogic ota_logic(ota_storage.get());
+
+  WHEN("OTALogic::update() is called and some bytes have been received")
+  {
+    uint8_t const SOME_FAKE_DATA[16] = {0};
+    ota_logic.onOTADataReceived(SOME_FAKE_DATA, sizeof(SOME_FAKE_DATA));
+    ota_logic.update();
+    
+    THEN("The OTA logic should be in the 'Error' state")
+    {
+      REQUIRE(ota_logic.state()  == OTAState::Error);
+    }
+    THEN("The OTA error should be set to OTAError::StorageOpenFailed")
+    {
+      REQUIRE(ota_logic.error() == OTAError::StorageOpenFailed);
     }
   }
 }
