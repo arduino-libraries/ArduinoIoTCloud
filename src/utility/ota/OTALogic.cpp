@@ -37,6 +37,7 @@
 OTALogic::OTALogic(OTAStorage & ota_storage)
 : _ota_storage{ota_storage}
 , _ota_state{OTAState::Init}
+, _ota_error{OTAError::None}
 , _mqtt_ota_buf{0, {0}}
 , _ota_bin_data{0, 0, 0, crc_init()}
 {

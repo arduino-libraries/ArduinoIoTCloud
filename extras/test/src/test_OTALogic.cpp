@@ -66,6 +66,11 @@ TEST_CASE("Valid OTA data is received ", "[OTALogic]")
   {
     REQUIRE(ota_logic.state() == OTAState::Reset);
   }
+
+  THEN("No OTA error should have occured")
+  {
+    REQUIRE(ota_logic.error() == OTAError::None);
+  }
 }
 
 TEST_CASE("Invalid OTA data is received ", "[OTALogic - CRC wrong]")
