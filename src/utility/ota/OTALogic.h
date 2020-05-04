@@ -43,7 +43,7 @@ enum class OTAState
 
 enum class OTAError
 {
-  None, StorageInitFailed, StorageOpenFailed, ChecksumMismatch
+  None, StorageInitFailed, StorageOpenFailed, StorageWriteFailed, ChecksumMismatch
 };
 
 /******************************************************************************
