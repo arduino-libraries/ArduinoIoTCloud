@@ -174,7 +174,9 @@ OTAState OTALogic::handle_WaitForBinary()
 OTAState OTALogic::handle_BinaryReceived()
 {
   /* Write to OTA storage */
-  if(_ota_storage.write(_mqtt_ota_buf.buf, _mqtt_ota_buf.num_bytes) != _mqtt_ota_buf.num_bytes) {
+  if(_ota_storage.write(_mqtt_ota_buf.buf, _mqtt_ota_buf.num_bytes) != _mqtt_ota_buf.num_bytes)
+  {
+    _ota_error = OTAError::StorageWriteFailed;
     return OTAState::Error;
   }
 
