@@ -61,7 +61,9 @@ public:
   void update();
   void onOTADataReceived(uint8_t const * const data, size_t const length);
 
+#ifdef HOST
   inline OTAState state() const { return _ota_state; }
+#endif
   inline OTAError error() const { return _ota_error; }
 
 
