@@ -41,6 +41,11 @@ enum class OTAState
   Init, Idle, StartDownload, WaitForHeader, HeaderReceived, WaitForBinary, BinaryReceived, Verify, Reset, Error
 };
 
+enum class OTAError
+{
+  None,
+};
+
 /******************************************************************************
  * CLASS DECLARATION
  ******************************************************************************/
@@ -57,6 +62,7 @@ public:
   void onOTADataReceived(uint8_t const * const data, size_t const length);
 
   inline OTAState state() const { return _ota_state; }
+  inline OTAError error() const { return _ota_error; }
 
 
 private:
@@ -77,6 +83,7 @@ private:
 
   OTAStorage & _ota_storage;
   OTAState _ota_state;
+  OTAError _ota_error;
   sMQTTOTABuffer _mqtt_ota_buf;
   sOTABinaryData _ota_bin_data;
 
