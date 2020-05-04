@@ -41,9 +41,13 @@ enum class OTAState
   Init, Idle, StartDownload, WaitForHeader, HeaderReceived, WaitForBinary, BinaryReceived, Verify, Reset, Error
 };
 
-enum class OTAError
+enum class OTAError : int
 {
-  None, StorageInitFailed, StorageOpenFailed, StorageWriteFailed, ChecksumMismatch
+  None               = 0,
+  StorageInitFailed  = 1,
+  StorageOpenFailed  = 2,
+  StorageWriteFailed = 3,
+  ChecksumMismatch   = 4
 };
 
 /******************************************************************************
