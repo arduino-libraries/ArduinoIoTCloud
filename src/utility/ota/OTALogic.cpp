@@ -35,13 +35,17 @@
  ******************************************************************************/
 
 OTALogic::OTALogic(OTAStorage & ota_storage)
-: _ota_storage{ota_storage}
+: _ota_storage(ota_storage)
 , _ota_state{OTAState::Init}
 , _ota_error{OTAError::None}
-, _mqtt_ota_buf{0, {0}}
-, _ota_bin_data{0, 0, 0, crc_init()}
 {
+  memset(_mqtt_ota_buf.buf, 0U, sizeof(_mqtt_ota_buf.buf));
+  _mqtt_ota_buf.num_bytes = 0;
 
+  _ota_bin_data.hdr_len        = 0;
+  _ota_bin_data.hdr_crc32      = 0;
+  _ota_bin_data.bytes_received = 0;
+  _ota_bin_data.crc32          = crc_init();
 }
 
 /******************************************************************************
