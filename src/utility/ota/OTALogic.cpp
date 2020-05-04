@@ -112,8 +112,10 @@ OTAState OTALogic::handle_StartDownload()
 {
   if(_ota_storage.open()) {
     return OTAState::WaitForHeader;
+  } else {
+    _ota_error = OTAError::StorageOpenFailed;
+    return OTAState::Error;
   }
-  return OTAState::Error;
 }
 
 OTAState OTALogic::handle_WaitForHeader()
