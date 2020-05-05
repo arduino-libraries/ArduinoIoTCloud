@@ -124,7 +124,7 @@ TEST_CASE("OTAStorage writing to storage file fails", "[OTAStorage::write() -> f
   /* Configure mock object */
   When(Method(ota_storage, init)).Return(true);
   When(Method(ota_storage, open)).Return(true);
-  When(Method(ota_storage, write)).AlwaysDo([](uint8_t const * const /* buf */, size_t const /* num_bytes */) -> size_t { return 0 /* should return num_bytes in case of succes */;});
+  When(Method(ota_storage, write)).AlwaysDo([](uint8_t const * const /* buf */, size_t const /* num_bytes */) -> size_t { return 0 /* should return num_bytes in case of success */;});
   Fake(Method(ota_storage, close));
   Fake(Method(ota_storage, remove));
   Fake(Method(ota_storage, deinit));
@@ -231,7 +231,7 @@ TEST_CASE("Valid OTA data is received ", "[OTALogic]")
     REQUIRE(ota_logic.state() == OTAState::Reset);
   }
 
-  THEN("No OTA error should have occured")
+  THEN("No OTA error should have occurred")
   {
     REQUIRE(ota_logic.error() == OTAError::None);
   }

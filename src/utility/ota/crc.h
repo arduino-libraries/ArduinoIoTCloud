@@ -15,7 +15,7 @@
  *
  * This file defines the functions crc_init(), crc_update() and crc_finalize().
  *
- * The crc_init() function returns the inital \c crc value and must be called
+ * The crc_init() function returns the initial \c crc value and must be called
  * before the first call to crc_update().
  * Similarly, the crc_finalize() function must be called after the last call
  * to crc_update(), before the \c crc is being used.
