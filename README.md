@@ -1,6 +1,7 @@
 `ArduinoIoTCloud`
 =================
-[![Build Status](https://travis-ci.org/arduino-libraries/ArduinoIoTCloud.svg?branch=master)](https://travis-ci.org/arduino-libraries/ArduinoIoTCloud)
+[![Compile Examples](https://github.com/arduino-libraries/ArduinoIoTCloud/workflows/Compile%20Examples/badge.svg)](https://github.com/arduino-libraries/ArduinoIoTCloud/actions?workflow=Compile+Examples)
+[![Spell Check](https://github.com/arduino-libraries/ArduinoIoTCloud/workflows/Spell%20Check/badge.svg)](https://github.com/arduino-libraries/ArduinoIoTCloud/actions?workflow=Spell+Check)
 
 ### What?
 The `ArduinoIoTCloud` library is the central element of the firmware enabling certain Arduino boards to connect to the [Arduino IoT Cloud](https://www.arduino.cc/en/IoT/HomePage). The following boards are supported:
