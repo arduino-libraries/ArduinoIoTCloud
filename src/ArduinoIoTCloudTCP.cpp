@@ -79,7 +79,8 @@ ArduinoIoTCloudTCP::ArduinoIoTCloudTCP():
   _ota_topic_in{""},
   _ota_topic_out{""},
   _ota_logic{nullptr},
-  _ota_storage_type{static_cast<int>(OTAStorage::Type::NotAvailable)}
+  _ota_storage_type{static_cast<int>(OTAStorage::Type::NotAvailable)},
+  _ota_error{static_cast<int>(OTAError::None)}
 {
 
 }
@@ -154,7 +155,8 @@ void ArduinoIoTCloudTCP::update()
    * to transition to the OTA logic update states.
    */
   if (_ota_logic) {
-    _ota_logic->update();
+    OTAError const err = _ota_logic->update();
+    _ota_error = static_cast<int>(err);
   }
 
   // Check if a primitive property wrapper is locally changed
@@ -211,6 +213,7 @@ void ArduinoIoTCloudTCP::setOTAStorage(OTAStorage & ota_storage)
 {
   _ota_storage_type = static_cast<int>(ota_storage.type());
   addPropertyReal(_ota_storage_type, "OTA_STORAGE_TYPE", Permission::Read);
+  addPropertyReal(_ota_error, "OTA_ERROR", Permission::Read);
   if(_ota_logic) delete _ota_logic;
   _ota_logic = new OTALogic(ota_storage);
 }
