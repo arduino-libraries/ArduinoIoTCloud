@@ -39,13 +39,8 @@ OTALogic::OTALogic(OTAStorage & ota_storage)
 , _ota_state{OTAState::Init}
 , _ota_error{OTAError::None}
 {
-  memset(_mqtt_ota_buf.buf, 0U, sizeof(_mqtt_ota_buf.buf));
-  _mqtt_ota_buf.num_bytes = 0;
-
-  _ota_bin_data.hdr_len        = 0;
-  _ota_bin_data.hdr_crc32      = 0;
-  _ota_bin_data.bytes_received = 0;
-  _ota_bin_data.crc32          = crc_init();
+  init_mqtt_ota_buffer();
+  init_ota_binary_data();
 }
 
 /******************************************************************************
@@ -232,4 +227,18 @@ OTAState OTALogic::handle_Reset()
   NVIC_SystemReset();
 #endif /* HOST */
   return OTAState::Reset;
+}
+
+void OTALogic::init_mqtt_ota_buffer()
+{
+  memset(_mqtt_ota_buf.buf, 0U, sizeof(_mqtt_ota_buf.buf));
+  _mqtt_ota_buf.num_bytes = 0;
+}
+
+void OTALogic::init_ota_binary_data()
+{
+  _ota_bin_data.hdr_len        = 0;
+  _ota_bin_data.hdr_crc32      = 0;
+  _ota_bin_data.bytes_received = 0;
+  _ota_bin_data.crc32          = crc_init();
 }
