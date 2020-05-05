@@ -49,7 +49,7 @@ void simulateOTABinaryReception(OTALogic & ota_logic, OTAData const & ota_test_d
    TEST CODE
  **************************************************************************************/
 
-TEST_CASE("OTAStorage initialisation fails ", "[OTAStorage::init() -> returns false]")
+TEST_CASE("OTAStorage initialisation fails", "[OTAStorage::init() -> returns false]")
 {
   Mock<OTAStorage> ota_storage;
 
@@ -81,7 +81,7 @@ TEST_CASE("OTAStorage initialisation fails ", "[OTAStorage::init() -> returns fa
 
 /**************************************************************************************/
 
-TEST_CASE("OTAStorage opening of storage file fails ", "[OTAStorage::open() -> returns false]")
+TEST_CASE("OTAStorage opening of storage file fails", "[OTAStorage::open() -> returns false]")
 {
   Mock<OTAStorage> ota_storage;
 
@@ -117,7 +117,7 @@ TEST_CASE("OTAStorage opening of storage file fails ", "[OTAStorage::open() -> r
 
 /**************************************************************************************/
 
-TEST_CASE("OTAStorage writing to storage file fails ", "[OTAStorage::write() -> fails]")
+TEST_CASE("OTAStorage writing to storage file fails", "[OTAStorage::write() -> fails]")
 {
   Mock<OTAStorage> ota_storage;
 
@@ -146,6 +146,42 @@ TEST_CASE("OTAStorage writing to storage file fails ", "[OTAStorage::write() -> 
     THEN("The OTA error should be set to OTAError::StorageWriteFailed")
     {
       REQUIRE(ota_logic.error() == OTAError::StorageWriteFailed);
+    }
+  }
+}
+
+/**************************************************************************************/
+
+TEST_CASE("Data overrun due to receiving too much data", "[OTALogic - Data Overrun]")
+{
+  Mock<OTAStorage> ota_storage;
+
+  /* Configure mock object */
+  When(Method(ota_storage, init)).Return(true);
+  When(Method(ota_storage, open)).Return(true);
+  When(Method(ota_storage, write)).AlwaysDo([](uint8_t const * const /* buf */, size_t const num_bytes) -> size_t { return num_bytes; });
+  Fake(Method(ota_storage, close));
+  Fake(Method(ota_storage, remove));
+  Fake(Method(ota_storage, deinit));
+
+
+  /* Perform test */
+  OTALogic ota_logic(ota_storage.get());
+
+  WHEN("Too much data is received before OTALogic::update() is called again to process the incoming data")
+  {
+    uint8_t const SOME_FAKE_DATA[MQTT_OTA_BUF_SIZE] = {0};
+    ota_logic.onOTADataReceived(SOME_FAKE_DATA, MQTT_OTA_BUF_SIZE);
+    ota_logic.onOTADataReceived(SOME_FAKE_DATA, MQTT_OTA_BUF_SIZE);
+    ota_logic.update();
+
+    THEN("The OTA logic should be in the 'Error' state")
+    {
+      REQUIRE(ota_logic.state()  == OTAState::Error);
+    }
+    THEN("The OTA error should be set to OTAError::ReceivedDataOverrun")
+    {
+      REQUIRE(ota_logic.error() == OTAError::ReceivedDataOverrun);
     }
   }
 }
