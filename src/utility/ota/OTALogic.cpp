@@ -85,9 +85,16 @@ OTAError OTALogic::update()
 void OTALogic::onOTADataReceived(uint8_t const * const data, size_t const length)
 {
   size_t const bytes_available = (MQTT_OTA_BUF_SIZE - _mqtt_ota_buf.num_bytes);
-  size_t const bytes_to_copy = min(bytes_available, length);
-  memcpy(_mqtt_ota_buf.buf + _mqtt_ota_buf.num_bytes, data, bytes_to_copy);
-  _mqtt_ota_buf.num_bytes += bytes_to_copy;
+  if(length <= bytes_available)
+  {
+    memcpy(_mqtt_ota_buf.buf + _mqtt_ota_buf.num_bytes, data, length);
+    _mqtt_ota_buf.num_bytes += length;
+  }
+  else
+  {
+    _ota_state = OTAState::Error;
+    _ota_error = OTAError::ReceivedDataOverrun;
+  }
 }
 
 /******************************************************************************
