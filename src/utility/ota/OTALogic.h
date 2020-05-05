@@ -67,8 +67,8 @@ public:
 
 #ifdef HOST
   inline OTAState state() const { return _ota_state; }
-#endif
   inline OTAError error() const { return _ota_error; }
+#endif
 
 
 private:
