@@ -77,7 +77,6 @@ ArduinoIoTCloudTCP::ArduinoIoTCloudTCP():
   _dataTopicOut(""),
   _dataTopicIn(""),
   _ota_topic_in{""},
-  _ota_topic_out{""},
   _ota_logic{nullptr},
   _ota_storage_type{static_cast<int>(OTAStorage::Type::NotAvailable)},
   _ota_error{static_cast<int>(OTAError::None)}
@@ -138,7 +137,6 @@ int ArduinoIoTCloudTCP::begin(String brokerAddress, uint16_t brokerPort)
   _dataTopicOut   = getTopic_dataout();
   _dataTopicIn    = getTopic_datain();
   _ota_topic_in   = getTopic_ota_in();
-  _ota_topic_out  = getTopic_ota_out();
 
   _thing.begin();
   _thing.registerGetTimeCallbackFunc(getTime);
