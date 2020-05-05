@@ -106,6 +106,9 @@ private:
   OTAState handle_Verify();
   OTAState handle_Reset();
 
+  void init_mqtt_ota_buffer();
+  void init_ota_binary_data();
+
 };
 
 #endif /* ARDUINO_OTA_LOGIC_H_ */
