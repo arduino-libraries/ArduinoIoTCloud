@@ -124,6 +124,7 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
 
     OTALogic * _ota_logic;
     int _ota_storage_type;
+    int _ota_error;
 
     inline String getTopic_stdin    () { return String("/a/d/" + getDeviceId() + "/s/i"); }
     inline String getTopic_stdout   () { return String("/a/d/" + getDeviceId() + "/s/o"); }
