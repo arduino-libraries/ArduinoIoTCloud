@@ -120,7 +120,6 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
     String _dataTopicOut;
     String _dataTopicIn;
     String _ota_topic_in;
-    String _ota_topic_out;
 
     OTALogic * _ota_logic;
     int _ota_storage_type;
@@ -133,7 +132,6 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
     inline String getTopic_dataout  () { return ( getThingId().length() == 0) ? String("/a/d/" + getDeviceId() + "/e/o") : String("/a/t/" + getThingId() + "/e/o"); }
     inline String getTopic_datain   () { return ( getThingId().length() == 0) ? String("/a/d/" + getDeviceId() + "/e/i") : String("/a/t/" + getThingId() + "/e/i"); }
     inline String getTopic_ota_in   () { return String("/a/d/" + getDeviceId() + "/ota/i"); }
-    inline String getTopic_ota_out  () { return String("/a/d/" + getDeviceId() + "/ota/o"); }
 
     static void onMessage(int length);
     void handleMessage(int length);
