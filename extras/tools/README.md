@@ -23,4 +23,22 @@ This tool can be used to extend (actually prefix) a binary generated with e.g. t
 0000010   7485 0000 7485 0000 0000 0000 0000 0000
 0000020   0000 0000 0000 0000 0000 0000 0000 0000
 0000030   0000 0000 7485 0000 0000 0000 0000 0000
-...
+```
+
+`bin2base64.py`
+===============
+This tool converts the binary file into base64 encoding which is necessary for feeding it to the server.
+
+### How-To-Use
+```bash
+./bin2base64.py sketch-ota.bin sketch-ota.base64
+```
+
+`ota-upload.sh`
+==============
+This tool allows to upload a OTA binary to a device via a Arduino cloud server.
+
+### How-To-Use
+```bash
+./ota-upload.sh CLIENT_ID CLIENT_SECRET DEVICE_ID sketch-ota.base64
+```
