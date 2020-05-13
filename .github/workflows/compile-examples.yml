@@ -21,12 +21,6 @@ jobs:
       UNIVERSAL_LIBRARIES: '"ArduinoCloudThing" "Arduino_ConnectionHandler" "Arduino_DebugUtils" "ArduinoMqttClient"'
       # sketch paths to compile (recursive) for all boards
       UNIVERSAL_SKETCH_PATHS: '"examples/ArduinoIoTCloud-Advanced" "examples/ArduinoIoTCloud-Basic" "examples/utility/ArduinoIoTCloud_Travis_CI"'
-      # board-specific sketches
-      WIFI_SKETCH_PATHS: '"examples/utility/Provisioning" "examples/utility/WiFi_Cloud_Blink"'
-      WAN_SKETCH_PATHS: ''
-      GSM_SKETCH_PATHS: '"examples/utility/Provisioning" "examples/utility/GSM_Cloud_Blink"'
-      NB_SKETCH_PATHS: '"examples/utility/Provisioning" "examples/utility/NB_Cloud_Blink"'
-      ESP8266_SKETCH_PATHS: '"examples/utility/WiFi_Cloud_Blink_with_security_credentials"'
 
     strategy:
       fail-fast: false
