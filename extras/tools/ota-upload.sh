@@ -23,12 +23,11 @@ fi
 
 printf "Uploading to device ... "
 access_token_val=$(<access_token)
-base64_binary=$(<"$4")
 curl --silent --location --request PUT 'https://api-dev.arduino.cc/iot/v2/devices/'"$3"'/ota' \
   --header 'Content-Type: application/json' \
   --header 'Authorization: Bearer '"$access_token_val" \
   --header 'Content-Type: text/plain' \
-  --data-raw '{"binary":"base64encodedbinary"}'
+  -d @"$4"
 echo "OK"
 
 printf "Cleaning up ... "
