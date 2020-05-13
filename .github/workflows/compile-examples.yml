@@ -41,7 +41,7 @@ jobs:
           # WiFi boards
           - board:
               type: "wifi"
-            libraries: '"ArduinoBearSSL" "ArduinoECCX08" "RTCZero" "WiFi101" "WiFiNINA"'
+            libraries: '"ArduinoBearSSL" "ArduinoECCX08" "RTCZero" "WiFi101" "WiFiNINA" "Arduino_MKRMEM"'
             sketch-paths: '"examples/utility/Provisioning" "examples/utility/WiFi_Cloud_Blink"'
           # LoRaWAN boards
           - board:
@@ -51,12 +51,12 @@ jobs:
           # GSM boards
           - board:
               type: "gsm"
-            libraries: '"ArduinoBearSSL" "ArduinoECCX08" "RTCZero" "MKRGSM"'
+            libraries: '"ArduinoBearSSL" "ArduinoECCX08" "RTCZero" "MKRGSM" "Arduino_MKRMEM"'
             sketch-paths: '"examples/utility/Provisioning" "examples/utility/GSM_Cloud_Blink"'
           # NB boards
           - board:
               type: "nb"
-            libraries: '"ArduinoBearSSL" "ArduinoECCX08" "RTCZero" "MKRNB"'
+            libraries: '"ArduinoBearSSL" "ArduinoECCX08" "RTCZero" "MKRNB" "Arduino_MKRMEM"'
             sketch-paths: '"examples/utility/Provisioning" "examples/utility/NB_Cloud_Blink"'
           # ESP8266 boards
           - board:
