@@ -19,7 +19,8 @@
  * INCLUDE
  ******************************************************************************/
 
-#include "ArduinoIoTCloud_Defines.h"
+#include <ArduinoIoTCloud_Config.h>
+
 #ifndef HAS_LORA
 
 #include "ArduinoIoTCloud.h"
