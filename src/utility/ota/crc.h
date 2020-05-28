@@ -40,7 +40,11 @@
 #ifndef CRC_H
 #define CRC_H
 
-#include <ArduinoIoTCloud_Config.h>
+#ifndef HOST
+  #include <ArduinoIoTCloud_Config.h>
+#else
+  #define OTA_ENABLED (1)
+#endif
 #if OTA_ENABLED
 
 #include <stdlib.h>
