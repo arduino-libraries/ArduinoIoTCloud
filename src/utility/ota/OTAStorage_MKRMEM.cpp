@@ -57,7 +57,7 @@ bool OTAStorage_MKRMEM::init()
 bool OTAStorage_MKRMEM::open()
 {
   filesystem.clearerr();
-  _file = new File(filesystem.open("UPDATE.bin", CREATE | WRITE_ONLY| TRUNCATE));
+  _file = new File(filesystem.open("UPDATE.BIN", CREATE | WRITE_ONLY| TRUNCATE));
   if(SPIFFS_OK != filesystem.err()) {
     Debug.print(DBG_ERROR, "OTAStorage_MKRMEM::open - open() failed with error code %d", filesystem.err());
     delete _file;
@@ -79,7 +79,7 @@ void OTAStorage_MKRMEM::close()
 
 void OTAStorage_MKRMEM::remove()
 {
-  filesystem.remove("UPDATE.bin");
+  filesystem.remove("UPDATE.BIN");
 }
 
 void OTAStorage_MKRMEM::deinit()
