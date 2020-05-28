@@ -22,7 +22,7 @@
  * INCLUDE
  ******************************************************************************/
 
-#include "OTAConfig.h"
+#include <ArduinoIoTCloud_Config.h>
 #if OTA_STORAGE_MKRMEM
 
 #include "OTAStorage.h"

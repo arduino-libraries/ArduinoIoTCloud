@@ -19,8 +19,20 @@
 #define ARDUINO_IOT_CLOUD_CONFIG_H_
 
 /******************************************************************************
+ * USER CONFIGURED DEFINES
+ ******************************************************************************/
+
+#ifndef OTA_STORAGE_MKRMEM
+  #define OTA_STORAGE_MKRMEM      (1)
+#endif
+
+/******************************************************************************
  * AUTOMATIC CONFIGURED DEFINES
  ******************************************************************************/
+
+#if !defined(ARDUINO_SAMD_MKR1000) && !defined(ARDUINO_SAMD_MKRWIFI1010) && !defined(ARDUINO_SAMD_MKRGSM1400) && !defined(ARDUINO_SAMD_MKRNB1500)
+  #define OTA_STORAGE_MKRMEM      (0)
+#endif
 
 #if defined(ARDUINO_SAMD_MKRGSM1400) || defined(ARDUINO_SAMD_MKRWIFI1010) ||   \
   defined(ARDUINO_SAMD_MKR1000) || defined(ARDUINO_SAMD_NANO_33_IOT)      ||   \
