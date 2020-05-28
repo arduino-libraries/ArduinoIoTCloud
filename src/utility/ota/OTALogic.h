@@ -22,6 +22,9 @@
  * INCLUDE
  ******************************************************************************/
 
+#include <ArduinoIoTCloud_Config.h>
+#if OTA_ENABLED
+
 #include "OTAStorage.h"
 
 #include "crc.h"
@@ -110,5 +113,7 @@ private:
   void init_ota_binary_data();
 
 };
+
+#endif /* OTA_ENABLED */
 
 #endif /* ARDUINO_OTA_LOGIC_H_ */

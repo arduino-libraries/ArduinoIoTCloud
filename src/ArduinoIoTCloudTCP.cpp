@@ -59,27 +59,29 @@ static unsigned long getTime()
    CTOR/DTOR
  ******************************************************************************/
 
-ArduinoIoTCloudTCP::ArduinoIoTCloudTCP():
-  _lastSyncRequestTickTime{0},
-  _mqtt_data_buf{0},
-  _mqtt_data_len{0},
-  _mqtt_data_request_retransmit{false},
-  _sslClient(NULL),
+ArduinoIoTCloudTCP::ArduinoIoTCloudTCP()
+: _lastSyncRequestTickTime{0}
+, _mqtt_data_buf{0}
+, _mqtt_data_len{0}
+, _mqtt_data_request_retransmit{false}
+, _sslClient(NULL)
   #ifdef BOARD_ESP
-  _password(""),
+, _password("")
   #endif
-  _mqttClient(NULL),
-  _syncStatus{ArduinoIoTSynchronizationStatus::SYNC_STATUS_SYNCHRONIZED},
-  _stdinTopic(""),
-  _stdoutTopic(""),
-  _shadowTopicOut(""),
-  _shadowTopicIn(""),
-  _dataTopicOut(""),
-  _dataTopicIn(""),
-  _ota_topic_in{""},
-  _ota_logic{nullptr},
-  _ota_storage_type{static_cast<int>(OTAStorage::Type::NotAvailable)},
-  _ota_error{static_cast<int>(OTAError::None)}
+, _mqttClient(NULL)
+, _syncStatus{ArduinoIoTSynchronizationStatus::SYNC_STATUS_SYNCHRONIZED}
+, _stdinTopic("")
+, _stdoutTopic("")
+, _shadowTopicOut("")
+, _shadowTopicIn("")
+, _dataTopicOut("")
+, _dataTopicIn("")
+, _ota_topic_in{""}
+#if OTA_ENABLED
+, _ota_logic{nullptr}
+, _ota_storage_type{static_cast<int>(OTAStorage::Type::NotAvailable)}
+, _ota_error{static_cast<int>(OTAError::None)}
+#endif /* OTA_ENABLED */
 {
 
 }
@@ -207,6 +209,7 @@ void ArduinoIoTCloudTCP::printDebugInfo()
   Debug.print(DBG_INFO, "MQTT Broker: %s:%d", _brokerAddress.c_str(), _brokerPort);
 }
 
+#if OTA_ENABLED
 void ArduinoIoTCloudTCP::setOTAStorage(OTAStorage & ota_storage)
 {
   _ota_storage_type = static_cast<int>(ota_storage.type());
@@ -215,6 +218,7 @@ void ArduinoIoTCloudTCP::setOTAStorage(OTAStorage & ota_storage)
   if(_ota_logic) delete _ota_logic;
   _ota_logic = new OTALogic(ota_storage);
 }
+#endif /* OTA_ENABLED */
 
 int ArduinoIoTCloudTCP::reconnect()
 {

@@ -19,6 +19,9 @@
  * INCLUDE
  ******************************************************************************/
 
+#include <ArduinoIoTCloud_Config.h>
+#if OTA_ENABLED
+
 #include "OTALogic.h"
 
 #ifndef HOST
@@ -242,3 +245,5 @@ void OTALogic::init_ota_binary_data()
   _ota_bin_data.bytes_received = 0;
   _ota_bin_data.crc32          = crc_init();
 }
+
+#endif /* OTA_ENABLED */

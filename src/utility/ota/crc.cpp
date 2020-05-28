@@ -13,6 +13,10 @@
  *  - ReflectOut    = True
  *  - Algorithm     = table-driven
  */
+
+#include <ArduinoIoTCloud_Config.h>
+#if OTA_ENABLED
+
 #include "crc.h"     /* include the header file generated with pycrc */
 #include <stdlib.h>
 #include <stdint.h>
@@ -70,3 +74,5 @@ crc_t crc_update(crc_t crc, const void *data, size_t data_len)
     }
     return crc & 0xffffffff;
 }
+
+#endif /* OTA_ENABLED */

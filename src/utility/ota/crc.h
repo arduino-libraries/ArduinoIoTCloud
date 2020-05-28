@@ -40,6 +40,9 @@
 #ifndef CRC_H
 #define CRC_H
 
+#include <ArduinoIoTCloud_Config.h>
+#if OTA_ENABLED
+
 #include <stdlib.h>
 #include <stdint.h>
 
@@ -104,3 +107,5 @@ static inline crc_t crc_finalize(crc_t crc)
 #endif
 
 #endif      /* CRC_H */
+
+#endif /* OTA_ENABLED */
