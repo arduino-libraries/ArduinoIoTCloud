@@ -67,7 +67,10 @@ class OTALogic
 
 public:
 
-  OTALogic(OTAStorage & ota_storage);
+  OTALogic();
+
+
+  inline void setOTAStorage(OTAStorage & ota_storage) { _ota_storage = &ota_storage; }
 
 
   OTAError update();
@@ -95,7 +98,7 @@ private:
     crc_t    crc32;
   } sOTABinaryData;
 
-  OTAStorage & _ota_storage;
+  OTAStorage * _ota_storage;
   OTAState _ota_state;
   OTAError _ota_error;
   sMQTTOTABuffer _mqtt_ota_buf;

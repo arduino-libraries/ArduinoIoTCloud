@@ -63,7 +63,8 @@ TEST_CASE("OTAStorage initialisation fails", "[OTAStorage::init() -> returns fal
 
 
   /* Perform test */
-  OTALogic ota_logic(ota_storage.get());
+  OTALogic ota_logic;
+  ota_logic.setOTAStorage(ota_storage.get());
 
   WHEN("OTALogic::update() is called")
   {
@@ -95,7 +96,8 @@ TEST_CASE("OTAStorage opening of storage file fails", "[OTAStorage::open() -> re
 
 
   /* Perform test */
-  OTALogic ota_logic(ota_storage.get());
+  OTALogic ota_logic;
+  ota_logic.setOTAStorage(ota_storage.get());
 
   WHEN("OTALogic::update() is called and some bytes have been received")
   {
@@ -131,7 +133,8 @@ TEST_CASE("OTAStorage writing to storage file fails", "[OTAStorage::write() -> f
 
 
   /* Perform test */
-  OTALogic ota_logic(ota_storage.get());
+  OTALogic ota_logic;
+  ota_logic.setOTAStorage(ota_storage.get());
 
   WHEN("OTALogic::update() is called and some bytes have been received")
   {
@@ -166,7 +169,8 @@ TEST_CASE("Data overrun due to receiving too much data", "[OTALogic - Data Overr
 
 
   /* Perform test */
-  OTALogic ota_logic(ota_storage.get());
+  OTALogic ota_logic;
+  ota_logic.setOTAStorage(ota_storage.get());
 
   WHEN("Too much data is received before OTALogic::update() is called again to process the incoming data")
   {
@@ -213,7 +217,8 @@ TEST_CASE("Valid OTA data is received ", "[OTALogic]")
 
 
   /* Perform test */
-  OTALogic ota_logic(ota_storage.get());
+  OTALogic ota_logic;
+  ota_logic.setOTAStorage(ota_storage.get());
   simulateOTABinaryReception(ota_logic, valid_ota_test_data);
 
 
@@ -259,7 +264,8 @@ TEST_CASE("Invalid OTA data is received ", "[OTALogic - CRC wrong]")
 
 
   /* Perform test */
-  OTALogic ota_logic(ota_storage.get());
+  OTALogic ota_logic;
+  ota_logic.setOTAStorage(ota_storage.get());
   simulateOTABinaryReception(ota_logic, invalid_valid_ota_test_data_crc_wrong);
 
   

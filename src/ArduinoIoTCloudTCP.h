@@ -128,7 +128,7 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
     String _ota_topic_in;
 
 #if OTA_ENABLED
-    OTALogic * _ota_logic;
+    OTALogic _ota_logic;
     int _ota_storage_type;
     int _ota_error;
 #endif /* OTA_ENABLED */

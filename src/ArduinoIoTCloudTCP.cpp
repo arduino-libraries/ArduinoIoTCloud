@@ -78,7 +78,6 @@ ArduinoIoTCloudTCP::ArduinoIoTCloudTCP()
 , _dataTopicIn("")
 , _ota_topic_in{""}
 #if OTA_ENABLED
-, _ota_logic{nullptr}
 , _ota_storage_type{static_cast<int>(OTAStorage::Type::NotAvailable)}
 , _ota_error{static_cast<int>(OTAError::None)}
 #endif /* OTA_ENABLED */
@@ -155,10 +154,8 @@ void ArduinoIoTCloudTCP::update()
    * 'update' method here in order to process incoming data and generally
    * to transition to the OTA logic update states.
    */
-  if (_ota_logic) {
-    OTAError const err = _ota_logic->update();
-    _ota_error = static_cast<int>(err);
-  }
+  OTAError const err = _ota_logic.update();
+  _ota_error = static_cast<int>(err);
 #endif /* OTA_ENABLED */
 
   // Check if a primitive property wrapper is locally changed
@@ -217,8 +214,7 @@ void ArduinoIoTCloudTCP::setOTAStorage(OTAStorage & ota_storage)
   _ota_storage_type = static_cast<int>(ota_storage.type());
   addPropertyReal(_ota_storage_type, "OTA_STORAGE_TYPE", Permission::Read);
   addPropertyReal(_ota_error, "OTA_ERROR", Permission::Read);
-  if(_ota_logic) delete _ota_logic;
-  _ota_logic = new OTALogic(ota_storage);
+  _ota_logic.setOTAStorage(ota_storage);
 }
 #endif /* OTA_ENABLED */
 
@@ -287,8 +283,8 @@ void ArduinoIoTCloudTCP::handleMessage(int length)
     _syncStatus = ArduinoIoTSynchronizationStatus::SYNC_STATUS_VALUES_PROCESSED;
   }
 #if OTA_ENABLED
-  if (_ota_logic && (_ota_topic_in == topic)) {
-    _ota_logic->onOTADataReceived(bytes, length);
+  if (_ota_topic_in == topic) {
+    _ota_logic.onOTADataReceived(bytes, length);
   }
 #endif /* OTA_ENABLED */
 }

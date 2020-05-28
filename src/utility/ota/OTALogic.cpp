@@ -41,8 +41,8 @@
  * CTOR/DTOR
  ******************************************************************************/
 
-OTALogic::OTALogic(OTAStorage & ota_storage)
-: _ota_storage(ota_storage)
+OTALogic::OTALogic()
+: _ota_storage{nullptr}
 , _ota_state{OTAState::Init}
 , _ota_error{OTAError::None}
 {
@@ -105,7 +105,7 @@ void OTALogic::onOTADataReceived(uint8_t const * const data, size_t const length
 
 OTAState OTALogic::handle_Init()
 {
-  if (_ota_storage.init()) {
+  if (_ota_storage->init()) {
     return OTAState::Idle;
   } else {
     _ota_error = OTAError::StorageInitFailed;
@@ -123,7 +123,7 @@ OTAState OTALogic::handle_Idle()
 
 OTAState OTALogic::handle_StartDownload()
 {
-  if(_ota_storage.open()) {
+  if(_ota_storage->open()) {
     return OTAState::WaitForHeader;
   } else {
     _ota_error = OTAError::StorageOpenFailed;
@@ -187,7 +187,7 @@ OTAState OTALogic::handle_WaitForBinary()
 OTAState OTALogic::handle_BinaryReceived()
 {
   /* Write to OTA storage */
-  if(_ota_storage.write(_mqtt_ota_buf.buf, _mqtt_ota_buf.num_bytes) != _mqtt_ota_buf.num_bytes)
+  if(_ota_storage->write(_mqtt_ota_buf.buf, _mqtt_ota_buf.num_bytes) != _mqtt_ota_buf.num_bytes)
   {
     _ota_error = OTAError::StorageWriteFailed;
     return OTAState::Error;
@@ -201,7 +201,7 @@ OTAState OTALogic::handle_BinaryReceived()
   _mqtt_ota_buf.num_bytes = 0;
 
   if(_ota_bin_data.bytes_received >= _ota_bin_data.hdr_len) {
-    _ota_storage.close();
+    _ota_storage->close();
     _ota_bin_data.crc32 = crc_finalize(_ota_bin_data.crc32);
     return OTAState::Verify;
   }
@@ -212,10 +212,10 @@ OTAState OTALogic::handle_BinaryReceived()
 OTAState OTALogic::handle_Verify()
 {
   if(_ota_bin_data.crc32 == _ota_bin_data.hdr_crc32) {
-    _ota_storage.deinit();
+    _ota_storage->deinit();
     return OTAState::Reset;
   } else {
-    _ota_storage.remove();
+    _ota_storage->remove();
     _ota_error = OTAError::ChecksumMismatch;
     return OTAState::Error;
   }
