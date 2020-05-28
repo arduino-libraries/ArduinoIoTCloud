@@ -34,6 +34,12 @@
   #define OTA_STORAGE_MKRMEM      (0)
 #endif
 
+#if OTA_STORAGE_MKRMEM
+  #define OTA_ENABLED             (1)
+#else
+  #define OTA_ENABLED             (0)
+#endif
+
 #if defined(ARDUINO_SAMD_MKRGSM1400) || defined(ARDUINO_SAMD_MKRWIFI1010) ||   \
   defined(ARDUINO_SAMD_MKR1000) || defined(ARDUINO_SAMD_NANO_33_IOT)      ||   \
   defined(ARDUINO_SAMD_MKRNB1500)
