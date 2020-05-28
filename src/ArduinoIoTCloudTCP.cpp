@@ -150,6 +150,7 @@ int ArduinoIoTCloudTCP::begin(String brokerAddress, uint16_t brokerPort)
 
 void ArduinoIoTCloudTCP::update()
 {
+#if OTA_ENABLED
   /* If a _ota_logic object has been instantiated then we are spinning its
    * 'update' method here in order to process incoming data and generally
    * to transition to the OTA logic update states.
@@ -158,6 +159,7 @@ void ArduinoIoTCloudTCP::update()
     OTAError const err = _ota_logic->update();
     _ota_error = static_cast<int>(err);
   }
+#endif /* OTA_ENABLED */
 
   // Check if a primitive property wrapper is locally changed
   _thing.updateTimestampOnLocallyChangedProperties();
@@ -284,9 +286,11 @@ void ArduinoIoTCloudTCP::handleMessage(int length)
     sendPropertiesToCloud();
     _syncStatus = ArduinoIoTSynchronizationStatus::SYNC_STATUS_VALUES_PROCESSED;
   }
+#if OTA_ENABLED
   if (_ota_logic && (_ota_topic_in == topic)) {
     _ota_logic->onOTADataReceived(bytes, length);
   }
+#endif /* OTA_ENABLED */
 }
 
 void ArduinoIoTCloudTCP::sendPropertiesToCloud()
