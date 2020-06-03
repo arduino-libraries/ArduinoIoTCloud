@@ -18,7 +18,7 @@
 #ifndef __NTP_UTILS__
 #define __NTP_UTILS__
 
-#include "../../ArduinoIoTCloud_Defines.h"
+#include "../../ArduinoIoTCloud_Config.h"
 #ifndef HAS_LORA
 
 /*

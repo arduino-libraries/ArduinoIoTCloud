@@ -19,7 +19,7 @@
  * INCLUDE
  ******************************************************************************/
 
-#include <ArduinoIoTCloud_Defines.h>
+#include <ArduinoIoTCloud_Config.h>
 
 #ifdef BOARD_HAS_ECCX08
 

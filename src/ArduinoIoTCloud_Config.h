@@ -1,7 +1,7 @@
 /*
    This file is part of ArduinoIoTCloud.
 
-   Copyright 2019 ARDUINO SA (http://www.arduino.cc/)
+   Copyright 2020 ARDUINO SA (http://www.arduino.cc/)
 
    This software is released under the GNU General Public License version 3,
    which covers the main part of arduino-cli.
@@ -15,8 +15,30 @@
    a commercial license, send an email to license@arduino.cc.
 */
 
-#ifndef ARDUINO_IOT_CLOUD_DEFINES_H_
-#define ARDUINO_IOT_CLOUD_DEFINES_H_
+#ifndef ARDUINO_IOT_CLOUD_CONFIG_H_
+#define ARDUINO_IOT_CLOUD_CONFIG_H_
+
+/******************************************************************************
+ * USER CONFIGURED DEFINES
+ ******************************************************************************/
+
+#ifndef OTA_STORAGE_MKRMEM
+  #define OTA_STORAGE_MKRMEM      (0)
+#endif
+
+/******************************************************************************
+ * AUTOMATIC CONFIGURED DEFINES
+ ******************************************************************************/
+
+#if !defined(ARDUINO_SAMD_MKR1000) && !defined(ARDUINO_SAMD_MKRWIFI1010) && !defined(ARDUINO_SAMD_MKRGSM1400) && !defined(ARDUINO_SAMD_MKRNB1500)
+  #define OTA_STORAGE_MKRMEM      (0)
+#endif
+
+#if OTA_STORAGE_MKRMEM
+  #define OTA_ENABLED             (1)
+#else
+  #define OTA_ENABLED             (0)
+#endif
 
 #if defined(ARDUINO_SAMD_MKRGSM1400) || defined(ARDUINO_SAMD_MKRWIFI1010) ||   \
   defined(ARDUINO_SAMD_MKR1000) || defined(ARDUINO_SAMD_NANO_33_IOT)      ||   \
@@ -34,4 +56,4 @@
   #define HAS_TCP
 #endif
 
-#endif /* ARDUINO_IOT_CLOUD_DEFINES_H_ */
+#endif /* ARDUINO_IOT_CLOUD_CONFIG_H_ */

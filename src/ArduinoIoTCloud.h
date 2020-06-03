@@ -22,7 +22,7 @@
  * INCLUDE
  ******************************************************************************/
 
-#include <ArduinoIoTCloud_Defines.h>
+#include <ArduinoIoTCloud_Config.h>
 
 #include <ArduinoCloudThing.h>
 #include <Arduino_ConnectionHandler.h>

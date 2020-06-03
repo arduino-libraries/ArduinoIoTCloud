@@ -19,7 +19,7 @@
  * INCLUDE
  ******************************************************************************/
 
-#include "ArduinoIoTCloud_Defines.h"
+#include <ArduinoIoTCloud_Config.h>
 
 #ifdef HAS_TCP
 #include <ArduinoIoTCloudTCP.h>
@@ -59,23 +59,28 @@ static unsigned long getTime()
    CTOR/DTOR
  ******************************************************************************/
 
-ArduinoIoTCloudTCP::ArduinoIoTCloudTCP():
-  _lastSyncRequestTickTime{0},
-  _mqtt_data_buf{0},
-  _mqtt_data_len{0},
-  _mqtt_data_request_retransmit{false},
-  _sslClient(NULL),
+ArduinoIoTCloudTCP::ArduinoIoTCloudTCP()
+: _lastSyncRequestTickTime{0}
+, _mqtt_data_buf{0}
+, _mqtt_data_len{0}
+, _mqtt_data_request_retransmit{false}
+, _sslClient(NULL)
   #ifdef BOARD_ESP
-  _password(""),
+, _password("")
   #endif
-  _mqttClient(NULL),
-  _syncStatus{ArduinoIoTSynchronizationStatus::SYNC_STATUS_SYNCHRONIZED},
-  _stdinTopic(""),
-  _stdoutTopic(""),
-  _shadowTopicOut(""),
-  _shadowTopicIn(""),
-  _dataTopicOut(""),
-  _dataTopicIn("")
+, _mqttClient(NULL)
+, _syncStatus{ArduinoIoTSynchronizationStatus::SYNC_STATUS_SYNCHRONIZED}
+, _stdinTopic("")
+, _stdoutTopic("")
+, _shadowTopicOut("")
+, _shadowTopicIn("")
+, _dataTopicOut("")
+, _dataTopicIn("")
+, _ota_topic_in{""}
+#if OTA_ENABLED
+, _ota_storage_type{static_cast<int>(OTAStorage::Type::NotAvailable)}
+, _ota_error{static_cast<int>(OTAError::None)}
+#endif /* OTA_ENABLED */
 {
 
 }
@@ -132,6 +137,7 @@ int ArduinoIoTCloudTCP::begin(String brokerAddress, uint16_t brokerPort)
   _shadowTopicIn  = getTopic_shadowin();
   _dataTopicOut   = getTopic_dataout();
   _dataTopicIn    = getTopic_datain();
+  _ota_topic_in   = getTopic_ota_in();
 
   _thing.begin();
   _thing.registerGetTimeCallbackFunc(getTime);
@@ -143,6 +149,15 @@ int ArduinoIoTCloudTCP::begin(String brokerAddress, uint16_t brokerPort)
 
 void ArduinoIoTCloudTCP::update()
 {
+#if OTA_ENABLED
+  /* If a _ota_logic object has been instantiated then we are spinning its
+   * 'update' method here in order to process incoming data and generally
+   * to transition to the OTA logic update states.
+   */
+  OTAError const err = _ota_logic.update();
+  _ota_error = static_cast<int>(err);
+#endif /* OTA_ENABLED */
+
   // Check if a primitive property wrapper is locally changed
   _thing.updateTimestampOnLocallyChangedProperties();
 
@@ -193,6 +208,16 @@ void ArduinoIoTCloudTCP::printDebugInfo()
   Debug.print(DBG_INFO, "MQTT Broker: %s:%d", _brokerAddress.c_str(), _brokerPort);
 }
 
+#if OTA_ENABLED
+void ArduinoIoTCloudTCP::setOTAStorage(OTAStorage & ota_storage)
+{
+  _ota_storage_type = static_cast<int>(ota_storage.type());
+  addPropertyReal(_ota_storage_type, "OTA_STORAGE_TYPE", Permission::Read);
+  addPropertyReal(_ota_error, "OTA_ERROR", Permission::Read);
+  _ota_logic.setOTAStorage(ota_storage);
+}
+#endif /* OTA_ENABLED */
+
 int ArduinoIoTCloudTCP::reconnect()
 {
   if (_mqttClient->connected()) {
@@ -210,6 +235,7 @@ int ArduinoIoTCloudTCP::connect()
   if (!_mqttClient->connect(_brokerAddress.c_str(), _brokerPort)) return CONNECT_FAILURE;
   if (_mqttClient->subscribe(_stdinTopic) == 0)                   return CONNECT_FAILURE_SUBSCRIBE;
   if (_mqttClient->subscribe(_dataTopicIn) == 0)                  return CONNECT_FAILURE_SUBSCRIBE;
+  if (_mqttClient->subscribe(_ota_topic_in) == 0)                 return CONNECT_FAILURE_SUBSCRIBE;
 
   if (_shadowTopicIn != "")
   {
@@ -256,6 +282,11 @@ void ArduinoIoTCloudTCP::handleMessage(int length)
     sendPropertiesToCloud();
     _syncStatus = ArduinoIoTSynchronizationStatus::SYNC_STATUS_VALUES_PROCESSED;
   }
+#if OTA_ENABLED
+  if (_ota_topic_in == topic) {
+    _ota_logic.onOTADataReceived(bytes, length);
+  }
+#endif /* OTA_ENABLED */
 }
 
 void ArduinoIoTCloudTCP::sendPropertiesToCloud()
