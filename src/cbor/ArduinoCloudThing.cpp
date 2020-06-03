@@ -21,7 +21,7 @@
 
 #include <Arduino.h>
 
-#include <ArduinoCloudThing.h>
+#include "ArduinoCloudThing.h"
 
 /******************************************************************************
    DEBUG FUNCTIONS
