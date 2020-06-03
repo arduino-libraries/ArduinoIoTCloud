@@ -38,7 +38,7 @@ jobs:
           cd "$BUILD_PATH"
           sudo apt-get --assume-yes install lcov > /dev/null
           lcov --directory . --capture --output-file coverage.info
-          lcov --quiet --remove coverage.info '*/extras/test/*' '/usr/*' --output-file coverage.info
+          lcov --quiet --remove coverage.info '*/extras/test/*' '/usr/*' '*/src/cbor/lib/*' --output-file coverage.info
           lcov --list coverage.info
 
       - name: Upload coverage report to Codecov
