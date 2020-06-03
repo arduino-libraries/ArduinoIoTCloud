@@ -18,7 +18,7 @@ jobs:
 
     env:
       # libraries to install for all boards
-      UNIVERSAL_LIBRARIES: '"ArduinoCloudThing" "Arduino_ConnectionHandler" "Arduino_DebugUtils" "ArduinoMqttClient"'
+      UNIVERSAL_LIBRARIES: '"Arduino_ConnectionHandler" "Arduino_DebugUtils" "ArduinoMqttClient"'
       # sketch paths to compile (recursive) for all boards
       UNIVERSAL_SKETCH_PATHS: '"examples/ArduinoIoTCloud-Advanced" "examples/ArduinoIoTCloud-Basic" "examples/utility/ArduinoIoTCloud_Travis_CI"'
 
