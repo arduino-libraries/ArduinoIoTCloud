@@ -64,11 +64,13 @@ ArduinoIoTCloudTCP::ArduinoIoTCloudTCP()
 , _mqtt_data_buf{0}
 , _mqtt_data_len{0}
 , _mqtt_data_request_retransmit{false}
-, _sslClient(NULL)
+#ifdef BOARD_HAS_ECCX08
+, _sslClient(nullptr, ArduinoIoTCloudTrustAnchor, ArduinoIoTCloudTrustAnchor_NUM)
+#endif
   #ifdef BOARD_ESP
 , _password("")
   #endif
-, _mqttClient(NULL)
+, _mqttClient{nullptr}
 , _syncStatus{ArduinoIoTSynchronizationStatus::SYNC_STATUS_SYNCHRONIZED}
 , _stdinTopic("")
 , _stdoutTopic("")
@@ -83,12 +85,6 @@ ArduinoIoTCloudTCP::ArduinoIoTCloudTCP()
 #endif /* OTA_ENABLED */
 {
 
-}
-
-ArduinoIoTCloudTCP::~ArduinoIoTCloudTCP()
-{
-  delete _mqttClient; _mqttClient = NULL;
-  delete _sslClient;  _sslClient = NULL;
 }
 
 /******************************************************************************
@@ -115,21 +111,20 @@ int ArduinoIoTCloudTCP::begin(String brokerAddress, uint16_t brokerPort)
   if (!CryptoUtil::readDeviceId(ECCX08, getDeviceId(), ECCX08Slot::DeviceId))                                                                                                  { Debug.print(DBG_ERROR, "Cryptography processor read failure."); return 0; }
   if (!CryptoUtil::reconstructCertificate(_eccx08_cert, getDeviceId(), ECCX08Slot::Key, ECCX08Slot::CompressedCertificate, ECCX08Slot::SerialNumberAndAuthorityKeyIdentifier)) { Debug.print(DBG_ERROR, "Cryptography certificate reconstruction failure."); return 0; }
   ArduinoBearSSL.onGetTime(getTime);
-  _sslClient = new BearSSLClient(_connection->getClient(), ArduinoIoTCloudTrustAnchor, ArduinoIoTCloudTrustAnchor_NUM);
-  _sslClient->setEccSlot(static_cast<int>(ECCX08Slot::Key), _eccx08_cert.bytes(), _eccx08_cert.length());
+  _sslClient.setClient(_connection->getClient());
+  _sslClient.setEccSlot(static_cast<int>(ECCX08Slot::Key), _eccx08_cert.bytes(), _eccx08_cert.length());
   #elif defined(BOARD_ESP)
-  _sslClient = new WiFiClientSecure();
-  _sslClient->setInsecure();
+  _sslClient.setInsecure();
   #endif
 
-  _mqttClient = new MqttClient(*_sslClient);
+  _mqttClient.setClient(_sslClient);
   #ifdef BOARD_ESP
-  _mqttClient->setUsernamePassword(getDeviceId(), _password);
+  _mqttClient.setUsernamePassword(getDeviceId(), _password);
   #endif
-  _mqttClient->onMessage(ArduinoIoTCloudTCP::onMessage);
-  _mqttClient->setKeepAliveInterval(30 * 1000);
-  _mqttClient->setConnectionTimeout(1500);
-  _mqttClient->setId(getDeviceId().c_str());
+  _mqttClient.onMessage(ArduinoIoTCloudTCP::onMessage);
+  _mqttClient.setKeepAliveInterval(30 * 1000);
+  _mqttClient.setConnectionTimeout(1500);
+  _mqttClient.setId(getDeviceId().c_str());
 
   _stdinTopic     = getTopic_stdin();
   _stdoutTopic    = getTopic_stdout();
@@ -170,7 +165,7 @@ void ArduinoIoTCloudTCP::update()
   }
 
   // MTTQClient connected!, poll() used to retrieve data from MQTT broker
-  _mqttClient->poll();
+  _mqttClient.poll();
 
   switch (_syncStatus)
   {
@@ -197,7 +192,7 @@ void ArduinoIoTCloudTCP::update()
 
 int ArduinoIoTCloudTCP::connected()
 {
-  return _mqttClient->connected();
+  return _mqttClient.connected();
 }
 
 void ArduinoIoTCloudTCP::printDebugInfo()
@@ -220,8 +215,8 @@ void ArduinoIoTCloudTCP::setOTAStorage(OTAStorage & ota_storage)
 
 int ArduinoIoTCloudTCP::reconnect()
 {
-  if (_mqttClient->connected()) {
-    _mqttClient->stop();
+  if (_mqttClient.connected()) {
+    _mqttClient.stop();
   }
   return connect();
 }
@@ -232,14 +227,14 @@ int ArduinoIoTCloudTCP::reconnect()
 
 int ArduinoIoTCloudTCP::connect()
 {
-  if (!_mqttClient->connect(_brokerAddress.c_str(), _brokerPort)) return CONNECT_FAILURE;
-  if (_mqttClient->subscribe(_stdinTopic) == 0)                   return CONNECT_FAILURE_SUBSCRIBE;
-  if (_mqttClient->subscribe(_dataTopicIn) == 0)                  return CONNECT_FAILURE_SUBSCRIBE;
-  if (_mqttClient->subscribe(_ota_topic_in) == 0)                 return CONNECT_FAILURE_SUBSCRIBE;
+  if (!_mqttClient.connect(_brokerAddress.c_str(), _brokerPort)) return CONNECT_FAILURE;
+  if (_mqttClient.subscribe(_stdinTopic) == 0)                   return CONNECT_FAILURE_SUBSCRIBE;
+  if (_mqttClient.subscribe(_dataTopicIn) == 0)                  return CONNECT_FAILURE_SUBSCRIBE;
+  if (_mqttClient.subscribe(_ota_topic_in) == 0)                 return CONNECT_FAILURE_SUBSCRIBE;
 
   if (_shadowTopicIn != "")
   {
-    if (_mqttClient->subscribe(_shadowTopicIn) == 0)              return CONNECT_FAILURE_SUBSCRIBE;
+    if (_mqttClient.subscribe(_shadowTopicIn) == 0)              return CONNECT_FAILURE_SUBSCRIBE;
     _syncStatus = ArduinoIoTSynchronizationStatus::SYNC_STATUS_WAIT_FOR_CLOUD_VALUES;
     _lastSyncRequestTickTime = 0;
   }
@@ -249,7 +244,7 @@ int ArduinoIoTCloudTCP::connect()
 
 void ArduinoIoTCloudTCP::disconnect()
 {
-  _mqttClient->stop();
+  _mqttClient.stop();
 }
 
 /******************************************************************************
@@ -263,12 +258,12 @@ void ArduinoIoTCloudTCP::onMessage(int length)
 
 void ArduinoIoTCloudTCP::handleMessage(int length)
 {
-  String topic = _mqttClient->messageTopic();
+  String topic = _mqttClient.messageTopic();
 
   byte bytes[length];
 
   for (int i = 0; i < length; i++) {
-    bytes[i] = _mqttClient->read();
+    bytes[i] = _mqttClient.read();
   }
 
   if (_stdinTopic == topic) {
@@ -354,7 +349,7 @@ ArduinoIoTConnectionStatus ArduinoIoTCloudTCP::checkCloudConnection()
 
     case ArduinoIoTConnectionStatus::CONNECTED:
     {
-      if (!_mqttClient->connected())
+      if (!_mqttClient.connected())
       {
         next_iot_status = ArduinoIoTConnectionStatus::DISCONNECTED;
         _mqtt_data_request_retransmit = true;
@@ -376,9 +371,9 @@ ArduinoIoTConnectionStatus ArduinoIoTCloudTCP::checkCloudConnection()
 
 int ArduinoIoTCloudTCP::write(String const topic, byte const data[], int const length)
 {
-  if (_mqttClient->beginMessage(topic, length, false, 0)) {
-    if (_mqttClient->write(data, length)) {
-      if (_mqttClient->endMessage()) {
+  if (_mqttClient.beginMessage(topic, length, false, 0)) {
+    if (_mqttClient.write(data, length)) {
+      if (_mqttClient.endMessage()) {
         return 1;
       }
     }
