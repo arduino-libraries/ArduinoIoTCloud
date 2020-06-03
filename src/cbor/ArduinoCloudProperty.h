@@ -18,7 +18,7 @@
 #ifndef ARDUINO_CLOUD_PROPERTY_HPP_
 #define ARDUINO_CLOUD_PROPERTY_HPP_
 
-#ifdef HOST_BUILD
+#ifdef HOST
   #define substring(...) substr(__VA_ARGS__)
   #define indexOf(x) find(x)
 #endif
