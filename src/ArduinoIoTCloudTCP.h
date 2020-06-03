@@ -58,7 +58,7 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
   public:
 
              ArduinoIoTCloudTCP();
-    virtual ~ArduinoIoTCloudTCP();
+    virtual ~ArduinoIoTCloudTCP() { }
 
 
     virtual void update        () override;
@@ -108,13 +108,13 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
 
     #ifdef BOARD_HAS_ECCX08
     ECCX08CertClass _eccx08_cert;
-    BearSSLClient* _sslClient;
+    BearSSLClient _sslClient;
     #elif defined(BOARD_ESP)
-    WiFiClientSecure* _sslClient;
+    WiFiClientSecure _sslClient;
     String _password;
     #endif
 
-    MqttClient* _mqttClient;
+    MqttClient _mqttClient;
 
     ArduinoIoTSynchronizationStatus _syncStatus;
 
