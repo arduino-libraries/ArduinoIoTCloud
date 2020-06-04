@@ -6,7 +6,7 @@
    INCLUDE
  **************************************************************************************/
 
-#include <TestUtil.h>
+#include <util/TestUtil.h>
 
 #include <iomanip>
 #include <iostream>

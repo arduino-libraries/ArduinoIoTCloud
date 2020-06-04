@@ -8,7 +8,7 @@
 
 #include <catch.hpp>
 
-#include <TestUtil.h>
+#include <util/TestUtil.h>
 #include <ArduinoCloudThing.h>
 #include "types/CloudWrapperBool.h"
 
