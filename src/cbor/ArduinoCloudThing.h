@@ -28,24 +28,23 @@
 
 #include "../property/PropertyContainer.h"
 
-#include "types/CloudBool.h"
-#include "types/CloudFloat.h"
-#include "types/CloudInt.h"
-#include "types/CloudString.h"
-#include "types/CloudLocation.h"
-#include "types/CloudColor.h"
-#include "types/CloudWrapperBase.h"
+#include "../property/types/CloudBool.h"
+#include "../property/types/CloudFloat.h"
+#include "../property/types/CloudInt.h"
+#include "../property/types/CloudString.h"
+#include "../property/types/CloudLocation.h"
+#include "../property/types/CloudColor.h"
+#include "../property/types/CloudWrapperBase.h"
 
-#include "types/automation/CloudColoredLight.h"
-#include "types/automation/CloudContactSensor.h"
-#include "types/automation/CloudDimmedLight.h"
-#include "types/automation/CloudLight.h"
-#include "types/automation/CloudMotionSensor.h"
-#include "types/automation/CloudSmartPlug.h"
-#include "types/automation/CloudSwitch.h"
-#include "types/automation/CloudTemperature.h"
-#include "types/automation/CloudTelevision.h"
-
+#include "../property/types/automation/CloudColoredLight.h"
+#include "../property/types/automation/CloudContactSensor.h"
+#include "../property/types/automation/CloudDimmedLight.h"
+#include "../property/types/automation/CloudLight.h"
+#include "../property/types/automation/CloudMotionSensor.h"
+#include "../property/types/automation/CloudSmartPlug.h"
+#include "../property/types/automation/CloudSwitch.h"
+#include "../property/types/automation/CloudTemperature.h"
+#include "../property/types/automation/CloudTelevision.h"
 
 /******************************************************************************
    CONSTANTS

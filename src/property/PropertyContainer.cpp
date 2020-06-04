@@ -23,7 +23,7 @@
 
 #include <algorithm>
 
-#include "../cbor/types/CloudWrapperBase.h"
+#include "types/CloudWrapperBase.h"
 
 /******************************************************************************
    CTOR/DTOR

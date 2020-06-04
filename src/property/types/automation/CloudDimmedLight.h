@@ -24,7 +24,7 @@
 
 #include <math.h>
 #include <Arduino.h>
-#include "../../ArduinoCloudProperty.h"
+#include "../../Property.h"
 
 /******************************************************************************
    CLASS DECLARATION

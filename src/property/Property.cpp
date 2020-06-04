@@ -15,7 +15,7 @@
 // a commercial license, send an email to license@arduino.cc.
 //
 
-#include "ArduinoCloudProperty.h"
+#include "Property.h"
 
 #undef max
 #undef min

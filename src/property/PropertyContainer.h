@@ -22,7 +22,7 @@
    INCLUDE
  ******************************************************************************/
 
-#include "../cbor/ArduinoCloudProperty.h"
+#include "Property.h"
 
 #undef max
 #undef min

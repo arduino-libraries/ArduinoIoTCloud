@@ -28,12 +28,12 @@
 #include <Arduino_DebugUtils.h>
 
 #include "cbor/ArduinoCloudThing.h"
-#include "property/PropertyContainer.h"
 
-#include "cbor/types/CloudWrapperBool.h"
-#include "cbor/types/CloudWrapperFloat.h"
-#include "cbor/types/CloudWrapperInt.h"
-#include "cbor/types/CloudWrapperString.h"
+#include "property/PropertyContainer.h"
+#include "property/types/CloudWrapperBool.h"
+#include "property/types/CloudWrapperFloat.h"
+#include "property/types/CloudWrapperInt.h"
+#include "property/types/CloudWrapperString.h"
 
 #include "CloudSerial.h"
 

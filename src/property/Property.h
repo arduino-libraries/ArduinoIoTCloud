@@ -34,7 +34,7 @@
 #include <list>
 #include <functional>
 
-#include "lib/tinycbor/cbor-lib.h"
+#include "../cbor/lib/tinycbor/cbor-lib.h"
 
 #define appendAttributesToCloud() appendAttributesToCloudReal(CborEncoder *encoder)
 #define appendAttribute(x) appendAttributeReal(x, getAttributeName(#x, '.'), encoder)

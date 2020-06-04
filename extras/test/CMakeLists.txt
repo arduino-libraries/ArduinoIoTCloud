@@ -52,9 +52,9 @@ set(TEST_DUT_SRCS
   ../../src/utility/ota/crc.cpp
   ../../src/utility/ota/OTALogic.cpp
 
+  ../../src/property/Property.cpp
   ../../src/property/PropertyContainer.cpp
   ../../src/cbor/ArduinoCloudThing.cpp
-  ../../src/cbor/ArduinoCloudProperty.cpp
   ../../src/cbor/lib/tinycbor/src/cborencoder.c
   ../../src/cbor/lib/tinycbor/src/cborencoder_close_container_checked.c
   ../../src/cbor/lib/tinycbor/src/cborerrorstrings.c
