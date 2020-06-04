@@ -27,15 +27,14 @@
    INCLUDE
  ******************************************************************************/
 
-
 #include <Arduino.h>
 // in order to allow <functional> to define its own max and min functions
 #undef max
 #undef min
+#include <list>
 #include <functional>
 
 #include "lib/tinycbor/cbor-lib.h"
-#include "lib/LinkedList/LinkedList.h"
 
 #define appendAttributesToCloud() appendAttributesToCloudReal(CborEncoder *encoder)
 #define appendAttribute(x) appendAttributeReal(x, getAttributeName(#x, '.'), encoder)
@@ -169,7 +168,7 @@ class ArduinoCloudProperty {
     void appendAttributeReal(float value, String attributeName = "", CborEncoder *encoder = nullptr);
     void appendAttributeReal(String value, String attributeName = "", CborEncoder *encoder = nullptr);
     void appendAttributeName(String attributeName, std::function<void (CborEncoder& mapEncoder)>f, CborEncoder *encoder);
-    void setAttributesFromCloud(LinkedList<CborMapData *> *map_data_list);
+    void setAttributesFromCloud(std::list<CborMapData *> * map_data_list);
     void setAttributeReal(bool& value, String attributeName = "");
     void setAttributeReal(int& value, String attributeName = "");
     void setAttributeReal(float& value, String attributeName = "");
@@ -206,7 +205,7 @@ class ArduinoCloudProperty {
     /* Variables used for reconnection sync*/
     unsigned long      _last_local_change_timestamp;
     unsigned long      _last_cloud_change_timestamp;
-    LinkedList<CborMapData *> * _map_data_list;
+    std::list<CborMapData *> * _map_data_list;
     /* Store the identifier of the property in the array list */
     int                _identifier;
     int                _attributeIdentifier;
