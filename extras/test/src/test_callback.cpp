@@ -10,6 +10,7 @@
 
 #include <util/CBORTestUtil.h>
 #include <ArduinoCloudThing.h>
+#include <PropertyContainer.h>
 #include "types/CloudWrapperBool.h"
 
 /**************************************************************************************
@@ -39,11 +40,12 @@ SCENARIO("A callback is registered via 'onUpdate' to be called on property chang
   /************************************************************************************/
 
   GIVEN("CloudProtocol::V2") {
+    PropertyContainer property_container;
     ArduinoCloudThing thing;
-    thing.begin();
+    thing.begin(&property_container);
 
     CloudInt test = 10;
-    thing.addPropertyReal(test, "test", Permission::ReadWrite).onUpdate(externalCallbackV2);
+    property_container.addPropertyReal(test, "test", Permission::ReadWrite).onUpdate(externalCallbackV2);
 
     /* [{0: "test", 2: 7}] = 81 A2 00 64 74 65 73 74 02 07 */
     uint8_t const payload[] = {0x81, 0xA2, 0x00, 0x64, 0x74, 0x65, 0x73, 0x74, 0x02, 0x07};
@@ -68,11 +70,12 @@ void switch_callback() {
 
 SCENARIO("A (boolean) property is manipulated in the callback to its origin state", "[ArduinoCloudThing::decode]") {
   GIVEN("CloudProtocol::V2") {
+    PropertyContainer property_container;
     ArduinoCloudThing thing;
-    thing.begin();
+    thing.begin(&property_container);
     cbor::encode(thing);
 
-    thing.addPropertyReal(switch_turned_on, "switch_turned_on", Permission::ReadWrite).onUpdate(switch_callback);
+    property_container.addPropertyReal(switch_turned_on, "switch_turned_on", Permission::ReadWrite).onUpdate(switch_callback);
 
     /* [{0: "switch_turned_on", 4: true}] = 81 A2 00 70 73 77 69 74 63 68 5F 74 75 72 6E 65 64 5F 6F 6E 04 F5 */
     uint8_t const payload[] = {0x81, 0xA2, 0x00, 0x70, 0x73, 0x77, 0x69, 0x74, 0x63, 0x68, 0x5F, 0x74, 0x75, 0x72, 0x6E, 0x65, 0x64, 0x5F, 0x6F, 0x6E, 0x04, 0xF5};
@@ -113,10 +116,11 @@ SCENARIO("After a connection/reconnection an incoming cbor payload is processed 
     sync_callback_called = false;
     change_callback_called = false;
 
+    PropertyContainer property_container;
     ArduinoCloudThing thing;
-    thing.begin();
+    thing.begin(&property_container);
 
-    thing.addPropertyReal(test, "test", Permission::ReadWrite).onUpdate(change_callback).onSync(auto_sync_callback);
+    property_container.addPropertyReal(test, "test", Permission::ReadWrite).onUpdate(change_callback).onSync(auto_sync_callback);
 
     test.setLastLocalChangeTimestamp(1550138809);
 
@@ -140,10 +144,11 @@ SCENARIO("After a connection/reconnection an incoming cbor payload is processed 
     sync_callback_called = false;
     change_callback_called = false;
 
+    PropertyContainer property_container;
     ArduinoCloudThing thing;
-    thing.begin();
+    thing.begin(&property_container);
 
-    thing.addPropertyReal(test, "test", Permission::ReadWrite).onUpdate(change_callback).onSync(auto_sync_callback);
+    property_container.addPropertyReal(test, "test", Permission::ReadWrite).onUpdate(change_callback).onSync(auto_sync_callback);
     test = false;
     test.setLastLocalChangeTimestamp(1550138811);
 
@@ -166,12 +171,13 @@ SCENARIO("Primitive property: After a connection/reconnection an incoming cbor p
     sync_callback_called = false;
     change_callback_called = false;
 
+    PropertyContainer property_container;
     ArduinoCloudThing thing;
-    thing.begin();
+    thing.begin(&property_container);
 
-    thing.addPropertyReal(*p, "test", Permission::ReadWrite).onUpdate(change_callback).onSync(auto_sync_callback);
+    property_container.addPropertyReal(*p, "test", Permission::ReadWrite).onUpdate(change_callback).onSync(auto_sync_callback);
     test = false;
-    thing.updateTimestampOnLocallyChangedProperties();
+    property_container.updateTimestampOnLocallyChangedProperties();
     //There is no RTC on test execution environment so we force the local timestamp
     p->setLastLocalChangeTimestamp(1550138809);
 
@@ -196,12 +202,13 @@ SCENARIO("Primitive property: After a connection/reconnection an incoming cbor p
     sync_callback_called = false;
     change_callback_called = false;
 
+    PropertyContainer property_container;
     ArduinoCloudThing thing;
-    thing.begin();
+    thing.begin(&property_container);
 
-    thing.addPropertyReal(*p, "test", Permission::ReadWrite).onUpdate(change_callback).onSync(auto_sync_callback);
+    property_container.addPropertyReal(*p, "test", Permission::ReadWrite).onUpdate(change_callback).onSync(auto_sync_callback);
     test = false;
-    thing.updateTimestampOnLocallyChangedProperties();
+    property_container.updateTimestampOnLocallyChangedProperties();
     //There is no RTC on test execution environment so we force the local timestamp
     p->setLastLocalChangeTimestamp(1550138811);
 
@@ -223,10 +230,11 @@ SCENARIO("Object property: After a connection/reconnection an incoming cbor payl
     sync_callback_called = false;
     change_callback_called = false;
 
+    PropertyContainer property_container;
     ArduinoCloudThing thing;
-    thing.begin();
+    thing.begin(&property_container);
 
-    thing.addPropertyReal(location_test, "test", Permission::ReadWrite).onUpdate(change_callback).onSync(auto_sync_callback);
+    property_container.addPropertyReal(location_test, "test", Permission::ReadWrite).onUpdate(change_callback).onSync(auto_sync_callback);
     location_test.setLastLocalChangeTimestamp(1550138809);
 
     /* [{-3: 1550138810.00, 0: "test:lat", 3: 2},{0: "test:lon", 3: 3}] = 82 A3 22 FB 41 D7 19 4F 6E 80 00 00 00 68 74 65 73 74 3A 6C 61 74 02 02 A2 00 68 74 65 73 74 3A 6C 6F 6E 02 03*/
@@ -254,10 +262,11 @@ SCENARIO("Object property: After a connection/reconnection an incoming cbor payl
     sync_callback_called = false;
     change_callback_called = false;
 
+    PropertyContainer property_container;
     ArduinoCloudThing thing;
-    thing.begin();
+    thing.begin(&property_container);
 
-    thing.addPropertyReal(location_test, "test", Permission::ReadWrite).onUpdate(change_callback).onSync(auto_sync_callback);
+    property_container.addPropertyReal(location_test, "test", Permission::ReadWrite).onUpdate(change_callback).onSync(auto_sync_callback);
     location_test.setLastLocalChangeTimestamp(1550138811);
 
     /* [{-3: 1550138810.00, 0: "test:lat", 3: 2},{0: "test:lon", 3: 3}] = 82 A3 22 FB 41 D7 19 4F 6E 80 00 00 00 68 74 65 73 74 3A 6C 61 74 02 02 A2 00 68 74 65 73 74 3A 6C 6F 6E 02 03*/
@@ -291,10 +300,11 @@ SCENARIO("After a connection/reconnection an incoming cbor payload is processed 
     sync_callback_called = false;
     change_callback_called = false;
 
+    PropertyContainer property_container;
     ArduinoCloudThing thing;
-    thing.begin();
+    thing.begin(&property_container);
 
-    thing.addPropertyReal(test, "test", Permission::ReadWrite).onUpdate(change_callback).onSync(force_device_sync_callback);
+    property_container.addPropertyReal(test, "test", Permission::ReadWrite).onUpdate(change_callback).onSync(force_device_sync_callback);
 
     /* [{-3: 1550138810.00, 0: "test", 4: true}] = 81 A3 22 FB 41 D7 19 4F 6E 80 00 00 00 64 74 65 73 74 04 F5 */
     uint8_t const payload[] = {0x81, 0xA3, 0x22, 0xFB, 0x41, 0xD7, 0x19, 0x4F, 0x6E, 0x80, 0x00, 0x00, 0x00, 0x64, 0x74, 0x65, 0x73, 0x74, 0x04, 0xF5};
@@ -323,10 +333,11 @@ SCENARIO("After a connection/reconnection an incoming cbor payload is processed 
     sync_callback_called = false;
     change_callback_called = false;
 
+    PropertyContainer property_container;
     ArduinoCloudThing thing;
-    thing.begin();
+    thing.begin(&property_container);
 
-    thing.addPropertyReal(test, "test", Permission::ReadWrite).onUpdate(change_callback).onSync(force_cloud_sync_callback);
+    property_container.addPropertyReal(test, "test", Permission::ReadWrite).onUpdate(change_callback).onSync(force_cloud_sync_callback);
 
     /* [{-3: 1550138810.00, 0: "test", 4: true}] = 81 A3 22 FB 41 D7 19 4F 6E 80 00 00 00 64 74 65 73 74 04 F5 */
     uint8_t const payload[] = {0x81, 0xA3, 0x22, 0xFB, 0x41, 0xD7, 0x19, 0x4F, 0x6E, 0x80, 0x00, 0x00, 0x00, 0x64, 0x74, 0x65, 0x73, 0x74, 0x04, 0xF5};
@@ -349,10 +360,11 @@ SCENARIO("After a connection/reconnection an incoming cbor payload is processed.
     sync_callback_called = false;
     change_callback_called = false;
 
+    PropertyContainer property_container;
     ArduinoCloudThing thing;
-    thing.begin();
+    thing.begin(&property_container);
 
-    thing.addPropertyReal(test, "test", Permission::ReadWrite).onUpdate(change_callback);
+    property_container.addPropertyReal(test, "test", Permission::ReadWrite).onUpdate(change_callback);
 
     /* [{-3: 1550138810.00, 0: "test", 4: true}] = 81 A3 22 FB 41 D7 19 4F 6E 80 00 00 00 64 74 65 73 74 04 F5 */
     uint8_t const payload[] = {0x81, 0xA3, 0x22, 0xFB, 0x41, 0xD7, 0x19, 0x4F, 0x6E, 0x80, 0x00, 0x00, 0x00, 0x64, 0x74, 0x65, 0x73, 0x74, 0x04, 0xF5};

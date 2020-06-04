@@ -10,6 +10,7 @@ project(testArduinoIoTCloud)
 
 include_directories(include)
 include_directories(../../src/cbor)
+include_directories(../../src/property)
 include_directories(../../src/utility/ota)
 include_directories(external/catch/v2.12.1/include)
 include_directories(external/fakeit/v2.0.5/include)
@@ -51,6 +52,7 @@ set(TEST_DUT_SRCS
   ../../src/utility/ota/crc.cpp
   ../../src/utility/ota/OTALogic.cpp
 
+  ../../src/property/PropertyContainer.cpp
   ../../src/cbor/ArduinoCloudThing.cpp
   ../../src/cbor/ArduinoCloudProperty.cpp
   ../../src/cbor/lib/tinycbor/src/cborencoder.c

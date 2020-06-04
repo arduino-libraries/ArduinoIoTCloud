@@ -19,13 +19,14 @@ SCENARIO("A Arduino cloud property is published periodically", "[ArduinoCloudThi
   /************************************************************************************/
 
   GIVEN("CloudProtocol::V2") {
+    PropertyContainer property_container;
     ArduinoCloudThing thing;
-    thing.begin();
+    thing.begin(&property_container);
 
     CloudBool test = true;
     unsigned long const PUBLISH_INTERVAL_SEC = 1 * SECONDS;
 
-    thing.addPropertyReal(test, "test", Permission::ReadWrite).publishEvery(PUBLISH_INTERVAL_SEC);
+    property_container.addPropertyReal(test, "test", Permission::ReadWrite).publishEvery(PUBLISH_INTERVAL_SEC);
 
     WHEN("t = 0 ms, publish interval = 1000 ms, 1st call to 'encode'") {
       set_millis(0);
