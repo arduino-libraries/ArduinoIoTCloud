@@ -8,7 +8,7 @@
 
 #include <catch.hpp>
 
-#include <util/TestUtil.h>
+#include <util/CBORTestUtil.h>
 #include <ArduinoCloudThing.h>
 
 /**************************************************************************************
@@ -24,7 +24,7 @@ SCENARIO("A Arduino cloud property is marked 'write only'", "[ArduinoCloudThing:
   CloudInt test = 0;
   thing.addPropertyReal(test, "test", Permission::Write);
 
-  REQUIRE(encode(thing).size() == 0); /* Since 'test' is 'write only' it should not be encoded */
+  REQUIRE(cbor::encode(thing).size() == 0); /* Since 'test' is 'write only' it should not be encoded */
 
   /************************************************************************************/
 }

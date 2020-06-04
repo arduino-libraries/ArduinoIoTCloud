@@ -8,7 +8,7 @@
 
 #include <catch.hpp>
 
-#include <util/TestUtil.h>
+#include <util/CBORTestUtil.h>
 #include <ArduinoCloudThing.h>
 
 /**************************************************************************************
@@ -30,23 +30,23 @@ SCENARIO("A Arduino cloud property is published periodically", "[ArduinoCloudThi
     WHEN("t = 0 ms, publish interval = 1000 ms, 1st call to 'encode'") {
       set_millis(0);
       THEN("'encode' should encode the property") {
-        REQUIRE(encode(thing).size() != 0);
+        REQUIRE(cbor::encode(thing).size() != 0);
         WHEN("t = 999 ms") {
           set_millis(999);
           THEN("'encode' should not encode the property") {
-            REQUIRE(encode(thing).size() == 0);
+            REQUIRE(cbor::encode(thing).size() == 0);
             WHEN("t = 1000 ms") {
               set_millis(1000);
               THEN("'encode' should encode the property") {
-                REQUIRE(encode(thing).size() != 0);
+                REQUIRE(cbor::encode(thing).size() != 0);
                 WHEN("t = 1999 ms") {
                   set_millis(1999);
                   THEN("'encode' should not encode the property") {
-                    REQUIRE(encode(thing).size() == 0);
+                    REQUIRE(cbor::encode(thing).size() == 0);
                     WHEN("t = 2000 ms") {
                       set_millis(2000);
                       THEN("'encode' should encode the property") {
-                        REQUIRE(encode(thing).size() != 0);
+                        REQUIRE(cbor::encode(thing).size() != 0);
                       }
                     }
                   }
