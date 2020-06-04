@@ -48,9 +48,7 @@ void PrintFreeRam(void) {
  ******************************************************************************/
 
 ArduinoCloudThing::ArduinoCloudThing() :
-  _get_time_func{nullptr},
-  _numPrimitivesProperties(0),
-  _numProperties(0),
+  _property_container{nullptr},
   _isSyncMessage(false),
   _currentPropertyName(""),
   _currentPropertyBaseTime(0),
@@ -61,11 +59,9 @@ ArduinoCloudThing::ArduinoCloudThing() :
    PUBLIC MEMBER FUNCTIONS
  ******************************************************************************/
 
-void ArduinoCloudThing::begin() {
-}
-
-void ArduinoCloudThing::registerGetTimeCallbackFunc(GetTimeCallbackFunc func) {
-  _get_time_func = func;
+void ArduinoCloudThing::begin(PropertyContainer * property_container)
+{
+  _property_container = property_container;
 }
 
 int ArduinoCloudThing::encode(uint8_t * data, size_t const size, bool lightPayload) {
@@ -80,7 +76,7 @@ int ArduinoCloudThing::encode(uint8_t * data, size_t const size, bool lightPaylo
     return -1;
   }
 
-  if (appendChangedProperties(&arrayEncoder, lightPayload) < 1) {
+  if (_property_container->appendChangedProperties(&arrayEncoder, lightPayload) < 1) {
     return -1;
   }
 
@@ -93,21 +89,6 @@ int ArduinoCloudThing::encode(uint8_t * data, size_t const size, bool lightPaylo
   #endif
   int const bytes_encoded = cbor_encoder_get_buffer_size(&encoder, data);
   return bytes_encoded;
-}
-
-ArduinoCloudProperty& ArduinoCloudThing::addPropertyReal(ArduinoCloudProperty & property, String const & name, Permission const permission, int propertyIdentifier) {
-  property.init(name, permission, _get_time_func);
-  if (isPropertyInContainer(name)) {
-    return (*getProperty(name));
-  } else {
-    if (property.isPrimitive()) {
-      _numPrimitivesProperties++;
-    }
-    _numProperties++;
-    addProperty(&property, propertyIdentifier);
-    return (property);
-  }
-
 }
 
 void ArduinoCloudThing::decode(uint8_t const * const payload, size_t const length, bool isSyncMessage) {
@@ -158,81 +139,6 @@ void ArduinoCloudThing::decode(uint8_t const * const payload, size_t const lengt
     }
 
     current_state = next_state;
-  }
-}
-
-bool ArduinoCloudThing::isPropertyInContainer(String const & name)
-{
-  return (getProperty(name) != nullptr);
-}
-
-int ArduinoCloudThing::appendChangedProperties(CborEncoder * arrayEncoder, bool lightPayload)
-{
-  int appendedProperties = 0;
-  std::for_each(_property_list.begin(),
-                _property_list.end(),
-                [arrayEncoder, lightPayload, &appendedProperties](ArduinoCloudProperty * p)
-                {
-                  if (p->shouldBeUpdated() && p->isReadableByCloud())
-                  {
-                    p->append(arrayEncoder, lightPayload);
-                    appendedProperties++;
-                  }
-                });
-  return appendedProperties;
-}
-
-//retrieve property by name
-ArduinoCloudProperty * ArduinoCloudThing::getProperty(String const & name)
-{
-  std::list<ArduinoCloudProperty *>::iterator iter;
-
-  iter = std::find_if(_property_list.begin(),
-                      _property_list.end(),
-                      [name](ArduinoCloudProperty * p) -> bool
-                      {
-                        return (p->name() == name);
-                      });
-
-  if (iter == _property_list.end())
-    return nullptr;
-  else
-    return (*iter);
-}
-
-//retrieve property by identifier
-ArduinoCloudProperty * ArduinoCloudThing::getProperty(int const & pos)
-{
-  std::list<ArduinoCloudProperty *>::iterator iter;
-
-  iter = std::find_if(_property_list.begin(),
-                      _property_list.end(),
-                      [pos](ArduinoCloudProperty * p) -> bool
-                      {
-                        return (p->identifier() == pos);
-                      });
-
-  if (iter == _property_list.end())
-    return nullptr;
-  else
-    return (*iter);
-}
-
-// this function updates the timestamps on the primitive properties that have been modified locally since last cloud synchronization
-void ArduinoCloudThing::updateTimestampOnLocallyChangedProperties()
-{
-  if (_numPrimitivesProperties > 0)
-  {
-    std::for_each(_property_list.begin(),
-                  _property_list.end(),
-                  [](ArduinoCloudProperty * p)
-                  {
-                    CloudWrapperBase * pbase = reinterpret_cast<CloudWrapperBase *>(p);
-                    if (pbase->isPrimitive() && pbase->isChangedLocally() && pbase->isReadableByCloud())
-                    {
-                      p->updateLocalTimestamp();
-                    }
-                  });
   }
 }
 
@@ -511,7 +417,7 @@ void ArduinoCloudThing::freeMapDataList(std::list<CborMapData *> * map_data_list
 }
 
 void ArduinoCloudThing::updateProperty(String propertyName, unsigned long cloudChangeEventTime) {
-  ArduinoCloudProperty* property = getProperty(propertyName);
+  ArduinoCloudProperty* property = _property_container->getProperty(propertyName);
   if (property && property->isWriteableByCloud()) {
     property->setLastCloudChangeTimestamp(cloudChangeEventTime);
     property->setAttributesFromCloud(&_map_data_list);
@@ -528,9 +434,9 @@ void ArduinoCloudThing::updateProperty(String propertyName, unsigned long cloudC
 String ArduinoCloudThing::getPropertyNameByIdentifier(int propertyIdentifier) {
   ArduinoCloudProperty* property;
   if (propertyIdentifier > 255) {
-    property = getProperty(propertyIdentifier & 255);
+    property = _property_container->getProperty(propertyIdentifier & 255);
   } else {
-    property = getProperty(propertyIdentifier);
+    property = _property_container->getProperty(propertyIdentifier);
   }
   return property->name();
 }

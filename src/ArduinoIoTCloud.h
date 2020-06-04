@@ -28,6 +28,7 @@
 #include <Arduino_DebugUtils.h>
 
 #include "cbor/ArduinoCloudThing.h"
+#include "property/PropertyContainer.h"
 
 #include "cbor/types/CloudWrapperBool.h"
 #include "cbor/types/CloudWrapperFloat.h"
@@ -140,6 +141,7 @@ class ArduinoIoTCloudClass
 
     ConnectionHandler * _connection = nullptr;
     ArduinoCloudThing _thing;
+    PropertyContainer _property_container;
     ArduinoIoTConnectionStatus _iot_status = ArduinoIoTConnectionStatus::IDLE;
 
            NetworkConnectionState checkPhyConnection();

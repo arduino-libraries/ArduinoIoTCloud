@@ -56,14 +56,14 @@ int ArduinoIoTCloudLPWAN::begin(ConnectionHandler& connection, bool retry)
 {
   _connection = &connection;
   _retryEnable = retry;
-  _thing.begin();
+  _thing.begin(&_property_container);
   return 1;
 }
 
 void ArduinoIoTCloudLPWAN::update()
 {
   // Check if a primitive property wrapper is locally changed
-  _thing.updateTimestampOnLocallyChangedProperties();
+  _property_container.updateTimestampOnLocallyChangedProperties();
 
   ArduinoIoTConnectionStatus next_iot_status = _iot_status;
 
