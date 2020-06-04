@@ -12,7 +12,7 @@
 #include <catch.hpp>
 #include <fakeit.hpp>
 
-#include <util/OTATestDataGenerator.h>
+#include <util/OTATestUtil.h>
 
 #include <OTALogic.h>
 #include <OTAStorage.h>
@@ -27,7 +27,7 @@ using namespace fakeit;
    TEST HELPER
  **************************************************************************************/
 
-void simulateOTABinaryReception(OTALogic & ota_logic, OTAData const & ota_test_data)
+void simulateOTABinaryReception(OTALogic & ota_logic, ota::OTAData const & ota_test_data)
 {
   uint32_t bytes_written = 0;
   uint32_t const bytes_to_write = sizeof(uint32_t) + sizeof(uint32_t) + ota_test_data.data.len;
@@ -212,8 +212,8 @@ TEST_CASE("Valid OTA data is received ", "[OTALogic]")
 
 
   /* Generate test data */
-  OTAData valid_ota_test_data;
-  generate_valid_ota_data(valid_ota_test_data);
+  ota::OTAData valid_ota_test_data;
+  ota::generate_valid_ota_data(valid_ota_test_data);
 
 
   /* Perform test */
@@ -259,8 +259,8 @@ TEST_CASE("Invalid OTA data is received ", "[OTALogic - CRC wrong]")
 
 
   /* Generate test data */
-  OTAData invalid_valid_ota_test_data_crc_wrong;
-  generate_invalid_ota_data_crc_wrong(invalid_valid_ota_test_data_crc_wrong);
+  ota::OTAData invalid_valid_ota_test_data_crc_wrong;
+  ota::generate_invalid_ota_data_crc_wrong(invalid_valid_ota_test_data_crc_wrong);
 
 
   /* Perform test */

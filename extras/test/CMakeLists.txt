@@ -44,7 +44,7 @@ set(TEST_SRCS
   src/test_writeOnly.cpp
 
   src/util/CBORTestUtil.cpp
-  src/util/OTATestDataGenerator.cpp
+  src/util/OTATestUtil.cpp
 
   ../../src/utility/ota/crc.cpp
   ../../src/utility/ota/OTALogic.cpp
