@@ -8,6 +8,8 @@
 
 #include <catch.hpp>
 
+#include <memory>
+
 #include <util/CBORTestUtil.h>
 #include <ArduinoCloudThing.h>
 #include "types/CloudWrapperBool.h"
@@ -377,15 +379,15 @@ SCENARIO("Arduino Cloud Properties are encoded", "[ArduinoCloudThing::encode]") 
       String str_test;
       str_test = "str_test";
 
-      ArduinoCloudProperty *i = new CloudWrapperInt(int_test);
-      ArduinoCloudProperty *b = new CloudWrapperBool(bool_test);
-      ArduinoCloudProperty *f = new CloudWrapperFloat(float_test);
-      ArduinoCloudProperty *s = new CloudWrapperString(str_test);
+      std::unique_ptr<ArduinoCloudProperty> i(new CloudWrapperInt(int_test));
+      std::unique_ptr<ArduinoCloudProperty> b(new CloudWrapperBool(bool_test));
+      std::unique_ptr<ArduinoCloudProperty> f(new CloudWrapperFloat(float_test));
+      std::unique_ptr<ArduinoCloudProperty> s(new CloudWrapperString(str_test));
 
-      thing.addPropertyReal(*i,   "int_test",   Permission::ReadWrite);
-      thing.addPropertyReal(*b,  "bool_test",  Permission::ReadWrite);
+      thing.addPropertyReal(*i, "int_test",   Permission::ReadWrite);
+      thing.addPropertyReal(*b, "bool_test",  Permission::ReadWrite);
       thing.addPropertyReal(*f, "float_test", Permission::ReadWrite);
-      thing.addPropertyReal(*s,   "str_test",   Permission::ReadWrite);
+      thing.addPropertyReal(*s, "str_test",   Permission::ReadWrite);
 
       thing.updateTimestampOnLocallyChangedProperties();
 

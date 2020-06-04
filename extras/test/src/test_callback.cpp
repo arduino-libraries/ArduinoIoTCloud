@@ -162,7 +162,7 @@ SCENARIO("After a connection/reconnection an incoming cbor payload is processed 
 SCENARIO("Primitive property: After a connection/reconnection an incoming cbor payload is processed and the synchronization callback is executed. The sync callback applies the AUTO_SYNC policy (the most recent value between the local one and the cloud one is finally assigned to the property). The onUpdate function is called if the cloud value is the most recent one. In this scenario the most updated value is the cloud one.") {
   GIVEN("CloudProtocol::V2") {
     bool test = true;
-    ArduinoCloudProperty *p = new CloudWrapperBool(test);
+    std::unique_ptr<ArduinoCloudProperty> p(new CloudWrapperBool(test));
     sync_callback_called = false;
     change_callback_called = false;
 
@@ -192,7 +192,7 @@ SCENARIO("Primitive property: After a connection/reconnection an incoming cbor p
 SCENARIO("Primitive property: After a connection/reconnection an incoming cbor payload is processed and the synchronization callback is executed. The sync callback apply the AUTO_SYNC policy (the most recent value between the local one and the cloud one is finally assigned to the property). The onUpdate function is called if the cloud value is the most recent one. In this scenario the most updated value is the local one.") {
   GIVEN("CloudProtocol::V2") {
     bool test = true;
-    ArduinoCloudProperty *p = new CloudWrapperBool(test);
+    std::unique_ptr<ArduinoCloudProperty> p(new CloudWrapperBool(test));
     sync_callback_called = false;
     change_callback_called = false;
 
