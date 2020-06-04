@@ -48,7 +48,7 @@ void PropertyContainer::begin(GetTimeCallbackFunc func)
 
 Property & PropertyContainer::addPropertyReal(Property & property, String const & name, Permission const permission, int propertyIdentifier)
 {
-  /* Check wether or not the property already has been added to the container */
+  /* Check whether or not the property already has been added to the container */
   Property * p = getProperty(name);
   if(p != nullptr) return (*p);
 
