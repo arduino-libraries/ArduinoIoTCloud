@@ -43,11 +43,11 @@ public:
   void begin(GetTimeCallbackFunc func);
 
 
-  ArduinoCloudProperty & addPropertyReal(ArduinoCloudProperty & property, String const & name, Permission const permission, int propertyIdentifier = -1);
+  Property & addPropertyReal(Property & property, String const & name, Permission const permission, int propertyIdentifier = -1);
 
   
-  ArduinoCloudProperty * getProperty          (String const & name);
-  ArduinoCloudProperty * getProperty          (int const identifier);
+  Property * getProperty          (String const & name);
+  Property * getProperty          (int const identifier);
 
 
   int appendChangedProperties(CborEncoder * arrayEncoder, bool lightPayload);
@@ -60,9 +60,9 @@ private:
   int _numProperties;
   int _numPrimitivesProperties;
   GetTimeCallbackFunc _get_time_func;
-  std::list<ArduinoCloudProperty *> _property_list;
+  std::list<Property *> _property_list;
 
-  void addProperty(ArduinoCloudProperty * property_obj, int propertyIdentifier);
+  void addProperty(Property * property_obj, int propertyIdentifier);
 
 };
 

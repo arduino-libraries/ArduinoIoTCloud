@@ -398,10 +398,10 @@ SCENARIO("Arduino Cloud Properties are encoded", "[ArduinoCloudThing::encode]") 
       String str_test;
       str_test = "str_test";
 
-      std::unique_ptr<ArduinoCloudProperty> i(new CloudWrapperInt(int_test));
-      std::unique_ptr<ArduinoCloudProperty> b(new CloudWrapperBool(bool_test));
-      std::unique_ptr<ArduinoCloudProperty> f(new CloudWrapperFloat(float_test));
-      std::unique_ptr<ArduinoCloudProperty> s(new CloudWrapperString(str_test));
+      std::unique_ptr<Property> i(new CloudWrapperInt(int_test));
+      std::unique_ptr<Property> b(new CloudWrapperBool(bool_test));
+      std::unique_ptr<Property> f(new CloudWrapperFloat(float_test));
+      std::unique_ptr<Property> s(new CloudWrapperString(str_test));
 
       property_container.addPropertyReal(*i, "int_test",   Permission::ReadWrite);
       property_container.addPropertyReal(*b, "bool_test",  Permission::ReadWrite);

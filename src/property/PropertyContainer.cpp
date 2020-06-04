@@ -46,10 +46,10 @@ void PropertyContainer::begin(GetTimeCallbackFunc func)
   _get_time_func = func;
 }
 
-ArduinoCloudProperty & PropertyContainer::addPropertyReal(ArduinoCloudProperty & property, String const & name, Permission const permission, int propertyIdentifier)
+Property & PropertyContainer::addPropertyReal(Property & property, String const & name, Permission const permission, int propertyIdentifier)
 {
   /* Check wether or not the property already has been added to the container */
-  ArduinoCloudProperty * p = getProperty(name);
+  Property * p = getProperty(name);
   if(p != nullptr) return (*p);
 
   /* Initialize property and add it to the container */
@@ -62,13 +62,13 @@ ArduinoCloudProperty & PropertyContainer::addPropertyReal(ArduinoCloudProperty &
 }
 
 
-ArduinoCloudProperty * PropertyContainer::getProperty(String const & name)
+Property * PropertyContainer::getProperty(String const & name)
 {
-  std::list<ArduinoCloudProperty *>::iterator iter;
+  std::list<Property *>::iterator iter;
 
   iter = std::find_if(_property_list.begin(),
                       _property_list.end(),
-                      [name](ArduinoCloudProperty * p) -> bool
+                      [name](Property * p) -> bool
                       {
                         return (p->name() == name);
                       });
@@ -79,13 +79,13 @@ ArduinoCloudProperty * PropertyContainer::getProperty(String const & name)
     return (*iter);
 }
 
-ArduinoCloudProperty * PropertyContainer::getProperty(int const identifier)
+Property * PropertyContainer::getProperty(int const identifier)
 {
-  std::list<ArduinoCloudProperty *>::iterator iter;
+  std::list<Property *>::iterator iter;
 
   iter = std::find_if(_property_list.begin(),
                       _property_list.end(),
-                      [identifier](ArduinoCloudProperty * p) -> bool
+                      [identifier](Property * p) -> bool
                       {
                         return (p->identifier() == identifier);
                       });
@@ -101,7 +101,7 @@ int PropertyContainer::appendChangedProperties(CborEncoder * arrayEncoder, bool 
   int appendedProperties = 0;
   std::for_each(_property_list.begin(),
                 _property_list.end(),
-                [arrayEncoder, lightPayload, &appendedProperties](ArduinoCloudProperty * p)
+                [arrayEncoder, lightPayload, &appendedProperties](Property * p)
                 {
                   if (p->shouldBeUpdated() && p->isReadableByCloud())
                   {
@@ -121,7 +121,7 @@ void PropertyContainer::updateTimestampOnLocallyChangedProperties()
   {
     std::for_each(_property_list.begin(),
                   _property_list.end(),
-                  [](ArduinoCloudProperty * p)
+                  [](Property * p)
                   {
                     CloudWrapperBase * pbase = reinterpret_cast<CloudWrapperBase *>(p);
                     if (pbase->isPrimitive() && pbase->isChangedLocally() && pbase->isReadableByCloud())
@@ -136,7 +136,7 @@ void PropertyContainer::updateTimestampOnLocallyChangedProperties()
    PRIVATE MEMBER FUNCTIONS
  ******************************************************************************/
 
-void PropertyContainer::addProperty(ArduinoCloudProperty * property_obj, int propertyIdentifier)
+void PropertyContainer::addProperty(Property * property_obj, int propertyIdentifier)
 {
   if (propertyIdentifier != -1)
   {

@@ -101,7 +101,7 @@ SCENARIO("A (boolean) property is manipulated in the callback to its origin stat
 static bool sync_callback_called = false;
 static bool change_callback_called = false;
 
-void auto_sync_callback(ArduinoCloudProperty& property) {
+void auto_sync_callback(Property& property) {
   MOST_RECENT_WINS(property);
   sync_callback_called = true;
 }
@@ -167,7 +167,7 @@ SCENARIO("After a connection/reconnection an incoming cbor payload is processed 
 SCENARIO("Primitive property: After a connection/reconnection an incoming cbor payload is processed and the synchronization callback is executed. The sync callback applies the AUTO_SYNC policy (the most recent value between the local one and the cloud one is finally assigned to the property). The onUpdate function is called if the cloud value is the most recent one. In this scenario the most updated value is the cloud one.") {
   GIVEN("CloudProtocol::V2") {
     bool test = true;
-    std::unique_ptr<ArduinoCloudProperty> p(new CloudWrapperBool(test));
+    std::unique_ptr<Property> p(new CloudWrapperBool(test));
     sync_callback_called = false;
     change_callback_called = false;
 
@@ -198,7 +198,7 @@ SCENARIO("Primitive property: After a connection/reconnection an incoming cbor p
 SCENARIO("Primitive property: After a connection/reconnection an incoming cbor payload is processed and the synchronization callback is executed. The sync callback apply the AUTO_SYNC policy (the most recent value between the local one and the cloud one is finally assigned to the property). The onUpdate function is called if the cloud value is the most recent one. In this scenario the most updated value is the local one.") {
   GIVEN("CloudProtocol::V2") {
     bool test = true;
-    std::unique_ptr<ArduinoCloudProperty> p(new CloudWrapperBool(test));
+    std::unique_ptr<Property> p(new CloudWrapperBool(test));
     sync_callback_called = false;
     change_callback_called = false;
 
@@ -288,7 +288,7 @@ SCENARIO("Object property: After a connection/reconnection an incoming cbor payl
 
 /**************************************************************************************/
 
-void force_device_sync_callback(ArduinoCloudProperty& property) {
+void force_device_sync_callback(Property& property) {
   DEVICE_WINS(property);
   sync_callback_called = true;
 }
@@ -321,7 +321,7 @@ SCENARIO("After a connection/reconnection an incoming cbor payload is processed 
 
 /**************************************************************************************/
 
-void force_cloud_sync_callback(ArduinoCloudProperty& property) {
+void force_cloud_sync_callback(Property& property) {
   CLOUD_WINS(property);
   sync_callback_called = true;
 }

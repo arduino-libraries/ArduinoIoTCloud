@@ -127,17 +127,17 @@ typedef unsigned long(*GetTimeCallbackFunc)();
    CLASS DECLARATION
  ******************************************************************************/
 
-class ArduinoCloudProperty {
-    typedef void(*SyncCallbackFunc)(ArduinoCloudProperty &property);
+class Property {
+    typedef void(*SyncCallbackFunc)(Property &property);
   public:
-    ArduinoCloudProperty();
+    Property();
     void init(String const name, Permission const permission, GetTimeCallbackFunc func);
 
-    /* Composable configuration of the ArduinoCloudProperty class */
-    ArduinoCloudProperty & onUpdate(UpdateCallbackFunc func);
-    ArduinoCloudProperty & onSync(SyncCallbackFunc func);
-    ArduinoCloudProperty & publishOnChange(float const min_delta_property, unsigned long const min_time_between_updates_millis = 0);
-    ArduinoCloudProperty & publishEvery(unsigned long const seconds);
+    /* Composable configuration of the Property class */
+    Property & onUpdate(UpdateCallbackFunc func);
+    Property & onSync(SyncCallbackFunc func);
+    Property & publishOnChange(float const min_delta_property, unsigned long const min_time_between_updates_millis = 0);
+    Property & publishEvery(unsigned long const seconds);
 
     inline String name() const {
       return _name;
@@ -194,7 +194,7 @@ class ArduinoCloudProperty {
     Permission         _permission;
     GetTimeCallbackFunc _get_time_func;
     UpdateCallbackFunc _update_callback_func;
-    void (*_sync_callback_func)(ArduinoCloudProperty &property);
+    void (*_sync_callback_func)(Property &property);
 
     UpdatePolicy       _update_policy;
     bool               _has_been_updated_once,
@@ -217,7 +217,7 @@ class ArduinoCloudProperty {
    PROTOTYPE FREE FUNCTIONs
  ******************************************************************************/
 
-inline bool operator == (ArduinoCloudProperty const & lhs, ArduinoCloudProperty const & rhs) {
+inline bool operator == (Property const & lhs, Property const & rhs) {
   return (lhs.name() == rhs.name());
 }
 

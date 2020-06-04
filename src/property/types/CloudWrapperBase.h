@@ -29,7 +29,7 @@
    CLASS DECLARATION
  ******************************************************************************/
 
-class CloudWrapperBase : public ArduinoCloudProperty {
+class CloudWrapperBase : public Property {
   public:
     virtual bool isChangedLocally() = 0;
 };

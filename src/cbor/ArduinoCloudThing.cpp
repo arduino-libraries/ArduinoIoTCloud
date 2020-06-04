@@ -417,7 +417,7 @@ void ArduinoCloudThing::freeMapDataList(std::list<CborMapData *> * map_data_list
 }
 
 void ArduinoCloudThing::updateProperty(String propertyName, unsigned long cloudChangeEventTime) {
-  ArduinoCloudProperty* property = _property_container->getProperty(propertyName);
+  Property* property = _property_container->getProperty(propertyName);
   if (property && property->isWriteableByCloud()) {
     property->setLastCloudChangeTimestamp(cloudChangeEventTime);
     property->setAttributesFromCloud(&_map_data_list);
@@ -432,7 +432,7 @@ void ArduinoCloudThing::updateProperty(String propertyName, unsigned long cloudC
 
 // retrieve the property name by the identifier
 String ArduinoCloudThing::getPropertyNameByIdentifier(int propertyIdentifier) {
-  ArduinoCloudProperty* property;
+  Property* property;
   if (propertyIdentifier > 255) {
     property = _property_container->getProperty(propertyIdentifier & 255);
   } else {
@@ -487,17 +487,17 @@ double ArduinoCloudThing::convertCborHalfFloatToDouble(uint16_t const half_val) 
   return half_val & 0x8000 ? -val : val;
 }
 
-void onAutoSync(ArduinoCloudProperty & property) {
+void onAutoSync(Property & property) {
   if (property.getLastCloudChangeTimestamp() > property.getLastLocalChangeTimestamp()) {
     property.fromCloudToLocal();
     property.execCallbackOnChange();
   }
 }
 
-void onForceCloudSync(ArduinoCloudProperty & property) {
+void onForceCloudSync(Property & property) {
   property.fromCloudToLocal();
   property.execCallbackOnChange();
 }
 
-void onForceDeviceSync(ArduinoCloudProperty & /* property */) {
+void onForceDeviceSync(Property & /* property */) {
 }

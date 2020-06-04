@@ -63,11 +63,11 @@ static long const DAYS      = 86400;
    SYNCHRONIZATION CALLBACKS
  ******************************************************************************/
 
-void onAutoSync(ArduinoCloudProperty & property);
+void onAutoSync(Property & property);
 #define MOST_RECENT_WINS onAutoSync
-void onForceCloudSync(ArduinoCloudProperty & property);
+void onForceCloudSync(Property & property);
 #define CLOUD_WINS onForceCloudSync
-void onForceDeviceSync(ArduinoCloudProperty & property);
+void onForceDeviceSync(Property & property);
 #define DEVICE_WINS onForceDeviceSync // The device property value is already the correct one. The cloud property value will be synchronized at the next update cycle.
 
 /******************************************************************************

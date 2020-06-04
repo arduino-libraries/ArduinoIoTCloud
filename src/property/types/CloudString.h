@@ -31,7 +31,7 @@
 
 
 
-class CloudString : public ArduinoCloudProperty {
+class CloudString : public Property {
   private:
     String  _value,
             _cloud_value;

@@ -136,7 +136,7 @@ class Television {
 
 };
 
-class CloudTelevision : public ArduinoCloudProperty {
+class CloudTelevision : public Property {
   private:
     Television _value,
                _cloud_value;

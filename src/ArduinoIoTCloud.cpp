@@ -30,12 +30,12 @@ void ArduinoIoTCloudClass::addCallback(ArduinoIoTCloudEvent const event, OnCloud
   _cloud_event_callback[static_cast<size_t>(event)] = callback;
 }
 
-void ArduinoIoTCloudClass::addPropertyReal(ArduinoCloudProperty& property, String name, permissionType permission_type, long seconds, void(*fn)(void), float minDelta, void(*synFn)(ArduinoCloudProperty & property))
+void ArduinoIoTCloudClass::addPropertyReal(Property& property, String name, permissionType permission_type, long seconds, void(*fn)(void), float minDelta, void(*synFn)(Property & property))
 {
   addPropertyReal(property, name, -1, permission_type, seconds, fn, minDelta, synFn);
 }
 
-void ArduinoIoTCloudClass::addPropertyReal(ArduinoCloudProperty& property, String name, int tag, permissionType permission_type, long seconds, void(*fn)(void), float minDelta, void(*synFn)(ArduinoCloudProperty & property))
+void ArduinoIoTCloudClass::addPropertyReal(Property& property, String name, int tag, permissionType permission_type, long seconds, void(*fn)(void), float minDelta, void(*synFn)(Property & property))
 {
   Permission permission = Permission::ReadWrite;
   if (permission_type == READ) {
@@ -53,91 +53,91 @@ void ArduinoIoTCloudClass::addPropertyReal(ArduinoCloudProperty& property, Strin
   }
 }
 
-void ArduinoIoTCloudClass::addPropertyReal(bool& property, String name, permissionType permission_type, long seconds, void(*fn)(void), float minDelta, void(*synFn)(ArduinoCloudProperty & property))
+void ArduinoIoTCloudClass::addPropertyReal(bool& property, String name, permissionType permission_type, long seconds, void(*fn)(void), float minDelta, void(*synFn)(Property & property))
 {
   addPropertyReal(property, name, -1, permission_type, seconds, fn, minDelta, synFn);
 }
 
-void ArduinoIoTCloudClass::addPropertyReal(bool& property, String name, int tag, permissionType permission_type, long seconds, void(*fn)(void), float minDelta, void(*synFn)(ArduinoCloudProperty & property))
+void ArduinoIoTCloudClass::addPropertyReal(bool& property, String name, int tag, permissionType permission_type, long seconds, void(*fn)(void), float minDelta, void(*synFn)(Property & property))
 {
-  ArduinoCloudProperty* p = new CloudWrapperBool(property);
+  Property* p = new CloudWrapperBool(property);
   addPropertyReal(*p, name, tag, permission_type, seconds, fn, minDelta, synFn);
 }
 
-ArduinoCloudProperty& ArduinoIoTCloudClass::addPropertyReal(bool& property, String name, Permission const permission)
+Property& ArduinoIoTCloudClass::addPropertyReal(bool& property, String name, Permission const permission)
 {
   return addPropertyReal(property, name, -1, permission);
 }
 
-ArduinoCloudProperty& ArduinoIoTCloudClass::addPropertyReal(bool& property, String name, int tag, Permission const permission)
+Property& ArduinoIoTCloudClass::addPropertyReal(bool& property, String name, int tag, Permission const permission)
 {
-  ArduinoCloudProperty* p = new CloudWrapperBool(property);
+  Property* p = new CloudWrapperBool(property);
   return _property_container.addPropertyReal(*p, name, permission, tag);
 }
 
-void ArduinoIoTCloudClass::addPropertyReal(float& property, String name, permissionType permission_type, long seconds, void(*fn)(void), float minDelta, void(*synFn)(ArduinoCloudProperty & property))
+void ArduinoIoTCloudClass::addPropertyReal(float& property, String name, permissionType permission_type, long seconds, void(*fn)(void), float minDelta, void(*synFn)(Property & property))
 {
   addPropertyReal(property, name, -1, permission_type, seconds, fn, minDelta, synFn);
 }
 
-void ArduinoIoTCloudClass::addPropertyReal(float& property, String name, int tag, permissionType permission_type, long seconds, void(*fn)(void), float minDelta, void(*synFn)(ArduinoCloudProperty & property))
+void ArduinoIoTCloudClass::addPropertyReal(float& property, String name, int tag, permissionType permission_type, long seconds, void(*fn)(void), float minDelta, void(*synFn)(Property & property))
 {
-  ArduinoCloudProperty* p = new CloudWrapperFloat(property);
+  Property* p = new CloudWrapperFloat(property);
   addPropertyReal(*p, name, tag, permission_type, seconds, fn, minDelta, synFn);
 }
 
-ArduinoCloudProperty& ArduinoIoTCloudClass::addPropertyReal(float& property, String name, Permission const permission)
+Property& ArduinoIoTCloudClass::addPropertyReal(float& property, String name, Permission const permission)
 {
   return addPropertyReal(property, name, -1, permission);
 }
 
-ArduinoCloudProperty& ArduinoIoTCloudClass::addPropertyReal(float& property, String name, int tag, Permission const permission)
+Property& ArduinoIoTCloudClass::addPropertyReal(float& property, String name, int tag, Permission const permission)
 {
-  ArduinoCloudProperty* p = new CloudWrapperFloat(property);
+  Property* p = new CloudWrapperFloat(property);
   return _property_container.addPropertyReal(*p, name, permission, tag);
 }
 
-void ArduinoIoTCloudClass::addPropertyReal(int& property, String name, permissionType permission_type, long seconds, void(*fn)(void), float minDelta, void(*synFn)(ArduinoCloudProperty & property))
+void ArduinoIoTCloudClass::addPropertyReal(int& property, String name, permissionType permission_type, long seconds, void(*fn)(void), float minDelta, void(*synFn)(Property & property))
 {
   addPropertyReal(property, name, -1, permission_type, seconds, fn, minDelta, synFn);
 }
 
-void ArduinoIoTCloudClass::addPropertyReal(int& property, String name, int tag, permissionType permission_type, long seconds, void(*fn)(void), float minDelta, void(*synFn)(ArduinoCloudProperty & property))
+void ArduinoIoTCloudClass::addPropertyReal(int& property, String name, int tag, permissionType permission_type, long seconds, void(*fn)(void), float minDelta, void(*synFn)(Property & property))
 {
-  ArduinoCloudProperty* p = new CloudWrapperInt(property);
+  Property* p = new CloudWrapperInt(property);
   addPropertyReal(*p, name, tag, permission_type, seconds, fn, minDelta, synFn);
 }
 
-ArduinoCloudProperty& ArduinoIoTCloudClass::addPropertyReal(int& property, String name, Permission const permission)
+Property& ArduinoIoTCloudClass::addPropertyReal(int& property, String name, Permission const permission)
 {
   return addPropertyReal(property, name, -1, permission);
 }
 
-ArduinoCloudProperty& ArduinoIoTCloudClass::addPropertyReal(int& property, String name, int tag, Permission const permission)
+Property& ArduinoIoTCloudClass::addPropertyReal(int& property, String name, int tag, Permission const permission)
 {
-  ArduinoCloudProperty* p = new CloudWrapperInt(property);
+  Property* p = new CloudWrapperInt(property);
   return _property_container.addPropertyReal(*p, name, permission, tag);
 }
 
-void ArduinoIoTCloudClass::addPropertyReal(String& property, String name, permissionType permission_type, long seconds, void(*fn)(void), float minDelta, void(*synFn)(ArduinoCloudProperty & property))
+void ArduinoIoTCloudClass::addPropertyReal(String& property, String name, permissionType permission_type, long seconds, void(*fn)(void), float minDelta, void(*synFn)(Property & property))
 {
   addPropertyReal(property, name, -1, permission_type, seconds, fn, minDelta, synFn);
 }
 
-void ArduinoIoTCloudClass::addPropertyReal(String& property, String name, int tag, permissionType permission_type, long seconds, void(*fn)(void), float minDelta, void(*synFn)(ArduinoCloudProperty & property))
+void ArduinoIoTCloudClass::addPropertyReal(String& property, String name, int tag, permissionType permission_type, long seconds, void(*fn)(void), float minDelta, void(*synFn)(Property & property))
 {
-  ArduinoCloudProperty* p = new CloudWrapperString(property);
+  Property* p = new CloudWrapperString(property);
   addPropertyReal(*p, name, tag, permission_type, seconds, fn, minDelta, synFn);
 }
 
-ArduinoCloudProperty& ArduinoIoTCloudClass::addPropertyReal(String& property, String name, Permission const permission)
+Property& ArduinoIoTCloudClass::addPropertyReal(String& property, String name, Permission const permission)
 {
   return addPropertyReal(property, name, -1, permission);
 }
 
-ArduinoCloudProperty& ArduinoIoTCloudClass::addPropertyReal(String& property, String name, int tag, Permission const permission)
+Property& ArduinoIoTCloudClass::addPropertyReal(String& property, String name, int tag, Permission const permission)
 {
-  ArduinoCloudProperty* p = new CloudWrapperString(property);
+  Property* p = new CloudWrapperString(property);
   return _property_container.addPropertyReal(*p, name, permission, tag);
 }
 

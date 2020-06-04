@@ -153,7 +153,7 @@ class Color {
 
 };
 
-class CloudColor : public ArduinoCloudProperty {
+class CloudColor : public Property {
   private:
     Color _value,
           _cloud_value;
