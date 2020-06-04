@@ -2,8 +2,8 @@
  * Copyright (c) 2020 Arduino.  All rights reserved.
  */
 
-#ifndef OTA_TEST_DATA_H_
-#define OTA_TEST_DATA_H_
+#ifndef OTA_TEST_DATA_GENERATOR_H_
+#define OTA_TEST_DATA_GENERATOR_H_
 
 /**************************************************************************************
    INCLUDE
@@ -34,4 +34,4 @@ void generate_valid_ota_data(OTAData & ota_data);
 void generate_invalid_ota_data_crc_wrong(OTAData & ota_data);
 
 
-#endif /* OTA_TEST_DATA_H_ */
+#endif /* OTA_TEST_DATA_GENERATOR_H_ */

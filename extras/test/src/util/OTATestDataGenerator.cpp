@@ -6,7 +6,7 @@
    INCLUDE
  **************************************************************************************/
 
-#include <util/OTATestData.h>
+#include <util/OTATestDataGenerator.h>
 
 #include <algorithm>
 

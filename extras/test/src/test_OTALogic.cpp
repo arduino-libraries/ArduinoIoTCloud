@@ -12,7 +12,7 @@
 #include <catch.hpp>
 #include <fakeit.hpp>
 
-#include <util/OTATestData.h>
+#include <util/OTATestDataGenerator.h>
 
 #include <OTALogic.h>
 #include <OTAStorage.h>
