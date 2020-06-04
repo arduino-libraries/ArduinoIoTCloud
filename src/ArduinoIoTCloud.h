@@ -24,14 +24,15 @@
 
 #include <ArduinoIoTCloud_Config.h>
 
-#include <ArduinoCloudThing.h>
 #include <Arduino_ConnectionHandler.h>
 #include <Arduino_DebugUtils.h>
 
-#include "types/CloudWrapperBool.h"
-#include "types/CloudWrapperFloat.h"
-#include "types/CloudWrapperInt.h"
-#include "types/CloudWrapperString.h"
+#include "cbor/ArduinoCloudThing.h"
+
+#include "cbor/types/CloudWrapperBool.h"
+#include "cbor/types/CloudWrapperFloat.h"
+#include "cbor/types/CloudWrapperInt.h"
+#include "cbor/types/CloudWrapperString.h"
 
 #include "CloudSerial.h"
 

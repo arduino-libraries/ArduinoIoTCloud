@@ -2,14 +2,21 @@
  * Copyright (c) 2020 Arduino.  All rights reserved.
  */
 
-#ifndef OTA_TEST_DATA_H_
-#define OTA_TEST_DATA_H_
+#ifndef OTA_TEST_DATA_GENERATOR_H_
+#define OTA_TEST_DATA_GENERATOR_H_
 
 /**************************************************************************************
    INCLUDE
  **************************************************************************************/
 
 #include <stdint.h>
+
+/**************************************************************************************
+   NAMESPACE
+ **************************************************************************************/
+
+namespace ota
+{
 
 /**************************************************************************************
    TYPEDEF
@@ -33,5 +40,10 @@ union OTAData
 void generate_valid_ota_data(OTAData & ota_data);
 void generate_invalid_ota_data_crc_wrong(OTAData & ota_data);
 
+/**************************************************************************************
+   NAMESPACE
+ **************************************************************************************/
 
-#endif /* OTA_TEST_DATA_H_ */
+} /* ota */
+
+#endif /* OTA_TEST_DATA_GENERATOR_H_ */
