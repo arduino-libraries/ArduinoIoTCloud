@@ -22,13 +22,11 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 ##########################################################################
 
-set(TEST_TARGET testArduinoIoTCloud)
+set(TEST_TARGET ${CMAKE_PROJECT_NAME})
+
+##########################################################################
 
 set(TEST_SRCS
-  src/Arduino.cpp
-
-  src/test_main.cpp
-
   src/test_OTALogic.cpp
 
   src/test_addPropertyReal.cpp
@@ -42,10 +40,14 @@ set(TEST_SRCS
   src/test_publishOnChangeRateLimit.cpp
   src/test_readOnly.cpp
   src/test_writeOnly.cpp
+)
 
+set(TEST_UTIL_SRCS
   src/util/CBORTestUtil.cpp
   src/util/OTATestUtil.cpp
+)
 
+set(TEST_DUT_SRCS
   ../../src/utility/ota/crc.cpp
   ../../src/utility/ota/OTALogic.cpp
 
@@ -65,6 +67,16 @@ set(TEST_SRCS
 
 ##########################################################################
 
+set(TEST_TARGET_SRCS
+  src/Arduino.cpp
+  src/test_main.cpp
+  ${TEST_SRCS}
+  ${TEST_UTIL_SRCS}
+  ${TEST_DUT_SRCS}
+)
+
+##########################################################################
+
 add_compile_definitions(HOST)
 add_compile_options(-Wall -Wextra -Wpedantic -Werror)
 
@@ -75,7 +87,7 @@ set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "--coverage")
 
 add_executable(
   ${TEST_TARGET}
-  ${TEST_SRCS}
+  ${TEST_TARGET_SRCS}
 )
 
 ##########################################################################
