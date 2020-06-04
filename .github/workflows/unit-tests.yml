@@ -35,7 +35,7 @@ jobs:
           cd "$BUILD_PATH"
           cmake ..
           make
-          valgrind --leak-check=yes bin/testArduinoIoTCloud
+          valgrind --leak-check=yes --error-exitcode=1 bin/testArduinoIoTCloud
 
       - name: Check code coverage
         run: |
