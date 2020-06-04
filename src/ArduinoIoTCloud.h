@@ -29,10 +29,11 @@
 
 #include "cbor/ArduinoCloudThing.h"
 
-#include "cbor/types/CloudWrapperBool.h"
-#include "cbor/types/CloudWrapperFloat.h"
-#include "cbor/types/CloudWrapperInt.h"
-#include "cbor/types/CloudWrapperString.h"
+#include "property/PropertyContainer.h"
+#include "property/types/CloudWrapperBool.h"
+#include "property/types/CloudWrapperFloat.h"
+#include "property/types/CloudWrapperInt.h"
+#include "property/types/CloudWrapperString.h"
 
 #include "CloudSerial.h"
 
@@ -103,16 +104,16 @@ class ArduinoIoTCloudClass
      * name of the property to identify a given property within a CBOR message.
      */
 
-    void addPropertyReal(ArduinoCloudProperty& property, String name, permissionType permission_type = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, float minDelta = 0.0f, void(*synFn)(ArduinoCloudProperty & property) = CLOUD_WINS);
-    void addPropertyReal(bool& property, String name, permissionType permission_type = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, float minDelta = 0.0f, void(*synFn)(ArduinoCloudProperty & property) = CLOUD_WINS);
-    void addPropertyReal(float& property, String name, permissionType permission_type = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, float minDelta = 0.0f, void(*synFn)(ArduinoCloudProperty & property) = CLOUD_WINS);
-    void addPropertyReal(int& property, String name, permissionType permission_type = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, float minDelta = 0.0, void(*synFn)(ArduinoCloudProperty & property) = CLOUD_WINS);
-    void addPropertyReal(String& property, String name, permissionType permission_type = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, float minDelta = 0.0f, void(*synFn)(ArduinoCloudProperty & property) = CLOUD_WINS);
+    void addPropertyReal(Property& property, String name, permissionType permission_type = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, float minDelta = 0.0f, void(*synFn)(Property & property) = CLOUD_WINS);
+    void addPropertyReal(bool& property, String name, permissionType permission_type = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, float minDelta = 0.0f, void(*synFn)(Property & property) = CLOUD_WINS);
+    void addPropertyReal(float& property, String name, permissionType permission_type = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, float minDelta = 0.0f, void(*synFn)(Property & property) = CLOUD_WINS);
+    void addPropertyReal(int& property, String name, permissionType permission_type = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, float minDelta = 0.0, void(*synFn)(Property & property) = CLOUD_WINS);
+    void addPropertyReal(String& property, String name, permissionType permission_type = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, float minDelta = 0.0f, void(*synFn)(Property & property) = CLOUD_WINS);
 
-    ArduinoCloudProperty& addPropertyReal(bool& property, String name, Permission const permission);
-    ArduinoCloudProperty& addPropertyReal(float& property, String name, Permission const permission);
-    ArduinoCloudProperty& addPropertyReal(int& property, String name, Permission const permission);
-    ArduinoCloudProperty& addPropertyReal(String& property, String name, int tag, Permission const permission);
+    Property& addPropertyReal(bool& property, String name, Permission const permission);
+    Property& addPropertyReal(float& property, String name, Permission const permission);
+    Property& addPropertyReal(int& property, String name, Permission const permission);
+    Property& addPropertyReal(String& property, String name, int tag, Permission const permission);
 
     /* The following methods are for MKR WAN 1300/1310 LoRa boards since
      * they use a number to identify a given property within a CBOR message.
@@ -120,16 +121,16 @@ class ArduinoIoTCloudClass
      * important when using LoRa.
      */
 
-    void addPropertyReal(ArduinoCloudProperty& property, String name, int tag, permissionType permission_type = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, float minDelta = 0.0f, void(*synFn)(ArduinoCloudProperty & property) = CLOUD_WINS);
-    void addPropertyReal(bool& property, String name, int tag, permissionType permission_type = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, float minDelta = 0.0f, void(*synFn)(ArduinoCloudProperty & property) = CLOUD_WINS);
-    void addPropertyReal(float& property, String name, int tag, permissionType permission_type = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, float minDelta = 0.0f, void(*synFn)(ArduinoCloudProperty & property) = CLOUD_WINS);
-    void addPropertyReal(int& property, String name, int tag, permissionType permission_type = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, float minDelta = 0.0, void(*synFn)(ArduinoCloudProperty & property) = CLOUD_WINS);
-    void addPropertyReal(String& property, String name, int tag, permissionType permission_type = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, float minDelta = 0.0f, void(*synFn)(ArduinoCloudProperty & property) = CLOUD_WINS);
+    void addPropertyReal(Property& property, String name, int tag, permissionType permission_type = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, float minDelta = 0.0f, void(*synFn)(Property & property) = CLOUD_WINS);
+    void addPropertyReal(bool& property, String name, int tag, permissionType permission_type = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, float minDelta = 0.0f, void(*synFn)(Property & property) = CLOUD_WINS);
+    void addPropertyReal(float& property, String name, int tag, permissionType permission_type = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, float minDelta = 0.0f, void(*synFn)(Property & property) = CLOUD_WINS);
+    void addPropertyReal(int& property, String name, int tag, permissionType permission_type = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, float minDelta = 0.0, void(*synFn)(Property & property) = CLOUD_WINS);
+    void addPropertyReal(String& property, String name, int tag, permissionType permission_type = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, float minDelta = 0.0f, void(*synFn)(Property & property) = CLOUD_WINS);
 
-    ArduinoCloudProperty& addPropertyReal(bool& property, String name, int tag, Permission const permission);
-    ArduinoCloudProperty& addPropertyReal(float& property, String name, int tag, Permission const permission);
-    ArduinoCloudProperty& addPropertyReal(int& property, String name, int tag, Permission const permission);
-    ArduinoCloudProperty& addPropertyReal(String& property, String name, Permission const permission);
+    Property& addPropertyReal(bool& property, String name, int tag, Permission const permission);
+    Property& addPropertyReal(float& property, String name, int tag, Permission const permission);
+    Property& addPropertyReal(int& property, String name, int tag, Permission const permission);
+    Property& addPropertyReal(String& property, String name, Permission const permission);
 
   protected:
 
@@ -140,6 +141,7 @@ class ArduinoIoTCloudClass
 
     ConnectionHandler * _connection = nullptr;
     ArduinoCloudThing _thing;
+    PropertyContainer _property_container;
     ArduinoIoTConnectionStatus _iot_status = ArduinoIoTConnectionStatus::IDLE;
 
            NetworkConnectionState checkPhyConnection();

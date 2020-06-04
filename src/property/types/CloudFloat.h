@@ -25,7 +25,7 @@
  ******************************************************************************/
 
 #include <Arduino.h>
-#include "../ArduinoCloudProperty.h"
+#include "../Property.h"
 
 /******************************************************************************
    CLASS DECLARATION
@@ -33,7 +33,7 @@
 
 
 
-class CloudFloat : public ArduinoCloudProperty {
+class CloudFloat : public Property {
   protected:
     float _value,
           _cloud_value;
@@ -46,7 +46,7 @@ class CloudFloat : public ArduinoCloudProperty {
       return _value;
     }
     virtual bool isDifferentFromCloud() {
-      return _value != _cloud_value && (abs(_value - _cloud_value) >= ArduinoCloudProperty::_min_delta_property);
+      return _value != _cloud_value && (abs(_value - _cloud_value) >= Property::_min_delta_property);
     }
     virtual void fromCloudToLocal() {
       _value = _cloud_value;

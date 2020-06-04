@@ -26,26 +26,25 @@
 #undef min
 #include <list>
 
-#include "ArduinoCloudProperty.h"
+#include "../property/PropertyContainer.h"
 
-#include "types/CloudBool.h"
-#include "types/CloudFloat.h"
-#include "types/CloudInt.h"
-#include "types/CloudString.h"
-#include "types/CloudLocation.h"
-#include "types/CloudColor.h"
-#include "types/CloudWrapperBase.h"
+#include "../property/types/CloudBool.h"
+#include "../property/types/CloudFloat.h"
+#include "../property/types/CloudInt.h"
+#include "../property/types/CloudString.h"
+#include "../property/types/CloudLocation.h"
+#include "../property/types/CloudColor.h"
+#include "../property/types/CloudWrapperBase.h"
 
-#include "types/automation/CloudColoredLight.h"
-#include "types/automation/CloudContactSensor.h"
-#include "types/automation/CloudDimmedLight.h"
-#include "types/automation/CloudLight.h"
-#include "types/automation/CloudMotionSensor.h"
-#include "types/automation/CloudSmartPlug.h"
-#include "types/automation/CloudSwitch.h"
-#include "types/automation/CloudTemperature.h"
-#include "types/automation/CloudTelevision.h"
-
+#include "../property/types/automation/CloudColoredLight.h"
+#include "../property/types/automation/CloudContactSensor.h"
+#include "../property/types/automation/CloudDimmedLight.h"
+#include "../property/types/automation/CloudLight.h"
+#include "../property/types/automation/CloudMotionSensor.h"
+#include "../property/types/automation/CloudSmartPlug.h"
+#include "../property/types/automation/CloudSwitch.h"
+#include "../property/types/automation/CloudTemperature.h"
+#include "../property/types/automation/CloudTelevision.h"
 
 /******************************************************************************
    CONSTANTS
@@ -64,11 +63,11 @@ static long const DAYS      = 86400;
    SYNCHRONIZATION CALLBACKS
  ******************************************************************************/
 
-void onAutoSync(ArduinoCloudProperty & property);
+void onAutoSync(Property & property);
 #define MOST_RECENT_WINS onAutoSync
-void onForceCloudSync(ArduinoCloudProperty & property);
+void onForceCloudSync(Property & property);
 #define CLOUD_WINS onForceCloudSync
-void onForceDeviceSync(ArduinoCloudProperty & property);
+void onForceDeviceSync(Property & property);
 #define DEVICE_WINS onForceDeviceSync // The device property value is already the correct one. The cloud property value will be synchronized at the next update cycle.
 
 /******************************************************************************
@@ -80,10 +79,7 @@ class ArduinoCloudThing {
   public:
     ArduinoCloudThing();
 
-    void begin();
-    void registerGetTimeCallbackFunc(GetTimeCallbackFunc func);
-    //if propertyIdentifier is different from -1, an integer identifier is associated to the added property to be use instead of the property name when the parameter lightPayload is true in the encode method
-    ArduinoCloudProperty   & addPropertyReal(ArduinoCloudProperty   & property, String const & name, Permission const permission, int propertyIdentifier = -1);
+    void begin(PropertyContainer * property_container);
 
     /* encode return > 0 if a property has changed and encodes the changed properties in CBOR format into the provided buffer */
     /* if lightPayload is true the integer identifier of the property will be encoded in the message instead of the property name in order to reduce the size of the message payload*/
@@ -91,18 +87,11 @@ class ArduinoCloudThing {
     /* decode a CBOR payload received from the cloud */
     void decode(uint8_t const * const payload, size_t const length, bool isSyncMessage = false);
 
-    bool isPropertyInContainer(String const & name);
-    int appendChangedProperties(CborEncoder * arrayEncoder, bool lightPayload);
-    void updateTimestampOnLocallyChangedProperties();
     void updateProperty(String propertyName, unsigned long cloudChangeEventTime);
     String getPropertyNameByIdentifier(int propertyIdentifier);
 
   private:
-    GetTimeCallbackFunc                  _get_time_func;
-    std::list<ArduinoCloudProperty *>    _property_list;
-    /* Keep track of the number of primitive properties in the Thing. If 0 it allows the early exit in updateTimestampOnLocallyChangedProperties() */
-    int                                  _numPrimitivesProperties;
-    int                                  _numProperties;
+    PropertyContainer * _property_container;
     /* Indicates the if the message received to be decoded is a response to the getLastValues inquiry */
     bool                                 _isSyncMessage;
     /* List of map data that will hold all the attributes of a property */
@@ -145,17 +134,6 @@ class ArduinoCloudThing {
     static bool   ifNumericConvertToDouble(CborValue * value_iter, double * numeric_val);
     static double convertCborHalfFloatToDouble(uint16_t const half_val);
     void freeMapDataList(std::list<CborMapData *> * map_data_list);
-    inline void addProperty(ArduinoCloudProperty   * property_obj, int propertyIdentifier) {
-      if (propertyIdentifier != -1) {
-        property_obj->setIdentifier(propertyIdentifier);
-      } else {
-        // if property identifier is -1, an incremental value will be assigned as identifier.
-        property_obj->setIdentifier(_numProperties);
-      }
-      _property_list.push_back(property_obj);
-    }
-    ArduinoCloudProperty * getProperty(String const & name);
-    ArduinoCloudProperty * getProperty(int const & identifier);
 
 };
 

@@ -24,7 +24,7 @@
 
 #include <math.h>
 #include <Arduino.h>
-#include "../../ArduinoCloudProperty.h"
+#include "../../Property.h"
 
 /******************************************************************************
    CLASS DECLARATION
@@ -46,7 +46,7 @@ class DimmedLight {
 
 };
 
-class CloudDimmedLight : public ArduinoCloudProperty {
+class CloudDimmedLight : public Property {
   private:
     DimmedLight _value,
                 _cloud_value;

@@ -134,8 +134,8 @@ int ArduinoIoTCloudTCP::begin(String brokerAddress, uint16_t brokerPort)
   _dataTopicIn    = getTopic_datain();
   _ota_topic_in   = getTopic_ota_in();
 
-  _thing.begin();
-  _thing.registerGetTimeCallbackFunc(getTime);
+  _thing.begin(&_property_container);
+  _property_container.begin(getTime);
 
   printConnectionStatus(_iot_status);
 
@@ -154,7 +154,7 @@ void ArduinoIoTCloudTCP::update()
 #endif /* OTA_ENABLED */
 
   // Check if a primitive property wrapper is locally changed
-  _thing.updateTimestampOnLocallyChangedProperties();
+  _property_container.updateTimestampOnLocallyChangedProperties();
 
   if(checkPhyConnection()   != NetworkConnectionState::CONNECTED)     return;
   if(checkCloudConnection() != ArduinoIoTConnectionStatus::CONNECTED) return;

@@ -23,13 +23,13 @@
  ******************************************************************************/
 
 #include <Arduino.h>
-#include "../ArduinoCloudProperty.h"
+#include "../Property.h"
 
 /******************************************************************************
    CLASS DECLARATION
  ******************************************************************************/
 
-class CloudWrapperBase : public ArduinoCloudProperty {
+class CloudWrapperBase : public Property {
   public:
     virtual bool isChangedLocally() = 0;
 };

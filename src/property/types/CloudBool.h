@@ -15,51 +15,64 @@
 // a commercial license, send an email to license@arduino.cc.
 //
 
-#ifndef CLOUDWRAPPERFLOAT_H_
-#define CLOUDWRAPPERFLOAT_H_
-
-#include <math.h>
+#ifndef CLOUDBOOL_H_
+#define CLOUDBOOL_H_
 
 /******************************************************************************
    INCLUDE
  ******************************************************************************/
 
 #include <Arduino.h>
-#include "CloudWrapperBase.h"
+#include "../Property.h"
 
 /******************************************************************************
    CLASS DECLARATION
  ******************************************************************************/
 
-class CloudWrapperFloat : public CloudWrapperBase {
-  private:
-    float  &_primitive_value,
-           _cloud_value,
-           _local_value;
+
+
+class CloudBool : public Property {
+  protected:
+    bool  _value,
+          _cloud_value;
   public:
-    CloudWrapperFloat(float& v) : _primitive_value(v), _cloud_value(v), _local_value(v) {}
+    CloudBool()                                           {
+      CloudBool(false);
+    }
+    CloudBool(bool v) : _value(v), _cloud_value(v) {}
+    operator bool() const                             {
+      return _value;
+    }
     virtual bool isDifferentFromCloud() {
-      return _primitive_value != _cloud_value && (abs(_primitive_value - _cloud_value) >= ArduinoCloudProperty::_min_delta_property);
+      return _value != _cloud_value;
     }
     virtual void fromCloudToLocal() {
-      _primitive_value = _cloud_value;
+      _value = _cloud_value;
     }
     virtual void fromLocalToCloud() {
-      _cloud_value = _primitive_value;
+      _cloud_value = _value;
     }
     virtual void appendAttributesToCloud() {
-      appendAttribute(_primitive_value);
+      appendAttribute(_value);
     }
     virtual void setAttributesFromCloud() {
       setAttribute(_cloud_value);
     }
-    virtual bool isPrimitive() {
-      return true;
+    //modifiers
+    CloudBool& operator=(bool v) {
+      _value = v;
+      updateLocalTimestamp();
+      return *this;
     }
-    virtual bool isChangedLocally() {
-      return _primitive_value != _local_value;
+    CloudBool& operator=(CloudBool v) {
+      return operator=((bool)v);
     }
+    //accessors
+    CloudBool operator!() const {
+      return CloudBool(!_value);
+    }
+    //friends
 };
 
 
-#endif /* CLOUWRAPPERFLOAT_H_ */
+#endif /* CLOUDBOOL_H_ */

@@ -24,7 +24,7 @@
 
 #include <math.h>
 #include <Arduino.h>
-#include "../ArduinoCloudProperty.h"
+#include "../Property.h"
 
 /******************************************************************************
    CLASS DECLARATION
@@ -56,7 +56,7 @@ class Location {
     }
 };
 
-class CloudLocation : public ArduinoCloudProperty {
+class CloudLocation : public Property {
   private:
     Location _value,
              _cloud_value;
@@ -65,7 +65,7 @@ class CloudLocation : public ArduinoCloudProperty {
     CloudLocation(float lat, float lon) : _value(lat, lon), _cloud_value(lat, lon) {}
     virtual bool isDifferentFromCloud() {
       float const distance = Location::distance(_value, _cloud_value);
-      return _value != _cloud_value && (abs(distance) >= ArduinoCloudProperty::_min_delta_property);
+      return _value != _cloud_value && (abs(distance) >= Property::_min_delta_property);
     }
 
     CloudLocation& operator=(Location aLocation) {
