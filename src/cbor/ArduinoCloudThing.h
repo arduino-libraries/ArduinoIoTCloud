@@ -22,8 +22,12 @@
    INCLUDE
  ******************************************************************************/
 
+#undef max
+#undef min
+#include <list>
+
 #include "ArduinoCloudProperty.h"
-#include "lib/LinkedList/LinkedList.h"
+
 #include "types/CloudBool.h"
 #include "types/CloudFloat.h"
 #include "types/CloudInt.h"
@@ -95,14 +99,14 @@ class ArduinoCloudThing {
 
   private:
     GetTimeCallbackFunc                  _get_time_func;
-    LinkedList<ArduinoCloudProperty *>   _property_list;
+    std::list<ArduinoCloudProperty *>    _property_list;
     /* Keep track of the number of primitive properties in the Thing. If 0 it allows the early exit in updateTimestampOnLocallyChangedProperties() */
     int                                  _numPrimitivesProperties;
     int                                  _numProperties;
     /* Indicates the if the message received to be decoded is a response to the getLastValues inquiry */
     bool                                 _isSyncMessage;
     /* List of map data that will hold all the attributes of a property */
-    LinkedList<CborMapData *>            _map_data_list;
+    std::list<CborMapData *>             _map_data_list;
     /* Current property name during decoding: use to look for a new property in the senml value array */
     String                               _currentPropertyName;
     unsigned long                        _currentPropertyBaseTime,
@@ -140,7 +144,7 @@ class ArduinoCloudThing {
 
     static bool   ifNumericConvertToDouble(CborValue * value_iter, double * numeric_val);
     static double convertCborHalfFloatToDouble(uint16_t const half_val);
-    void freeMapDataList(LinkedList<CborMapData *> * map_data_list);
+    void freeMapDataList(std::list<CborMapData *> * map_data_list);
     inline void addProperty(ArduinoCloudProperty   * property_obj, int propertyIdentifier) {
       if (propertyIdentifier != -1) {
         property_obj->setIdentifier(propertyIdentifier);
@@ -148,7 +152,7 @@ class ArduinoCloudThing {
         // if property identifier is -1, an incremental value will be assigned as identifier.
         property_obj->setIdentifier(_numProperties);
       }
-      _property_list.add(property_obj);
+      _property_list.push_back(property_obj);
     }
     ArduinoCloudProperty * getProperty(String const & name);
     ArduinoCloudProperty * getProperty(int const & identifier);

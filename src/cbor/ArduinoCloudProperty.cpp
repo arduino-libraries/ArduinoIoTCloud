@@ -17,6 +17,10 @@
 
 #include "ArduinoCloudProperty.h"
 
+#undef max
+#undef min
+#include <algorithm>
+
 #ifndef ARDUINO_ARCH_SAMD
   #pragma message "No RTC available on this architecture - ArduinoIoTCloud will not keep track of local change timestamps ."
 #endif
@@ -38,7 +42,6 @@ ArduinoCloudProperty::ArduinoCloudProperty()
       _update_interval_millis(0),
       _last_local_change_timestamp(0),
       _last_cloud_change_timestamp(0),
-      _map_data_list(nullptr),
       _identifier(0),
       _attributeIdentifier(0),
       _lightPayload(false) {
@@ -174,7 +177,7 @@ void ArduinoCloudProperty::appendAttributeName(String attributeName, std::functi
   cbor_encoder_close_container(encoder, &mapEncoder);
 }
 
-void ArduinoCloudProperty::setAttributesFromCloud(LinkedList<CborMapData *> *map_data_list) {
+void ArduinoCloudProperty::setAttributesFromCloud(std::list<CborMapData *> * map_data_list) {
   _map_data_list = map_data_list;
   _attributeIdentifier = 0;
   setAttributesFromCloud();
@@ -215,31 +218,38 @@ void ArduinoCloudProperty::setAttributeReal(String& value, String attributeName)
   });
 }
 
-void ArduinoCloudProperty::setAttributeReal(String attributeName, std::function<void (CborMapData *md)>setValue) {
+void ArduinoCloudProperty::setAttributeReal(String attributeName, std::function<void (CborMapData *md)>setValue)
+{
   if (attributeName != "") {
     _attributeIdentifier++;
   }
-  for (int i = 0; i < _map_data_list->size(); i++) {
-    CborMapData *map = _map_data_list->get(i);
-    if (map != nullptr) {
-      if (map->light_payload.isSet() && map->light_payload.get()) {
-        // if a light payload is detected, the attribute identifier is retrieved from the cbor map and the corresponding attribute is updated
-        int attid = map->attribute_identifier.get();
-        if (attid == _attributeIdentifier) {
-          setValue(map);
-          break;
-        }
-      } else {
-        // if a normal payload is detected, the name of the attribute to be updated is extracted directly from the cbor map
-        String an = map->attribute_name.get();
-        if (an == attributeName) {
-          setValue(map);
-          break;
-        }
-      }
-    }
-  }
 
+  std::for_each(_map_data_list->begin(),
+                _map_data_list->end(),
+                [this, attributeName, setValue](CborMapData * map)
+                {
+                  if (map != nullptr)
+                  {
+                    if (map->light_payload.isSet() && map->light_payload.get())
+                    {
+                      // if a light payload is detected, the attribute identifier is retrieved from the cbor map and the corresponding attribute is updated
+                      int attid = map->attribute_identifier.get();
+                      if (attid == _attributeIdentifier) {
+                        setValue(map);
+                        return;
+                      }
+                    }
+                    else
+                    {
+                      // if a normal payload is detected, the name of the attribute to be updated is extracted directly from the cbor map
+                      String an = map->attribute_name.get();
+                      if (an == attributeName) {
+                        setValue(map);
+                        return;
+                      }
+                    }
+                  }
+                });
 }
 
 String ArduinoCloudProperty::getAttributeName(String propertyName, char separator) {
