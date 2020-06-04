@@ -28,22 +28,6 @@
 #include "ArduinoCloudThing.h"
 
 /******************************************************************************
-   DEBUG FUNCTIONS
- ******************************************************************************/
-
-#if defined(DEBUG_MEMORY) && defined(ARDUINO_ARCH_SAMD)
-extern "C" char *sbrk(int i);
-void PrintFreeRam(void) {
-  char stack_dummy = 0;
-  //Serial.print("Free RAM: "); //Serial.println(&stack_dummy - sbrk(0));
-}
-#endif
-
-#ifdef ARDUINO_ARCH_MRAA
-  #define Serial DebugSerial
-#endif
-
-/******************************************************************************
    CTOR/DTOR
  ******************************************************************************/
 
@@ -84,9 +68,6 @@ int ArduinoCloudThing::encode(uint8_t * data, size_t const size, bool lightPaylo
     return -1;
   }
 
-  #if defined(DEBUG_MEMORY) && defined(ARDUINO_ARCH_SAMD)
-  PrintFreeRam();
-  #endif
   int const bytes_encoded = cbor_encoder_get_buffer_size(&encoder, data);
   return bytes_encoded;
 }
