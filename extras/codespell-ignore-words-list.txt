@@ -1,6 +1,2 @@
 wan
-nd
-atleast
-derrived
-aline
-anid
+alocation
