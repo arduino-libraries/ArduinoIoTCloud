@@ -112,6 +112,16 @@ int PropertyContainer::appendChangedProperties(CborEncoder * arrayEncoder, bool 
   return appendedProperties;
 }
 
+void PropertyContainer::requestUpdateForAllProperties()
+{
+  std::for_each(_property_list.begin(),
+                _property_list.end(),
+                [](Property * p)
+                {
+                  p->requestUpdate();
+                });
+}
+
 void PropertyContainer::updateTimestampOnLocallyChangedProperties()
 {
   /* This function updates the timestamps on the primitive properties 

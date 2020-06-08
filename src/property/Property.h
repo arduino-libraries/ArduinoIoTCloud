@@ -117,7 +117,7 @@ enum class Type {
 };
 
 enum class UpdatePolicy {
-  OnChange, TimeInterval
+  OnChange, TimeInterval, OnDemand
 };
 
 typedef void(*UpdateCallbackFunc)(void);
@@ -138,6 +138,7 @@ class Property {
     Property & onSync(SyncCallbackFunc func);
     Property & publishOnChange(float const min_delta_property, unsigned long const min_time_between_updates_millis = 0);
     Property & publishEvery(unsigned long const seconds);
+    Property & publishOnDemand();
 
     inline String name() const {
       return _name;
@@ -153,6 +154,7 @@ class Property {
     }
 
     bool shouldBeUpdated();
+    void requestUpdate();
     void execCallbackOnChange();
     void execCallbackOnSync();
     void setLastCloudChangeTimestamp(unsigned long cloudChangeTime);
@@ -211,6 +213,8 @@ class Property {
     int                _attributeIdentifier;
     /* Indicates if the property shall be encoded using the identifier instead of the name */
     bool               _lightPayload;
+    /* Indicates whether a property update has been requested in case of the OnDemand update policy. */
+    bool               _update_requested;
 };
 
 /******************************************************************************
