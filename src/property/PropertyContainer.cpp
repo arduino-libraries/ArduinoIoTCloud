@@ -30,8 +30,7 @@
  ******************************************************************************/
 
 PropertyContainer::PropertyContainer()
-: _numProperties{0}
-, _numPrimitivesProperties{0}
+: _numPrimitivesProperties{0}
 , _get_time_func{nullptr}
 {
 
@@ -56,7 +55,6 @@ Property & PropertyContainer::addPropertyReal(Property & property, String const 
   property.init(name, permission, _get_time_func);
 
   if (property.isPrimitive()) { _numPrimitivesProperties++; }
-  _numProperties++;
   addProperty(&property, propertyIdentifier);
   return property;
 }
@@ -155,7 +153,7 @@ void PropertyContainer::addProperty(Property * property_obj, int propertyIdentif
   /* If property identifier is -1, an incremental value will be assigned as identifier. */
   else
   {
-    property_obj->setIdentifier(_numProperties);
+    property_obj->setIdentifier(_property_list.size() + 1); /* This is in order to stay compatible to the old system of first increasing _numProperties and then assigning it here. */
   }
   _property_list.push_back(property_obj);
 }

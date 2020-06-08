@@ -58,7 +58,6 @@ public:
 
 private:
 
-  int _numProperties;
   int _numPrimitivesProperties;
   GetTimeCallbackFunc _get_time_func;
   std::list<Property *> _property_list;
