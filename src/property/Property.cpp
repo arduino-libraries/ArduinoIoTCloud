@@ -44,7 +44,8 @@ Property::Property()
       _last_cloud_change_timestamp(0),
       _identifier(0),
       _attributeIdentifier(0),
-      _lightPayload(false) {
+      _lightPayload(false),
+      _update_requested(false) {
 }
 
 /******************************************************************************
@@ -79,6 +80,11 @@ Property & Property::publishEvery(unsigned long const seconds) {
   return (*this);
 }
 
+Property & Property::publishOnDemand() {
+  _update_policy = UpdatePolicy::OnDemand;
+  return (*this);
+}
+
 bool Property::shouldBeUpdated() {
   if (!_has_been_updated_once) {
     return true;
@@ -93,9 +99,16 @@ bool Property::shouldBeUpdated() {
     return (isDifferentFromCloud() && ((millis() - _last_updated_millis) >= (_min_time_between_updates_millis)));
   } else if (_update_policy == UpdatePolicy::TimeInterval) {
     return ((millis() - _last_updated_millis) >= _update_interval_millis);
+  } else if (_update_policy == UpdatePolicy::OnDemand) {
+    return _update_requested;
   } else {
     return false;
   }
+}
+
+void Property::requestUpdate()
+{
+  _update_requested = true;
 }
 
 void Property::execCallbackOnChange() {
@@ -119,6 +132,7 @@ void Property::append(CborEncoder *encoder, bool lightPayload) {
   appendAttributesToCloudReal(encoder);
   fromLocalToCloud();
   _has_been_updated_once = true;
+  _update_requested = false;
   _last_updated_millis = millis();
 }
 

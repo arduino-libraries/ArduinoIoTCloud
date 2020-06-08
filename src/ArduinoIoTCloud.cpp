@@ -25,6 +25,11 @@
  * PUBLIC MEMBER FUNCTIONS
  ******************************************************************************/
 
+void ArduinoIoTCloudClass::push()
+{
+  _property_container.requestUpdateForAllProperties();
+}
+
 void ArduinoIoTCloudClass::addCallback(ArduinoIoTCloudEvent const event, OnCloudEventCallback callback)
 {
   _cloud_event_callback[static_cast<size_t>(event)] = callback;

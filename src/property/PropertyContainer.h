@@ -52,6 +52,7 @@ public:
 
   int appendChangedProperties(CborEncoder * arrayEncoder, bool lightPayload);
   void updateTimestampOnLocallyChangedProperties();
+  void requestUpdateForAllProperties();
 
 
 

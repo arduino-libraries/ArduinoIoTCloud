@@ -87,6 +87,8 @@ class ArduinoIoTCloudClass
     virtual int  connected     () = 0;
     virtual void printDebugInfo() = 0;
 
+            void push();
+
     inline void     setThingId (String const thing_id)  { _thing_id = thing_id; };
     inline String & getThingId ()                       { return _thing_id; };
     inline void     setDeviceId(String const device_id) { _device_id = device_id; };
