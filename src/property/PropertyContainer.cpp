@@ -30,8 +30,7 @@
  ******************************************************************************/
 
 PropertyContainer::PropertyContainer()
-: _numPrimitivesProperties{0}
-, _get_time_func{nullptr}
+: _get_time_func{nullptr}
 {
 
 }
@@ -54,7 +53,6 @@ Property & PropertyContainer::addPropertyReal(Property & property, String const 
   /* Initialize property and add it to the container */
   property.init(name, permission, _get_time_func);
 
-  if (property.isPrimitive()) { _numPrimitivesProperties++; }
   addProperty(&property, propertyIdentifier);
   return property;
 }
@@ -125,19 +123,16 @@ void PropertyContainer::updateTimestampOnLocallyChangedProperties()
   /* This function updates the timestamps on the primitive properties 
    * that have been modified locally since last cloud synchronization
    */
-  if (_numPrimitivesProperties > 0)
-  {
-    std::for_each(_property_list.begin(),
-                  _property_list.end(),
-                  [](Property * p)
+  std::for_each(_property_list.begin(),
+                _property_list.end(),
+                [](Property * p)
+                {
+                  CloudWrapperBase * pbase = reinterpret_cast<CloudWrapperBase *>(p);
+                  if (pbase->isPrimitive() && pbase->isChangedLocally() && pbase->isReadableByCloud())
                   {
-                    CloudWrapperBase * pbase = reinterpret_cast<CloudWrapperBase *>(p);
-                    if (pbase->isPrimitive() && pbase->isChangedLocally() && pbase->isReadableByCloud())
-                    {
-                      p->updateLocalTimestamp();
-                    }
-                  });
-  }
+                    p->updateLocalTimestamp();
+                  }
+                });
 }
 
 /******************************************************************************
