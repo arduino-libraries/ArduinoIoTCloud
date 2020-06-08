@@ -60,7 +60,7 @@ int ArduinoCloudThing::encode(uint8_t * data, size_t const size, bool lightPaylo
     return -1;
   }
 
-  if (_property_container->appendChangedProperties(&arrayEncoder, lightPayload) < 1) {
+  if (appendChangedProperties(*_property_container, &arrayEncoder, lightPayload) < 1) {
     return -1;
   }
 
@@ -398,7 +398,7 @@ void ArduinoCloudThing::freeMapDataList(std::list<CborMapData *> * map_data_list
 }
 
 void ArduinoCloudThing::updateProperty(String propertyName, unsigned long cloudChangeEventTime) {
-  Property* property = _property_container->getProperty(propertyName);
+  Property* property = getProperty(*_property_container, propertyName);
   if (property && property->isWriteableByCloud()) {
     property->setLastCloudChangeTimestamp(cloudChangeEventTime);
     property->setAttributesFromCloud(&_map_data_list);
@@ -415,9 +415,9 @@ void ArduinoCloudThing::updateProperty(String propertyName, unsigned long cloudC
 String ArduinoCloudThing::getPropertyNameByIdentifier(int propertyIdentifier) {
   Property* property;
   if (propertyIdentifier > 255) {
-    property = _property_container->getProperty(propertyIdentifier & 255);
+    property = getProperty(*_property_container, propertyIdentifier & 255);
   } else {
-    property = _property_container->getProperty(propertyIdentifier);
+    property = getProperty(*_property_container, propertyIdentifier);
   }
   return property->name();
 }

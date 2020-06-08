@@ -29,59 +29,59 @@
    PUBLIC MEMBER FUNCTIONS
  ******************************************************************************/
 
-Property & PropertyContainer::addPropertyReal(Property & property, String const & name, Permission const permission, int propertyIdentifier, GetTimeCallbackFunc func)
+Property & addPropertyToContainer(PropertyContainer & prop_cont, Property & property, String const & name, Permission const permission, int propertyIdentifier, GetTimeCallbackFunc func)
 {
   /* Check whether or not the property already has been added to the container */
-  Property * p = getProperty(name);
+  Property * p = getProperty(prop_cont, name);
   if(p != nullptr) return (*p);
 
   /* Initialize property and add it to the container */
   property.init(name, permission, func);
 
-  addProperty(&property, propertyIdentifier);
+  addProperty(prop_cont, &property, propertyIdentifier);
   return property;
 }
 
 
-Property * PropertyContainer::getProperty(String const & name)
+Property * getProperty(PropertyContainer & prop_cont, String const & name)
 {
   std::list<Property *>::iterator iter;
 
-  iter = std::find_if(_property_list.begin(),
-                      _property_list.end(),
+  iter = std::find_if(prop_cont.begin(),
+                      prop_cont.end(),
                       [name](Property * p) -> bool
                       {
                         return (p->name() == name);
                       });
 
-  if (iter == _property_list.end())
+  if (iter == prop_cont.end())
     return nullptr;
   else
     return (*iter);
 }
 
-Property * PropertyContainer::getProperty(int const identifier)
+Property * getProperty(PropertyContainer & prop_cont, int const identifier)
 {
   std::list<Property *>::iterator iter;
 
-  iter = std::find_if(_property_list.begin(),
-                      _property_list.end(),
+  iter = std::find_if(prop_cont.begin(),
+                      prop_cont.end(),
                       [identifier](Property * p) -> bool
                       {
                         return (p->identifier() == identifier);
                       });
 
-  if (iter == _property_list.end())
+  if (iter == prop_cont.end())
     return nullptr;
   else
     return (*iter);
 }
 
-int PropertyContainer::appendChangedProperties(CborEncoder * arrayEncoder, bool lightPayload)
+int appendChangedProperties(PropertyContainer & prop_cont, CborEncoder * arrayEncoder, bool lightPayload)
 {
   int appendedProperties = 0;
-  std::for_each(_property_list.begin(),
-                _property_list.end(),
+  std::for_each(prop_cont.begin(),
+                prop_cont.end(),
                 [arrayEncoder, lightPayload, &appendedProperties](Property * p)
                 {
                   if (p->shouldBeUpdated() && p->isReadableByCloud())
@@ -93,23 +93,23 @@ int PropertyContainer::appendChangedProperties(CborEncoder * arrayEncoder, bool 
   return appendedProperties;
 }
 
-void PropertyContainer::requestUpdateForAllProperties()
+void requestUpdateForAllProperties(PropertyContainer & prop_cont)
 {
-  std::for_each(_property_list.begin(),
-                _property_list.end(),
+  std::for_each(prop_cont.begin(),
+                prop_cont.end(),
                 [](Property * p)
                 {
                   p->requestUpdate();
                 });
 }
 
-void PropertyContainer::updateTimestampOnLocallyChangedProperties()
+void updateTimestampOnLocallyChangedProperties(PropertyContainer & prop_cont)
 {
   /* This function updates the timestamps on the primitive properties 
    * that have been modified locally since last cloud synchronization
    */
-  std::for_each(_property_list.begin(),
-                _property_list.end(),
+  std::for_each(prop_cont.begin(),
+                prop_cont.end(),
                 [](Property * p)
                 {
                   CloudWrapperBase * pbase = reinterpret_cast<CloudWrapperBase *>(p);
@@ -124,7 +124,7 @@ void PropertyContainer::updateTimestampOnLocallyChangedProperties()
    PRIVATE MEMBER FUNCTIONS
  ******************************************************************************/
 
-void PropertyContainer::addProperty(Property * property_obj, int propertyIdentifier)
+void addProperty(PropertyContainer & prop_cont, Property * property_obj, int propertyIdentifier)
 {
   if (propertyIdentifier != -1)
   {
@@ -133,7 +133,7 @@ void PropertyContainer::addProperty(Property * property_obj, int propertyIdentif
   /* If property identifier is -1, an incremental value will be assigned as identifier. */
   else
   {
-    property_obj->setIdentifier(_property_list.size() + 1); /* This is in order to stay compatible to the old system of first increasing _numProperties and then assigning it here. */
+    property_obj->setIdentifier(prop_cont.size() + 1); /* This is in order to stay compatible to the old system of first increasing _numProperties and then assigning it here. */
   }
-  _property_list.push_back(property_obj);
+  prop_cont.push_back(property_obj);
 }

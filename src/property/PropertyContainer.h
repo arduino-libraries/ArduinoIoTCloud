@@ -39,37 +39,31 @@ extern "C" unsigned long getTime();
 #endif
 
 /******************************************************************************
-   CLASS DECLARATION
+   TYPEDEF
  ******************************************************************************/
 
-class PropertyContainer
-{
+typedef std::list<Property *> PropertyContainer;
 
-public:
+/******************************************************************************
+   FUNCTION DECLARATION
+ ******************************************************************************/
 
-  Property & addPropertyReal(Property & property,
-                             String const & name,
-                             Permission const permission,
-                             int propertyIdentifier = -1,
-                             GetTimeCallbackFunc func = getTime);
+Property & addPropertyToContainer(PropertyContainer & prop_cont,
+                                  Property & property,
+                                  String const & name,
+                                  Permission const permission,
+                                  int propertyIdentifier = -1,
+                                  GetTimeCallbackFunc func = getTime);
 
   
-  Property * getProperty          (String const & name);
-  Property * getProperty          (int const identifier);
+Property * getProperty(PropertyContainer & prop_cont, String const & name);
+Property * getProperty(PropertyContainer & prop_cont, int const identifier);
 
 
-  int appendChangedProperties(CborEncoder * arrayEncoder, bool lightPayload);
-  void updateTimestampOnLocallyChangedProperties();
-  void requestUpdateForAllProperties();
+int appendChangedProperties(PropertyContainer & prop_cont, CborEncoder * arrayEncoder, bool lightPayload);
+void updateTimestampOnLocallyChangedProperties(PropertyContainer & prop_cont);
+void requestUpdateForAllProperties(PropertyContainer & prop_cont);
 
-
-
-private:
-
-  std::list<Property *> _property_list;
-
-  void addProperty(Property * property_obj, int propertyIdentifier);
-
-};
+void addProperty(PropertyContainer & prop_cont, Property * property_obj, int propertyIdentifier);
 
 #endif /* ARDUINO_PROPERTY_CONTAINER_H_ */

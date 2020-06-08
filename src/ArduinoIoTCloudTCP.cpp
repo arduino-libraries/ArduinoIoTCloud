@@ -153,7 +153,7 @@ void ArduinoIoTCloudTCP::update()
 #endif /* OTA_ENABLED */
 
   // Check if a primitive property wrapper is locally changed
-  _property_container.updateTimestampOnLocallyChangedProperties();
+  updateTimestampOnLocallyChangedProperties(_property_container);
 
   if(checkPhyConnection()   != NetworkConnectionState::CONNECTED)     return;
   if(checkCloudConnection() != ArduinoIoTConnectionStatus::CONNECTED) return;
