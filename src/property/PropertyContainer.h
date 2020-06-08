@@ -29,6 +29,16 @@
 #include <list>
 
 /******************************************************************************
+   DECLARATION OF getTime
+ ******************************************************************************/
+
+#ifdef HAS_LORA
+static unsigned long constexpr getTime() { return 0; }
+#else
+extern "C" unsigned long getTime();
+#endif
+
+/******************************************************************************
    CLASS DECLARATION
  ******************************************************************************/
 
@@ -37,13 +47,11 @@ class PropertyContainer
 
 public:
 
-  PropertyContainer();
-
-  
-  void begin(GetTimeCallbackFunc func);
-
-
-  Property & addPropertyReal(Property & property, String const & name, Permission const permission, int propertyIdentifier = -1);
+  Property & addPropertyReal(Property & property,
+                             String const & name,
+                             Permission const permission,
+                             int propertyIdentifier = -1,
+                             GetTimeCallbackFunc func = getTime);
 
   
   Property * getProperty          (String const & name);
@@ -58,7 +66,6 @@ public:
 
 private:
 
-  GetTimeCallbackFunc _get_time_func;
   std::list<Property *> _property_list;
 
   void addProperty(Property * property_obj, int propertyIdentifier);

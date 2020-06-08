@@ -26,32 +26,17 @@
 #include "types/CloudWrapperBase.h"
 
 /******************************************************************************
-   CTOR/DTOR
- ******************************************************************************/
-
-PropertyContainer::PropertyContainer()
-: _get_time_func{nullptr}
-{
-
-}
-
-/******************************************************************************
    PUBLIC MEMBER FUNCTIONS
  ******************************************************************************/
 
-void PropertyContainer::begin(GetTimeCallbackFunc func)
-{
-  _get_time_func = func;
-}
-
-Property & PropertyContainer::addPropertyReal(Property & property, String const & name, Permission const permission, int propertyIdentifier)
+Property & PropertyContainer::addPropertyReal(Property & property, String const & name, Permission const permission, int propertyIdentifier, GetTimeCallbackFunc func)
 {
   /* Check whether or not the property already has been added to the container */
   Property * p = getProperty(name);
   if(p != nullptr) return (*p);
 
   /* Initialize property and add it to the container */
-  property.init(name, permission, _get_time_func);
+  property.init(name, permission, func);
 
   addProperty(&property, propertyIdentifier);
   return property;

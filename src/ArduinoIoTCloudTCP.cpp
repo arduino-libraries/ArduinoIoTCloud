@@ -50,7 +50,7 @@ const static int CONNECT_FAILURE_SUBSCRIBE					         = -1;
    LOCAL MODULE FUNCTIONS
  ******************************************************************************/
 
-static unsigned long getTime()
+extern "C" unsigned long getTime()
 {
   return time_service.getTime();
 }
@@ -135,7 +135,6 @@ int ArduinoIoTCloudTCP::begin(String brokerAddress, uint16_t brokerPort)
   _ota_topic_in   = getTopic_ota_in();
 
   _thing.begin(&_property_container);
-  _property_container.begin(getTime);
 
   printConnectionStatus(_iot_status);
 
