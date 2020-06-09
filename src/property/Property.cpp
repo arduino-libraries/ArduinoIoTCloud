@@ -45,7 +45,11 @@ Property::Property()
       _identifier(0),
       _attributeIdentifier(0),
       _lightPayload(false),
-      _update_requested(false) {
+      _update_requested(false),
+      _encode_timestamp(false),
+      _timestamp(0)
+{
+
 }
 
 /******************************************************************************
@@ -83,6 +87,17 @@ Property & Property::publishEvery(unsigned long const seconds) {
 Property & Property::publishOnDemand() {
   _update_policy = UpdatePolicy::OnDemand;
   return (*this);
+}
+
+Property & Property::encodeTimestamp()
+{
+  _encode_timestamp = true;
+  return (*this);
+}
+
+void Property::setTimestamp(unsigned long const timestamp)
+{
+  _timestamp = timestamp;
 }
 
 bool Property::shouldBeUpdated() {
@@ -170,7 +185,8 @@ void Property::appendAttributeName(String attributeName, std::function<void (Cbo
     _attributeIdentifier++;
   }
   CborEncoder mapEncoder;
-  cbor_encoder_create_map(encoder, &mapEncoder, 2);
+  unsigned int num_map_properties = _encode_timestamp ? 3 : 2;
+  cbor_encoder_create_map(encoder, &mapEncoder, num_map_properties);
   cbor_encode_int(&mapEncoder, static_cast<int>(CborIntegerMapKey::Name));
 
   // if _lightPayload is true, the property and attribute identifiers will be encoded instead of the property name
@@ -187,7 +203,15 @@ void Property::appendAttributeName(String attributeName, std::function<void (Cbo
     }
     cbor_encode_text_stringz(&mapEncoder, completeName.c_str());
   }
+  /* Encode the value */
   appendValue(mapEncoder);
+  /* Encode the timestamp if that has been required. */
+  if(_encode_timestamp)
+  {
+    cbor_encode_int (&mapEncoder, static_cast<int>(CborIntegerMapKey::Time));
+    cbor_encode_uint(&mapEncoder, _timestamp);
+  }
+  /* Close the container */
   cbor_encoder_close_container(encoder, &mapEncoder);
 }
 

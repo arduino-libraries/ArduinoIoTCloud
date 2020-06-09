@@ -30,6 +30,18 @@ void ArduinoIoTCloudClass::push()
   requestUpdateForAllProperties(_property_container);
 }
 
+bool ArduinoIoTCloudClass::setTimestamp(String const & prop_name, unsigned long const timestamp)
+{
+  Property * p = getProperty(_property_container, prop_name);
+
+  if (p == nullptr)
+    return false;
+
+  p->setTimestamp(timestamp);
+
+  return true;
+}
+
 void ArduinoIoTCloudClass::addCallback(ArduinoIoTCloudEvent const event, OnCloudEventCallback callback)
 {
   _cloud_event_callback[static_cast<size_t>(event)] = callback;

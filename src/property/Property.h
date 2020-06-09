@@ -139,6 +139,7 @@ class Property {
     Property & publishOnChange(float const min_delta_property, unsigned long const min_time_between_updates_millis = 0);
     Property & publishEvery(unsigned long const seconds);
     Property & publishOnDemand();
+    Property & encodeTimestamp();
 
     inline String name() const {
       return _name;
@@ -153,6 +154,7 @@ class Property {
       return (_permission == Permission::Write) || (_permission == Permission::ReadWrite);
     }
 
+    void setTimestamp(unsigned long const timestamp);
     bool shouldBeUpdated();
     void requestUpdate();
     void execCallbackOnChange();
@@ -215,6 +217,9 @@ class Property {
     bool               _lightPayload;
     /* Indicates whether a property update has been requested in case of the OnDemand update policy. */
     bool               _update_requested;
+    /* Indicates whether the timestamp shall be encoded in the property or not */
+    bool               _encode_timestamp;
+    unsigned long      _timestamp;
 };
 
 /******************************************************************************
