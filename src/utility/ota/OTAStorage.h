@@ -45,10 +45,11 @@ public:
 
   virtual Type   type  () = 0;
   virtual bool   init  () = 0;
-  virtual bool   open  () = 0;
+  virtual bool   open  (char const * file_name) = 0;
   virtual size_t write (uint8_t const * const buf, size_t const num_bytes) = 0;
   virtual void   close () = 0;
-  virtual void   remove() = 0;
+  virtual void   remove(char const * file_name) = 0;
+  virtual bool   rename(char const * old_file_name, char const * new_file_name) = 0;
   virtual void   deinit() = 0;
 
 };

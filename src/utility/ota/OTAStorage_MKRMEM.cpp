@@ -54,10 +54,10 @@ bool OTAStorage_MKRMEM::init()
   return true;
 }
 
-bool OTAStorage_MKRMEM::open()
+bool OTAStorage_MKRMEM::open(char const * file_name)
 {
   filesystem.clearerr();
-  _file = new File(filesystem.open("UPDATE.BIN", CREATE | WRITE_ONLY| TRUNCATE));
+  _file = new File(filesystem.open(file_name, CREATE | WRITE_ONLY| TRUNCATE));
   if(SPIFFS_OK != filesystem.err()) {
     Debug.print(DBG_ERROR, "OTAStorage_MKRMEM::open - open() failed with error code %d", filesystem.err());
     delete _file;
@@ -77,9 +77,14 @@ void OTAStorage_MKRMEM::close()
   delete _file;
 }
 
-void OTAStorage_MKRMEM::remove()
+void OTAStorage_MKRMEM::remove(char const * file_name)
 {
-  filesystem.remove("UPDATE.BIN");
+  filesystem.remove(file_name);
+}
+
+bool OTAStorage_MKRMEM::rename(char const * old_file_name, char const * new_file_name)
+{
+  return (SPIFFS_OK == filesystem.rename(old_file_name, new_file_name));
 }
 
 void OTAStorage_MKRMEM::deinit()

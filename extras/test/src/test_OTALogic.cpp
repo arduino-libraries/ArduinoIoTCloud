@@ -59,6 +59,7 @@ TEST_CASE("OTAStorage initialisation fails", "[OTAStorage::init() -> returns fal
   Fake(Method(ota_storage, write));
   Fake(Method(ota_storage, close));
   Fake(Method(ota_storage, remove));
+  Fake(Method(ota_storage, rename));
   Fake(Method(ota_storage, deinit));
 
 
@@ -92,6 +93,7 @@ TEST_CASE("OTAStorage opening of storage file fails", "[OTAStorage::open() -> re
   Fake(Method(ota_storage, write));
   Fake(Method(ota_storage, close));
   Fake(Method(ota_storage, remove));
+  Fake(Method(ota_storage, rename));
   Fake(Method(ota_storage, deinit));
 
 
@@ -129,6 +131,7 @@ TEST_CASE("OTAStorage writing to storage file fails", "[OTAStorage::write() -> f
   When(Method(ota_storage, write)).AlwaysDo([](uint8_t const * const /* buf */, size_t const /* num_bytes */) -> size_t { return 0 /* should return num_bytes in case of success */;});
   Fake(Method(ota_storage, close));
   Fake(Method(ota_storage, remove));
+  Fake(Method(ota_storage, rename));
   Fake(Method(ota_storage, deinit));
 
 
@@ -165,6 +168,7 @@ TEST_CASE("Data overrun due to receiving too much data", "[OTALogic - Data Overr
   When(Method(ota_storage, write)).AlwaysDo([](uint8_t const * const /* buf */, size_t const num_bytes) -> size_t { return num_bytes; });
   Fake(Method(ota_storage, close));
   Fake(Method(ota_storage, remove));
+  Fake(Method(ota_storage, rename));
   Fake(Method(ota_storage, deinit));
 
 
@@ -206,9 +210,10 @@ TEST_CASE("Valid OTA data is received ", "[OTALogic]")
       std::copy(buf, buf + num_bytes, std::back_inserter(ota_binary_data));
       return num_bytes;
     });
-  Fake(Method(ota_storage, close)); 
-  Fake(Method(ota_storage, remove)); 
-  Fake(Method(ota_storage, deinit)); 
+  Fake(Method(ota_storage, close));
+  Fake(Method(ota_storage, remove));
+  When(Method(ota_storage, rename)).Return(true);
+  Fake(Method(ota_storage, deinit));
 
 
   /* Generate test data */
@@ -231,6 +236,11 @@ TEST_CASE("Valid OTA data is received ", "[OTALogic]")
                        valid_ota_test_data.data.bin));
   }
 
+  THEN("The temporary file UPDATE.BIN.TMP should have been renamed to UPDATE.BIN")
+  {
+    Verify(Method(ota_storage, rename)).Once();
+  }
+
   THEN("The OTA logic should be in the 'Reset' state")
   {
     REQUIRE(ota_logic.state() == OTAState::Reset);
@@ -239,6 +249,45 @@ TEST_CASE("Valid OTA data is received ", "[OTALogic]")
   THEN("No OTA error should have occurred")
   {
     REQUIRE(ota_logic.error() == OTAError::None);
+  }
+}
+
+/**************************************************************************************/
+
+TEST_CASE("Valid OTA data is received but the rename step failed (identical too device being turned off during writing of file)", "[OTALogic - Rename fail]")
+{
+  Mock<OTAStorage> ota_storage;
+
+  /* Configure mock object */
+  When(Method(ota_storage, init)).Return(true);
+  When(Method(ota_storage, open)).Return(true);
+  When(Method(ota_storage, write)).AlwaysDo([](uint8_t const * const /* buf */, size_t const num_bytes) -> size_t { return num_bytes; });
+  Fake(Method(ota_storage, close));
+  Fake(Method(ota_storage, remove));
+  When(Method(ota_storage, rename)).Return(false);
+  Fake(Method(ota_storage, deinit));
+
+
+  /* Generate test data */
+  ota::OTAData valid_ota_test_data;
+  ota::generate_valid_ota_data(valid_ota_test_data);
+
+
+  /* Perform test */
+  OTALogic ota_logic;
+  ota_logic.setOTAStorage(ota_storage.get());
+  simulateOTABinaryReception(ota_logic, valid_ota_test_data);
+
+
+  /* Perform checks */
+  THEN("The OTA logic should be in the 'Error' state")
+  {
+    REQUIRE(ota_logic.state() == OTAState::Error);
+  }
+
+  THEN("The OTA error should be set to OTAError::RenameOfTempFileFailed")
+  {
+    REQUIRE(ota_logic.error() == OTAError::RenameOfTempFileFailed);
   }
 }
 
@@ -255,6 +304,7 @@ TEST_CASE("Invalid OTA data is received ", "[OTALogic - CRC wrong]")
   When(Method(ota_storage, write)).AlwaysDo([](uint8_t const * const /* buf */, size_t const num_bytes) -> size_t { return num_bytes; });
   Fake(Method(ota_storage, close)); 
   Fake(Method(ota_storage, remove)); 
+  Fake(Method(ota_storage, rename));
   Fake(Method(ota_storage, deinit)); 
 
 
@@ -268,7 +318,7 @@ TEST_CASE("Invalid OTA data is received ", "[OTALogic - CRC wrong]")
   ota_logic.setOTAStorage(ota_storage.get());
   simulateOTABinaryReception(ota_logic, invalid_valid_ota_test_data_crc_wrong);
 
-  
+
   /* Perform checks */
   THEN("there should be no binary file be stored on the OTA storage")
   {

@@ -76,6 +76,7 @@ OTAError OTALogic::update()
     case OTAState::WaitForBinary:  _ota_state = handle_WaitForBinary (); break;
     case OTAState::BinaryReceived: _ota_state = handle_BinaryReceived(); break;
     case OTAState::Verify:         _ota_state = handle_Verify        (); break;
+    case OTAState::Rename:         _ota_state = handle_Rename        (); break;
     case OTAState::Reset:          _ota_state = handle_Reset         (); break;
     case OTAState::Error:                                                break;
     }
@@ -123,7 +124,7 @@ OTAState OTALogic::handle_Idle()
 
 OTAState OTALogic::handle_StartDownload()
 {
-  if(_ota_storage->open()) {
+  if(_ota_storage->open("UPDATE.BIN.TMP")) {
     return OTAState::WaitForHeader;
   } else {
     _ota_error = OTAError::StorageOpenFailed;
@@ -212,11 +213,22 @@ OTAState OTALogic::handle_BinaryReceived()
 OTAState OTALogic::handle_Verify()
 {
   if(_ota_bin_data.crc32 == _ota_bin_data.hdr_crc32) {
+    return OTAState::Rename;
+  } else {
+    _ota_storage->remove("UPDATE.BIN.TMP");
+    _ota_error = OTAError::ChecksumMismatch;
+    return OTAState::Error;
+  }
+}
+
+OTAState OTALogic::handle_Rename()
+{
+  if(_ota_storage->rename("UPDATE.BIN.TMP", "UPDATE.BIN")) {
     _ota_storage->deinit();
     return OTAState::Reset;
-  } else {
-    _ota_storage->remove();
-    _ota_error = OTAError::ChecksumMismatch;
+  }
+  else {
+    _ota_error = OTAError::RenameOfTempFileFailed;
     return OTAState::Error;
   }
 }
