@@ -45,17 +45,18 @@ static size_t const MQTT_OTA_BUF_SIZE = 256;
 
 enum class OTAState
 {
-  Init, Idle, StartDownload, WaitForHeader, HeaderReceived, WaitForBinary, BinaryReceived, Verify, Reset, Error
+  Init, Idle, StartDownload, WaitForHeader, HeaderReceived, WaitForBinary, BinaryReceived, Verify, Rename, Reset, Error
 };
 
 enum class OTAError : int
 {
-  None                = 0,
-  StorageInitFailed   = 1,
-  StorageOpenFailed   = 2,
-  StorageWriteFailed  = 3,
-  ChecksumMismatch    = 4,
-  ReceivedDataOverrun = 5
+  None                   = 0,
+  StorageInitFailed      = 1,
+  StorageOpenFailed      = 2,
+  StorageWriteFailed     = 3,
+  ChecksumMismatch       = 4,
+  ReceivedDataOverrun    = 5,
+  RenameOfTempFileFailed = 6
 };
 
 /******************************************************************************
@@ -114,6 +115,7 @@ private:
   OTAState handle_WaitForBinary();
   OTAState handle_BinaryReceived();
   OTAState handle_Verify();
+  OTAState handle_Rename();
   OTAState handle_Reset();
 
   void init_mqtt_ota_buffer();
