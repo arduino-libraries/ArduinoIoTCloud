@@ -32,7 +32,7 @@ SCENARIO("Arduino Cloud Properties are encoded", "[ArduinoCloudThing::encode]") 
       cbor::encode(thing);
 
       CloudBool test = true;
-      property_container.addPropertyReal(test, "test", Permission::ReadWrite);
+      addPropertyToContainer(property_container, test, "test", Permission::ReadWrite);
 
       /* [{0: "test", 4: true}] = 9F A2 00 64 74 65 73 74 04 F5 FF*/
       std::vector<uint8_t> const expected = {0x9F, 0xA2, 0x00, 0x64, 0x74, 0x65, 0x73, 0x74, 0x04, 0xF5, 0xFF};
@@ -53,7 +53,7 @@ SCENARIO("Arduino Cloud Properties are encoded", "[ArduinoCloudThing::encode]") 
 
       CloudBool test = true;
       /*The property is added with identifier 1 that will be used instead of the string "test" as property identifier*/
-      property_container.addPropertyReal(test, "test", Permission::ReadWrite, 1);
+      addPropertyToContainer(property_container, test, "test", Permission::ReadWrite, 1);
 
       /* [{0: 1, 4: true}] = 9F A2 00 01 04 F5 FF*/
       std::vector<uint8_t> const expected = {0x9F, 0xA2, 0x00, 0x01, 0x04, 0xF5, 0xFF};
@@ -72,7 +72,7 @@ SCENARIO("Arduino Cloud Properties are encoded", "[ArduinoCloudThing::encode]") 
       cbor::encode(thing);
 
       CloudInt int_test = 123;
-      property_container.addPropertyReal(int_test, "test", Permission::ReadWrite);
+      addPropertyToContainer(property_container, int_test, "test", Permission::ReadWrite);
 
       /* [{0: "test", 3: 123}] = 9F A2 00 64 74 65 73 74 02 18 7B FF */
       std::vector<uint8_t> const expected = {0x9F, 0xA2, 0x00, 0x64, 0x74, 0x65, 0x73, 0x74, 0x02, 0x18, 0x7B, 0xFF};
@@ -91,7 +91,7 @@ SCENARIO("Arduino Cloud Properties are encoded", "[ArduinoCloudThing::encode]") 
       cbor::encode(thing);
 
       CloudFloat float_test = 3.14159;
-      property_container.addPropertyReal(float_test, "test", Permission::ReadWrite);
+      addPropertyToContainer(property_container, float_test, "test", Permission::ReadWrite);
 
       /* [{0: "test", 2: 3.141590118408203}] = 9F A2 00 64 74 65 73 74 02 FA 40 49 0F D0 FF */
       std::vector<uint8_t> const expected = {0x9F, 0xA2, 0x00, 0x64, 0x74, 0x65, 0x73, 0x74, 0x02, 0xFA, 0x40, 0x49, 0x0F, 0xD0, 0xFF};
@@ -111,7 +111,7 @@ SCENARIO("Arduino Cloud Properties are encoded", "[ArduinoCloudThing::encode]") 
 
       CloudString string_test;
       string_test = "test";
-      property_container.addPropertyReal(string_test, "test", Permission::ReadWrite);
+      addPropertyToContainer(property_container, string_test, "test", Permission::ReadWrite);
 
       /* [{0: "test", 3: "test"}] = 9F A2 00 64 74 65 73 74 03 64 74 65 73 74 FF*/
       std::vector<uint8_t> const expected = {0x9F, 0xA2, 0x00, 0x64, 0x74, 0x65, 0x73, 0x74, 0x03, 0x64, 0x74, 0x65, 0x73, 0x74, 0xFF};
@@ -130,7 +130,7 @@ SCENARIO("Arduino Cloud Properties are encoded", "[ArduinoCloudThing::encode]") 
       cbor::encode(thing);
 
       CloudLocation location_test = CloudLocation(2.0f, 3.0f);
-      property_container.addPropertyReal(location_test, "test", Permission::ReadWrite);
+      addPropertyToContainer(property_container, location_test, "test", Permission::ReadWrite);
 
       /* [{0: "test:lat", 3: 2},{0: "test:lon", 3: 3}] = 9F A2 00 68 74 65 73 74 3A 6C 61 74 02 FA 40 00 00 00 A2 00 68 74 65 73 74 3A 6C 6F 6E 02 FA 40 40 00 00 FF*/
       std::vector<uint8_t> const expected = { 0x9F, 0xA2, 0x00, 0x68, 0x74, 0x65, 0x73, 0x74, 0x3A, 0x6C, 0x61, 0x74, 0x02, 0xFA, 0x40, 0x00, 0x00, 0x00, 0xA2, 0x00, 0x68, 0x74, 0x65, 0x73, 0x74, 0x3A, 0x6C, 0x6F, 0x6E, 0x02, 0xFA, 0x40, 0x40, 0x00, 0x00, 0xFF };
@@ -149,7 +149,7 @@ SCENARIO("Arduino Cloud Properties are encoded", "[ArduinoCloudThing::encode]") 
       cbor::encode(thing);
 
       CloudColor color_test = CloudColor(2.0, 2.0, 2.0);
-      property_container.addPropertyReal(color_test, "test", Permission::ReadWrite);
+      addPropertyToContainer(property_container, color_test, "test", Permission::ReadWrite);
 
       /* [{0: "test:hue", 2: 2.0},{0: "test:sat", 2: 2.0},{0: "test:bri", 2: 2.0}] = 9F A2 00 68 74 65 73 74 3A 68 75 65 02 FA 40 00 00 00 A2 00 68 74 65 73 74 3A 73 61 74 02 FA 40 00 00 00 A2 00 68 74 65 73 74 3A 62 72 69 02 FA 40 00 00 00 FF*/
       std::vector<uint8_t> const expected = {0x9F, 0xA2, 0x00, 0x68, 0x74, 0x65, 0x73, 0x74, 0x3A, 0x68, 0x75, 0x65, 0x02, 0xFA, 0x40, 0x00, 0x00, 0x00, 0xA2, 0x00, 0x68, 0x74, 0x65, 0x73, 0x74, 0x3A, 0x73, 0x61, 0x74, 0x02, 0xFA, 0x40, 0x00, 0x00, 0x00, 0xA2, 0x00, 0x68, 0x74, 0x65, 0x73, 0x74, 0x3A, 0x62, 0x72, 0x69, 0x02, 0xFA, 0x40, 0x00, 0x00, 0x00, 0xFF };
@@ -170,7 +170,7 @@ SCENARIO("Arduino Cloud Properties are encoded", "[ArduinoCloudThing::encode]") 
 
       CloudColor color_test = CloudColor(2.0, 2.0, 2.0);
       /*The property is added with identifier 1 that will be used instead of the string "name" as property identifier */
-      property_container.addPropertyReal(color_test, "test", Permission::ReadWrite, 1);
+      addPropertyToContainer(property_container, color_test, "test", Permission::ReadWrite, 1);
 
       /* [{0: 257, 2: 2.0},{0: 513, 2: 2.0},{0: 769, 2: 2.0}] = 9F A2 00 19 01 01 02 FA 40 00 00 00 A2 00 19 02 01 02 FA 40 00 00 00 A2 00 19 03 01 02 FA 40 00 00 00 FF*/
       std::vector<uint8_t> const expected = {0x9F, 0xA2, 0x00, 0x19, 0x01, 0x01, 0x02, 0xFA, 0x40, 0x00, 0x00, 0x00, 0xA2, 0x00, 0x19, 0x02, 0x01, 0x02, 0xFA, 0x40, 0x00, 0x00, 0x00, 0xA2, 0x00, 0x19, 0x03, 0x01, 0x02, 0xFA, 0x40, 0x00, 0x00, 0x00, 0xFF };
@@ -189,7 +189,7 @@ SCENARIO("Arduino Cloud Properties are encoded", "[ArduinoCloudThing::encode]") 
       cbor::encode(thing);
 
       CloudColoredLight color_test = CloudColoredLight(true, 2.0, 2.0, 2.0);
-      property_container.addPropertyReal(color_test, "test", Permission::ReadWrite);
+      addPropertyToContainer(property_container, color_test, "test", Permission::ReadWrite);
 
       /* [{0: "test:swi", 4: true},{0: "test:hue", 2: 2.0},{0: "test:sat", 2: 2.0},{0: "test:bri", 2: 2.0}] = 83 A2 00 68 74 65 73 74 3A 73 77 69 04 F5 //A2 00 68 74 65 73 74 3A 68 75 65 02 FA 40 00 00 00 A2 00 68 74 65 73 74 3A 73 61 74 02 FA 40 00 00 00 A2 00 68 74 65 73 74 3A 62 72 69 02 FA 40 00 00 00 FF*/
       std::vector<uint8_t> const expected = {0x9F, 0xA2, 0x00, 0x68, 0x74, 0x65, 0x73, 0x74, 0x3A, 0x73, 0x77, 0x69, 0x04, 0xF5, 0xA2, 0x00, 0x68, 0x74, 0x65, 0x73, 0x74, 0x3A, 0x68, 0x75, 0x65, 0x02, 0xFA, 0x40, 0x00, 0x00, 0x00, 0xA2, 0x00, 0x68, 0x74, 0x65, 0x73, 0x74, 0x3A, 0x73, 0x61, 0x74, 0x02, 0xFA, 0x40, 0x00, 0x00, 0x00, 0xA2, 0x00, 0x68, 0x74, 0x65, 0x73, 0x74, 0x3A, 0x62, 0x72, 0x69, 0x02, 0xFA, 0x40, 0x00, 0x00, 0x00, 0xFF };
@@ -208,7 +208,7 @@ SCENARIO("Arduino Cloud Properties are encoded", "[ArduinoCloudThing::encode]") 
       cbor::encode(thing);
 
       CloudTelevision tv_test = CloudTelevision(true, 50, false, PlaybackCommands::Play, InputValue::TV, 7);
-      property_container.addPropertyReal(tv_test, "test", Permission::ReadWrite);
+      addPropertyToContainer(property_container, tv_test, "test", Permission::ReadWrite);
 
       /* [{0: "test:swi", 4: true},{0: "test:vol", 2: 50},{0: "test:mut", 2: false},{0: "test:pbc", 2: 3},{0: "test:inp", 2: 55},{0: "test:cha", 2: 7}] = 9F A2 00 68 74 65 73 74 3A 73 77 69 04 F5 A2 00 68 74 65 73 74 3A 76 6F 6C 02 18 32 A2 00 68 74 65 73 74 3A 6D 75 74 04 F4 A2 00 68 74 65 73 74 3A 70 62 63 02 03 A2 00 68 74 65 73 74 3A 69 6E 70 02 18 37 A2 00 68 74 65 73 74 3A 63 68 61 02 07 FF */
       std::vector<uint8_t> const expected = {0x9F, 0xA2, 0x00, 0x68, 0x74, 0x65, 0x73, 0x74, 0x3A, 0x73, 0x77, 0x69, 0x04, 0xF5, 0xA2, 0x00, 0x68, 0x74, 0x65, 0x73, 0x74, 0x3A, 0x76, 0x6F, 0x6C, 0x02, 0x18, 0x32, 0xA2, 0x00, 0x68, 0x74, 0x65, 0x73, 0x74, 0x3A, 0x6D, 0x75, 0x74, 0x04, 0xF4, 0xA2, 0x00, 0x68, 0x74, 0x65, 0x73, 0x74, 0x3A, 0x70, 0x62, 0x63, 0x02, 0x03, 0xA2, 0x00, 0x68, 0x74, 0x65, 0x73, 0x74, 0x3A, 0x69, 0x6E, 0x70, 0x02, 0x18, 0x37, 0xA2, 0x00, 0x68, 0x74, 0x65, 0x73, 0x74, 0x3A, 0x63, 0x68, 0x61, 0x02, 0x07, 0xFF};
@@ -227,7 +227,7 @@ SCENARIO("Arduino Cloud Properties are encoded", "[ArduinoCloudThing::encode]") 
       cbor::encode(thing);
 
       CloudDimmedLight color_test = CloudDimmedLight(true, 2.0);
-      property_container.addPropertyReal(color_test, "test", Permission::ReadWrite);
+      addPropertyToContainer(property_container, color_test, "test", Permission::ReadWrite);
 
       /* [{0: "test:swi", 4: true},{0: "test:hue", 2: 0.0},{0: "test:sat", 2: 0.0},{0: "test:bri", 2: 2.0}] = 83 A2 00 68 74 65 73 74 3A 73 77 69 04 F5 //A2 00 68 74 65 73 74 3A 68 75 65 02 FA 00 00 00 00 A2 00 68 74 65 73 74 3A 73 61 74 02 FA 00 00 00 00 A2 00 68 74 65 73 74 3A 62 72 69 02 FA 40 00 00 00 FF*/
       std::vector<uint8_t> const expected = {0x9F, 0xA2, 0x00, 0x68, 0x74, 0x65, 0x73, 0x74, 0x3A, 0x73, 0x77, 0x69, 0x04, 0xF5, 0xA2, 0x00, 0x68, 0x74, 0x65, 0x73, 0x74, 0x3A, 0x68, 0x75, 0x65, 0x02, 0xFA, 0x00, 0x00, 0x00, 0x00, 0xA2, 0x00, 0x68, 0x74, 0x65, 0x73, 0x74, 0x3A, 0x73, 0x61, 0x74, 0x02, 0xFA, 0x00, 0x00, 0x00, 0x00, 0xA2, 0x00, 0x68, 0x74, 0x65, 0x73, 0x74, 0x3A, 0x62, 0x72, 0x69, 0x02, 0xFA, 0x40, 0x00, 0x00, 0x00, 0xFF };
@@ -247,7 +247,7 @@ SCENARIO("Arduino Cloud Properties are encoded", "[ArduinoCloudThing::encode]") 
 
       CloudLight test;
       test = true;
-      property_container.addPropertyReal(test, "test", Permission::ReadWrite);
+      addPropertyToContainer(property_container, test, "test", Permission::ReadWrite);
 
       /* [{0: "test", 4: true}] = 9F A2 00 64 74 65 73 74 04 F5 FF*/
       std::vector<uint8_t> const expected = {0x9F, 0xA2, 0x00, 0x64, 0x74, 0x65, 0x73, 0x74, 0x04, 0xF5, 0xFF};
@@ -267,7 +267,7 @@ SCENARIO("Arduino Cloud Properties are encoded", "[ArduinoCloudThing::encode]") 
 
       CloudContactSensor test;
       test = true;
-      property_container.addPropertyReal(test, "test", Permission::ReadWrite);
+      addPropertyToContainer(property_container, test, "test", Permission::ReadWrite);
 
       /* [{0: "test", 4: true}] = 9F A2 00 64 74 65 73 74 04 F5 FF*/
       std::vector<uint8_t> const expected = {0x9F, 0xA2, 0x00, 0x64, 0x74, 0x65, 0x73, 0x74, 0x04, 0xF5, 0xFF};
@@ -287,7 +287,7 @@ SCENARIO("Arduino Cloud Properties are encoded", "[ArduinoCloudThing::encode]") 
 
       CloudMotionSensor test;
       test = true;
-      property_container.addPropertyReal(test, "test", Permission::ReadWrite);
+      addPropertyToContainer(property_container, test, "test", Permission::ReadWrite);
 
       /* [{0: "test", 4: true}] = 9F A2 00 64 74 65 73 74 04 F5 FF*/
       std::vector<uint8_t> const expected = {0x9F, 0xA2, 0x00, 0x64, 0x74, 0x65, 0x73, 0x74, 0x04, 0xF5, 0xFF};
@@ -307,7 +307,7 @@ SCENARIO("Arduino Cloud Properties are encoded", "[ArduinoCloudThing::encode]") 
 
       CloudSmartPlug test;
       test = true;
-      property_container.addPropertyReal(test, "test", Permission::ReadWrite);
+      addPropertyToContainer(property_container, test, "test", Permission::ReadWrite);
 
       /* [{0: "test", 4: true}] = 9F A2 00 64 74 65 73 74 04 F5 FF*/
       std::vector<uint8_t> const expected = {0x9F, 0xA2, 0x00, 0x64, 0x74, 0x65, 0x73, 0x74, 0x04, 0xF5, 0xFF};
@@ -327,7 +327,7 @@ SCENARIO("Arduino Cloud Properties are encoded", "[ArduinoCloudThing::encode]") 
 
       CloudTemperature float_test;
       float_test = 3.14159;
-      property_container.addPropertyReal(float_test, "test", Permission::ReadWrite);
+      addPropertyToContainer(property_container, float_test, "test", Permission::ReadWrite);
 
       /* [{0: "test", 2: 3.141590118408203}] = 9F A2 00 64 74 65 73 74 02 FA 40 49 0F D0 FF */
       std::vector<uint8_t> const expected = {0x9F, 0xA2, 0x00, 0x64, 0x74, 0x65, 0x73, 0x74, 0x02, 0xFA, 0x40, 0x49, 0x0F, 0xD0, 0xFF};
@@ -347,7 +347,7 @@ SCENARIO("Arduino Cloud Properties are encoded", "[ArduinoCloudThing::encode]") 
 
       CloudSwitch test;
       test = true;
-      property_container.addPropertyReal(test, "test", Permission::ReadWrite);
+      addPropertyToContainer(property_container, test, "test", Permission::ReadWrite);
 
       /* [{0: "test", 4: true}] = 9F A2 00 64 74 65 73 74 04 F5 FF*/
       std::vector<uint8_t> const expected = {0x9F, 0xA2, 0x00, 0x64, 0x74, 0x65, 0x73, 0x74, 0x04, 0xF5, 0xFF};
@@ -370,10 +370,10 @@ SCENARIO("Arduino Cloud Properties are encoded", "[ArduinoCloudThing::encode]") 
       CloudString str_test;
       str_test = "str_test";
 
-      property_container.addPropertyReal(int_test,   "int_test",   Permission::ReadWrite);
-      property_container.addPropertyReal(bool_test,  "bool_test",  Permission::ReadWrite);
-      property_container.addPropertyReal(float_test, "float_test", Permission::ReadWrite);
-      property_container.addPropertyReal(str_test,   "str_test",   Permission::ReadWrite);
+      addPropertyToContainer(property_container, int_test,   "int_test",   Permission::ReadWrite);
+      addPropertyToContainer(property_container, bool_test,  "bool_test",  Permission::ReadWrite);
+      addPropertyToContainer(property_container, float_test, "float_test", Permission::ReadWrite);
+      addPropertyToContainer(property_container, str_test,   "str_test",   Permission::ReadWrite);
 
       /* [{0: "int_test", 2: 1}, {0: "bool_test", 4: false},  {0: "float_test", 2: 2.0}, {0: "str_test", 3: "str_test"}]
          = 9F A2 00 68 69 6E 74 5F 74 65 73 74 02 01 A2 00 6A 66 6C 6F 61 74 5F 74 65 73 74 02 FA A2 00 6A 66 6C 6F 61 74 5F 74 65 73 74 02 FA 40 00 00 00 A2 00 68 73 74 72 5F 74 65 73 74 03 68 73 74 72 5F 74 65 73 74 FF
@@ -403,12 +403,12 @@ SCENARIO("Arduino Cloud Properties are encoded", "[ArduinoCloudThing::encode]") 
       std::unique_ptr<Property> f(new CloudWrapperFloat(float_test));
       std::unique_ptr<Property> s(new CloudWrapperString(str_test));
 
-      property_container.addPropertyReal(*i, "int_test",   Permission::ReadWrite);
-      property_container.addPropertyReal(*b, "bool_test",  Permission::ReadWrite);
-      property_container.addPropertyReal(*f, "float_test", Permission::ReadWrite);
-      property_container.addPropertyReal(*s, "str_test",   Permission::ReadWrite);
+      addPropertyToContainer(property_container, *i, "int_test",   Permission::ReadWrite);
+      addPropertyToContainer(property_container, *b, "bool_test",  Permission::ReadWrite);
+      addPropertyToContainer(property_container, *f, "float_test", Permission::ReadWrite);
+      addPropertyToContainer(property_container, *s, "str_test",   Permission::ReadWrite);
 
-      property_container.updateTimestampOnLocallyChangedProperties();
+      updateTimestampOnLocallyChangedProperties(property_container);
 
       /* [{0: "int_test", 2: 1}, {0: "bool_test", 4: false},  {0: "float_test", 2: 2.0}, {0: "str_test", 3: "str_test"}]
          = 9F A2 00 68 69 6E 74 5F 74 65 73 74 02 01 A2 00 6A 66 6C 6F 61 74 5F 74 65 73 74 02 FA A2 00 6A 66 6C 6F 61 74 5F 74 65 73 74 02 FA 40 00 00 00 A2 00 68 73 74 72 5F 74 65 73 74 03 68 73 74 72 5F 74 65 73 74 FF

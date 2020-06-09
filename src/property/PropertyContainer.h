@@ -29,42 +29,41 @@
 #include <list>
 
 /******************************************************************************
-   CLASS DECLARATION
+   DECLARATION OF getTime
  ******************************************************************************/
 
-class PropertyContainer
-{
+#ifdef HAS_LORA
+static unsigned long constexpr getTime() { return 0; }
+#else
+extern "C" unsigned long getTime();
+#endif
 
-public:
+/******************************************************************************
+   TYPEDEF
+ ******************************************************************************/
 
-  PropertyContainer();
+typedef std::list<Property *> PropertyContainer;
+
+/******************************************************************************
+   FUNCTION DECLARATION
+ ******************************************************************************/
+
+Property & addPropertyToContainer(PropertyContainer & prop_cont,
+                                  Property & property,
+                                  String const & name,
+                                  Permission const permission,
+                                  int propertyIdentifier = -1,
+                                  GetTimeCallbackFunc func = getTime);
 
   
-  void begin(GetTimeCallbackFunc func);
+Property * getProperty(PropertyContainer & prop_cont, String const & name);
+Property * getProperty(PropertyContainer & prop_cont, int const identifier);
 
 
-  Property & addPropertyReal(Property & property, String const & name, Permission const permission, int propertyIdentifier = -1);
+int appendChangedProperties(PropertyContainer & prop_cont, CborEncoder * arrayEncoder, bool lightPayload);
+void updateTimestampOnLocallyChangedProperties(PropertyContainer & prop_cont);
+void requestUpdateForAllProperties(PropertyContainer & prop_cont);
 
-  
-  Property * getProperty          (String const & name);
-  Property * getProperty          (int const identifier);
-
-
-  int appendChangedProperties(CborEncoder * arrayEncoder, bool lightPayload);
-  void updateTimestampOnLocallyChangedProperties();
-  void requestUpdateForAllProperties();
-
-
-
-private:
-
-  int _numProperties;
-  int _numPrimitivesProperties;
-  GetTimeCallbackFunc _get_time_func;
-  std::list<Property *> _property_list;
-
-  void addProperty(Property * property_obj, int propertyIdentifier);
-
-};
+void addProperty(PropertyContainer & prop_cont, Property * property_obj, int propertyIdentifier);
 
 #endif /* ARDUINO_PROPERTY_CONTAINER_H_ */

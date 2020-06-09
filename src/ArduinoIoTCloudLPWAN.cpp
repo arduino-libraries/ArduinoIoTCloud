@@ -63,7 +63,7 @@ int ArduinoIoTCloudLPWAN::begin(ConnectionHandler& connection, bool retry)
 void ArduinoIoTCloudLPWAN::update()
 {
   // Check if a primitive property wrapper is locally changed
-  _property_container.updateTimestampOnLocallyChangedProperties();
+  updateTimestampOnLocallyChangedProperties(_property_container);
 
   ArduinoIoTConnectionStatus next_iot_status = _iot_status;
 

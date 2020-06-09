@@ -26,7 +26,7 @@ SCENARIO("A Arduino cloud property is published on value change", "[ArduinoCloud
     CloudInt       test  = 10;
     int const DELTA = 6;
 
-    property_container.addPropertyReal(test, "test", Permission::ReadWrite).publishOnChange(DELTA);
+    addPropertyToContainer(property_container, test, "test", Permission::ReadWrite).publishOnChange(DELTA);
 
     WHEN("test = 10, delta = 6, the property is encoded for the 1st time") {
       THEN("The property should be encoded") {

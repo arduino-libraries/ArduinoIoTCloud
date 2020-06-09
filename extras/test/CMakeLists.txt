@@ -46,6 +46,7 @@ set(TEST_SRCS
 set(TEST_UTIL_SRCS
   src/util/CBORTestUtil.cpp
   src/util/OTATestUtil.cpp
+  src/util/PropertyTestUtil.cpp
 )
 
 set(TEST_DUT_SRCS

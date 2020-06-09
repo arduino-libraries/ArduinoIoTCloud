@@ -88,6 +88,7 @@ class ArduinoIoTCloudClass
     virtual void printDebugInfo() = 0;
 
             void push();
+            bool setTimestamp(String const & prop_name, unsigned long const timestamp);
 
     inline void     setThingId (String const thing_id)  { _thing_id = thing_id; };
     inline String & getThingId ()                       { return _thing_id; };
