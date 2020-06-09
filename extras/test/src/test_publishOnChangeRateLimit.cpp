@@ -27,7 +27,7 @@ SCENARIO("A Arduino cloud property is published on value change but the update r
     int const MIN_DELTA = 0;
     unsigned long const MIN_TIME_BETWEEN_UPDATES_ms = 500; /* No updates faster than 500 ms */
 
-    property_container.addPropertyReal(test, "test", Permission::ReadWrite).publishOnChange(MIN_DELTA, MIN_TIME_BETWEEN_UPDATES_ms);
+    addPropertyToContainer(property_container, test, "test", Permission::ReadWrite).publishOnChange(MIN_DELTA, MIN_TIME_BETWEEN_UPDATES_ms);
 
     WHEN("t = 0 ms, min time between updates = 500 ms, property not modified, 1st call to 'encode'") {
       set_millis(0);
