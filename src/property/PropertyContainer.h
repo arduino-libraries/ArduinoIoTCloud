@@ -63,7 +63,7 @@ Property * getProperty(PropertyContainer & prop_cont, int const identifier);
 int appendChangedProperties(PropertyContainer & prop_cont, CborEncoder * arrayEncoder, bool lightPayload);
 void updateTimestampOnLocallyChangedProperties(PropertyContainer & prop_cont);
 void requestUpdateForAllProperties(PropertyContainer & prop_cont);
-
-void addProperty(PropertyContainer & prop_cont, Property * property_obj, int propertyIdentifier);
+void updateProperty(PropertyContainer & prop_cont, String propertyName, unsigned long cloudChangeEventTime, bool const is_sync_message, std::list<CborMapData *> * map_data_list);
+String getPropertyNameByIdentifier(PropertyContainer & prop_cont, int propertyIdentifier);
 
 #endif /* ARDUINO_PROPERTY_CONTAINER_H_ */
