@@ -70,6 +70,16 @@ void ArduinoIoTCloudClass::addPropertyReal(Property& property, String name, int 
   }
 }
 
+Property& ArduinoIoTCloudClass::addPropertyReal(Property& property, String name, Permission const permission)
+{
+  return addPropertyToContainer(_property_container, property, name, permission);
+}
+
+Property& ArduinoIoTCloudClass::addPropertyReal(Property& property, String name, int tag, Permission const permission)
+{
+  return addPropertyToContainer(_property_container, property, name, permission, tag);
+}
+
 void ArduinoIoTCloudClass::addPropertyReal(bool& property, String name, permissionType permission_type, long seconds, void(*fn)(void), float minDelta, void(*synFn)(Property & property))
 {
   addPropertyReal(property, name, -1, permission_type, seconds, fn, minDelta, synFn);
