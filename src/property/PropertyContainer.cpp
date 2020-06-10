@@ -120,6 +120,38 @@ void updateTimestampOnLocallyChangedProperties(PropertyContainer & prop_cont)
                 });
 }
 
+void updateProperty(PropertyContainer & prop_cont, String propertyName, unsigned long cloudChangeEventTime, bool const is_sync_message, std::list<CborMapData *> * map_data_list)
+{
+  Property * property = getProperty(prop_cont, propertyName);
+
+  if (property && property->isWriteableByCloud())
+  {
+    property->setLastCloudChangeTimestamp(cloudChangeEventTime);
+    property->setAttributesFromCloud(map_data_list);
+    if (is_sync_message) {
+      property->execCallbackOnSync();
+    } else {
+      property->fromCloudToLocal();
+      property->execCallbackOnChange();
+    }
+  }
+}
+
+String getPropertyNameByIdentifier(PropertyContainer & prop_cont, int propertyIdentifier)
+{
+  Property * property = nullptr;
+
+  if (propertyIdentifier > 255)
+    property = getProperty(prop_cont, propertyIdentifier & 255);
+  else
+    property = getProperty(prop_cont, propertyIdentifier);
+
+  if (property)
+    return property->name();
+  else
+    return String("");
+}
+
 /******************************************************************************
    PRIVATE MEMBER FUNCTIONS
  ******************************************************************************/

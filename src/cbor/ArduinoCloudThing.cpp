@@ -264,7 +264,7 @@ ArduinoCloudThing::MapParserState ArduinoCloudThing::handle_Name(CborValue * val
       map_data->name_identifier.set(val & 255);
       map_data->attribute_identifier.set(val >> 8);
       map_data->light_payload.set(true);
-      String name = getPropertyNameByIdentifier(val);
+      String name = getPropertyNameByIdentifier(*_property_container, val);
       map_data->name.set(name);
 
 
@@ -353,7 +353,7 @@ ArduinoCloudThing::MapParserState ArduinoCloudThing::handle_LeaveMap(CborValue *
 
     if (_currentPropertyName != "" && propertyName != _currentPropertyName) {
       /* Update the property containers depending on the parsed data */
-      updateProperty(_currentPropertyName, _currentPropertyBaseTime + _currentPropertyTime);
+      updateProperty(*_property_container, _currentPropertyName, _currentPropertyBaseTime + _currentPropertyTime, _isSyncMessage, &_map_data_list);
       /* Reset current property data */
       freeMapDataList(&_map_data_list);
       _currentPropertyBaseTime = 0;
@@ -376,7 +376,7 @@ ArduinoCloudThing::MapParserState ArduinoCloudThing::handle_LeaveMap(CborValue *
       next_state = MapParserState::EnterMap;
     } else {
       /* Update the property containers depending on the parsed data */
-      updateProperty(_currentPropertyName, _currentPropertyBaseTime + _currentPropertyTime);
+      updateProperty(*_property_container, _currentPropertyName, _currentPropertyBaseTime + _currentPropertyTime, _isSyncMessage, &_map_data_list);
       /* Reset last property data */
       freeMapDataList(&_map_data_list);
       next_state = MapParserState::Complete;
@@ -395,31 +395,6 @@ void ArduinoCloudThing::freeMapDataList(std::list<CborMapData *> * map_data_list
                   delete map_data;
                 });
   map_data_list->clear();
-}
-
-void ArduinoCloudThing::updateProperty(String propertyName, unsigned long cloudChangeEventTime) {
-  Property* property = getProperty(*_property_container, propertyName);
-  if (property && property->isWriteableByCloud()) {
-    property->setLastCloudChangeTimestamp(cloudChangeEventTime);
-    property->setAttributesFromCloud(&_map_data_list);
-    if (_isSyncMessage) {
-      property->execCallbackOnSync();
-    } else {
-      property->fromCloudToLocal();
-      property->execCallbackOnChange();
-    }
-  }
-}
-
-// retrieve the property name by the identifier
-String ArduinoCloudThing::getPropertyNameByIdentifier(int propertyIdentifier) {
-  Property* property;
-  if (propertyIdentifier > 255) {
-    property = getProperty(*_property_container, propertyIdentifier & 255);
-  } else {
-    property = getProperty(*_property_container, propertyIdentifier);
-  }
-  return property->name();
 }
 
 bool ArduinoCloudThing::ifNumericConvertToDouble(CborValue * value_iter, double * numeric_val) {

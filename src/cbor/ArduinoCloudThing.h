@@ -87,8 +87,6 @@ class ArduinoCloudThing {
     /* decode a CBOR payload received from the cloud */
     void decode(uint8_t const * const payload, size_t const length, bool isSyncMessage = false);
 
-    void updateProperty(String propertyName, unsigned long cloudChangeEventTime);
-    String getPropertyNameByIdentifier(int propertyIdentifier);
 
   private:
     PropertyContainer * _property_container;
