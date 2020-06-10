@@ -26,7 +26,13 @@
 #include "types/CloudWrapperBase.h"
 
 /******************************************************************************
-   PUBLIC MEMBER FUNCTIONS
+   INTERNAL FUNCTION DECLARATION
+ ******************************************************************************/
+
+void addProperty(PropertyContainer & prop_cont, Property * property_obj, int propertyIdentifier);
+
+/******************************************************************************
+   PUBLIC FUNCTION DEFINITION
  ******************************************************************************/
 
 Property & addPropertyToContainer(PropertyContainer & prop_cont, Property & property, String const & name, Permission const permission, int propertyIdentifier, GetTimeCallbackFunc func)
@@ -153,7 +159,7 @@ String getPropertyNameByIdentifier(PropertyContainer & prop_cont, int propertyId
 }
 
 /******************************************************************************
-   PRIVATE MEMBER FUNCTIONS
+   INTERNAL FUNCTION DEFINITION
  ******************************************************************************/
 
 void addProperty(PropertyContainer & prop_cont, Property * property_obj, int propertyIdentifier)
