@@ -188,6 +188,9 @@ class Property {
     virtual bool isPrimitive() {
       return false;
     };
+
+    static unsigned long const DEFAULT_MIN_TIME_BETWEEN_UPDATES_MILLIS = 500; /* Data rate throttled to 2 Hz */
+
   protected:
     /* Variables used for UpdatePolicy::OnChange */
     String             _name;

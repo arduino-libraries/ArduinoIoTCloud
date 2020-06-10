@@ -64,7 +64,7 @@ void ArduinoIoTCloudClass::addPropertyReal(Property& property, String name, int 
   }
 
   if (seconds == ON_CHANGE) {
-    addPropertyToContainer(_property_container, property, name, permission, tag).publishOnChange(minDelta, DEFAULT_MIN_TIME_BETWEEN_UPDATES_MILLIS).onUpdate(fn).onSync(synFn);
+    addPropertyToContainer(_property_container, property, name, permission, tag).publishOnChange(minDelta, Property::DEFAULT_MIN_TIME_BETWEEN_UPDATES_MILLIS).onUpdate(fn).onSync(synFn);
   } else {
     addPropertyToContainer(_property_container, property, name, permission, tag).publishEvery(seconds).onUpdate(fn).onSync(synFn);
   }

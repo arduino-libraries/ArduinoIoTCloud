@@ -31,7 +31,7 @@
 Property::Property()
 : _name{""}
 , _min_delta_property{0.0f}
-, _min_time_between_updates_millis{0}
+, _min_time_between_updates_millis{DEFAULT_MIN_TIME_BETWEEN_UPDATES_MILLIS}
 , _permission{Permission::Read}
 , _get_time_func{nullptr}
 , _update_callback_func{nullptr}
