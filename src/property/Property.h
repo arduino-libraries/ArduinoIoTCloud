@@ -122,20 +122,22 @@ enum class UpdatePolicy {
 
 typedef void(*UpdateCallbackFunc)(void);
 typedef unsigned long(*GetTimeCallbackFunc)();
+class Property;
+typedef void(*OnSyncCallbackFunc)(Property &);
 
 /******************************************************************************
    CLASS DECLARATION
  ******************************************************************************/
 
-class Property {
-    typedef void(*SyncCallbackFunc)(Property &property);
+class Property
+{
   public:
     Property();
     void init(String const name, Permission const permission, GetTimeCallbackFunc func);
 
     /* Composable configuration of the Property class */
     Property & onUpdate(UpdateCallbackFunc func);
-    Property & onSync(SyncCallbackFunc func);
+    Property & onSync(OnSyncCallbackFunc func);
     Property & publishOnChange(float const min_delta_property, unsigned long const min_time_between_updates_millis = 0);
     Property & publishEvery(unsigned long const seconds);
     Property & publishOnDemand();
@@ -201,7 +203,7 @@ class Property {
     Permission         _permission;
     GetTimeCallbackFunc _get_time_func;
     UpdateCallbackFunc _update_callback_func;
-    void (*_sync_callback_func)(Property &property);
+    OnSyncCallbackFunc _on_sync_callback_func;
 
     UpdatePolicy       _update_policy;
     bool               _has_been_updated_once,

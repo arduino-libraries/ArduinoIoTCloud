@@ -35,7 +35,7 @@ Property::Property()
 , _permission{Permission::Read}
 , _get_time_func{nullptr}
 , _update_callback_func{nullptr}
-, _sync_callback_func{nullptr}
+, _on_sync_callback_func{nullptr}
 , _update_policy{UpdatePolicy::OnChange}
 , _has_been_updated_once{false}
 , _has_been_modified_in_callback{false}
@@ -67,8 +67,8 @@ Property & Property::onUpdate(UpdateCallbackFunc func) {
   return (*this);
 }
 
-Property & Property::onSync(SyncCallbackFunc func) {
-  _sync_callback_func = func;
+Property & Property::onSync(OnSyncCallbackFunc func) {
+  _on_sync_callback_func = func;
   return (*this);
 }
 
@@ -128,7 +128,7 @@ void Property::requestUpdate()
 }
 
 void Property::execCallbackOnChange() {
-  if (_update_callback_func != NULL) {
+  if (_update_callback_func != nullptr) {
     _update_callback_func();
   }
   if (!isDifferentFromCloud()) {
@@ -137,8 +137,8 @@ void Property::execCallbackOnChange() {
 }
 
 void Property::execCallbackOnSync() {
-  if (_sync_callback_func != NULL) {
-    _sync_callback_func(*this);
+  if (_on_sync_callback_func != nullptr) {
+    _on_sync_callback_func(*this);
   }
 }
 
