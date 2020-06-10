@@ -113,6 +113,7 @@ class ArduinoIoTCloudClass
     void addPropertyReal(int& property, String name, permissionType permission_type = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, float minDelta = 0.0, void(*synFn)(Property & property) = CLOUD_WINS);
     void addPropertyReal(String& property, String name, permissionType permission_type = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, float minDelta = 0.0f, void(*synFn)(Property & property) = CLOUD_WINS);
 
+    Property& addPropertyReal(Property& property, String name, Permission const permission);
     Property& addPropertyReal(bool& property, String name, Permission const permission);
     Property& addPropertyReal(float& property, String name, Permission const permission);
     Property& addPropertyReal(int& property, String name, Permission const permission);
@@ -130,6 +131,7 @@ class ArduinoIoTCloudClass
     void addPropertyReal(int& property, String name, int tag, permissionType permission_type = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, float minDelta = 0.0, void(*synFn)(Property & property) = CLOUD_WINS);
     void addPropertyReal(String& property, String name, int tag, permissionType permission_type = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, float minDelta = 0.0f, void(*synFn)(Property & property) = CLOUD_WINS);
 
+    Property& addPropertyReal(Property& property, String name, int tag, Permission const permission);
     Property& addPropertyReal(bool& property, String name, int tag, Permission const permission);
     Property& addPropertyReal(float& property, String name, int tag, Permission const permission);
     Property& addPropertyReal(int& property, String name, int tag, Permission const permission);
