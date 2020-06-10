@@ -29,25 +29,26 @@
    CTOR/DTOR
  ******************************************************************************/
 Property::Property()
-  :   _name(""),
-      _min_delta_property(0.0f),
-      _min_time_between_updates_millis(0),
-      _permission(Permission::Read),
-      _get_time_func{nullptr},
-      _update_callback_func(nullptr),
-      _sync_callback_func(nullptr),
-      _has_been_updated_once(false),
-      _has_been_modified_in_callback(false),
-      _last_updated_millis(0),
-      _update_interval_millis(0),
-      _last_local_change_timestamp(0),
-      _last_cloud_change_timestamp(0),
-      _identifier(0),
-      _attributeIdentifier(0),
-      _lightPayload(false),
-      _update_requested(false),
-      _encode_timestamp(false),
-      _timestamp(0)
+: _name{""}
+, _min_delta_property{0.0f}
+, _min_time_between_updates_millis{DEFAULT_MIN_TIME_BETWEEN_UPDATES_MILLIS}
+, _permission{Permission::Read}
+, _get_time_func{nullptr}
+, _update_callback_func{nullptr}
+, _sync_callback_func{nullptr}
+, _update_policy{UpdatePolicy::OnChange}
+, _has_been_updated_once{false}
+, _has_been_modified_in_callback{false}
+, _last_updated_millis{0}
+, _update_interval_millis{0}
+, _last_local_change_timestamp{0}
+, _last_cloud_change_timestamp{0}
+, _identifier{0}
+, _attributeIdentifier{0}
+, _lightPayload{false}
+, _update_requested{false}
+, _encode_timestamp{false}
+, _timestamp{0}
 {
 
 }
