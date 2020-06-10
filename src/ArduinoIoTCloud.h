@@ -107,11 +107,11 @@ class ArduinoIoTCloudClass
      * name of the property to identify a given property within a CBOR message.
      */
 
-    void addPropertyReal(Property& property, String name, permissionType permission_type = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, float minDelta = 0.0f, void(*synFn)(Property & property) = CLOUD_WINS);
-    void addPropertyReal(bool& property, String name, permissionType permission_type = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, float minDelta = 0.0f, void(*synFn)(Property & property) = CLOUD_WINS);
-    void addPropertyReal(float& property, String name, permissionType permission_type = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, float minDelta = 0.0f, void(*synFn)(Property & property) = CLOUD_WINS);
-    void addPropertyReal(int& property, String name, permissionType permission_type = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, float minDelta = 0.0, void(*synFn)(Property & property) = CLOUD_WINS);
-    void addPropertyReal(String& property, String name, permissionType permission_type = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, float minDelta = 0.0f, void(*synFn)(Property & property) = CLOUD_WINS);
+    void addPropertyReal(Property& property, String name, permissionType permission_type = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, float minDelta = 0.0f, void(*synFn)(Property & property) = CLOUD_WINS) __attribute__((deprecated("Use addProperty(property, Permission::ReadWrite) instead.")));
+    void addPropertyReal(bool& property, String name, permissionType permission_type = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, float minDelta = 0.0f, void(*synFn)(Property & property) = CLOUD_WINS) __attribute__((deprecated("Use addProperty(property, Permission::ReadWrite) instead.")));
+    void addPropertyReal(float& property, String name, permissionType permission_type = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, float minDelta = 0.0f, void(*synFn)(Property & property) = CLOUD_WINS) __attribute__((deprecated("Use addProperty(property, Permission::ReadWrite) instead.")));
+    void addPropertyReal(int& property, String name, permissionType permission_type = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, float minDelta = 0.0, void(*synFn)(Property & property) = CLOUD_WINS) __attribute__((deprecated("Use addProperty(property, Permission::ReadWrite) instead.")));
+    void addPropertyReal(String& property, String name, permissionType permission_type = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, float minDelta = 0.0f, void(*synFn)(Property & property) = CLOUD_WINS) __attribute__((deprecated("Use addProperty(property, Permission::ReadWrite) instead.")));
 
     Property& addPropertyReal(Property& property, String name, Permission const permission);
     Property& addPropertyReal(bool& property, String name, Permission const permission);
@@ -125,11 +125,11 @@ class ArduinoIoTCloudClass
      * important when using LoRa.
      */
 
-    void addPropertyReal(Property& property, String name, int tag, permissionType permission_type = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, float minDelta = 0.0f, void(*synFn)(Property & property) = CLOUD_WINS);
-    void addPropertyReal(bool& property, String name, int tag, permissionType permission_type = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, float minDelta = 0.0f, void(*synFn)(Property & property) = CLOUD_WINS);
-    void addPropertyReal(float& property, String name, int tag, permissionType permission_type = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, float minDelta = 0.0f, void(*synFn)(Property & property) = CLOUD_WINS);
-    void addPropertyReal(int& property, String name, int tag, permissionType permission_type = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, float minDelta = 0.0, void(*synFn)(Property & property) = CLOUD_WINS);
-    void addPropertyReal(String& property, String name, int tag, permissionType permission_type = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, float minDelta = 0.0f, void(*synFn)(Property & property) = CLOUD_WINS);
+    void addPropertyReal(Property& property, String name, int tag, permissionType permission_type = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, float minDelta = 0.0f, void(*synFn)(Property & property) = CLOUD_WINS) __attribute__((deprecated("Use addProperty(property, Permission::ReadWrite) instead.")));
+    void addPropertyReal(bool& property, String name, int tag, permissionType permission_type = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, float minDelta = 0.0f, void(*synFn)(Property & property) = CLOUD_WINS) __attribute__((deprecated("Use addProperty(property, Permission::ReadWrite) instead.")));
+    void addPropertyReal(float& property, String name, int tag, permissionType permission_type = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, float minDelta = 0.0f, void(*synFn)(Property & property) = CLOUD_WINS) __attribute__((deprecated("Use addProperty(property, Permission::ReadWrite) instead.")));
+    void addPropertyReal(int& property, String name, int tag, permissionType permission_type = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, float minDelta = 0.0, void(*synFn)(Property & property) = CLOUD_WINS) __attribute__((deprecated("Use addProperty(property, Permission::ReadWrite) instead.")));
+    void addPropertyReal(String& property, String name, int tag, permissionType permission_type = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, float minDelta = 0.0f, void(*synFn)(Property & property) = CLOUD_WINS) __attribute__((deprecated("Use addProperty(property, Permission::ReadWrite) instead.")));
 
     Property& addPropertyReal(Property& property, String name, int tag, Permission const permission);
     Property& addPropertyReal(bool& property, String name, int tag, Permission const permission);
