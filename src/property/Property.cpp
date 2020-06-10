@@ -36,6 +36,7 @@ Property::Property()
 , _get_time_func{nullptr}
 , _update_callback_func{nullptr}
 , _sync_callback_func{nullptr}
+, _update_policy{UpdatePolicy::OnChange}
 , _has_been_updated_once{false}
 , _has_been_modified_in_callback{false}
 , _last_updated_millis{0}
