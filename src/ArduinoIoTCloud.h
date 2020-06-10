@@ -116,7 +116,7 @@ class ArduinoIoTCloudClass
     Property& addPropertyReal(bool& property, String name, Permission const permission);
     Property& addPropertyReal(float& property, String name, Permission const permission);
     Property& addPropertyReal(int& property, String name, Permission const permission);
-    Property& addPropertyReal(String& property, String name, int tag, Permission const permission);
+    Property& addPropertyReal(String& property, String name, Permission const permission);
 
     /* The following methods are for MKR WAN 1300/1310 LoRa boards since
      * they use a number to identify a given property within a CBOR message.
@@ -133,7 +133,7 @@ class ArduinoIoTCloudClass
     Property& addPropertyReal(bool& property, String name, int tag, Permission const permission);
     Property& addPropertyReal(float& property, String name, int tag, Permission const permission);
     Property& addPropertyReal(int& property, String name, int tag, Permission const permission);
-    Property& addPropertyReal(String& property, String name, Permission const permission);
+    Property& addPropertyReal(String& property, String name, int tag, Permission const permission);
 
   protected:
 
