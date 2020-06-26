@@ -15,47 +15,48 @@
    a commercial license, send an email to license@arduino.cc.
 */
 
-#ifndef ARDUINO_IOT_CLOUD_CONFIG_H_
-#define ARDUINO_IOT_CLOUD_CONFIG_H_
+#ifndef ARDUINO_OTA_STORAGE_NINA_H_
+#define ARDUINO_OTA_STORAGE_NINA_H_
 
 /******************************************************************************
- * USER CONFIGURED DEFINES
+ * INCLUDE
  ******************************************************************************/
 
-#ifndef OTA_STORAGE_SFU
-  #define OTA_STORAGE_SFU         (0)
-#endif
+#include <ArduinoIoTCloud_Config.h>
+#if OTA_STORAGE_NINA
 
-#ifdef ARDUINO_SAMD_MKRGSM1400
-  #define OTA_STORAGE_SSU         (1)
-#else
-  #define OTA_STORAGE_SSU         (0)
-#endif
+#include "OTAStorage.h"
+
+#include <WiFiNINA.h>
 
 /******************************************************************************
- * AUTOMATIC CONFIGURED DEFINES
+ * CLASS DECLARATION
  ******************************************************************************/
 
-#if OTA_STORAGE_SFU || OTA_STORAGE_SSU || OTA_STORAGE_NINA
-  #define OTA_ENABLED             (1)
-#else
-  #define OTA_ENABLED             (0)
-#endif
+class OTAStorage_Nina : public OTAStorage
+{
+public:
 
-#if defined(ARDUINO_SAMD_MKRGSM1400) || defined(ARDUINO_SAMD_MKRWIFI1010) ||   \
-  defined(ARDUINO_SAMD_MKR1000) || defined(ARDUINO_SAMD_NANO_33_IOT)      ||   \
-  defined(ARDUINO_SAMD_MKRNB1500)
-  #define BOARD_HAS_ECCX08
-  #define HAS_TCP
-#endif
+           OTAStorage_Nina();
+  virtual ~OTAStorage_Nina() { }
 
-#if defined(ARDUINO_SAMD_MKRWAN1300) || defined(ARDUINO_SAMD_MKRWAN1310)
-  #define HAS_LORA
-#endif
 
-#if defined(ARDUINO_ESP8266_ESP12) || defined(ARDUINO_ARCH_ESP32) || defined(ESP8266)
-  #define BOARD_ESP
-  #define HAS_TCP
-#endif
+  virtual Type   type  () override { return Type::Nina; }
+  virtual bool   init  () override;
+  virtual bool   open  (char const * file_name) override;
+  virtual size_t write (uint8_t const * const buf, size_t const num_bytes) override;
+  virtual void   close () override;
+  virtual void   remove(char const * file_name) override;
+  virtual bool   rename(char const * old_file_name, char const * new_file_name) override;
+  virtual void   deinit() override;
 
-#endif /* ARDUINO_IOT_CLOUD_CONFIG_H_ */
+
+private:
+
+  WiFiStorageFile * _file;
+
+};
+
+#endif /* OTA_STORAGE_NINA */
+
+#endif /* ARDUINO_OTA_STORAGE_NINA_H_ */
