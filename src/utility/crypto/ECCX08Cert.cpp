@@ -23,8 +23,8 @@
 
 #ifdef BOARD_HAS_ECCX08
 
-#include <ArduinoBearSSL.h>
-#include <bearssl/bearssl_hash.h>
+#include "../../tls/ArduinoBearSSL.h"
+#include "../../tls/bearssl/bearssl_hash.h"
 #include <ArduinoECCX08.h>
 
 #include "ECCX08Cert.h"

@@ -27,7 +27,7 @@
 #ifdef BOARD_HAS_ECCX08
   #include <ArduinoECCX08.h>
   #include "utility/crypto/CryptoUtil.h"
-  #include "utility/crypto/BearSSLTrustAnchor.h"
+  #include "tls/BearSSLTrustAnchors.h"
 #endif
 
 /******************************************************************************
