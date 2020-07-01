@@ -1,7 +1,6 @@
 #include <ArduinoIoTCloud.h>
 #include "ECCX08TLSConfig.h"
 
-#include <ArduinoBearSSL.h>
 #include <ArduinoECCX08.h>
 
 const bool DEBUG = true;
