@@ -24,18 +24,22 @@
 
 #include <ArduinoECCX08.h>
 
-#include "ArduinoBearSSL.h"
+#include <assert.h>
+
 #include "BearSSLTrustAnchors.h"
 #include "utility/eccX08_asn1.h"
 
 #include "BearSSLClient.h"
 
-BearSSLClient::BearSSLClient(Client* client, const br_x509_trust_anchor* myTAs, int myNumTAs) :
+BearSSLClient::BearSSLClient(Client* client, const br_x509_trust_anchor* myTAs, int myNumTAs, GetTimeCallbackFunc func) :
   _client(client),
   _TAs(myTAs),
   _numTAs(myNumTAs),
-  _noSNI(false)
+  _noSNI(false),
+  _get_time_func(func)
 {
+  assert(_get_time_func != nullptr);
+
   _ecKey.curve = 0;
   _ecKey.x = NULL;
   _ecKey.xlen = 0;
@@ -278,7 +282,7 @@ int BearSSLClient::connectSSL(const char* host)
   br_ssl_client_reset(&_sc, host, 0);
 
   // get the current time and set it for X.509 validation
-  uint32_t now = ArduinoBearSSL.getTime();
+  uint32_t now = _get_time_func();
   uint32_t days = now / 86400 + 719528;
   uint32_t sec = now % 86400;
 

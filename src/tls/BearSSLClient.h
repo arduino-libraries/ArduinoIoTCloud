@@ -38,11 +38,13 @@
 
 #include "bearssl/bearssl.h"
 
+typedef unsigned long(*GetTimeCallbackFunc)();
+
 class BearSSLClient : public Client {
 
 public:
 
-  BearSSLClient(Client* client, const br_x509_trust_anchor* myTAs, int myNumTAs);
+  BearSSLClient(Client* client, const br_x509_trust_anchor* myTAs, int myNumTAs, GetTimeCallbackFunc func);
   virtual ~BearSSLClient();
 
 
@@ -85,6 +87,7 @@ private:
   Client* _client;
   const br_x509_trust_anchor* _TAs;
   int _numTAs;
+  GetTimeCallbackFunc _get_time_func;
 
   bool _noSNI;
 
