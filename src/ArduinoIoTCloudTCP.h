@@ -28,7 +28,7 @@
 
 #ifdef BOARD_HAS_ECCX08
   #include "tls/BearSSLClient.h"
-  #include "utility/crypto/ECCX08Cert.h"
+  #include "tls/utility/ECCX08Cert.h"
 #elif defined(BOARD_ESP)
   #include <WiFiClientSecure.h>
 #endif

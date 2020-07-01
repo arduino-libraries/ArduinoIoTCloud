@@ -25,8 +25,8 @@
 #include <ArduinoIoTCloudTCP.h>
 #include "utility/time/TimeService.h"
 #ifdef BOARD_HAS_ECCX08
-  #include "utility/crypto/CryptoUtil.h"
   #include "tls/BearSSLTrustAnchors.h"
+  #include "tls/utility/CryptoUtil.h"
 #endif
 
 /******************************************************************************
