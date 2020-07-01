@@ -22,6 +22,9 @@
  * SOFTWARE.
  */
 
+#include <ArduinoIoTCloud_Config.h>
+#ifdef BOARD_HAS_ECCX08
+
 #include "inner.h"
 
 static inline size_t
@@ -120,3 +123,5 @@ br_hmac_out(const br_hmac_context *ctx, void *out)
 	memcpy(out, tmp, ctx->out_len);
 	return ctx->out_len;
 }
+
+#endif /* #ifdef BOARD_HAS_ECCX08 */

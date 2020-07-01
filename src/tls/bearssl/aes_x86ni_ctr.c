@@ -22,6 +22,9 @@
  * SOFTWARE.
  */
 
+#include <ArduinoIoTCloud_Config.h>
+#ifdef BOARD_HAS_ECCX08
+
 #define BR_ENABLE_INTRINSICS   1
 #include "inner.h"
 
@@ -209,3 +212,5 @@ br_aes_x86ni_ctr_get_vtable(void)
 }
 
 #endif
+
+#endif /* #ifdef BOARD_HAS_ECCX08 */

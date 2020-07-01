@@ -22,6 +22,9 @@
  * SOFTWARE.
  */
 
+#include <ArduinoIoTCloud_Config.h>
+#ifdef BOARD_HAS_ECCX08
+
 #include "inner.h"
 
 static const unsigned char P384_N[] = {
@@ -55,3 +58,5 @@ const br_ec_curve_def br_secp384r1 = {
 	P384_N, sizeof P384_N,
 	P384_G, sizeof P384_G
 };
+
+#endif /* #ifdef BOARD_HAS_ECCX08 */

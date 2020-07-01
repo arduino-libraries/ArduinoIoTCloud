@@ -22,6 +22,9 @@
  * SOFTWARE.
  */
 
+#include <ArduinoIoTCloud_Config.h>
+#ifdef BOARD_HAS_ECCX08
+
 #include "inner.h"
 
 /* see inner.h */
@@ -36,3 +39,5 @@ br_i15_ninv15(uint16_t x)
 	y = MUL15(y, 2 - MUL15(x, y));
 	return MUX(x & 1, -y, 0) & 0x7FFF;
 }
+
+#endif /* #ifdef BOARD_HAS_ECCX08 */

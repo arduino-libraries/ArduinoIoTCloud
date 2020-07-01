@@ -22,6 +22,9 @@
  * SOFTWARE.
  */
 
+#include <ArduinoIoTCloud_Config.h>
+#ifdef BOARD_HAS_ECCX08
+
 #include "inner.h"
 
 static inline void
@@ -110,3 +113,5 @@ br_aes_ct_bitslice_encrypt(unsigned num_rounds,
 	shift_rows(q);
 	add_round_key(q, skey + (num_rounds << 3));
 }
+
+#endif /* #ifdef BOARD_HAS_ECCX08 */

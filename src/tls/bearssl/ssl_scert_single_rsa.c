@@ -22,6 +22,9 @@
  * SOFTWARE.
  */
 
+#include <ArduinoIoTCloud_Config.h>
+#ifdef BOARD_HAS_ECCX08
+
 #include "inner.h"
 
 static int
@@ -160,3 +163,5 @@ br_ssl_server_set_single_rsa(br_ssl_server_context *cc,
 	cc->chain_handler.single_rsa.irsasign = irsasign;
 	cc->policy_vtable = &cc->chain_handler.single_rsa.vtable;
 }
+
+#endif /* #ifdef BOARD_HAS_ECCX08 */

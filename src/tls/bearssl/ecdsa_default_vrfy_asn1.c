@@ -22,6 +22,9 @@
  * SOFTWARE.
  */
 
+#include <ArduinoIoTCloud_Config.h>
+#ifdef BOARD_HAS_ECCX08
+
 #include "inner.h"
 
 /* see bearssl_ec.h */
@@ -34,3 +37,5 @@ br_ecdsa_vrfy_asn1_get_default(void)
 	return &br_ecdsa_i31_vrfy_asn1;
 #endif
 }
+
+#endif /* #ifdef BOARD_HAS_ECCX08 */

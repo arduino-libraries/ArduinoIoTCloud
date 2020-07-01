@@ -22,6 +22,9 @@
  * SOFTWARE.
  */
 
+#include <ArduinoIoTCloud_Config.h>
+#ifdef BOARD_HAS_ECCX08
+
 #include "inner.h"
 
 #define ORDER_LEN   ((BR_MAX_EC_SIZE + 7) >> 3)
@@ -43,3 +46,5 @@ br_ecdsa_i31_sign_asn1(const br_ec_impl *impl,
 	memcpy(sig, rsig, sig_len);
 	return sig_len;
 }
+
+#endif /* #ifdef BOARD_HAS_ECCX08 */

@@ -22,6 +22,9 @@
  * SOFTWARE.
  */
 
+#include <ArduinoIoTCloud_Config.h>
+#ifdef BOARD_HAS_ECCX08
+
 #include "inner.h"
 
 /* see inner.h */
@@ -91,3 +94,5 @@ br_asn1_encode_uint(void *dest, br_asn1_uint pp)
 	memcpy(buf + pp.asn1len - pp.len, pp.data, pp.len);
 	return 1 + lenlen + pp.asn1len;
 }
+
+#endif /* #ifdef BOARD_HAS_ECCX08 */

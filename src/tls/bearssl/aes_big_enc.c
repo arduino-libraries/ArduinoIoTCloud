@@ -22,6 +22,9 @@
  * SOFTWARE.
  */
 
+#include <ArduinoIoTCloud_Config.h>
+#ifdef BOARD_HAS_ECCX08
+
 #include "inner.h"
 
 #define S   br_aes_S
@@ -155,3 +158,5 @@ br_aes_big_encrypt(unsigned num_rounds, const uint32_t *skey, void *data)
 	br_enc32be(buf + 8, s2);
 	br_enc32be(buf + 12, s3);
 }
+
+#endif /* #ifdef BOARD_HAS_ECCX08 */

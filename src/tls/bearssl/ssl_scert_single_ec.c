@@ -22,6 +22,9 @@
  * SOFTWARE.
  */
 
+#include <ArduinoIoTCloud_Config.h>
+#ifdef BOARD_HAS_ECCX08
+
 #include "inner.h"
 
 static int
@@ -140,3 +143,5 @@ br_ssl_server_set_single_ec(br_ssl_server_context *cc,
 	cc->chain_handler.single_ec.iecdsa = iecdsa;
 	cc->policy_vtable = &cc->chain_handler.single_ec.vtable;
 }
+
+#endif /* #ifdef BOARD_HAS_ECCX08 */

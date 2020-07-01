@@ -22,6 +22,9 @@
  * SOFTWARE.
  */
 
+#include <ArduinoIoTCloud_Config.h>
+#ifdef BOARD_HAS_ECCX08
+
 #include "inner.h"
 
 /*
@@ -143,3 +146,5 @@ br_rsa_oaep_unpad(const br_hash_class *dig,
 	}
 	return s;
 }
+
+#endif /* #ifdef BOARD_HAS_ECCX08 */

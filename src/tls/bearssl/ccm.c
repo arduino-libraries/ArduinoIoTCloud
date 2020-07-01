@@ -22,6 +22,9 @@
  * SOFTWARE.
  */
 
+#include <ArduinoIoTCloud_Config.h>
+#ifdef BOARD_HAS_ECCX08
+
 #include "inner.h"
 
 /*
@@ -344,3 +347,5 @@ br_ccm_check_tag(br_ccm_context *ctx, const void *tag)
 	}
 	return EQ0(z);
 }
+
+#endif /* #ifdef BOARD_HAS_ECCX08 */

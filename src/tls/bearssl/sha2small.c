@@ -22,6 +22,9 @@
  * SOFTWARE.
  */
 
+#include <ArduinoIoTCloud_Config.h>
+#ifdef BOARD_HAS_ECCX08
+
 #include "inner.h"
 
 #define CH(X, Y, Z)    ((((Y) ^ (Z)) & (X)) ^ (Z))
@@ -339,3 +342,5 @@ const br_hash_class br_sha256_vtable = {
 	(void (*)(const br_hash_class **, const void *, uint64_t))
 		&br_sha256_set_state
 };
+
+#endif /* #ifdef BOARD_HAS_ECCX08 */

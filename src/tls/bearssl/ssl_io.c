@@ -22,6 +22,9 @@
  * SOFTWARE.
  */
 
+#include <ArduinoIoTCloud_Config.h>
+#ifdef BOARD_HAS_ECCX08
+
 #include "inner.h"
 
 /* see bearssl_ssl.h */
@@ -318,3 +321,5 @@ br_sslio_close(br_sslio_context *ctx)
 	}
 	return br_ssl_engine_last_error(ctx->engine) == BR_ERR_OK;
 }
+
+#endif /* #ifdef BOARD_HAS_ECCX08 */

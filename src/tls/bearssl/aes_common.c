@@ -22,6 +22,9 @@
  * SOFTWARE.
  */
 
+#include <ArduinoIoTCloud_Config.h>
+#ifdef BOARD_HAS_ECCX08
+
 #include "inner.h"
 
 static const uint32_t Rcon[] = {
@@ -110,3 +113,5 @@ br_aes_keysched(uint32_t *skey, const void *key, size_t key_len)
 	}
 	return num_rounds;
 }
+
+#endif /* #ifdef BOARD_HAS_ECCX08 */

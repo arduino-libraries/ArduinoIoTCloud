@@ -22,6 +22,9 @@
  * SOFTWARE.
  */
 
+#include <ArduinoIoTCloud_Config.h>
+#ifdef BOARD_HAS_ECCX08
+
 #include "inner.h"
 
 /* see inner.h */
@@ -48,3 +51,5 @@ br_digest_size_by_ID(int digest_id)
 		return 0;
 	}
 }
+
+#endif /* #ifdef BOARD_HAS_ECCX08 */

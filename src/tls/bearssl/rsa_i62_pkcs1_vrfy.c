@@ -22,6 +22,9 @@
  * SOFTWARE.
  */
 
+#include <ArduinoIoTCloud_Config.h>
+#ifdef BOARD_HAS_ECCX08
+
 #include "inner.h"
 
 #if BR_INT128 || BR_UMUL128
@@ -61,3 +64,5 @@ br_rsa_i62_pkcs1_vrfy_get(void)
 }
 
 #endif
+
+#endif /* #ifdef BOARD_HAS_ECCX08 */

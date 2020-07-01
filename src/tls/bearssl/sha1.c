@@ -22,6 +22,9 @@
  * SOFTWARE.
  */
 
+#include <ArduinoIoTCloud_Config.h>
+#ifdef BOARD_HAS_ECCX08
+
 #include "inner.h"
 
 #define F(B, C, D)     ((((C) ^ (D)) & (B)) ^ (D))
@@ -189,3 +192,5 @@ const br_hash_class br_sha1_vtable = {
 	(void (*)(const br_hash_class **, const void *, uint64_t))
 		&br_sha1_set_state
 };
+
+#endif /* #ifdef BOARD_HAS_ECCX08 */

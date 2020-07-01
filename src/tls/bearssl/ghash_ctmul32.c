@@ -22,6 +22,9 @@
  * SOFTWARE.
  */
 
+#include <ArduinoIoTCloud_Config.h>
+#ifdef BOARD_HAS_ECCX08
+
 #include "inner.h"
 
 /*
@@ -249,3 +252,5 @@ br_ghash_ctmul32(void *y, const void *h, const void *data, size_t len)
 	br_enc32be(yb + 8, yw[1]);
 	br_enc32be(yb + 12, yw[0]);
 }
+
+#endif /* #ifdef BOARD_HAS_ECCX08 */

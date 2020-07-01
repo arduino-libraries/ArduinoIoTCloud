@@ -22,6 +22,9 @@
  * SOFTWARE.
  */
 
+#include <ArduinoIoTCloud_Config.h>
+#ifdef BOARD_HAS_ECCX08
+
 #include "inner.h"
 
 #define U      (2 + ((BR_MAX_RSA_FACTOR + 14) / 15))
@@ -207,3 +210,5 @@ br_rsa_i15_private(unsigned char *x, const br_rsa_private_key *sk)
 	 */
 	return p0i & q0i & r;
 }
+
+#endif /* #ifdef BOARD_HAS_ECCX08 */

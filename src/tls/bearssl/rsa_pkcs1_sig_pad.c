@@ -22,6 +22,9 @@
  * SOFTWARE.
  */
 
+#include <ArduinoIoTCloud_Config.h>
+#ifdef BOARD_HAS_ECCX08
+
 #include "inner.h"
 
 /* see inner.h */
@@ -98,3 +101,5 @@ br_rsa_pkcs1_sig_pad(const unsigned char *hash_oid,
 	memcpy(x + u, hash, hash_len);
 	return 1;
 }
+
+#endif /* #ifdef BOARD_HAS_ECCX08 */

@@ -1,5 +1,8 @@
 /* Automatically generated code; do not modify directly. */
 
+#include <ArduinoIoTCloud_Config.h>
+#ifdef BOARD_HAS_ECCX08
+
 #include <stddef.h>
 #include <stdint.h>
 
@@ -648,3 +651,5 @@ t0_exit:
 	((t0_context *)t0ctx)->rp = rp;
 	((t0_context *)t0ctx)->ip = ip;
 }
+
+#endif /* #ifdef BOARD_HAS_ECCX08 */

@@ -22,6 +22,9 @@
  * SOFTWARE.
  */
 
+#include <ArduinoIoTCloud_Config.h>
+#ifdef BOARD_HAS_ECCX08
+
 #include "inner.h"
 
 /* see bearssl_x509.h */
@@ -57,3 +60,5 @@ br_x509_minimal_init_full(br_x509_minimal_context *xc,
 		br_x509_minimal_set_hash(xc, id, hc);
 	}
 }
+
+#endif /* #ifdef BOARD_HAS_ECCX08 */

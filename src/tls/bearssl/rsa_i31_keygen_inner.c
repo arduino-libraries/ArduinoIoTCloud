@@ -22,6 +22,9 @@
  * SOFTWARE.
  */
 
+#include <ArduinoIoTCloud_Config.h>
+#ifdef BOARD_HAS_ECCX08
+
 #include "inner.h"
 
 /*
@@ -606,3 +609,5 @@ br_rsa_i31_keygen_inner(const br_prng_class **rng,
 
 	return r;
 }
+
+#endif /* #ifdef BOARD_HAS_ECCX08 */

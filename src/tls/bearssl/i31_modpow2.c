@@ -22,6 +22,9 @@
  * SOFTWARE.
  */
 
+#include <ArduinoIoTCloud_Config.h>
+#ifdef BOARD_HAS_ECCX08
+
 #include "inner.h"
 
 /* see inner.h */
@@ -158,3 +161,5 @@ br_i31_modpow_opt(uint32_t *x,
 	br_i31_from_monty(x, m, m0i);
 	return 1;
 }
+
+#endif /* #ifdef BOARD_HAS_ECCX08 */

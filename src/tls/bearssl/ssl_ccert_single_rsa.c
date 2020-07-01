@@ -22,6 +22,9 @@
  * SOFTWARE.
  */
 
+#include <ArduinoIoTCloud_Config.h>
+#ifdef BOARD_HAS_ECCX08
+
 #include "inner.h"
 
 static void
@@ -147,3 +150,5 @@ br_ssl_client_set_single_rsa(br_ssl_client_context *cc,
 	cc->client_auth.single_rsa.irsasign = irsasign;
 	cc->client_auth_vtable = &cc->client_auth.single_rsa.vtable;
 }
+
+#endif /* #ifdef BOARD_HAS_ECCX08 */

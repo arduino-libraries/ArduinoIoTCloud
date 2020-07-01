@@ -22,6 +22,9 @@
  * SOFTWARE.
  */
 
+#include <ArduinoIoTCloud_Config.h>
+#ifdef BOARD_HAS_ECCX08
+
 #include "inner.h"
 
 /* see bearssl_block.h */
@@ -67,3 +70,5 @@ const br_block_cbcenc_class br_des_ct_cbcenc_vtable = {
 	(void (*)(const br_block_cbcenc_class *const *, void *, void *, size_t))
 		&br_des_ct_cbcenc_run
 };
+
+#endif /* #ifdef BOARD_HAS_ECCX08 */

@@ -22,6 +22,9 @@
  * SOFTWARE.
  */
 
+#include <ArduinoIoTCloud_Config.h>
+#ifdef BOARD_HAS_ECCX08
+
 #include "inner.h"
 
 /* see bearssl_rsa.h */
@@ -50,3 +53,5 @@ br_rsa_ssl_decrypt(br_rsa_private core, const br_rsa_private_key *sk,
 	memmove(data, data + len - 48, 48);
 	return x;
 }
+
+#endif /* #ifdef BOARD_HAS_ECCX08 */

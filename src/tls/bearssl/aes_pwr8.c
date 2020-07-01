@@ -22,6 +22,9 @@
  * SOFTWARE.
  */
 
+#include <ArduinoIoTCloud_Config.h>
+#ifdef BOARD_HAS_ECCX08
+
 #define BR_POWER_ASM_MACROS   1
 #include "inner.h"
 
@@ -38,6 +41,7 @@ key_schedule_128(unsigned char *sk, const unsigned char *key)
 	long cc;
 
 	static const uint32_t fmod[] = { 0x11B, 0x11B, 0x11B, 0x11B };
+
 #if BR_POWER8_LE
 	static const uint32_t idx2be[] = {
 		0x03020100, 0x07060504, 0x0B0A0908, 0x0F0E0D0C
@@ -443,3 +447,5 @@ br_aes_pwr8_keysched(unsigned char *sk, const void *key, size_t len)
 }
 
 #endif
+
+#endif /* #ifdef BOARD_HAS_ECCX08 */

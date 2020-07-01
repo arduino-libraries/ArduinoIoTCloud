@@ -22,6 +22,9 @@
  * SOFTWARE.
  */
 
+#include <ArduinoIoTCloud_Config.h>
+#ifdef BOARD_HAS_ECCX08
+
 #include "inner.h"
 
 /*
@@ -295,3 +298,5 @@ br_poly1305_ctmul32_run(const void *key, const void *iv,
 		ichacha(key, iv, 1, data, len);
 	}
 }
+
+#endif /* #ifdef BOARD_HAS_ECCX08 */

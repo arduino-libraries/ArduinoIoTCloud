@@ -22,6 +22,9 @@
  * SOFTWARE.
  */
 
+#include <ArduinoIoTCloud_Config.h>
+#ifdef BOARD_HAS_ECCX08
+
 #include "inner.h"
 
 static const unsigned char P521_N[] = {
@@ -62,3 +65,5 @@ const br_ec_curve_def br_secp521r1 = {
 	P521_N, sizeof P521_N,
 	P521_G, sizeof P521_G
 };
+
+#endif /* #ifdef BOARD_HAS_ECCX08 */

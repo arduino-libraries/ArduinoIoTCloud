@@ -22,6 +22,9 @@
  * SOFTWARE.
  */
 
+#include <ArduinoIoTCloud_Config.h>
+#ifdef BOARD_HAS_ECCX08
+
 #include "inner.h"
 
 /*
@@ -174,3 +177,5 @@ br_aes_small_decrypt(unsigned num_rounds, const uint32_t *skey, void *data)
 		buf[u] = state[u];
 	}
 }
+
+#endif /* #ifdef BOARD_HAS_ECCX08 */

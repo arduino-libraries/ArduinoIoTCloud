@@ -22,6 +22,9 @@
  * SOFTWARE.
  */
 
+#include <ArduinoIoTCloud_Config.h>
+#ifdef BOARD_HAS_ECCX08
+
 #include "inner.h"
 
 /*
@@ -233,3 +236,5 @@ const br_sslrec_out_gcm_class br_sslrec_out_gcm_vtable = {
 		br_ghash, const void *))
 		&out_gcm_init
 };
+
+#endif /* #ifdef BOARD_HAS_ECCX08 */

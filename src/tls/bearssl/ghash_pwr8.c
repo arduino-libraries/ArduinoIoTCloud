@@ -22,6 +22,9 @@
  * SOFTWARE.
  */
 
+#include <ArduinoIoTCloud_Config.h>
+#ifdef BOARD_HAS_ECCX08
+
 #define BR_POWER_ASM_MACROS   1
 #include "inner.h"
 
@@ -409,3 +412,5 @@ br_ghash_pwr8_get(void)
 }
 
 #endif
+
+#endif /* #ifdef BOARD_HAS_ECCX08 */

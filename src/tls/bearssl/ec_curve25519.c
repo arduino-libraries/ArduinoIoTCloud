@@ -22,6 +22,9 @@
  * SOFTWARE.
  */
 
+#include <ArduinoIoTCloud_Config.h>
+#ifdef BOARD_HAS_ECCX08
+
 #include "inner.h"
 
 static const unsigned char GEN[] = {
@@ -44,3 +47,5 @@ const br_ec_curve_def br_curve25519 = {
 	ORDER, sizeof ORDER,
 	GEN, sizeof GEN
 };
+
+#endif /* #ifdef BOARD_HAS_ECCX08 */

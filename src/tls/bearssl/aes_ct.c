@@ -22,6 +22,9 @@
  * SOFTWARE.
  */
 
+#include <ArduinoIoTCloud_Config.h>
+#ifdef BOARD_HAS_ECCX08
+
 #include "inner.h"
 
 /* see inner.h */
@@ -326,3 +329,5 @@ br_aes_ct_skey_expand(uint32_t *skey,
 		skey[v + 1] = y | (y >> 1);
 	}
 }
+
+#endif /* #ifdef BOARD_HAS_ECCX08 */

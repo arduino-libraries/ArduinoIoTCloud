@@ -22,6 +22,9 @@
  * SOFTWARE.
  */
 
+#include <ArduinoIoTCloud_Config.h>
+#ifdef BOARD_HAS_ECCX08
+
 #include "inner.h"
 
 /*
@@ -308,3 +311,5 @@ br_des_tab_keysched(uint32_t *skey, const void *key, size_t key_len)
 		return 3;
 	}
 }
+
+#endif /* #ifdef BOARD_HAS_ECCX08 */

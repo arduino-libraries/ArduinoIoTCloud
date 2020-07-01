@@ -22,6 +22,9 @@
  * SOFTWARE.
  */
 
+#include <ArduinoIoTCloud_Config.h>
+#ifdef BOARD_HAS_ECCX08
+
 #include "inner.h"
 
 const unsigned char br_hkdf_no_salt = 0;
@@ -105,3 +108,5 @@ br_hkdf_produce(br_hkdf_context *hc,
 	}
 	return tlen;
 }
+
+#endif /* #ifdef BOARD_HAS_ECCX08 */

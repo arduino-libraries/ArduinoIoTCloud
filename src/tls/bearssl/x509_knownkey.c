@@ -22,6 +22,9 @@
  * SOFTWARE.
  */
 
+#include <ArduinoIoTCloud_Config.h>
+#ifdef BOARD_HAS_ECCX08
+
 #include "inner.h"
 
 /* see bearssl_x509.h */
@@ -103,3 +106,5 @@ const br_x509_class br_x509_knownkey_vtable = {
 	kk_end_chain,
 	kk_get_pkey
 };
+
+#endif /* #ifdef BOARD_HAS_ECCX08 */

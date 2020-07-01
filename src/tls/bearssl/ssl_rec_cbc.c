@@ -22,6 +22,9 @@
  * SOFTWARE.
  */
 
+#include <ArduinoIoTCloud_Config.h>
+#ifdef BOARD_HAS_ECCX08
+
 #include "inner.h"
 
 static void
@@ -438,3 +441,5 @@ const br_sslrec_out_cbc_class br_sslrec_out_cbc_vtable = {
 		const void *))
 		&out_cbc_init
 };
+
+#endif /* #ifdef BOARD_HAS_ECCX08 */

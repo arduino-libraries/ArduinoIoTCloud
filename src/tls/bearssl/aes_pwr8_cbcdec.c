@@ -22,6 +22,9 @@
  * SOFTWARE.
  */
 
+#include <ArduinoIoTCloud_Config.h>
+#ifdef BOARD_HAS_ECCX08
+
 #define BR_POWER_ASM_MACROS   1
 #include "inner.h"
 
@@ -400,6 +403,7 @@ cbcdec_256(const unsigned char *sk,
 	static const uint32_t idx2be[] = {
 		0x03020100, 0x07060504, 0x0B0A0908, 0x0F0E0D0C
 	};
+
 #endif
 
 	cc0 = 0;
@@ -668,3 +672,5 @@ br_aes_pwr8_cbcdec_get_vtable(void)
 }
 
 #endif
+
+#endif /* #ifdef BOARD_HAS_ECCX08 */

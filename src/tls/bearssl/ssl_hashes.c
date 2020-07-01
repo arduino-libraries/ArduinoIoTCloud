@@ -22,6 +22,9 @@
  * SOFTWARE.
  */
 
+#include <ArduinoIoTCloud_Config.h>
+#ifdef BOARD_HAS_ECCX08
+
 #include "inner.h"
 
 /* see inner.h */
@@ -44,3 +47,5 @@ br_ssl_choose_hash(unsigned bf)
 	}
 	return 0;
 }
+
+#endif /* #ifdef BOARD_HAS_ECCX08 */

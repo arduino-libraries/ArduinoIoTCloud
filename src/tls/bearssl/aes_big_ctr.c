@@ -22,6 +22,9 @@
  * SOFTWARE.
  */
 
+#include <ArduinoIoTCloud_Config.h>
+#ifdef BOARD_HAS_ECCX08
+
 #include "inner.h"
 
 /* see bearssl_block.h */
@@ -82,3 +85,5 @@ const br_block_ctr_class br_aes_big_ctr_vtable = {
 		const void *, uint32_t, void *, size_t))
 		&br_aes_big_ctr_run
 };
+
+#endif /* #ifdef BOARD_HAS_ECCX08 */

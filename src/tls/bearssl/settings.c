@@ -22,6 +22,9 @@
  * SOFTWARE.
  */
 
+#include <ArduinoIoTCloud_Config.h>
+#ifdef BOARD_HAS_ECCX08
+
 #include "inner.h"
 
 static const br_config_option config[] = {
@@ -304,3 +307,5 @@ br_get_config(void)
 {
 	return config;
 }
+
+#endif /* #ifdef BOARD_HAS_ECCX08 */

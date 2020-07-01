@@ -22,6 +22,9 @@
  * SOFTWARE.
  */
 
+#include <ArduinoIoTCloud_Config.h>
+#ifdef BOARD_HAS_ECCX08
+
 #include "inner.h"
 
 #define I15_LEN     ((BR_MAX_EC_SIZE + 29) / 15)
@@ -164,3 +167,5 @@ br_ecdsa_i15_vrfy_raw(const br_ec_impl *impl,
 	res &= br_i15_iszero(t1);
 	return res;
 }
+
+#endif /* #ifdef BOARD_HAS_ECCX08 */

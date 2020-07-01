@@ -22,6 +22,9 @@
  * SOFTWARE.
  */
 
+#include <ArduinoIoTCloud_Config.h>
+#ifdef BOARD_HAS_ECCX08
+
 #include "inner.h"
 
 /* see bearssl_ssl.h */
@@ -30,3 +33,5 @@ br_ssl_client_set_default_rsapub(br_ssl_client_context *cc)
 {
 	br_ssl_client_set_rsapub(cc, br_rsa_public_get_default());
 }
+
+#endif /* #ifdef BOARD_HAS_ECCX08 */

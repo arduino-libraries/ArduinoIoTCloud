@@ -22,6 +22,9 @@
  * SOFTWARE.
  */
 
+#include <ArduinoIoTCloud_Config.h>
+#ifdef BOARD_HAS_ECCX08
+
 #include "inner.h"
 
 /*
@@ -276,3 +279,5 @@ br_aes_x86ni_keysched_dec(unsigned char *skni, const void *key, size_t len)
 }
 
 #endif
+
+#endif /* #ifdef BOARD_HAS_ECCX08 */

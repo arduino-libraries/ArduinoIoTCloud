@@ -22,6 +22,9 @@
  * SOFTWARE.
  */
 
+#include <ArduinoIoTCloud_Config.h>
+#ifdef BOARD_HAS_ECCX08
+
 #include "inner.h"
 
 /* see bearssl.h */
@@ -34,3 +37,5 @@ br_tls12_sha256_prf(void *dst, size_t len,
 	br_tls_phash(dst, len, &br_sha256_vtable,
 		secret, secret_len, label, seed_num, seed);
 }
+
+#endif /* #ifdef BOARD_HAS_ECCX08 */

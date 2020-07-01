@@ -22,6 +22,9 @@
  * SOFTWARE.
  */
 
+#include <ArduinoIoTCloud_Config.h>
+#ifdef BOARD_HAS_ECCX08
+
 #include "inner.h"
 
 /* see bearssl_ssl.h */
@@ -63,3 +66,5 @@ br_ssl_engine_set_default_chapol(br_ssl_engine_context *cc)
 	}
 #endif
 }
+
+#endif /* #ifdef BOARD_HAS_ECCX08 */

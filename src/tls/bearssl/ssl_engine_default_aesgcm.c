@@ -22,6 +22,9 @@
  * SOFTWARE.
  */
 
+#include <ArduinoIoTCloud_Config.h>
+#ifdef BOARD_HAS_ECCX08
+
 #include "inner.h"
 
 /* see bearssl_ssl.h */
@@ -87,3 +90,5 @@ br_ssl_engine_set_default_aes_gcm(br_ssl_engine_context *cc)
 	br_ssl_engine_set_ghash(cc, &br_ghash_ctmul);
 #endif
 }
+
+#endif /* #ifdef BOARD_HAS_ECCX08 */

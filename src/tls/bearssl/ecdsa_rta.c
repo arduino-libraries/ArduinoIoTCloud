@@ -22,6 +22,9 @@
  * SOFTWARE.
  */
 
+#include <ArduinoIoTCloud_Config.h>
+#ifdef BOARD_HAS_ECCX08
+
 #include "inner.h"
 
 /*
@@ -119,3 +122,5 @@ br_ecdsa_raw_to_asn1(void *sig, size_t sig_len)
 	memcpy(sig, tmp, off);
 	return off;
 }
+
+#endif /* #ifdef BOARD_HAS_ECCX08 */

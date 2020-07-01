@@ -22,6 +22,9 @@
  * SOFTWARE.
  */
 
+#include <ArduinoIoTCloud_Config.h>
+#ifdef BOARD_HAS_ECCX08
+
 #include "inner.h"
 
 /* see inner.h */
@@ -58,3 +61,5 @@ br_i32_from_monty(uint32_t *x, const uint32_t *m, uint32_t m0i)
 	 */
 	br_i32_sub(x, m, NOT(br_i32_sub(x, m, 0)));
 }
+
+#endif /* #ifdef BOARD_HAS_ECCX08 */

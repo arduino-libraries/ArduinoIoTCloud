@@ -22,6 +22,9 @@
  * SOFTWARE.
  */
 
+#include <ArduinoIoTCloud_Config.h>
+#ifdef BOARD_HAS_ECCX08
+
 #define BR_ENABLE_INTRINSICS   1
 #include "inner.h"
 
@@ -167,3 +170,5 @@ br_prng_seeder_system(const char **name)
 	}
 	return 0;
 }
+
+#endif /* #ifdef BOARD_HAS_ECCX08 */

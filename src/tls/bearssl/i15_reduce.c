@@ -22,6 +22,9 @@
  * SOFTWARE.
  */
 
+#include <ArduinoIoTCloud_Config.h>
+#ifdef BOARD_HAS_ECCX08
+
 #include "inner.h"
 
 /* see inner.h */
@@ -64,3 +67,5 @@ br_i15_reduce(uint16_t *x, const uint16_t *a, const uint16_t *m)
 		br_i15_muladd_small(x, a[u], m);
 	}
 }
+
+#endif /* #ifdef BOARD_HAS_ECCX08 */

@@ -22,6 +22,9 @@
  * SOFTWARE.
  */
 
+#include <ArduinoIoTCloud_Config.h>
+#ifdef BOARD_HAS_ECCX08
+
 #include "inner.h"
 
 /*
@@ -535,3 +538,5 @@ void br_ssl_session_cache_lru_forget(
 		br_enc16be(cc->store + addr + VERSION_OFF, 0);
 	}
 }
+
+#endif /* #ifdef BOARD_HAS_ECCX08 */

@@ -22,6 +22,9 @@
  * SOFTWARE.
  */
 
+#include <ArduinoIoTCloud_Config.h>
+#ifdef BOARD_HAS_ECCX08
+
 #include "inner.h"
 
 /* see bearssl_block.h */
@@ -104,3 +107,5 @@ br_chacha20_ct_run(const void *key,
 	}
 	return cc;
 }
+
+#endif /* #ifdef BOARD_HAS_ECCX08 */

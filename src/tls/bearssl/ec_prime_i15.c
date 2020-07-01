@@ -22,6 +22,9 @@
  * SOFTWARE.
  */
 
+#include <ArduinoIoTCloud_Config.h>
+#ifdef BOARD_HAS_ECCX08
+
 #include "inner.h"
 
 /*
@@ -818,3 +821,5 @@ const br_ec_impl br_ec_prime_i15 = {
 	&api_mulgen,
 	&api_muladd
 };
+
+#endif /* #ifdef BOARD_HAS_ECCX08 */

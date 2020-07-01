@@ -22,6 +22,9 @@
  * SOFTWARE.
  */
 
+#include <ArduinoIoTCloud_Config.h>
+#ifdef BOARD_HAS_ECCX08
+
 #include "inner.h"
 
 /*
@@ -164,3 +167,5 @@ br_multihash_out(const br_multihash_context *ctx, int id, void *dst)
 	hc->out(&g.vtable, dst);
 	return (hc->desc >> BR_HASHDESC_OUT_OFF) & BR_HASHDESC_OUT_MASK;
 }
+
+#endif /* #ifdef BOARD_HAS_ECCX08 */

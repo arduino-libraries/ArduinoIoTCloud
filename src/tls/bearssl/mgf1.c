@@ -22,6 +22,9 @@
  * SOFTWARE.
  */
 
+#include <ArduinoIoTCloud_Config.h>
+#ifdef BOARD_HAS_ECCX08
+
 #include "inner.h"
 
 /* see inner.h */
@@ -54,3 +57,5 @@ br_mgf1_xor(void *data, size_t len,
 		}
 	}
 }
+
+#endif /* #ifdef BOARD_HAS_ECCX08 */

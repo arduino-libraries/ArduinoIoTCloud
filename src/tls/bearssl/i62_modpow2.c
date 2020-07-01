@@ -22,6 +22,9 @@
  * SOFTWARE.
  */
 
+#include <ArduinoIoTCloud_Config.h>
+#ifdef BOARD_HAS_ECCX08
+
 #include "inner.h"
 
 #if BR_INT128 || BR_UMUL128
@@ -491,3 +494,5 @@ br_i62_modpow_opt_as_i31(uint32_t *x31, const unsigned char *e, size_t elen,
 	return br_i62_modpow_opt(x31, e, elen, m31, m0i31,
 		(uint64_t *)tmp, twlen >> 1);
 }
+
+#endif /* #ifdef BOARD_HAS_ECCX08 */

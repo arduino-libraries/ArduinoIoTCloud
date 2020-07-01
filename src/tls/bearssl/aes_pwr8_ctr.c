@@ -22,6 +22,9 @@
  * SOFTWARE.
  */
 
+#include <ArduinoIoTCloud_Config.h>
+#ifdef BOARD_HAS_ECCX08
+
 #define BR_POWER_ASM_MACROS   1
 #include "inner.h"
 
@@ -698,6 +701,7 @@ const br_block_ctr_class br_aes_pwr8_ctr_vtable = {
 		&br_aes_pwr8_ctr_run
 };
 
+
 /* see bearssl_block.h */
 const br_block_ctr_class *
 br_aes_pwr8_ctr_get_vtable(void)
@@ -715,3 +719,5 @@ br_aes_pwr8_ctr_get_vtable(void)
 }
 
 #endif
+
+#endif /* #ifdef BOARD_HAS_ECCX08 */

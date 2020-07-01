@@ -22,6 +22,9 @@
  * SOFTWARE.
  */
 
+#include <ArduinoIoTCloud_Config.h>
+#ifdef BOARD_HAS_ECCX08
+
 #include "inner.h"
 
 /* see bearssl.h */
@@ -139,3 +142,5 @@ const br_hash_class br_md5sha1_vtable = {
 	(void (*)(const br_hash_class **, const void *, uint64_t))
 		&br_md5sha1_set_state
 };
+
+#endif /* #ifdef BOARD_HAS_ECCX08 */

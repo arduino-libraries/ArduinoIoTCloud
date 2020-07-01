@@ -22,6 +22,9 @@
  * SOFTWARE.
  */
 
+#include <ArduinoIoTCloud_Config.h>
+#ifdef BOARD_HAS_ECCX08
+
 #include "inner.h"
 
 /* see bearssl_block.h */
@@ -431,3 +434,5 @@ const br_block_ctrcbc_class br_aes_ct64_ctrcbc_vtable = {
 		void *, const void *, size_t))
 		&br_aes_ct64_ctrcbc_mac
 };
+
+#endif /* #ifdef BOARD_HAS_ECCX08 */

@@ -22,6 +22,9 @@
  * SOFTWARE.
  */
 
+#include <ArduinoIoTCloud_Config.h>
+#ifdef BOARD_HAS_ECCX08
+
 #include "inner.h"
 
 /*
@@ -171,3 +174,5 @@ br_pem_encode(void *dest, const void *data, size_t len,
 
 	return dlen;
 }
+
+#endif /* #ifdef BOARD_HAS_ECCX08 */

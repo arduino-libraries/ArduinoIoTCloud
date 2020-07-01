@@ -22,6 +22,9 @@
  * SOFTWARE.
  */
 
+#include <ArduinoIoTCloud_Config.h>
+#ifdef BOARD_HAS_ECCX08
+
 #include "inner.h"
 
 /* see inner.h */
@@ -37,3 +40,5 @@ br_i32_ninv32(uint32_t x)
 	y *= 2 - y * x;
 	return MUX(x & 1, -y, 0);
 }
+
+#endif /* #ifdef BOARD_HAS_ECCX08 */

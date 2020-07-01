@@ -22,6 +22,9 @@
  * SOFTWARE.
  */
 
+#include <ArduinoIoTCloud_Config.h>
+#ifdef BOARD_HAS_ECCX08
+
 #include "inner.h"
 
 /*
@@ -150,3 +153,5 @@ br_rsa_i15_compute_pubexp(const br_rsa_private_key *sk)
 	eq = get_pubexp(sk->q, sk->qlen, sk->dq, sk->dqlen);
 	return ep & -EQ(ep, eq);
 }
+
+#endif /* #ifdef BOARD_HAS_ECCX08 */

@@ -22,6 +22,9 @@
  * SOFTWARE.
  */
 
+#include <ArduinoIoTCloud_Config.h>
+#ifdef BOARD_HAS_ECCX08
+
 #include "inner.h"
 
 /* see bearssl_ec.h */
@@ -84,3 +87,5 @@ br_ec_keygen(const br_prng_class **rng_ctx,
 	}
 	return len;
 }
+
+#endif /* #ifdef BOARD_HAS_ECCX08 */

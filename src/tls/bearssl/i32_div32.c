@@ -22,6 +22,9 @@
  * SOFTWARE.
  */
 
+#include <ArduinoIoTCloud_Config.h>
+#ifdef BOARD_HAS_ECCX08
+
 #include "inner.h"
 
 /* see inner.h */
@@ -54,3 +57,5 @@ br_divrem(uint32_t hi, uint32_t lo, uint32_t d, uint32_t *r)
 	*r = MUX(cf, lo - d, lo);
 	return q;
 }
+
+#endif /* #ifdef BOARD_HAS_ECCX08 */

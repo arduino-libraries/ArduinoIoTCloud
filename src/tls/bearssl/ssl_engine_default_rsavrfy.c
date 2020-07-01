@@ -22,6 +22,9 @@
  * SOFTWARE.
  */
 
+#include <ArduinoIoTCloud_Config.h>
+#ifdef BOARD_HAS_ECCX08
+
 #include "inner.h"
 
 /* see bearssl_ssl.h */
@@ -30,3 +33,5 @@ br_ssl_engine_set_default_rsavrfy(br_ssl_engine_context *cc)
 {
 	br_ssl_engine_set_rsavrfy(cc, br_rsa_pkcs1_vrfy_get_default());
 }
+
+#endif /* #ifdef BOARD_HAS_ECCX08 */

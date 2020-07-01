@@ -22,6 +22,9 @@
  * SOFTWARE.
  */
 
+#include <ArduinoIoTCloud_Config.h>
+#ifdef BOARD_HAS_ECCX08
+
 #include "inner.h"
 
 #if 0
@@ -1567,3 +1570,5 @@ br_ssl_engine_switch_ccm_out(br_ssl_engine_context *cc,
 	cc->iccm_out->init(&cc->out.ccm.vtable.out,
 		bc_impl, cipher_key, cipher_key_len, iv, tag_len);
 }
+
+#endif /* #ifdef BOARD_HAS_ECCX08 */

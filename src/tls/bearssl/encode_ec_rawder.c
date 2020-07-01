@@ -22,6 +22,9 @@
  * SOFTWARE.
  */
 
+#include <ArduinoIoTCloud_Config.h>
+#ifdef BOARD_HAS_ECCX08
+
 #include "inner.h"
 
 /* see inner.h */
@@ -159,3 +162,5 @@ br_encode_ec_raw_der(void *dest,
 {
 	return br_encode_ec_raw_der_inner(dest, sk, pk, 1);
 }
+
+#endif /* #ifdef BOARD_HAS_ECCX08 */

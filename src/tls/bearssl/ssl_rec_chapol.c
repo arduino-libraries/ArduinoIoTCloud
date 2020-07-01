@@ -22,6 +22,9 @@
  * SOFTWARE.
  */
 
+#include <ArduinoIoTCloud_Config.h>
+#ifdef BOARD_HAS_ECCX08
+
 #include "inner.h"
 
 static void
@@ -175,3 +178,5 @@ const br_sslrec_out_chapol_class br_sslrec_out_chapol_vtable = {
 		const void *, const void *))
 		&out_chapol_init
 };
+
+#endif /* #ifdef BOARD_HAS_ECCX08 */

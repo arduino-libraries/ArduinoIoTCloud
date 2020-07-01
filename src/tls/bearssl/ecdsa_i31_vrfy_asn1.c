@@ -22,6 +22,9 @@
  * SOFTWARE.
  */
 
+#include <ArduinoIoTCloud_Config.h>
+#ifdef BOARD_HAS_ECCX08
+
 #include "inner.h"
 
 #define FIELD_LEN   ((BR_MAX_EC_SIZE + 7) >> 3)
@@ -46,3 +49,5 @@ br_ecdsa_i31_vrfy_asn1(const br_ec_impl *impl,
 	sig_len = br_ecdsa_asn1_to_raw(rsig, sig_len);
 	return br_ecdsa_i31_vrfy_raw(impl, hash, hash_len, pk, rsig, sig_len);
 }
+
+#endif /* #ifdef BOARD_HAS_ECCX08 */

@@ -22,6 +22,9 @@
  * SOFTWARE.
  */
 
+#include <ArduinoIoTCloud_Config.h>
+#ifdef BOARD_HAS_ECCX08
+
 #include "inner.h"
 
 #if BR_AES_X86NI
@@ -126,3 +129,5 @@ br_aes_x86ni_cbcenc_get_vtable(void)
 }
 
 #endif
+
+#endif /* #ifdef BOARD_HAS_ECCX08 */

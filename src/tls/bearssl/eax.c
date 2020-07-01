@@ -22,6 +22,9 @@
  * SOFTWARE.
  */
 
+#include <ArduinoIoTCloud_Config.h>
+#ifdef BOARD_HAS_ECCX08
+
 #include "inner.h"
 
 /*
@@ -523,3 +526,5 @@ const br_aead_class br_eax_vtable = {
 	(uint32_t (*)(const br_aead_class **, const void *, size_t))
 		&br_eax_check_tag_trunc
 };
+
+#endif /* #ifdef BOARD_HAS_ECCX08 */

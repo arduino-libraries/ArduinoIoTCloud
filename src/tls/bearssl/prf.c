@@ -22,6 +22,9 @@
  * SOFTWARE.
  */
 
+#include <ArduinoIoTCloud_Config.h>
+#ifdef BOARD_HAS_ECCX08
+
 #include "inner.h"
 
 /* see inner.h */
@@ -71,3 +74,5 @@ br_tls_phash(void *dst, size_t len,
 		br_hmac_out(&hc, a);
 	}
 }
+
+#endif /* #ifdef BOARD_HAS_ECCX08 */

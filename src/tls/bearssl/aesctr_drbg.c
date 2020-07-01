@@ -22,6 +22,9 @@
  * SOFTWARE.
  */
 
+#include <ArduinoIoTCloud_Config.h>
+#ifdef BOARD_HAS_ECCX08
+
 #include "inner.h"
 
 /* see bearssl_rand.h */
@@ -204,3 +207,5 @@ const br_prng_class br_aesctr_drbg_vtable = {
 	(void (*)(const br_prng_class **, const void *, size_t))
 		&br_aesctr_drbg_update
 };
+
+#endif /* #ifdef BOARD_HAS_ECCX08 */
