@@ -30,16 +30,6 @@
 
 #include "BearSSLClient.h"
 
-BearSSLClient::BearSSLClient(Client& client) :
-  BearSSLClient(&client, ArduinoIoTCloudTrustAnchor, ArduinoIoTCloudTrustAnchor_NUM)
-{
-}
-
-BearSSLClient::BearSSLClient(Client& client, const br_x509_trust_anchor* myTAs, int myNumTAs)
-: BearSSLClient(&client, myTAs, myNumTAs)
-{
-}
-
 BearSSLClient::BearSSLClient(Client* client, const br_x509_trust_anchor* myTAs, int myNumTAs) :
   _client(client),
   _TAs(myTAs),
