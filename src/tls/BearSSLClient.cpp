@@ -31,6 +31,8 @@
 
 #include "BearSSLClient.h"
 
+extern "C" void aiotc_client_profile_init(br_ssl_client_context *cc, br_x509_minimal_context *xc, const br_x509_trust_anchor *trust_anchors, size_t trust_anchors_num);
+
 BearSSLClient::BearSSLClient(Client* client, const br_x509_trust_anchor* myTAs, int myNumTAs, GetTimeCallbackFunc func) :
   _client(client),
   _TAs(myTAs),
@@ -253,8 +255,8 @@ int BearSSLClient::errorCode()
 
 int BearSSLClient::connectSSL(const char* host)
 {
-  // initialize client context with all algorithms and hardcoded trust anchors
-  br_ssl_client_init_full(&_sc, &_xc, _TAs, _numTAs);
+  // initialize client context with all necessary algorithms and hardcoded trust anchors.
+  aiotc_client_profile_init(&_sc, &_xc, _TAs, _numTAs);
 
   br_ssl_engine_set_buffers_bidi(&_sc.eng, _ibuf, sizeof(_ibuf), _obuf, sizeof(_obuf));
 
