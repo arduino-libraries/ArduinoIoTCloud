@@ -1294,7 +1294,7 @@ br_rsa_compute_pubexp br_rsa_compute_pubexp_get_default(void);
  * require also a copy of the complete private exponent (non-reduced),
  * which this function recomputes.
  *
- * This function suceeds if all the following conditions hold:
+ * This function succeeds if all the following conditions hold:
  *
  *   - Both private factors `p` and `q` are equal to 3 modulo 4.
  *

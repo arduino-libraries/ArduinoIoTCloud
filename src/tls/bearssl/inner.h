@@ -724,7 +724,7 @@ br_multihash_copyimpl(br_multihash_context *dst,
  * intN_t to uintN_t really is conversion modulo 2^N. Beware that intN_t
  * types, being signed, trigger implementation-defined behaviour on
  * overflow (including raising some signal): with GCC, while modular
- * arithmetics are usually applied, the optimizer may assume that
+ * arithmetic is usually applied, the optimizer may assume that
  * overflows don't occur (unless the -fwrapv command-line option is
  * added); Clang has the additional -ftrapv option to explicitly trap on
  * integer overflow or underflow.
@@ -1627,7 +1627,7 @@ void br_des_do_invIP(uint32_t *xl, uint32_t *xr);
 /*
  * Key schedule unit: for a DES key (8 bytes), compute 16 subkeys. Each
  * subkey is two 28-bit words represented as two 32-bit words; the PC-2
- * bit extration is NOT applied.
+ * bit exctration is NOT applied.
  */
 void br_des_keysched_unit(uint32_t *skey, const void *key);
 

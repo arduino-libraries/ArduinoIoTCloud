@@ -341,7 +341,7 @@ add_f256(uint32_t *d, const uint32_t *a, const uint32_t *b)
 
 /*
  * Subtraction in the field. Source operands shall be smaller than twice
- * the modulus; the result will fulfil the same property.
+ * the modulus; the result will fulfill the same property.
  */
 static void
 sub_f256(uint32_t *d, const uint32_t *a, const uint32_t *b)

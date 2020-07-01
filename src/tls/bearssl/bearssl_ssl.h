@@ -830,7 +830,7 @@ typedef struct {
 /**
  * \brief Context structure for SSL engine.
  *
- * This strucuture is common to the client and server; both the client
+ * This structure is common to the client and server; both the client
  * context (`br_ssl_client_context`) and the server context
  * (`br_ssl_server_context`) include a `br_ssl_engine_context` as their
  * first field.
@@ -2614,7 +2614,7 @@ struct br_ssl_client_context_ {
 	uint16_t min_clienthello_len;
 
 	/*
-	 * Bit field for algoithms (hash + signature) supported by the
+	 * Bit field for algorithms (hash + signature) supported by the
 	 * server when requesting a client certificate.
 	 */
 	uint32_t hashes;
