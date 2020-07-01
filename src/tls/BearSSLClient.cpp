@@ -22,6 +22,9 @@
  * SOFTWARE.
  */
 
+#include <ArduinoIoTCloud_Config.h>
+#ifdef BOARD_HAS_ECCX08
+
 #include <ArduinoECCX08.h>
 
 #include <assert.h>
@@ -379,3 +382,5 @@ void BearSSLClient::clientAppendCert(void *ctx, const void *data, size_t len)
   memcpy(&c->_ecCert.data[c->_ecCert.data_len], data, len);
   c->_ecCert.data_len += len;
 }
+
+#endif /* #ifdef BOARD_HAS_ECCX08 */

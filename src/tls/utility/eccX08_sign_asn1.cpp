@@ -23,6 +23,9 @@
  * SOFTWARE.
  */
 
+#include <ArduinoIoTCloud_Config.h>
+#ifdef BOARD_HAS_ECCX08
+
 #include "eccX08_asn1.h"
 
 #include <ArduinoECCX08.h>
@@ -51,3 +54,5 @@ eccX08_sign_asn1(const br_ec_impl * /*impl*/,
   memcpy(sig, rsig, sig_len);
   return sig_len;
 }
+
+#endif /* #ifdef BOARD_HAS_ECCX08 */
