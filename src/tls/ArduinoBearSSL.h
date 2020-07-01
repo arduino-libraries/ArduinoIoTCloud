@@ -26,8 +26,6 @@
 #define _ARDUINO_BEAR_SSL_H_
 
 #include "BearSSLClient.h"
-#include "SHA1.h"
-#include "SHA256.h"
 
 class ArduinoBearSSLClass {
 public:
