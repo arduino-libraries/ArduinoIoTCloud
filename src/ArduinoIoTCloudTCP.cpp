@@ -134,8 +134,6 @@ int ArduinoIoTCloudTCP::begin(String brokerAddress, uint16_t brokerPort)
   _dataTopicIn    = getTopic_datain();
   _ota_topic_in   = getTopic_ota_in();
 
-  _thing.begin(&_property_container);
-
   printConnectionStatus(_iot_status);
 
   return 1;
@@ -269,10 +267,10 @@ void ArduinoIoTCloudTCP::handleMessage(int length)
     CloudSerial.appendStdin((uint8_t*)bytes, length);
   }
   if (_dataTopicIn == topic) {
-    _thing.decode((uint8_t*)bytes, length);
+    CBORDecoder::decode(_property_container, (uint8_t*)bytes, length);
   }
   if ((_shadowTopicIn == topic) && _syncStatus == ArduinoIoTSynchronizationStatus::SYNC_STATUS_WAIT_FOR_CLOUD_VALUES) {
-    _thing.decode((uint8_t*)bytes, length, true);
+    CBORDecoder::decode(_property_container, (uint8_t*)bytes, length, true);
     sendPropertiesToCloud();
     _syncStatus = ArduinoIoTSynchronizationStatus::SYNC_STATUS_VALUES_PROCESSED;
   }
