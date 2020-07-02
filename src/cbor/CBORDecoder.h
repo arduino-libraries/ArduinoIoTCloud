@@ -63,22 +63,21 @@ private:
     Error
   };
 
-  static MapParserState handle_EnterMap(CborValue * map_iter, CborValue * value_iter, CborMapData **map_data);
+  static MapParserState handle_EnterMap(CborValue * map_iter, CborValue * value_iter);
   static MapParserState handle_MapKey(CborValue * value_iter);
   static MapParserState handle_UndefinedKey(CborValue * value_iter);
-  static MapParserState handle_BaseVersion(CborValue * value_iter, CborMapData * map_data);
-  static MapParserState handle_BaseName(CborValue * value_iter, CborMapData * map_data);
-  static MapParserState handle_BaseTime(CborValue * value_iter, CborMapData * map_data);
-  static MapParserState handle_Name(CborValue * value_iter, CborMapData * map_data, PropertyContainer & property_container);
-  static MapParserState handle_Value(CborValue * value_iter, CborMapData * map_data);
-  static MapParserState handle_StringValue(CborValue * value_iter, CborMapData * map_data);
-  static MapParserState handle_BooleanValue(CborValue * value_iter, CborMapData * map_data);
-  static MapParserState handle_Time(CborValue * value_iter, CborMapData * map_data);
-  static MapParserState handle_LeaveMap(CborValue * map_iter, CborValue * value_iter, CborMapData * map_data, PropertyContainer & property_container, String & current_property_name, unsigned long & current_property_base_time, unsigned long & current_property_time, bool const is_sync_message, std::list<CborMapData *> & map_data_list);
+  static MapParserState handle_BaseVersion(CborValue * value_iter, CborMapData & map_data);
+  static MapParserState handle_BaseName(CborValue * value_iter, CborMapData & map_data);
+  static MapParserState handle_BaseTime(CborValue * value_iter, CborMapData & map_data);
+  static MapParserState handle_Name(CborValue * value_iter, CborMapData & map_data, PropertyContainer & property_container);
+  static MapParserState handle_Value(CborValue * value_iter, CborMapData & map_data);
+  static MapParserState handle_StringValue(CborValue * value_iter, CborMapData & map_data);
+  static MapParserState handle_BooleanValue(CborValue * value_iter, CborMapData & map_data);
+  static MapParserState handle_Time(CborValue * value_iter, CborMapData & map_data);
+  static MapParserState handle_LeaveMap(CborValue * map_iter, CborValue * value_iter, CborMapData & map_data, PropertyContainer & property_container, String & current_property_name, unsigned long & current_property_base_time, unsigned long & current_property_time, bool const is_sync_message, std::list<CborMapData> & map_data_list);
 
   static bool   ifNumericConvertToDouble(CborValue * value_iter, double * numeric_val);
   static double convertCborHalfFloatToDouble(uint16_t const half_val);
-  static void   freeMapDataList(std::list<CborMapData *> * map_data_list);
 
 };
 

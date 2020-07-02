@@ -216,21 +216,21 @@ void Property::appendAttributeName(String attributeName, std::function<void (Cbo
   cbor_encoder_close_container(encoder, &mapEncoder);
 }
 
-void Property::setAttributesFromCloud(std::list<CborMapData *> * map_data_list) {
+void Property::setAttributesFromCloud(std::list<CborMapData> * map_data_list) {
   _map_data_list = map_data_list;
   _attributeIdentifier = 0;
   setAttributesFromCloud();
 }
 
 void Property::setAttributeReal(bool& value, String attributeName) {
-  setAttributeReal(attributeName, [&value](CborMapData * md) {
+  setAttributeReal(attributeName, [&value](CborMapData & md) {
     // Manage the case to have boolean values received as integers 0/1
-    if (md->bool_val.isSet()) {
-      value = md->bool_val.get();
-    } else if (md->val.isSet()) {
-      if (md->val.get() == 0) {
+    if (md.bool_val.isSet()) {
+      value = md.bool_val.get();
+    } else if (md.val.isSet()) {
+      if (md.val.get() == 0) {
         value = false;
-      } else if (md->val.get() == 1) {
+      } else if (md.val.get() == 1) {
         value = true;
       } else {
         /* This should not happen. Leave the previous value */
@@ -240,24 +240,24 @@ void Property::setAttributeReal(bool& value, String attributeName) {
 }
 
 void Property::setAttributeReal(int& value, String attributeName) {
-  setAttributeReal(attributeName, [&value](CborMapData * md) {
-    value = md->val.get();
+  setAttributeReal(attributeName, [&value](CborMapData & md) {
+    value = md.val.get();
   });
 }
 
 void Property::setAttributeReal(float& value, String attributeName) {
-  setAttributeReal(attributeName, [&value](CborMapData * md) {
-    value = md->val.get();
+  setAttributeReal(attributeName, [&value](CborMapData & md) {
+    value = md.val.get();
   });
 }
 
 void Property::setAttributeReal(String& value, String attributeName) {
-  setAttributeReal(attributeName, [&value](CborMapData * md) {
-    value = md->str_val.get();
+  setAttributeReal(attributeName, [&value](CborMapData & md) {
+    value = md.str_val.get();
   });
 }
 
-void Property::setAttributeReal(String attributeName, std::function<void (CborMapData *md)>setValue)
+void Property::setAttributeReal(String attributeName, std::function<void (CborMapData & md)>setValue)
 {
   if (attributeName != "") {
     _attributeIdentifier++;
@@ -265,27 +265,24 @@ void Property::setAttributeReal(String attributeName, std::function<void (CborMa
 
   std::for_each(_map_data_list->begin(),
                 _map_data_list->end(),
-                [this, attributeName, setValue](CborMapData * map)
+                [this, attributeName, setValue](CborMapData & map)
                 {
-                  if (map != nullptr)
+                  if (map.light_payload.isSet() && map.light_payload.get())
                   {
-                    if (map->light_payload.isSet() && map->light_payload.get())
-                    {
-                      // if a light payload is detected, the attribute identifier is retrieved from the cbor map and the corresponding attribute is updated
-                      int attid = map->attribute_identifier.get();
-                      if (attid == _attributeIdentifier) {
-                        setValue(map);
-                        return;
-                      }
+                    // if a light payload is detected, the attribute identifier is retrieved from the cbor map and the corresponding attribute is updated
+                    int attid = map.attribute_identifier.get();
+                    if (attid == _attributeIdentifier) {
+                      setValue(map);
+                      return;
                     }
-                    else
-                    {
-                      // if a normal payload is detected, the name of the attribute to be updated is extracted directly from the cbor map
-                      String an = map->attribute_name.get();
-                      if (an == attributeName) {
-                        setValue(map);
-                        return;
-                      }
+                  }
+                  else
+                  {
+                    // if a normal payload is detected, the name of the attribute to be updated is extracted directly from the cbor map
+                    String an = map.attribute_name.get();
+                    if (an == attributeName) {
+                      setValue(map);
+                      return;
                     }
                   }
                 });

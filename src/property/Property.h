@@ -174,12 +174,12 @@ class Property
     void appendAttributeReal(float value, String attributeName = "", CborEncoder *encoder = nullptr);
     void appendAttributeReal(String value, String attributeName = "", CborEncoder *encoder = nullptr);
     void appendAttributeName(String attributeName, std::function<void (CborEncoder& mapEncoder)>f, CborEncoder *encoder);
-    void setAttributesFromCloud(std::list<CborMapData *> * map_data_list);
+    void setAttributesFromCloud(std::list<CborMapData> * map_data_list);
     void setAttributeReal(bool& value, String attributeName = "");
     void setAttributeReal(int& value, String attributeName = "");
     void setAttributeReal(float& value, String attributeName = "");
     void setAttributeReal(String& value, String attributeName = "");
-    void setAttributeReal(String attributeName, std::function<void (CborMapData *md)>setValue);
+    void setAttributeReal(String attributeName, std::function<void (CborMapData & md)>setValue);
     String getAttributeName(String propertyName, char separator);
 
     virtual bool isDifferentFromCloud() = 0;
@@ -214,7 +214,7 @@ class Property
     /* Variables used for reconnection sync*/
     unsigned long      _last_local_change_timestamp;
     unsigned long      _last_cloud_change_timestamp;
-    std::list<CborMapData *> * _map_data_list;
+    std::list<CborMapData> * _map_data_list;
     /* Store the identifier of the property in the array list */
     int                _identifier;
     int                _attributeIdentifier;

@@ -33,12 +33,11 @@
 
 void CBORDecoder::decode(PropertyContainer & property_container, uint8_t const * const payload, size_t const length, bool isSyncMessage)
 {
+  CborValue array_iter, map_iter,value_iter;
   CborParser parser;
-  CborValue  array_iter, map_iter,value_iter;
-  /* List of map data that will hold all the attributes of a property */
-  std::list<CborMapData *> map_data_list;
-  /* Current property name during decoding: use to look for a new property in the senml value array */
-  String current_property_name;
+  CborMapData map_data;
+  std::list<CborMapData> map_data_list; /* List of map data that will hold all the attributes of a property */
+  String current_property_name; /* Current property name during decoding: use to look for a new property in the senml value array */
   unsigned long current_property_base_time{0}, current_property_time{0};
 
   if (cbor_parser_init(payload, length, 0, &parser, &array_iter) != CborNoError)
@@ -50,15 +49,13 @@ void CBORDecoder::decode(PropertyContainer & property_container, uint8_t const *
   if (cbor_value_enter_container(&array_iter, &map_iter) != CborNoError)
     return;
 
-  CborMapData * map_data = nullptr;
-
   MapParserState current_state = MapParserState::EnterMap,
                  next_state = MapParserState::Error;
 
   while (current_state != MapParserState::Complete) {
 
     switch (current_state) {
-      case MapParserState::EnterMap     : next_state = handle_EnterMap(&map_iter, &value_iter, &map_data); break;
+      case MapParserState::EnterMap     : next_state = handle_EnterMap(&map_iter, &value_iter); break;
       case MapParserState::MapKey       : next_state = handle_MapKey(&value_iter); break;
       case MapParserState::UndefinedKey : next_state = handle_UndefinedKey(&value_iter); break;
       case MapParserState::BaseVersion  : next_state = handle_BaseVersion(&value_iter, map_data); break;
@@ -82,12 +79,11 @@ void CBORDecoder::decode(PropertyContainer & property_container, uint8_t const *
    PRIVATE MEMBER FUNCTIONS
  ******************************************************************************/
 
-CBORDecoder::MapParserState CBORDecoder::handle_EnterMap(CborValue * map_iter, CborValue * value_iter, CborMapData **map_data) {
+CBORDecoder::MapParserState CBORDecoder::handle_EnterMap(CborValue * map_iter, CborValue * value_iter) {
   MapParserState next_state = MapParserState::Error;
 
   if (cbor_value_get_type(map_iter) == CborMapType) {
     if (cbor_value_enter_container(map_iter, value_iter) == CborNoError) {
-      *map_data = new CborMapData();
       next_state = MapParserState::MapKey;
     }
   }
@@ -144,13 +140,13 @@ CBORDecoder::MapParserState CBORDecoder::handle_UndefinedKey(CborValue * value_i
   return next_state;
 }
 
-CBORDecoder::MapParserState CBORDecoder::handle_BaseVersion(CborValue * value_iter, CborMapData * map_data) {
+CBORDecoder::MapParserState CBORDecoder::handle_BaseVersion(CborValue * value_iter, CborMapData & map_data) {
   MapParserState next_state = MapParserState::Error;
 
   if (cbor_value_is_integer(value_iter)) {
     int val = 0;
     if (cbor_value_get_int(value_iter, &val) == CborNoError) {
-      map_data->base_version.set(val);
+      map_data.base_version.set(val);
 
       if (cbor_value_advance(value_iter) == CborNoError) {
         next_state = MapParserState::MapKey;
@@ -161,14 +157,14 @@ CBORDecoder::MapParserState CBORDecoder::handle_BaseVersion(CborValue * value_it
   return next_state;
 }
 
-CBORDecoder::MapParserState CBORDecoder::handle_BaseName(CborValue * value_iter, CborMapData * map_data) {
+CBORDecoder::MapParserState CBORDecoder::handle_BaseName(CborValue * value_iter, CborMapData & map_data) {
   MapParserState next_state = MapParserState::Error;
 
   if (cbor_value_is_text_string(value_iter)) {
     char * val      = 0;
     size_t val_size = 0;
     if (cbor_value_dup_text_string(value_iter, &val, &val_size, value_iter) == CborNoError) {
-      map_data->base_name.set(String(val));
+      map_data.base_name.set(String(val));
       free(val);
       next_state = MapParserState::MapKey;
     }
@@ -177,12 +173,12 @@ CBORDecoder::MapParserState CBORDecoder::handle_BaseName(CborValue * value_iter,
   return next_state;
 }
 
-CBORDecoder::MapParserState CBORDecoder::handle_BaseTime(CborValue * value_iter, CborMapData * map_data) {
+CBORDecoder::MapParserState CBORDecoder::handle_BaseTime(CborValue * value_iter, CborMapData & map_data) {
   MapParserState next_state = MapParserState::Error;
 
   double val = 0.0;
   if (ifNumericConvertToDouble(value_iter, &val)) {
-    map_data->base_time.set(val);
+    map_data.base_time.set(val);
 
     if (cbor_value_advance(value_iter) == CborNoError) {
       next_state = MapParserState::MapKey;
@@ -192,7 +188,7 @@ CBORDecoder::MapParserState CBORDecoder::handle_BaseTime(CborValue * value_iter,
   return next_state;
 }
 
-CBORDecoder::MapParserState CBORDecoder::handle_Name(CborValue * value_iter, CborMapData * map_data, PropertyContainer & property_container) {
+CBORDecoder::MapParserState CBORDecoder::handle_Name(CborValue * value_iter, CborMapData & map_data, PropertyContainer & property_container) {
   MapParserState next_state = MapParserState::Error;
 
   if (cbor_value_is_text_string(value_iter)) {
@@ -202,25 +198,25 @@ CBORDecoder::MapParserState CBORDecoder::handle_Name(CborValue * value_iter, Cbo
     if (cbor_value_dup_text_string(value_iter, &val, &val_size, value_iter) == CborNoError) {
       String name = val;
       free(val);
-      map_data->name.set(name);
+      map_data.name.set(name);
       int colonPos = name.indexOf(":");
       String attribute_name = "";
       if (colonPos != -1) {
         attribute_name = name.substring(colonPos + 1);
       }
-      map_data->attribute_name.set(attribute_name);
+      map_data.attribute_name.set(attribute_name);
       next_state = MapParserState::MapKey;
     }
   } else if (cbor_value_is_integer(value_iter)) {
     // if the value in the cbor message is an integer, a light payload has been used and an integer identifier should be decode in order to retrieve the corresponding property and attribute name to be updated
     int val = 0;
     if (cbor_value_get_int(value_iter, &val) == CborNoError) {
-      map_data->light_payload.set(true);
-      map_data->name_identifier.set(val & 255);
-      map_data->attribute_identifier.set(val >> 8);
-      map_data->light_payload.set(true);
+      map_data.light_payload.set(true);
+      map_data.name_identifier.set(val & 255);
+      map_data.attribute_identifier.set(val >> 8);
+      map_data.light_payload.set(true);
       String name = getPropertyNameByIdentifier(property_container, val);
-      map_data->name.set(name);
+      map_data.name.set(name);
 
 
       if (cbor_value_advance(value_iter) == CborNoError) {
@@ -234,12 +230,12 @@ CBORDecoder::MapParserState CBORDecoder::handle_Name(CborValue * value_iter, Cbo
   return next_state;
 }
 
-CBORDecoder::MapParserState CBORDecoder::handle_Value(CborValue * value_iter, CborMapData * map_data) {
+CBORDecoder::MapParserState CBORDecoder::handle_Value(CborValue * value_iter, CborMapData & map_data) {
   MapParserState next_state = MapParserState::Error;
 
   double val = 0.0;
   if (ifNumericConvertToDouble(value_iter, &val)) {
-    map_data->val.set(val);
+    map_data.val.set(val);
 
     if (cbor_value_advance(value_iter) == CborNoError) {
       next_state = MapParserState::MapKey;
@@ -249,14 +245,14 @@ CBORDecoder::MapParserState CBORDecoder::handle_Value(CborValue * value_iter, Cb
   return next_state;
 }
 
-CBORDecoder::MapParserState CBORDecoder::handle_StringValue(CborValue * value_iter, CborMapData * map_data) {
+CBORDecoder::MapParserState CBORDecoder::handle_StringValue(CborValue * value_iter, CborMapData & map_data) {
   MapParserState next_state = MapParserState::Error;
 
   if (cbor_value_is_text_string(value_iter)) {
     char * val      = 0;
     size_t val_size = 0;
     if (cbor_value_dup_text_string(value_iter, &val, &val_size, value_iter) == CborNoError) {
-      map_data->str_val.set(String(val));
+      map_data.str_val.set(String(val));
       free(val);
       next_state = MapParserState::MapKey;
     }
@@ -265,12 +261,12 @@ CBORDecoder::MapParserState CBORDecoder::handle_StringValue(CborValue * value_it
   return next_state;
 }
 
-CBORDecoder::MapParserState CBORDecoder::handle_BooleanValue(CborValue * value_iter, CborMapData * map_data) {
+CBORDecoder::MapParserState CBORDecoder::handle_BooleanValue(CborValue * value_iter, CborMapData & map_data) {
   MapParserState next_state = MapParserState::Error;
 
   bool val = false;
   if (cbor_value_get_boolean(value_iter, &val) == CborNoError) {
-    map_data->bool_val.set(val);
+    map_data.bool_val.set(val);
 
     if (cbor_value_advance(value_iter) == CborNoError) {
       next_state = MapParserState::MapKey;
@@ -280,12 +276,12 @@ CBORDecoder::MapParserState CBORDecoder::handle_BooleanValue(CborValue * value_i
   return next_state;
 }
 
-CBORDecoder::MapParserState CBORDecoder::handle_Time(CborValue * value_iter, CborMapData * map_data) {
+CBORDecoder::MapParserState CBORDecoder::handle_Time(CborValue * value_iter, CborMapData & map_data) {
   MapParserState next_state = MapParserState::Error;
 
   double val = 0.0;
   if (ifNumericConvertToDouble(value_iter, &val)) {
-    map_data->time.set(val);
+    map_data.time.set(val);
 
     if (cbor_value_advance(value_iter) == CborNoError) {
       next_state = MapParserState::MapKey;
@@ -295,31 +291,31 @@ CBORDecoder::MapParserState CBORDecoder::handle_Time(CborValue * value_iter, Cbo
   return next_state;
 }
 
-CBORDecoder::MapParserState CBORDecoder::handle_LeaveMap(CborValue * map_iter, CborValue * value_iter, CborMapData * map_data, PropertyContainer & property_container, String & current_property_name, unsigned long & current_property_base_time, unsigned long & current_property_time, bool const is_sync_message, std::list<CborMapData *> & map_data_list) {
+CBORDecoder::MapParserState CBORDecoder::handle_LeaveMap(CborValue * map_iter, CborValue * value_iter, CborMapData & map_data, PropertyContainer & property_container, String & current_property_name, unsigned long & current_property_base_time, unsigned long & current_property_time, bool const is_sync_message, std::list<CborMapData> & map_data_list) {
   MapParserState next_state = MapParserState::Error;
-  if (map_data->name.isSet()) {
+  if (map_data.name.isSet()) {
     String propertyName;
-    int colonPos = map_data->name.get().indexOf(":");
+    int colonPos = map_data.name.get().indexOf(":");
     if (colonPos != -1) {
-      propertyName = map_data->name.get().substring(0, colonPos);
+      propertyName = map_data.name.get().substring(0, colonPos);
     } else {
-      propertyName = map_data->name.get();
+      propertyName = map_data.name.get();
     }
 
     if (current_property_name != "" && propertyName != current_property_name) {
       /* Update the property containers depending on the parsed data */
       updateProperty(property_container, current_property_name, current_property_base_time + current_property_time, is_sync_message, &map_data_list);
       /* Reset current property data */
-      freeMapDataList(&map_data_list);
+      map_data_list.clear();
       current_property_base_time = 0;
       current_property_time = 0;
     }
     /* Compute the cloud change event baseTime and Time */
-    if (map_data->base_time.isSet()) {
-      current_property_base_time = (unsigned long)(map_data->base_time.get());
+    if (map_data.base_time.isSet()) {
+      current_property_base_time = (unsigned long)(map_data.base_time.get());
     }
-    if (map_data->time.isSet() && (map_data->time.get() > current_property_time)) {
-      current_property_time = (unsigned long)map_data->time.get();
+    if (map_data.time.isSet() && (map_data.time.get() > current_property_time)) {
+      current_property_time = (unsigned long)map_data.time.get();
     }
     map_data_list.push_back(map_data);
     current_property_name = propertyName;
@@ -333,23 +329,12 @@ CBORDecoder::MapParserState CBORDecoder::handle_LeaveMap(CborValue * map_iter, C
       /* Update the property containers depending on the parsed data */
       updateProperty(property_container, current_property_name, current_property_base_time + current_property_time, is_sync_message, &map_data_list);
       /* Reset last property data */
-      freeMapDataList(&map_data_list);
+      map_data_list.clear();
       next_state = MapParserState::Complete;
     }
   }
 
   return next_state;
-}
-
-void CBORDecoder::freeMapDataList(std::list<CborMapData *> * map_data_list)
-{
-  std::for_each(map_data_list->begin(),
-                map_data_list->end(),
-                [](CborMapData * map_data)
-                {
-                  delete map_data;
-                });
-  map_data_list->clear();
 }
 
 bool CBORDecoder::ifNumericConvertToDouble(CborValue * value_iter, double * numeric_val) {
