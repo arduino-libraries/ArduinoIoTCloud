@@ -27,7 +27,7 @@
 
 #include "OTAStorage.h"
 
-#include <WiFiNINA.h>
+#include <WiFiStorage.h>
 
 /******************************************************************************
  * CLASS DECLARATION

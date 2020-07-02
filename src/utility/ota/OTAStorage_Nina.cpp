@@ -41,6 +41,7 @@ OTAStorage_Nina::OTAStorage_Nina()
 bool OTAStorage_Nina::init()
 {
   /* Nothing to do */
+  return true;
 }
 
 bool OTAStorage_Nina::open(char const * file_name)
@@ -48,21 +49,39 @@ bool OTAStorage_Nina::open(char const * file_name)
   /* It is necessary to prepend "/fs/" when opening a file on the nina
    * for the rename operation "/fs/"" does not need to be prepended.
    */
+
   char nina_file_name[32] = {0};
   strcpy(nina_file_name, "/fs/");
   strcat(nina_file_name, file_name);
-  
-  WiFiStorageFile file = WiFiStorage.open(nina_file_name);
-  if(!file)
+
+  WiFiStorage.remove(nina_file_name);
+  WiFiStorageFile f = WiFiStorage.open(nina_file_name);
+
+  if (!f)
     return false;
-  
-  _file = new WiFiStorageFile(file);
+
+  _file = new WiFiStorageFile(f);
+
   return true;
 }
 
 size_t OTAStorage_Nina::write(uint8_t const * const buf, size_t const num_bytes)
 {
-  return _file->write(buf, num_bytes);
+  /* We have to write in chunks because otherwise we exceed the size of
+   * the SPI buffer within the nina module.
+   */
+  size_t bytes_written = 0;
+  size_t const WRITE_CHUNK_SIZE = 32;
+  
+  for(; bytes_written < (num_bytes - WRITE_CHUNK_SIZE); bytes_written += WRITE_CHUNK_SIZE)
+  {
+    if (_file->write(buf + bytes_written, WRITE_CHUNK_SIZE) != WRITE_CHUNK_SIZE)
+      return bytes_written;
+  }
+
+  bytes_written += _file->write(buf + bytes_written, num_bytes - bytes_written);
+
+  return bytes_written;
 }
 
 void OTAStorage_Nina::close()
@@ -73,12 +92,18 @@ void OTAStorage_Nina::close()
 
 void OTAStorage_Nina::remove(char const * file_name)
 {
-  WiFiStorage.remove(file_name);
+  /* Prepend "/fs/" */
+  char nina_file_name[32] = {0};
+  strcpy(nina_file_name, "/fs/");
+  strcat(nina_file_name, file_name);
+
+  /* Remove file */
+  WiFiStorage.remove(nina_file_name);
 }
 
 bool OTAStorage_Nina::rename(char const * old_file_name, char const * new_file_name)
 {
-  return WiFiStorage.rename(old_file_name, new_file_name);
+  return (WiFiStorage.rename(old_file_name, new_file_name) == 0);
 }
 
 void OTAStorage_Nina::deinit()
