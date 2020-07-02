@@ -174,12 +174,12 @@ class Property
     void appendAttributeReal(float value, String attributeName = "", CborEncoder *encoder = nullptr);
     void appendAttributeReal(String value, String attributeName = "", CborEncoder *encoder = nullptr);
     void appendAttributeName(String attributeName, std::function<void (CborEncoder& mapEncoder)>f, CborEncoder *encoder);
-    void setAttributesFromCloud(std::list<CborMapData *> * map_data_list);
+    void setAttributesFromCloud(std::list<CborMapData> * map_data_list);
     void setAttributeReal(bool& value, String attributeName = "");
     void setAttributeReal(int& value, String attributeName = "");
     void setAttributeReal(float& value, String attributeName = "");
     void setAttributeReal(String& value, String attributeName = "");
-    void setAttributeReal(String attributeName, std::function<void (CborMapData *md)>setValue);
+    void setAttributeReal(String attributeName, std::function<void (CborMapData & md)>setValue);
     String getAttributeName(String propertyName, char separator);
 
     virtual bool isDifferentFromCloud() = 0;
@@ -214,7 +214,7 @@ class Property
     /* Variables used for reconnection sync*/
     unsigned long      _last_local_change_timestamp;
     unsigned long      _last_cloud_change_timestamp;
-    std::list<CborMapData *> * _map_data_list;
+    std::list<CborMapData> * _map_data_list;
     /* Store the identifier of the property in the array list */
     int                _identifier;
     int                _attributeIdentifier;
@@ -234,5 +234,16 @@ class Property
 inline bool operator == (Property const & lhs, Property const & rhs) {
   return (lhs.name() == rhs.name());
 }
+
+/******************************************************************************
+   SYNCHRONIZATION CALLBACKS
+ ******************************************************************************/
+
+void onAutoSync(Property & property);
+#define MOST_RECENT_WINS onAutoSync
+void onForceCloudSync(Property & property);
+#define CLOUD_WINS onForceCloudSync
+void onForceDeviceSync(Property & property);
+#define DEVICE_WINS onForceDeviceSync // The device property value is already the correct one. The cloud property value will be synchronized at the next update cycle.
 
 #endif /* ARDUINO_CLOUD_PROPERTY_HPP_ */

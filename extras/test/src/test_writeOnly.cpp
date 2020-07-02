@@ -9,7 +9,9 @@
 #include <catch.hpp>
 
 #include <util/CBORTestUtil.h>
-#include <ArduinoCloudThing.h>
+
+#include <CBORDecoder.h>
+#include <PropertyContainer.h>
 
 /**************************************************************************************
    TEST CODE
@@ -19,13 +21,11 @@ SCENARIO("A Arduino cloud property is marked 'write only'", "[ArduinoCloudThing:
   /************************************************************************************/
 
   PropertyContainer property_container;
-  ArduinoCloudThing thing;
-  thing.begin(&property_container);
-
+  
   CloudInt test = 0;
   addPropertyToContainer(property_container, test, "test", Permission::Write);
 
-  REQUIRE(cbor::encode(thing).size() == 0); /* Since 'test' is 'write only' it should not be encoded */
+  REQUIRE(cbor::encode(property_container).size() == 0); /* Since 'test' is 'write only' it should not be encoded */
 
   /************************************************************************************/
 }

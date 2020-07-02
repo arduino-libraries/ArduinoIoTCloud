@@ -11,6 +11,8 @@
 #include <iomanip>
 #include <iostream>
 
+#include <CBOREncoder.h>
+
 /**************************************************************************************
    NAMESPACE
  **************************************************************************************/
@@ -22,9 +24,9 @@ namespace cbor
    PUBLIC FUNCTIONS
  **************************************************************************************/
 
-std::vector<uint8_t> encode(ArduinoCloudThing & thing, bool lightPayload) {
+std::vector<uint8_t> encode(PropertyContainer & property_container, bool lightPayload) {
   uint8_t buf[200] = {0};
-  int const bytes_buf = thing.encode(buf, 200, lightPayload);
+  int const bytes_buf = CBOREncoder::encode(property_container, buf, 200, lightPayload);
   if (bytes_buf == -1) {
     return std::vector<uint8_t>();
   } else {

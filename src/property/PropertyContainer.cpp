@@ -126,7 +126,7 @@ void updateTimestampOnLocallyChangedProperties(PropertyContainer & prop_cont)
                 });
 }
 
-void updateProperty(PropertyContainer & prop_cont, String propertyName, unsigned long cloudChangeEventTime, bool const is_sync_message, std::list<CborMapData *> * map_data_list)
+void updateProperty(PropertyContainer & prop_cont, String propertyName, unsigned long cloudChangeEventTime, bool const is_sync_message, std::list<CborMapData> * map_data_list)
 {
   Property * property = getProperty(prop_cont, propertyName);
 

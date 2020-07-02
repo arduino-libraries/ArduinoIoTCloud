@@ -27,8 +27,11 @@
 #include <Arduino_ConnectionHandler.h>
 #include <Arduino_DebugUtils.h>
 
-#include "cbor/ArduinoCloudThing.h"
+#include "AIoTC_Const.h"
 
+#include "cbor/CBORDecoder.h"
+
+#include "property/Property.h"
 #include "property/PropertyContainer.h"
 #include "property/types/CloudWrapperBool.h"
 #include "property/types/CloudWrapperFloat.h"
@@ -143,7 +146,6 @@ class ArduinoIoTCloudClass
     inline ArduinoIoTConnectionStatus getIoTStatus() { return _iot_status; }
 
     ConnectionHandler * _connection = nullptr;
-    ArduinoCloudThing _thing;
     PropertyContainer _property_container;
     ArduinoIoTConnectionStatus _iot_status = ArduinoIoTConnectionStatus::IDLE;
 

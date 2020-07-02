@@ -9,6 +9,7 @@ project(testArduinoIoTCloud)
 ##########################################################################
 
 include_directories(include)
+include_directories(../../src)
 include_directories(../../src/cbor)
 include_directories(../../src/property)
 include_directories(../../src/utility/ota)
@@ -55,7 +56,8 @@ set(TEST_DUT_SRCS
 
   ../../src/property/Property.cpp
   ../../src/property/PropertyContainer.cpp
-  ../../src/cbor/ArduinoCloudThing.cpp
+  ../../src/cbor/CBORDecoder.cpp
+  ../../src/cbor/CBOREncoder.cpp
   ../../src/cbor/lib/tinycbor/src/cborencoder.c
   ../../src/cbor/lib/tinycbor/src/cborencoder_close_container_checked.c
   ../../src/cbor/lib/tinycbor/src/cborerrorstrings.c

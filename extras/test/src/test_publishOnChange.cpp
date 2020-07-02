@@ -9,7 +9,6 @@
 #include <catch.hpp>
 
 #include <util/CBORTestUtil.h>
-#include <ArduinoCloudThing.h>
 
 /**************************************************************************************
    TEST CODE
@@ -20,9 +19,7 @@ SCENARIO("A Arduino cloud property is published on value change", "[ArduinoCloud
 
   GIVEN("CloudProtocol::V2") {
     PropertyContainer property_container;
-    ArduinoCloudThing thing;
-    thing.begin(&property_container);
-
+    
     CloudInt       test  = 10;
     int const DELTA = 6;
 
@@ -30,15 +27,15 @@ SCENARIO("A Arduino cloud property is published on value change", "[ArduinoCloud
 
     WHEN("test = 10, delta = 6, the property is encoded for the 1st time") {
       THEN("The property should be encoded") {
-        REQUIRE(cbor::encode(thing).size() != 0);
+        REQUIRE(cbor::encode(property_container).size() != 0);
         WHEN("test +=4 -> test = 14") {
           test += 4;
           THEN("Since the increment since the last update (4) is smaller than the delta of 6 the property should not be encoded") {
-            REQUIRE(cbor::encode(thing).size() == 0);
+            REQUIRE(cbor::encode(property_container).size() == 0);
             WHEN("test +=4 -> test = 18") {
               test += 4;
               THEN("Since the increment since the last update (8) is greater than the delta of 6 the property should be encoded") {
-                REQUIRE(cbor::encode(thing).size() != 0);
+                REQUIRE(cbor::encode(property_container).size() != 0);
               }
             }
           }

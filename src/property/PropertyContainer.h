@@ -28,6 +28,24 @@
 #undef min
 #include <list>
 
+#include "types/CloudBool.h"
+#include "types/CloudFloat.h"
+#include "types/CloudInt.h"
+#include "types/CloudString.h"
+#include "types/CloudLocation.h"
+#include "types/CloudColor.h"
+#include "types/CloudWrapperBase.h"
+
+#include "types/automation/CloudColoredLight.h"
+#include "types/automation/CloudContactSensor.h"
+#include "types/automation/CloudDimmedLight.h"
+#include "types/automation/CloudLight.h"
+#include "types/automation/CloudMotionSensor.h"
+#include "types/automation/CloudSmartPlug.h"
+#include "types/automation/CloudSwitch.h"
+#include "types/automation/CloudTemperature.h"
+#include "types/automation/CloudTelevision.h"
+
 /******************************************************************************
    DECLARATION OF getTime
  ******************************************************************************/
@@ -63,7 +81,7 @@ Property * getProperty(PropertyContainer & prop_cont, int const identifier);
 int appendChangedProperties(PropertyContainer & prop_cont, CborEncoder * arrayEncoder, bool lightPayload);
 void updateTimestampOnLocallyChangedProperties(PropertyContainer & prop_cont);
 void requestUpdateForAllProperties(PropertyContainer & prop_cont);
-void updateProperty(PropertyContainer & prop_cont, String propertyName, unsigned long cloudChangeEventTime, bool const is_sync_message, std::list<CborMapData *> * map_data_list);
+void updateProperty(PropertyContainer & prop_cont, String propertyName, unsigned long cloudChangeEventTime, bool const is_sync_message, std::list<CborMapData> * map_data_list);
 String getPropertyNameByIdentifier(PropertyContainer & prop_cont, int propertyIdentifier);
 
 #endif /* ARDUINO_PROPERTY_CONTAINER_H_ */

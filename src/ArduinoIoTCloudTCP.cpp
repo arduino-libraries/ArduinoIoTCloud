@@ -29,6 +29,8 @@
   #include "tls/utility/CryptoUtil.h"
 #endif
 
+#include "cbor/CBOREncoder.h"
+
 /******************************************************************************
    GLOBAL VARIABLES
  ******************************************************************************/
@@ -131,8 +133,6 @@ int ArduinoIoTCloudTCP::begin(String brokerAddress, uint16_t brokerPort)
   _dataTopicOut   = getTopic_dataout();
   _dataTopicIn    = getTopic_datain();
   _ota_topic_in   = getTopic_ota_in();
-
-  _thing.begin(&_property_container);
 
   printConnectionStatus(_iot_status);
 
@@ -267,10 +267,10 @@ void ArduinoIoTCloudTCP::handleMessage(int length)
     CloudSerial.appendStdin((uint8_t*)bytes, length);
   }
   if (_dataTopicIn == topic) {
-    _thing.decode((uint8_t*)bytes, length);
+    CBORDecoder::decode(_property_container, (uint8_t*)bytes, length);
   }
   if ((_shadowTopicIn == topic) && _syncStatus == ArduinoIoTSynchronizationStatus::SYNC_STATUS_WAIT_FOR_CLOUD_VALUES) {
-    _thing.decode((uint8_t*)bytes, length, true);
+    CBORDecoder::decode(_property_container, (uint8_t*)bytes, length, true);
     sendPropertiesToCloud();
     _syncStatus = ArduinoIoTSynchronizationStatus::SYNC_STATUS_VALUES_PROCESSED;
   }
@@ -284,7 +284,7 @@ void ArduinoIoTCloudTCP::handleMessage(int length)
 void ArduinoIoTCloudTCP::sendPropertiesToCloud()
 {
   uint8_t data[MQTT_TRANSMIT_BUFFER_SIZE];
-  int const length = _thing.encode(data, sizeof(data));
+  int const length = CBOREncoder::encode(_property_container, data, sizeof(data));
   if (length > 0)
   {
     /* If properties have been encoded store them in the back-up buffer
