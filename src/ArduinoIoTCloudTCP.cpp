@@ -29,6 +29,8 @@
   #include "tls/utility/CryptoUtil.h"
 #endif
 
+#include "cbor/CBOREncoder.h"
+
 /******************************************************************************
    GLOBAL VARIABLES
  ******************************************************************************/
@@ -284,7 +286,7 @@ void ArduinoIoTCloudTCP::handleMessage(int length)
 void ArduinoIoTCloudTCP::sendPropertiesToCloud()
 {
   uint8_t data[MQTT_TRANSMIT_BUFFER_SIZE];
-  int const length = _thing.encode(data, sizeof(data));
+  int const length = CBOREncoder::encode(_property_container, data, sizeof(data));
   if (length > 0)
   {
     /* If properties have been encoded store them in the back-up buffer

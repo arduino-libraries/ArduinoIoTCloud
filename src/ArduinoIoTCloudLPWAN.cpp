@@ -25,6 +25,8 @@
 
 #include<ArduinoIoTCloudLPWAN.h>
 
+#include "cbor/CBOREncoder.h"
+
 /******************************************************************************
    CONSTANTS
  ******************************************************************************/
@@ -126,7 +128,7 @@ void ArduinoIoTCloudLPWAN::disconnect()
 void ArduinoIoTCloudLPWAN::sendPropertiesToCloud()
 {
   uint8_t data[CBOR_LORA_MSG_MAX_SIZE];
-  int const length = _thing.encode(data, sizeof(data), true);
+  int const length = CBOREncoder::encode(_property_container, data, sizeof(data), true);
   if (length > 0) {
     writeProperties(data, length);
   }

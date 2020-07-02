@@ -48,30 +48,6 @@ void ArduinoCloudThing::begin(PropertyContainer * property_container)
   _property_container = property_container;
 }
 
-int ArduinoCloudThing::encode(uint8_t * data, size_t const size, bool lightPayload) {
-
-  // check if backing storage and cloud has diverged
-  // time interval may be elapsed or property may be changed
-  CborEncoder encoder, arrayEncoder;
-
-  cbor_encoder_init(&encoder, data, size, 0);
-
-  if (cbor_encoder_create_array(&encoder, &arrayEncoder, CborIndefiniteLength) != CborNoError) {
-    return -1;
-  }
-
-  if (appendChangedProperties(*_property_container, &arrayEncoder, lightPayload) < 1) {
-    return -1;
-  }
-
-  if (cbor_encoder_close_container(&encoder, &arrayEncoder) != CborNoError) {
-    return -1;
-  }
-
-  int const bytes_encoded = cbor_encoder_get_buffer_size(&encoder, data);
-  return bytes_encoded;
-}
-
 void ArduinoCloudThing::decode(uint8_t const * const payload, size_t const length, bool isSyncMessage) {
   _isSyncMessage = isSyncMessage;
 
