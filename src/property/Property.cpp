@@ -325,3 +325,23 @@ unsigned long Property::getLastLocalChangeTimestamp() {
 void Property::setIdentifier(int identifier) {
   _identifier = identifier;
 }
+
+/******************************************************************************
+   SYNCHRONIZATION CALLBACKS
+ ******************************************************************************/
+
+void onAutoSync(Property & property) {
+  if (property.getLastCloudChangeTimestamp() > property.getLastLocalChangeTimestamp()) {
+    property.fromCloudToLocal();
+    property.execCallbackOnChange();
+  }
+}
+
+void onForceCloudSync(Property & property) {
+  property.fromCloudToLocal();
+  property.execCallbackOnChange();
+}
+
+void onForceDeviceSync(Property & /* property */) {
+
+}

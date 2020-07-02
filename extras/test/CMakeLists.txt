@@ -9,6 +9,7 @@ project(testArduinoIoTCloud)
 ##########################################################################
 
 include_directories(include)
+include_directories(../../src)
 include_directories(../../src/cbor)
 include_directories(../../src/property)
 include_directories(../../src/utility/ota)

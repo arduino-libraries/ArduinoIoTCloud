@@ -235,4 +235,15 @@ inline bool operator == (Property const & lhs, Property const & rhs) {
   return (lhs.name() == rhs.name());
 }
 
+/******************************************************************************
+   SYNCHRONIZATION CALLBACKS
+ ******************************************************************************/
+
+void onAutoSync(Property & property);
+#define MOST_RECENT_WINS onAutoSync
+void onForceCloudSync(Property & property);
+#define CLOUD_WINS onForceCloudSync
+void onForceDeviceSync(Property & property);
+#define DEVICE_WINS onForceDeviceSync // The device property value is already the correct one. The cloud property value will be synchronized at the next update cycle.
+
 #endif /* ARDUINO_CLOUD_PROPERTY_HPP_ */

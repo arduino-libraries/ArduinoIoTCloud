@@ -47,30 +47,6 @@
 #include "../property/types/automation/CloudTelevision.h"
 
 /******************************************************************************
-   CONSTANTS
- ******************************************************************************/
-
-static bool const ON  = true;
-static bool const OFF = false;
-
-static long const ON_CHANGE = -1;
-static long const SECONDS   = 1;
-static long const MINUTES   = 60;
-static long const HOURS     = 3600;
-static long const DAYS      = 86400;
-
-/******************************************************************************
-   SYNCHRONIZATION CALLBACKS
- ******************************************************************************/
-
-void onAutoSync(Property & property);
-#define MOST_RECENT_WINS onAutoSync
-void onForceCloudSync(Property & property);
-#define CLOUD_WINS onForceCloudSync
-void onForceDeviceSync(Property & property);
-#define DEVICE_WINS onForceDeviceSync // The device property value is already the correct one. The cloud property value will be synchronized at the next update cycle.
-
-/******************************************************************************
    CLASS DECLARATION
  ******************************************************************************/
 

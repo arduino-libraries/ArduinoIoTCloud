@@ -418,18 +418,3 @@ double ArduinoCloudThing::convertCborHalfFloatToDouble(uint16_t const half_val) 
   }
   return half_val & 0x8000 ? -val : val;
 }
-
-void onAutoSync(Property & property) {
-  if (property.getLastCloudChangeTimestamp() > property.getLastLocalChangeTimestamp()) {
-    property.fromCloudToLocal();
-    property.execCallbackOnChange();
-  }
-}
-
-void onForceCloudSync(Property & property) {
-  property.fromCloudToLocal();
-  property.execCallbackOnChange();
-}
-
-void onForceDeviceSync(Property & /* property */) {
-}

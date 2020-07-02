@@ -9,6 +9,7 @@
 #include <catch.hpp>
 
 #include <util/CBORTestUtil.h>
+#include <AIoTC_Const.h>
 #include <ArduinoCloudThing.h>
 
 /**************************************************************************************

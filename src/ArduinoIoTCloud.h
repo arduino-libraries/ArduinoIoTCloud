@@ -27,8 +27,11 @@
 #include <Arduino_ConnectionHandler.h>
 #include <Arduino_DebugUtils.h>
 
+#include "AIoTC_Const.h"
+
 #include "cbor/ArduinoCloudThing.h"
 
+#include "property/Property.h"
 #include "property/PropertyContainer.h"
 #include "property/types/CloudWrapperBool.h"
 #include "property/types/CloudWrapperFloat.h"
