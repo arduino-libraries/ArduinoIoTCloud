@@ -73,7 +73,7 @@ SCENARIO("A (boolean) property is manipulated in the callback to its origin stat
     PropertyContainer property_container;
     ArduinoCloudThing thing;
     thing.begin(&property_container);
-    cbor::encode(thing);
+    cbor::encode(property_container);
 
     addPropertyToContainer(property_container, switch_turned_on, "switch_turned_on", Permission::ReadWrite).onUpdate(switch_callback);
 
@@ -91,7 +91,7 @@ SCENARIO("A (boolean) property is manipulated in the callback to its origin stat
 
     /* [{0: "switch_turned_on", 4: false}] = 9F A2 00 70 73 77 69 74 63 68 5F 74 75 72 6E 65 64 5F 6F 6E 04 F4 FF*/
     std::vector<uint8_t> const expected = {0x9F, 0xA2, 0x00, 0x70, 0x73, 0x77, 0x69, 0x74, 0x63, 0x68, 0x5F, 0x74, 0x75, 0x72, 0x6E, 0x65, 0x64, 0x5F, 0x6F, 0x6E, 0x04, 0xF4, 0xFF};
-    std::vector<uint8_t> const actual = cbor::encode(thing);
+    std::vector<uint8_t> const actual = cbor::encode(property_container);
     REQUIRE(actual == expected);
   }
 }

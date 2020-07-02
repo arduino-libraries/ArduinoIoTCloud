@@ -9,7 +9,7 @@
    INCLUDE
  **************************************************************************************/
 
-#include <ArduinoCloudThing.h>
+#include <PropertyContainer.h>
 
 #include <vector>
 
@@ -24,7 +24,7 @@ namespace cbor
    PROTOTYPES
  **************************************************************************************/
 
-std::vector<uint8_t> encode(ArduinoCloudThing & thing, bool lightPayload = false);
+std::vector<uint8_t> encode(PropertyContainer & property_container, bool lightPayload = false);
 void print(std::vector<uint8_t> const & vect);
 
 /**************************************************************************************
