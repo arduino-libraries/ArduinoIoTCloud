@@ -8,7 +8,7 @@
 
 #include <catch.hpp>
 
-#include <ArduinoCloudThing.h>
+#include <property/types/CloudLocation.h>
 
 /**************************************************************************************
   TEST CODE

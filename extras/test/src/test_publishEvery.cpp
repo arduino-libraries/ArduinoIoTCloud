@@ -10,7 +10,6 @@
 
 #include <util/CBORTestUtil.h>
 #include <AIoTC_Const.h>
-#include <ArduinoCloudThing.h>
 
 /**************************************************************************************
    TEST CODE
@@ -21,9 +20,7 @@ SCENARIO("A Arduino cloud property is published periodically", "[ArduinoCloudThi
 
   GIVEN("CloudProtocol::V2") {
     PropertyContainer property_container;
-    ArduinoCloudThing thing;
-    thing.begin(&property_container);
-
+    
     CloudBool test = true;
     unsigned long const PUBLISH_INTERVAL_SEC = 1 * SECONDS;
 

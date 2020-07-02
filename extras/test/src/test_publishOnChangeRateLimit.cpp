@@ -9,7 +9,6 @@
 #include <catch.hpp>
 
 #include <util/CBORTestUtil.h>
-#include <ArduinoCloudThing.h>
 
 /**************************************************************************************
    TEST CODE
@@ -20,9 +19,7 @@ SCENARIO("A Arduino cloud property is published on value change but the update r
 
   GIVEN("CloudProtocol::V2") {
     PropertyContainer property_container;
-    ArduinoCloudThing thing;
-    thing.begin(&property_container);
-
+    
     CloudInt test = 0;
     int const MIN_DELTA = 0;
     unsigned long const MIN_TIME_BETWEEN_UPDATES_ms = 500; /* No updates faster than 500 ms */

@@ -9,7 +9,8 @@
 #include <catch.hpp>
 
 #include <util/CBORTestUtil.h>
-#include <ArduinoCloudThing.h>
+
+#include <property/types/CloudColor.h>
 
 /**************************************************************************************
   TEST CODE

@@ -11,7 +11,6 @@
 #include <memory>
 
 #include <util/CBORTestUtil.h>
-#include <ArduinoCloudThing.h>
 #include "types/CloudWrapperBool.h"
 #include "types/CloudWrapperFloat.h"
 #include "types/CloudWrapperInt.h"
@@ -27,9 +26,7 @@ SCENARIO("Arduino Cloud Properties are encoded", "[ArduinoCloudThing::encode]") 
   WHEN("A 'bool' property is added") {
     GIVEN("CloudProtocol::V2") {
       PropertyContainer property_container;
-      ArduinoCloudThing thing;
-      thing.begin(&property_container);
-      cbor::encode(property_container);
+              cbor::encode(property_container);
 
       CloudBool test = true;
       addPropertyToContainer(property_container, test, "test", Permission::ReadWrite);
@@ -47,9 +44,7 @@ SCENARIO("Arduino Cloud Properties are encoded", "[ArduinoCloudThing::encode]") 
     /*An integer identifier must be instead of the name of the property in order to have a shorter payload*/
     GIVEN("CloudProtocol::V2") {
       PropertyContainer property_container;
-      ArduinoCloudThing thing;
-      thing.begin(&property_container);
-      cbor::encode(property_container);
+              cbor::encode(property_container);
 
       CloudBool test = true;
       /*The property is added with identifier 1 that will be used instead of the string "test" as property identifier*/
@@ -67,9 +62,7 @@ SCENARIO("Arduino Cloud Properties are encoded", "[ArduinoCloudThing::encode]") 
   WHEN("A 'int' property is added") {
     GIVEN("CloudProtocol::V2") {
       PropertyContainer property_container;
-      ArduinoCloudThing thing;
-      thing.begin(&property_container);
-      cbor::encode(property_container);
+              cbor::encode(property_container);
 
       CloudInt int_test = 123;
       addPropertyToContainer(property_container, int_test, "test", Permission::ReadWrite);
@@ -86,9 +79,7 @@ SCENARIO("Arduino Cloud Properties are encoded", "[ArduinoCloudThing::encode]") 
   WHEN("A 'float' property is added") {
     GIVEN("CloudProtocol::V2") {
       PropertyContainer property_container;
-      ArduinoCloudThing thing;
-      thing.begin(&property_container);
-      cbor::encode(property_container);
+              cbor::encode(property_container);
 
       CloudFloat float_test = 3.14159;
       addPropertyToContainer(property_container, float_test, "test", Permission::ReadWrite);
@@ -105,9 +96,7 @@ SCENARIO("Arduino Cloud Properties are encoded", "[ArduinoCloudThing::encode]") 
   WHEN("A 'String' property is added") {
     GIVEN("CloudProtocol::V2") {
       PropertyContainer property_container;
-      ArduinoCloudThing thing;
-      thing.begin(&property_container);
-      cbor::encode(property_container);
+              cbor::encode(property_container);
 
       CloudString string_test;
       string_test = "test";
@@ -125,9 +114,7 @@ SCENARIO("Arduino Cloud Properties are encoded", "[ArduinoCloudThing::encode]") 
   WHEN("A 'Location' property is added") {
     GIVEN("CloudProtocol::V2") {
       PropertyContainer property_container;
-      ArduinoCloudThing thing;
-      thing.begin(&property_container);
-      cbor::encode(property_container);
+              cbor::encode(property_container);
 
       CloudLocation location_test = CloudLocation(2.0f, 3.0f);
       addPropertyToContainer(property_container, location_test, "test", Permission::ReadWrite);
@@ -144,9 +131,7 @@ SCENARIO("Arduino Cloud Properties are encoded", "[ArduinoCloudThing::encode]") 
   WHEN("A 'Color' property is added") {
     GIVEN("CloudProtocol::V2") {
       PropertyContainer property_container;
-      ArduinoCloudThing thing;
-      thing.begin(&property_container);
-      cbor::encode(property_container);
+              cbor::encode(property_container);
 
       CloudColor color_test = CloudColor(2.0, 2.0, 2.0);
       addPropertyToContainer(property_container, color_test, "test", Permission::ReadWrite);
@@ -164,9 +149,7 @@ SCENARIO("Arduino Cloud Properties are encoded", "[ArduinoCloudThing::encode]") 
     /*An integer identifier must be encoded instead of the name of the property in order to have a shorter payload*/
     GIVEN("CloudProtocol::V2") {
       PropertyContainer property_container;
-      ArduinoCloudThing thing;
-      thing.begin(&property_container);
-      cbor::encode(property_container);
+              cbor::encode(property_container);
 
       CloudColor color_test = CloudColor(2.0, 2.0, 2.0);
       /*The property is added with identifier 1 that will be used instead of the string "name" as property identifier */
@@ -184,9 +167,7 @@ SCENARIO("Arduino Cloud Properties are encoded", "[ArduinoCloudThing::encode]") 
   WHEN("A 'ColoredLight' property is added") {
     GIVEN("CloudProtocol::V2") {
       PropertyContainer property_container;
-      ArduinoCloudThing thing;
-      thing.begin(&property_container);
-      cbor::encode(property_container);
+              cbor::encode(property_container);
 
       CloudColoredLight color_test = CloudColoredLight(true, 2.0, 2.0, 2.0);
       addPropertyToContainer(property_container, color_test, "test", Permission::ReadWrite);
@@ -203,9 +184,7 @@ SCENARIO("Arduino Cloud Properties are encoded", "[ArduinoCloudThing::encode]") 
   WHEN("A 'Television' property is added") {
     GIVEN("CloudProtocol::V2") {
       PropertyContainer property_container;
-      ArduinoCloudThing thing;
-      thing.begin(&property_container);
-      cbor::encode(property_container);
+              cbor::encode(property_container);
 
       CloudTelevision tv_test = CloudTelevision(true, 50, false, PlaybackCommands::Play, InputValue::TV, 7);
       addPropertyToContainer(property_container, tv_test, "test", Permission::ReadWrite);
@@ -222,9 +201,7 @@ SCENARIO("Arduino Cloud Properties are encoded", "[ArduinoCloudThing::encode]") 
   WHEN("A 'DimmedLight' property is added") {
     GIVEN("CloudProtocol::V2") {
       PropertyContainer property_container;
-      ArduinoCloudThing thing;
-      thing.begin(&property_container);
-      cbor::encode(property_container);
+              cbor::encode(property_container);
 
       CloudDimmedLight color_test = CloudDimmedLight(true, 2.0);
       addPropertyToContainer(property_container, color_test, "test", Permission::ReadWrite);
@@ -241,9 +218,7 @@ SCENARIO("Arduino Cloud Properties are encoded", "[ArduinoCloudThing::encode]") 
   WHEN("A light property is added") {
     GIVEN("CloudProtocol::V2") {
       PropertyContainer property_container;
-      ArduinoCloudThing thing;
-      thing.begin(&property_container);
-      cbor::encode(property_container);
+              cbor::encode(property_container);
 
       CloudLight test;
       test = true;
@@ -261,9 +236,7 @@ SCENARIO("Arduino Cloud Properties are encoded", "[ArduinoCloudThing::encode]") 
   WHEN("A contact sensor property is added") {
     GIVEN("CloudProtocol::V2") {
       PropertyContainer property_container;
-      ArduinoCloudThing thing;
-      thing.begin(&property_container);
-      cbor::encode(property_container);
+              cbor::encode(property_container);
 
       CloudContactSensor test;
       test = true;
@@ -281,9 +254,7 @@ SCENARIO("Arduino Cloud Properties are encoded", "[ArduinoCloudThing::encode]") 
   WHEN("A motion sensor property is added") {
     GIVEN("CloudProtocol::V2") {
       PropertyContainer property_container;
-      ArduinoCloudThing thing;
-      thing.begin(&property_container);
-      cbor::encode(property_container);
+              cbor::encode(property_container);
 
       CloudMotionSensor test;
       test = true;
@@ -301,9 +272,7 @@ SCENARIO("Arduino Cloud Properties are encoded", "[ArduinoCloudThing::encode]") 
   WHEN("A smart plug property is added") {
     GIVEN("CloudProtocol::V2") {
       PropertyContainer property_container;
-      ArduinoCloudThing thing;
-      thing.begin(&property_container);
-      cbor::encode(property_container);
+              cbor::encode(property_container);
 
       CloudSmartPlug test;
       test = true;
@@ -321,9 +290,7 @@ SCENARIO("Arduino Cloud Properties are encoded", "[ArduinoCloudThing::encode]") 
   WHEN("A Temperature property is added") {
     GIVEN("CloudProtocol::V2") {
       PropertyContainer property_container;
-      ArduinoCloudThing thing;
-      thing.begin(&property_container);
-      cbor::encode(property_container);
+              cbor::encode(property_container);
 
       CloudTemperature float_test;
       float_test = 3.14159;
@@ -341,9 +308,7 @@ SCENARIO("Arduino Cloud Properties are encoded", "[ArduinoCloudThing::encode]") 
   WHEN("A switch property is added") {
     GIVEN("CloudProtocol::V2") {
       PropertyContainer property_container;
-      ArduinoCloudThing thing;
-      thing.begin(&property_container);
-      cbor::encode(property_container);
+              cbor::encode(property_container);
 
       CloudSwitch test;
       test = true;
@@ -361,9 +326,7 @@ SCENARIO("Arduino Cloud Properties are encoded", "[ArduinoCloudThing::encode]") 
   WHEN("Multiple properties are added") {
     GIVEN("CloudProtocol::V2") {
       PropertyContainer property_container;
-      ArduinoCloudThing thing;
-      thing.begin(&property_container);
-
+        
       CloudInt    int_test = 1;
       CloudBool   bool_test = false;
       CloudFloat  float_test = 2.0f;
@@ -389,9 +352,7 @@ SCENARIO("Arduino Cloud Properties are encoded", "[ArduinoCloudThing::encode]") 
   WHEN("Multiple primitive properties are added") {
     GIVEN("CloudProtocol::V2") {
       PropertyContainer property_container;
-      ArduinoCloudThing thing;
-      thing.begin(&property_container);
-
+        
       int    int_test = 1;
       bool   bool_test = false;
       float  float_test = 2.0f;

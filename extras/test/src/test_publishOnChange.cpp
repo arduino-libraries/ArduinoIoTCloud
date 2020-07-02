@@ -9,7 +9,6 @@
 #include <catch.hpp>
 
 #include <util/CBORTestUtil.h>
-#include <ArduinoCloudThing.h>
 
 /**************************************************************************************
    TEST CODE
@@ -20,9 +19,7 @@ SCENARIO("A Arduino cloud property is published on value change", "[ArduinoCloud
 
   GIVEN("CloudProtocol::V2") {
     PropertyContainer property_container;
-    ArduinoCloudThing thing;
-    thing.begin(&property_container);
-
+    
     CloudInt       test  = 10;
     int const DELTA = 6;
 
