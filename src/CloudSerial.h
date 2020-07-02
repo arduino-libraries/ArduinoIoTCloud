@@ -33,8 +33,8 @@
  * DEFINES
  ******************************************************************************/
 
-#define CLOUD_SERIAL_TX_BUFFER_SIZE 64
-#define CLOUD_SERIAL_RX_BUFFER_SIZE 512
+#define CLOUD_SERIAL_TX_BUFFER_SIZE 32
+#define CLOUD_SERIAL_RX_BUFFER_SIZE 32
 
 /******************************************************************************
  * CLASS DECLARATION
