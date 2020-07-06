@@ -25,13 +25,13 @@ namespace cbor
  **************************************************************************************/
 
 std::vector<uint8_t> encode(PropertyContainer & property_container, bool lightPayload) {
+  int bytes_encoded = 0;
   uint8_t buf[200] = {0};
-  int const bytes_buf = CBOREncoder::encode(property_container, buf, 200, lightPayload);
-  if (bytes_buf == -1) {
+
+  if (CBOREncoder::encode(property_container, buf, 200, bytes_encoded, lightPayload) == CborNoError)
+    return std::vector<uint8_t>(buf, buf + bytes_encoded);
+  else
     return std::vector<uint8_t>();
-  } else {
-    return std::vector<uint8_t>(buf, buf + bytes_buf);
-  }
 }
 
 void print(std::vector<uint8_t> const & vect) {
