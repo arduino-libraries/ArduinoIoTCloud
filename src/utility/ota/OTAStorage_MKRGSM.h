@@ -22,6 +22,9 @@
  * INCLUDE
  ******************************************************************************/
 
+#include <ArduinoIoTCloud_Config.h>
+#if OTA_STORAGE_MKRGSM
+
 #include "OTAStorage.h"
 
 #include <GSMFileUtils.h>
@@ -51,5 +54,7 @@ private:
    GSMFileUtils _fileUtils;
 
 };
+
+#endif /* OTA_STORAGE_MKRGSM */
 
 #endif /* ARDUINO_OTA_STORAGE_MKRGSM_H_ */

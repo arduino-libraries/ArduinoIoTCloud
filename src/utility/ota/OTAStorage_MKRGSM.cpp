@@ -19,6 +19,9 @@
    INCLUDE
  ******************************************************************************/
 
+#include <ArduinoIoTCloud_Config.h>
+#if OTA_STORAGE_MKRGSM
+
 #include "OTAStorage_MKRGSM.h"
 
 /******************************************************************************
@@ -83,3 +86,5 @@ void OTAStorage_MKRGSM::deinit()
 {
   /* Nothing to do */
 }
+
+#endif /* OTA_STORAGE_MKRGSM */
