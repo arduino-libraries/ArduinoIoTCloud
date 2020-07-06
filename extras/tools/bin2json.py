@@ -5,7 +5,7 @@ import json
 import base64
 
 CHUNK_SIZE           = 256 # This is the chunk size of how the binary is split on the server side for not overloading the embedded device receive buffers.
-INTER_CHUNK_DELAY_MS = 100 # This is delay between 2 consecutive chunks so as to not over load the embedded device.
+INTER_CHUNK_DELAY_MS = 250 # This is delay between 2 consecutive chunks so as to not over load the embedded device.
 
 if len(sys.argv) != 3:
     print ("Usage: bin2json.py sketch-ota.bin sketch-ota.json")
