@@ -283,18 +283,20 @@ void ArduinoIoTCloudTCP::handleMessage(int length)
 
 void ArduinoIoTCloudTCP::sendPropertiesToCloud()
 {
+  int bytes_encoded = 0;
   uint8_t data[MQTT_TRANSMIT_BUFFER_SIZE];
-  int const length = CBOREncoder::encode(_property_container, data, sizeof(data));
-  if (length > 0)
-  {
-    /* If properties have been encoded store them in the back-up buffer
-     * in order to allow retransmission in case of failure.
-     */
-    _mqtt_data_len = length;
-    memcpy(_mqtt_data_buf, data, _mqtt_data_len);
-    /* Transmit the properties to the MQTT broker */
-    write(_dataTopicOut, _mqtt_data_buf, _mqtt_data_len);
-  }
+
+  if (CBOREncoder::encode(_property_container, data, sizeof(data), bytes_encoded, false) == CborNoError)
+    if (bytes_encoded > 0)
+    {
+      /* If properties have been encoded store them in the back-up buffer
+       * in order to allow retransmission in case of failure.
+       */
+      _mqtt_data_len = bytes_encoded;
+      memcpy(_mqtt_data_buf, data, _mqtt_data_len);
+      /* Transmit the properties to the MQTT broker */
+      write(_dataTopicOut, _mqtt_data_buf, _mqtt_data_len);
+    }
 }
 
 void ArduinoIoTCloudTCP::requestLastValue()

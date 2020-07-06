@@ -30,39 +30,48 @@
 /******************************************************************************
  * PUBLIC MEMBER FUNCTIONS
  ******************************************************************************/
-
-int CBOREncoder::encode(PropertyContainer & property_container, uint8_t * data, size_t const size, bool lightPayload)
+#include <iostream>
+CborError CBOREncoder::encode(PropertyContainer & property_container, uint8_t * data, size_t const size, int & bytes_encoded, bool lightPayload)
 {
+  CborError error = CborNoError;
   CborEncoder encoder, arrayEncoder;
 
   cbor_encoder_init(&encoder, data, size, 0);
 
-  if (cbor_encoder_create_array(&encoder, &arrayEncoder, CborIndefiniteLength) != CborNoError)
-    return -1;
+  error = cbor_encoder_create_array(&encoder, &arrayEncoder, CborIndefiniteLength);
+  if (CborNoError != error)
+    return error;
 
   /* Check if backing storage and cloud has diverged
    * time interval may be elapsed or property may be changed
    * and if that's the case encode the property into the CBOR.
    */
-  CborError err = CborNoError;
+  int num_encoded_properties = 0;
   std::for_each(property_container.begin(),
                 property_container.end(),
-                [lightPayload, &arrayEncoder, &err](Property * p)
+                [lightPayload, &arrayEncoder, &error, &num_encoded_properties](Property * p)
                 {
                   if (p->shouldBeUpdated() && p->isReadableByCloud())
                   {
-                    err = p->append(&arrayEncoder, lightPayload);
-                    if(err != CborNoError)
+                    error = p->append(&arrayEncoder, lightPayload);
+                    if(error == CborNoError)
+                      num_encoded_properties++;
+                    else
                       return;
                   }
                 });
-  if ((err != CborNoError) && (err != CborErrorOutOfMemory))
-    return -1;
+  if ((CborNoError != error) && 
+      (CborErrorOutOfMemory != error))
+    return error;
 
+  error = cbor_encoder_close_container(&encoder, &arrayEncoder);
+  if (CborNoError != error)
+    return error;
 
-  if (cbor_encoder_close_container(&encoder, &arrayEncoder) != CborNoError)
-    return -1;
+  if (num_encoded_properties > 0)
+    bytes_encoded = cbor_encoder_get_buffer_size(&encoder, data);
+  else
+    bytes_encoded = 0;
 
-  int const bytes_encoded = cbor_encoder_get_buffer_size(&encoder, data);
-  return bytes_encoded;
+  return CborNoError;
 }

@@ -35,7 +35,7 @@ public:
 
     /* encode return > 0 if a property has changed and encodes the changed properties in CBOR format into the provided buffer */
     /* if lightPayload is true the integer identifier of the property will be encoded in the message instead of the property name in order to reduce the size of the message payload*/
-    static int encode(PropertyContainer & property_container, uint8_t * data, size_t const size, bool lightPayload = false);
+    static CborError encode(PropertyContainer & property_container, uint8_t * data, size_t const size, int & bytes_encoded, bool lightPayload = false);
 
 private:
 

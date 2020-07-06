@@ -126,11 +126,12 @@ void ArduinoIoTCloudLPWAN::disconnect()
 
 void ArduinoIoTCloudLPWAN::sendPropertiesToCloud()
 {
+  int bytes_encoded = 0;
   uint8_t data[CBOR_LORA_MSG_MAX_SIZE];
-  int const length = CBOREncoder::encode(_property_container, data, sizeof(data), true);
-  if (length > 0) {
-    writeProperties(data, length);
-  }
+
+  if (CBOREncoder::encode(_property_container, data, sizeof(data), bytes_encoded, true) == CborNoError)
+    if (bytes_encoded > 0)
+      writeProperties(data, bytes_encoded);
 }
 
 int ArduinoIoTCloudLPWAN::writeProperties(const byte data[], int length)
