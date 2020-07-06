@@ -40,14 +40,6 @@
    DEFINE
  ******************************************************************************/
 
-#define CHECK_CBOR(expr)           \
-  do {                             \
-    CborError error = CborNoError; \
-    error = (expr);                \
-    if (CborNoError != error)      \
-      return error;                \
-  } while(0);
-
 #define appendAttributesToCloud() appendAttributesToCloudReal(CborEncoder *encoder)
 #define appendAttribute(x) appendAttributeReal(x, getAttributeName(#x, '.'), encoder)
 #define setAttribute(x) setAttributeReal(x, getAttributeName(#x, '.'))

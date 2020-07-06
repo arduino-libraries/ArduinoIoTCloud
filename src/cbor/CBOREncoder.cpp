@@ -30,22 +30,20 @@
 /******************************************************************************
  * PUBLIC MEMBER FUNCTIONS
  ******************************************************************************/
-#include <iostream>
+
 CborError CBOREncoder::encode(PropertyContainer & property_container, uint8_t * data, size_t const size, int & bytes_encoded, bool lightPayload)
 {
-  CborError error = CborNoError;
   CborEncoder encoder, arrayEncoder;
 
   cbor_encoder_init(&encoder, data, size, 0);
 
-  error = cbor_encoder_create_array(&encoder, &arrayEncoder, CborIndefiniteLength);
-  if (CborNoError != error)
-    return error;
+  CHECK_CBOR(cbor_encoder_create_array(&encoder, &arrayEncoder, CborIndefiniteLength));
 
   /* Check if backing storage and cloud has diverged
    * time interval may be elapsed or property may be changed
    * and if that's the case encode the property into the CBOR.
    */
+  CborError error = CborNoError;
   int num_encoded_properties = 0;
   std::for_each(property_container.begin(),
                 property_container.end(),
@@ -64,9 +62,7 @@ CborError CBOREncoder::encode(PropertyContainer & property_container, uint8_t * 
       (CborErrorOutOfMemory != error))
     return error;
 
-  error = cbor_encoder_close_container(&encoder, &arrayEncoder);
-  if (CborNoError != error)
-    return error;
+  CHECK_CBOR(cbor_encoder_close_container(&encoder, &arrayEncoder));
 
   if (num_encoded_properties > 0)
     bytes_encoded = cbor_encoder_get_buffer_size(&encoder, data);
