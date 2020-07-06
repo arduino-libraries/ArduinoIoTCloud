@@ -4,7 +4,7 @@ This tool can be used to extend (actually prefix) a binary generated with e.g. t
 
 ### How-To-Use
 ```bash
-./bin2ota.py sketch.bin sketch-ota.bin
+./bin2ota.py sketch.bin sketch.ota
 ```
 #### `sketch.bin`
 ```bash
@@ -17,7 +17,7 @@ This tool can be used to extend (actually prefix) a binary generated with e.g. t
 * `length(sketch.bin) = 0x0003'A5E0`
 * `CRC32(sketch.bin)  = 0xA9D1'265B`
 
-#### `sketch-ota.bin`
+#### `sketch.ota`
 ```bash
 0000000   A5E0 0003 265B A9D1 8000 2000 749D 0000
 0000010   7485 0000 7485 0000 0000 0000 0000 0000
@@ -31,7 +31,7 @@ This tool converts the binary file into base64 encoded JSON which is necessary f
 
 ### How-To-Use
 ```bash
-./bin2json.py sketch-ota.bin sketch-ota.json
+./bin2json.py sketch.ota sketch.json
 ```
 
 `ota-upload.sh`
@@ -40,5 +40,5 @@ This tool allows to upload a OTA binary to a device via a Arduino cloud server.
 
 ### How-To-Use
 ```bash
-./ota-upload.sh CLIENT_ID CLIENT_SECRET DEVICE_ID sketch-ota.json
+./ota-upload.sh CLIENT_ID CLIENT_SECRET DEVICE_ID sketch.json
 ```

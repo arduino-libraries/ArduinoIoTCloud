@@ -1,7 +1,7 @@
 #!/bin/bash
 
 if [ "$#" -ne 4 ]; then
-  echo "Usage: ota-upload.sh CLIENT_ID CLIENT_SECRET DEVICE_ID sketch-ota.base64"
+  echo "Usage: ota-upload.sh CLIENT_ID CLIENT_SECRET DEVICE_ID sketch.json"
   exit 1
 fi
 

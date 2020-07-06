@@ -8,7 +8,7 @@ CHUNK_SIZE           = 256 # This is the chunk size of how the binary is split o
 INTER_CHUNK_DELAY_MS = 250 # This is delay between 2 consecutive chunks so as to not over load the embedded device.
 
 if len(sys.argv) != 3:
-    print ("Usage: bin2json.py sketch-ota.bin sketch-ota.json")
+    print ("Usage: bin2json.py sketch.ota sketch.json")
     sys.exit()
 
 ifile = sys.argv[1]
