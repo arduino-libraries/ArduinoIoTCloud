@@ -40,7 +40,8 @@ int CBOREncoder::encode(PropertyContainer & property_container, uint8_t * data, 
    * time interval may be elapsed or property may be changed
    * and if that's the case encode the property into the CBOR.
    */
-  if (appendChangedProperties(property_container, &arrayEncoder, lightPayload) < 1)
+  CborError err = appendChangedProperties(property_container, &arrayEncoder, lightPayload);
+  if ((err != CborNoError) && (err != CborErrorOutOfMemory))
     return -1;
 
   if (cbor_encoder_close_container(&encoder, &arrayEncoder) != CborNoError)

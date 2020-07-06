@@ -98,7 +98,7 @@ class CloudDimmedLight : public Property {
       _cloud_value = _value;
     }
 
-    virtual void appendAttributesToCloud() {
+    virtual CborError appendAttributesToCloud() {
       appendAttribute(_value.swi);
       // To allow visualization through color widget
       // Start

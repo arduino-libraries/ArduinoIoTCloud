@@ -89,9 +89,10 @@ class CloudLocation : public Property {
     virtual void fromLocalToCloud() {
       _cloud_value = _value;
     }
-    virtual void appendAttributesToCloud() {
-      appendAttribute(_value.lat);
-      appendAttribute(_value.lon);
+    virtual CborError appendAttributesToCloud() {
+      CHECK_CBOR(appendAttribute(_value.lat));
+      CHECK_CBOR(appendAttribute(_value.lon));
+      return CborNoError;
     }
     virtual void setAttributesFromCloud() {
       setAttribute(_cloud_value.lat);

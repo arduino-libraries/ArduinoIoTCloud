@@ -78,7 +78,7 @@ Property * getProperty(PropertyContainer & prop_cont, String const & name);
 Property * getProperty(PropertyContainer & prop_cont, int const identifier);
 
 
-int appendChangedProperties(PropertyContainer & prop_cont, CborEncoder * arrayEncoder, bool lightPayload);
+CborError appendChangedProperties(PropertyContainer & prop_cont, CborEncoder * arrayEncoder, bool lightPayload);
 void updateTimestampOnLocallyChangedProperties(PropertyContainer & prop_cont);
 void requestUpdateForAllProperties(PropertyContainer & prop_cont);
 void updateProperty(PropertyContainer & prop_cont, String propertyName, unsigned long cloudChangeEventTime, bool const is_sync_message, std::list<CborMapData> * map_data_list);

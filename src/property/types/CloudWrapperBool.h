@@ -45,8 +45,8 @@ class CloudWrapperBool : public CloudWrapperBase {
     virtual void fromLocalToCloud() {
       _cloud_value = _primitive_value;
     }
-    virtual void appendAttributesToCloud() {
-      appendAttribute(_primitive_value);
+    virtual CborError appendAttributesToCloud() {
+      return appendAttribute(_primitive_value);
     }
     virtual void setAttributesFromCloud() {
       setAttribute(_cloud_value);

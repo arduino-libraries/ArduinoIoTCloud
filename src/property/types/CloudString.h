@@ -55,8 +55,8 @@ class CloudString : public Property {
     virtual void fromLocalToCloud() {
       _cloud_value = _value;
     }
-    virtual void appendAttributesToCloud() {
-      appendAttribute(_value);
+    virtual CborError appendAttributesToCloud() {
+      return appendAttribute(_value);
     }
     virtual void setAttributesFromCloud() {
       setAttribute(_cloud_value);

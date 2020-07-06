@@ -213,7 +213,7 @@ class CloudTelevision : public Property {
     virtual void fromLocalToCloud() {
       _cloud_value = _value;
     }
-    virtual void appendAttributesToCloud() {
+    virtual CborError appendAttributesToCloud() {
       appendAttribute(_value.swi);
       appendAttribute(_value.vol);
       appendAttribute(_value.mut);

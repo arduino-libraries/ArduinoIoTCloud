@@ -36,6 +36,18 @@
 
 #include "../cbor/lib/tinycbor/cbor-lib.h"
 
+/******************************************************************************
+   DEFINE
+ ******************************************************************************/
+
+#define CHECK_CBOR(expr)           \
+  do {                             \
+    CborError error = CborNoError; \
+    error = (expr);                \
+    if (CborNoError != error)      \
+      return error;                \
+  } while(0);
+
 #define appendAttributesToCloud() appendAttributesToCloudReal(CborEncoder *encoder)
 #define appendAttribute(x) appendAttributeReal(x, getAttributeName(#x, '.'), encoder)
 #define setAttribute(x) setAttributeReal(x, getAttributeName(#x, '.'))
@@ -168,12 +180,12 @@ class Property
     void setIdentifier(int identifier);
 
     void updateLocalTimestamp();
-    void append(CborEncoder * encoder, bool lightPayload);
-    void appendAttributeReal(bool value, String attributeName = "", CborEncoder *encoder = nullptr);
-    void appendAttributeReal(int value, String attributeName = "", CborEncoder *encoder = nullptr);
-    void appendAttributeReal(float value, String attributeName = "", CborEncoder *encoder = nullptr);
-    void appendAttributeReal(String value, String attributeName = "", CborEncoder *encoder = nullptr);
-    void appendAttributeName(String attributeName, std::function<void (CborEncoder& mapEncoder)>f, CborEncoder *encoder);
+    CborError append(CborEncoder * encoder, bool lightPayload);
+    CborError appendAttributeReal(bool value, String attributeName = "", CborEncoder *encoder = nullptr);
+    CborError appendAttributeReal(int value, String attributeName = "", CborEncoder *encoder = nullptr);
+    CborError appendAttributeReal(float value, String attributeName = "", CborEncoder *encoder = nullptr);
+    CborError appendAttributeReal(String value, String attributeName = "", CborEncoder *encoder = nullptr);
+    CborError appendAttributeName(String attributeName, std::function<CborError (CborEncoder& mapEncoder)>f, CborEncoder *encoder);
     void setAttributesFromCloud(std::list<CborMapData> * map_data_list);
     void setAttributeReal(bool& value, String attributeName = "");
     void setAttributeReal(int& value, String attributeName = "");
@@ -185,7 +197,7 @@ class Property
     virtual bool isDifferentFromCloud() = 0;
     virtual void fromCloudToLocal() = 0;
     virtual void fromLocalToCloud() = 0;
-    virtual void appendAttributesToCloudReal(CborEncoder *encoder) = 0;
+    virtual CborError appendAttributesToCloudReal(CborEncoder *encoder) = 0;
     virtual void setAttributesFromCloud() = 0;
     virtual bool isPrimitive() {
       return false;
