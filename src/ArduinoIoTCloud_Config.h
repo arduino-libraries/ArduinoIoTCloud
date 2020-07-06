@@ -26,6 +26,10 @@
   #define OTA_STORAGE_MKRMEM      (0)
 #endif
 
+#ifndef OTA_STORAGE_MKRGSM
+  #define OTA_STORAGE_MKRGSM      (0)
+#endif
+
 /******************************************************************************
  * AUTOMATIC CONFIGURED DEFINES
  ******************************************************************************/
@@ -34,7 +38,7 @@
   #define OTA_STORAGE_MKRMEM      (0)
 #endif
 
-#if OTA_STORAGE_MKRMEM
+#if OTA_STORAGE_MKRMEM || OTA_STORAGE_MKRGSM
   #define OTA_ENABLED             (1)
 #else
   #define OTA_ENABLED             (0)

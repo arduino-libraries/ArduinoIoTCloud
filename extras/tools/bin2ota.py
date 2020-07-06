@@ -4,7 +4,7 @@ import sys
 import crccheck
 
 if len(sys.argv) != 3:
-    print ("Usage: bin2ota.py sketch.bin sketch-ota.bin")
+    print ("Usage: bin2ota.py sketch.bin sketch.ota")
     sys.exit()
 
 ifile = sys.argv[1]
