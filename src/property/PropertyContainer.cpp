@@ -83,22 +83,6 @@ Property * getProperty(PropertyContainer & prop_cont, int const identifier)
     return (*iter);
 }
 
-int appendChangedProperties(PropertyContainer & prop_cont, CborEncoder * arrayEncoder, bool lightPayload)
-{
-  int appendedProperties = 0;
-  std::for_each(prop_cont.begin(),
-                prop_cont.end(),
-                [arrayEncoder, lightPayload, &appendedProperties](Property * p)
-                {
-                  if (p->shouldBeUpdated() && p->isReadableByCloud())
-                  {
-                    p->append(arrayEncoder, lightPayload);
-                    appendedProperties++;
-                  }
-                });
-  return appendedProperties;
-}
-
 void requestUpdateForAllProperties(PropertyContainer & prop_cont)
 {
   std::for_each(prop_cont.begin(),

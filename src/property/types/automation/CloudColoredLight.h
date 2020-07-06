@@ -118,11 +118,12 @@ class CloudColoredLight : public CloudColor {
     virtual void fromLocalToCloud() {
       _cloud_value = _value;
     }
-    virtual void appendAttributesToCloud() {
-      appendAttribute(_value.swi);
-      appendAttribute(_value.hue);
-      appendAttribute(_value.sat);
-      appendAttribute(_value.bri);
+    virtual CborError appendAttributesToCloud() {
+      CHECK_CBOR(appendAttribute(_value.swi));
+      CHECK_CBOR(appendAttribute(_value.hue));
+      CHECK_CBOR(appendAttribute(_value.sat));
+      CHECK_CBOR(appendAttribute(_value.bri));
+      return CborNoError;
     }
     virtual void setAttributesFromCloud() {
       setAttribute(_cloud_value.swi);

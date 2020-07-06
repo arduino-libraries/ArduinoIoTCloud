@@ -142,78 +142,92 @@ void Property::execCallbackOnSync() {
   }
 }
 
-void Property::append(CborEncoder *encoder, bool lightPayload) {
+CborError Property::append(CborEncoder *encoder, bool lightPayload) {
   _lightPayload = lightPayload;
   _attributeIdentifier = 0;
-  appendAttributesToCloudReal(encoder);
+  CHECK_CBOR(appendAttributesToCloudReal(encoder));
   fromLocalToCloud();
   _has_been_updated_once = true;
   _update_requested = false;
   _last_updated_millis = millis();
+  return CborNoError;
 }
 
-void Property::appendAttributeReal(bool value, String attributeName, CborEncoder *encoder) {
-  appendAttributeName(attributeName, [value](CborEncoder & mapEncoder) {
-    cbor_encode_int(&mapEncoder, static_cast<int>(CborIntegerMapKey::BooleanValue));
-    cbor_encode_boolean(&mapEncoder, value);
+CborError Property::appendAttributeReal(bool value, String attributeName, CborEncoder *encoder) {
+  return appendAttributeName(attributeName, [value](CborEncoder & mapEncoder)
+  {
+    CHECK_CBOR(cbor_encode_int(&mapEncoder, static_cast<int>(CborIntegerMapKey::BooleanValue)));
+    CHECK_CBOR(cbor_encode_boolean(&mapEncoder, value));
+    return CborNoError;
   }, encoder);
 }
 
-void Property::appendAttributeReal(int value, String attributeName, CborEncoder *encoder) {
-  appendAttributeName(attributeName, [value](CborEncoder & mapEncoder) {
-    cbor_encode_int(&mapEncoder, static_cast<int>(CborIntegerMapKey::Value));
-    cbor_encode_int(&mapEncoder, value);
+CborError Property::appendAttributeReal(int value, String attributeName, CborEncoder *encoder) {
+  return appendAttributeName(attributeName, [value](CborEncoder & mapEncoder)
+  {
+    CHECK_CBOR(cbor_encode_int(&mapEncoder, static_cast<int>(CborIntegerMapKey::Value)));
+    CHECK_CBOR(cbor_encode_int(&mapEncoder, value));
+    return CborNoError;
   }, encoder);
 }
 
-void Property::appendAttributeReal(float value, String attributeName, CborEncoder *encoder) {
-  appendAttributeName(attributeName, [value](CborEncoder & mapEncoder) {
-    cbor_encode_int(&mapEncoder, static_cast<int>(CborIntegerMapKey::Value));
-    cbor_encode_float(&mapEncoder, value);
+CborError Property::appendAttributeReal(float value, String attributeName, CborEncoder *encoder) {
+  return appendAttributeName(attributeName, [value](CborEncoder & mapEncoder)
+  {
+    CHECK_CBOR(cbor_encode_int(&mapEncoder, static_cast<int>(CborIntegerMapKey::Value)));
+    CHECK_CBOR(cbor_encode_float(&mapEncoder, value));
+    return CborNoError;
   }, encoder);
 }
 
-void Property::appendAttributeReal(String value, String attributeName, CborEncoder *encoder) {
-  appendAttributeName(attributeName, [value](CborEncoder & mapEncoder) {
-    cbor_encode_int(&mapEncoder, static_cast<int>(CborIntegerMapKey::StringValue));
-    cbor_encode_text_stringz(&mapEncoder, value.c_str());
+CborError Property::appendAttributeReal(String value, String attributeName, CborEncoder *encoder) {
+  return appendAttributeName(attributeName, [value](CborEncoder & mapEncoder)
+  {
+    CHECK_CBOR(cbor_encode_int(&mapEncoder, static_cast<int>(CborIntegerMapKey::StringValue)));
+    CHECK_CBOR(cbor_encode_text_stringz(&mapEncoder, value.c_str()));
+    return CborNoError;
   }, encoder);
 }
 
-void Property::appendAttributeName(String attributeName, std::function<void (CborEncoder& mapEncoder)>appendValue, CborEncoder *encoder) {
+CborError Property::appendAttributeName(String attributeName, std::function<CborError (CborEncoder& mapEncoder)>appendValue, CborEncoder *encoder) {
   if (attributeName != "") {
     // when the attribute name string is not empty, the attribute identifier is incremented in order to be encoded in the message if the _lightPayload flag is set
     _attributeIdentifier++;
   }
   CborEncoder mapEncoder;
   unsigned int num_map_properties = _encode_timestamp ? 3 : 2;
-  cbor_encoder_create_map(encoder, &mapEncoder, num_map_properties);
-  cbor_encode_int(&mapEncoder, static_cast<int>(CborIntegerMapKey::Name));
+  CHECK_CBOR(cbor_encoder_create_map(encoder, &mapEncoder, num_map_properties));
+  CHECK_CBOR(cbor_encode_int(&mapEncoder, static_cast<int>(CborIntegerMapKey::Name)));
 
   // if _lightPayload is true, the property and attribute identifiers will be encoded instead of the property name
-  if (_lightPayload) {
+  if (_lightPayload)
+  {
     // the most significant byte of the identifier to be encoded represent the property identifier
     int completeIdentifier = _attributeIdentifier * 256;
     // the least significant byte of the identifier to be encoded represent the attribute identifier
     completeIdentifier += _identifier;
-    cbor_encode_int(&mapEncoder, completeIdentifier);
-  } else {
+    CHECK_CBOR(cbor_encode_int(&mapEncoder, completeIdentifier));
+  }
+  else
+  {
     String completeName = _name;
     if (attributeName != "") {
       completeName += ":" + attributeName;
     }
-    cbor_encode_text_stringz(&mapEncoder, completeName.c_str());
+    CHECK_CBOR(cbor_encode_text_stringz(&mapEncoder, completeName.c_str()));
   }
   /* Encode the value */
-  appendValue(mapEncoder);
+  CHECK_CBOR(appendValue(mapEncoder));
+
   /* Encode the timestamp if that has been required. */
   if(_encode_timestamp)
   {
-    cbor_encode_int (&mapEncoder, static_cast<int>(CborIntegerMapKey::Time));
-    cbor_encode_uint(&mapEncoder, _timestamp);
+    CHECK_CBOR(cbor_encode_int (&mapEncoder, static_cast<int>(CborIntegerMapKey::Time)));
+    CHECK_CBOR(cbor_encode_uint(&mapEncoder, _timestamp));
   }
   /* Close the container */
-  cbor_encoder_close_container(encoder, &mapEncoder);
+  CHECK_CBOR(cbor_encoder_close_container(encoder, &mapEncoder));
+  return CborNoError;
 }
 
 void Property::setAttributesFromCloud(std::list<CborMapData> * map_data_list) {
