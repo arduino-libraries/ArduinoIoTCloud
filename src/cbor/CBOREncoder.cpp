@@ -21,6 +21,10 @@
 
 #include "CBOREncoder.h"
 
+#undef max
+#undef min
+#include <algorithm>
+
 #include "lib/tinycbor/cbor-lib.h"
 
 /******************************************************************************
@@ -40,9 +44,21 @@ int CBOREncoder::encode(PropertyContainer & property_container, uint8_t * data, 
    * time interval may be elapsed or property may be changed
    * and if that's the case encode the property into the CBOR.
    */
-  CborError err = appendChangedProperties(property_container, &arrayEncoder, lightPayload);
+  CborError err = CborNoError;
+  std::for_each(property_container.begin(),
+                property_container.end(),
+                [lightPayload, &arrayEncoder, &err](Property * p)
+                {
+                  if (p->shouldBeUpdated() && p->isReadableByCloud())
+                  {
+                    err = p->append(&arrayEncoder, lightPayload);
+                    if(err != CborNoError)
+                      return;
+                  }
+                });
   if ((err != CborNoError) && (err != CborErrorOutOfMemory))
     return -1;
+
 
   if (cbor_encoder_close_container(&encoder, &arrayEncoder) != CborNoError)
     return -1;
