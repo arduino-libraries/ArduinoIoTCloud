@@ -104,12 +104,13 @@ class CloudDimmedLight : public Property {
       // Start
       float hue = 0;
       float sat = 0;
-      appendAttributeReal(hue, getAttributeName(".hue", '.'), encoder);
-      appendAttributeReal(sat, getAttributeName(".sat", '.'), encoder);
-      appendAttribute(_value.bri);
+      CHECK_CBOR(appendAttributeReal(hue, getAttributeName(".hue", '.'), encoder));
+      CHECK_CBOR(appendAttributeReal(sat, getAttributeName(".sat", '.'), encoder));
+      CHECK_CBOR(appendAttribute(_value.bri));
       // should be only:
       // appendAttribute(_value.bri);
       // end
+      return CborNoError;
     }
 
     virtual void setAttributesFromCloud() {
