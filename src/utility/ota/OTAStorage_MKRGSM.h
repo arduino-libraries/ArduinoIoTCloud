@@ -34,19 +34,20 @@ class OTAStorage_MKRGSM : public OTAStorage
 {
 public:
 
-           OTAStorage_MKRGSM();
   virtual ~OTAStorage_MKRGSM() { }
 
 
   virtual Type   type  () override { return Type::MKRGSMFile; }
   virtual bool   init  () override;
-  virtual bool   open  () override;
+  virtual bool   open  (char const * file_name) override;
   virtual size_t write (uint8_t const * const buf, size_t const num_bytes) override;
   virtual void   close () override;
-  virtual void   remove() override;
+  virtual void   remove(char const * file_name) override;
+  virtual bool   rename(char const * old_file_name, char const * new_file_name) override;
   virtual void   deinit() override;
 
 private:
+
    GSMFileUtils _fileUtils;
 
 };

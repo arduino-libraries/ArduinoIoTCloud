@@ -40,7 +40,8 @@ public:
   enum class Type : int
   {
     NotAvailable = -1,
-    MKRMEM       =  0
+    MKRMEM       =  0,
+    MKRGSMFile   =  2,
   };
 
   virtual Type   type  () = 0;

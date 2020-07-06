@@ -21,53 +21,65 @@
 
 #include "OTAStorage_MKRGSM.h"
 
-#include <Arduino_DebugUtils.h>
-
 /******************************************************************************
-   CTOR/DTOR
+   CONSTANTS
  ******************************************************************************/
 
-OTAStorage_MKRGSM::OTAStorage_MKRGSM()
-{
-}
+static char const SSU_UPDATE_FILENAME[] = "UPDATE.BIN";
+static char const SSU_CHECK_FILE_NAME[] = "UPDATE.OK";
 
-// GSMFileUtils _fileUtils;
-// String filename = "UPDATE.BIN";
-constexpr char * filename { "UPDATE.BIN" };
 /******************************************************************************
    PUBLIC MEMBER FUNCTIONS
  ******************************************************************************/
 
 bool OTAStorage_MKRGSM::init()
 {
-    return _fileUtils.begin();
+  if (!_fileUtils.begin())
+    return false;
+
+  if (_fileUtils.listFile(SSU_UPDATE_FILENAME) > 0)
+    if (!_fileUtils.deleteFile(SSU_UPDATE_FILENAME))
+      return false;
+
+  if (_fileUtils.listFile(SSU_CHECK_FILE_NAME) > 0)
+    if (!_fileUtils.deleteFile(SSU_CHECK_FILE_NAME))
+      return false;
 }
 
-bool OTAStorage_MKRGSM::open()
+bool OTAStorage_MKRGSM::open(char const * /* file_name */)
 {
-    auto size = _fileUtils.listFile(filename);
-    _fileUtils.deleteFile(filename);
-    return true;
+  return true;
 }
 
 size_t OTAStorage_MKRGSM::write(uint8_t const* const buf, size_t const num_bytes)
 {
-    // Serial.print("size: ");
-    // Serial.println(num_bytes);
-    _fileUtils.appendFile(filename, (const char*)buf, num_bytes);
-
-    return num_bytes;
+  _fileUtils.appendFile(SSU_UPDATE_FILENAME, (const char*)buf, num_bytes);
+  return num_bytes;
 }
 
 void OTAStorage_MKRGSM::close()
 {
+  /* Nothing to do */
 }
 
-void OTAStorage_MKRGSM::remove()
+void OTAStorage_MKRGSM::remove(char const * /* file_name */)
 {
-    _fileUtils.deleteFile(filename);
+  _fileUtils.deleteFile(SSU_UPDATE_FILENAME);
+}
+
+bool OTAStorage_MKRGSM::rename(char const * /* old_file_name */, char const * /* new_file_name */)
+{
+  /* Create a file 'UPDATE.OK' which is used by the SSU
+   * 2nd stage bootloader to recognise that the update
+   * went okay. Normally this is done by renaming 'UPDATE.BIN.TMP'
+   * to 'UPDATE.BIN' but the SARE module does not support
+   * a rename function.
+   */
+  char c = 'X';
+  return (_fileUtils.appendFile(SSU_CHECK_FILE_NAME, &c, sizeof(c)) == sizeof(c));
 }
 
 void OTAStorage_MKRGSM::deinit()
 {
+  /* Nothing to do */
 }
