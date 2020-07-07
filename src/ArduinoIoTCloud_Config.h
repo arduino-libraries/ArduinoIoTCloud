@@ -22,8 +22,8 @@
  * USER CONFIGURED DEFINES
  ******************************************************************************/
 
-#ifndef OTA_STORAGE_MKRMEM
-  #define OTA_STORAGE_MKRMEM      (0)
+#ifndef OTA_STORAGE_SFU
+  #define OTA_STORAGE_SFU         (0)
 #endif
 
 #ifdef ARDUINO_SAMD_MKRGSM1400
@@ -36,7 +36,7 @@
  * AUTOMATIC CONFIGURED DEFINES
  ******************************************************************************/
 
-#if OTA_STORAGE_MKRMEM || OTA_STORAGE_SSU
+#if OTA_STORAGE_SFU || OTA_STORAGE_SSU
   #define OTA_ENABLED             (1)
 #else
   #define OTA_ENABLED             (0)

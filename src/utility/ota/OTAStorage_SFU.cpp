@@ -20,7 +20,7 @@
  ******************************************************************************/
 
 #include "OTAStorage_SFU.h"
-#if OTA_STORAGE_MKRMEM
+#if OTA_STORAGE_SFU
 
 #include <Arduino_DebugUtils.h>
 
@@ -92,4 +92,4 @@ void OTAStorage_SFU::deinit()
   filesystem.unmount();
 }
 
-#endif /* OTA_STORAGE_MKRMEM */
+#endif /* OTA_STORAGE_SFU */

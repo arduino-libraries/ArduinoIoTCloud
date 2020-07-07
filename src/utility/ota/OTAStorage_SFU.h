@@ -23,7 +23,7 @@
  ******************************************************************************/
 
 #include <ArduinoIoTCloud_Config.h>
-#if OTA_STORAGE_MKRMEM
+#if OTA_STORAGE_SFU
 
 #include "OTAStorage.h"
 
@@ -58,6 +58,6 @@ private:
 
 };
 
-#endif /* OTA_STORAGE_MKRMEM */
+#endif /* OTA_STORAGE_SFU */
 
 #endif /* ARDUINO_OTA_STORAGE_SFU_H_ */

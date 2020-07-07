@@ -42,7 +42,7 @@ TimeService time_service;
 
 #if   OTA_STORAGE_SSU
   static OTAStorage_SSU ota_storage_ssu;
-#elif OTA_STORAGE_MKRMEM
+#elif OTA_STORAGE_SFU
   static OTAStorage_SFU ota_storage_sfu;
 #endif
 
@@ -146,9 +146,9 @@ int ArduinoIoTCloudTCP::begin(String brokerAddress, uint16_t brokerPort)
 
 #if   OTA_STORAGE_SSU
   setOTAStorage(ota_storage_ssu);
-#elif OTA_STORAGE_MKRMEM
+#elif OTA_STORAGE_SFU
   setOTAStorage(ota_storage_sfu);
-#endif /* OTA_STORAGE_MKRMEM */
+#endif
 
   return 1;
 }
