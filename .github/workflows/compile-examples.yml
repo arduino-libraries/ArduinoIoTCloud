@@ -71,6 +71,8 @@ jobs:
       - name: Compile examples
         uses: arduino/actions/libraries/compile-examples@master
         with:
+          platforms |
+            - source-url: https://github.com/arduino/ArduinoCore-samd/archive/master.zip
           fqbn: ${{ matrix.board.fqbn }}
           libraries: "${{ env.UNIVERSAL_LIBRARIES }} ${{ matrix.libraries }}"
           sketch-paths: "${{ env.UNIVERSAL_SKETCH_PATHS }} ${{ matrix.sketch-paths }}"
