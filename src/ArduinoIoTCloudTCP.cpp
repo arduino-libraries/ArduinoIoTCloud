@@ -164,11 +164,17 @@ void ArduinoIoTCloudTCP::update()
   _ota_error = static_cast<int>(err);
 #endif /* OTA_ENABLED */
 
-  // Check if a primitive property wrapper is locally changed
-  updateTimestampOnLocallyChangedProperties(_property_container);
-
   if(checkPhyConnection()   != NetworkConnectionState::CONNECTED)     return;
   if(checkCloudConnection() != ArduinoIoTConnectionStatus::CONNECTED) return;
+
+  /* Check if a primitive property wrapper is locally changed.
+   * This function requires an existing time service which in
+   * turn requires an established connection. Not having that
+   * leads to a wrong time set in the time service which inhibits
+   * the connection from being established due to a wrong data
+   * in the reconstructed certificate.
+   */
+  updateTimestampOnLocallyChangedProperties(_property_container);
 
   if(_mqtt_data_request_retransmit && (_mqtt_data_len > 0)) {
     write(_dataTopicOut, _mqtt_data_buf, _mqtt_data_len);
