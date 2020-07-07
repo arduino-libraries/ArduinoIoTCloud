@@ -40,7 +40,6 @@ public:
   virtual ~OTAStorage_MKRGSM() { }
 
 
-  virtual Type   type  () override { return Type::MKRGSMFile; }
   virtual bool   init  () override;
   virtual bool   open  (char const * file_name) override;
   virtual size_t write (uint8_t const * const buf, size_t const num_bytes) override;

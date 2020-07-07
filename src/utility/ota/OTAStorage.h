@@ -37,14 +37,6 @@ public:
   virtual ~OTAStorage() { }
 
 
-  enum class Type : int
-  {
-    NotAvailable = -1,
-    MKRMEM       =  0,
-    MKRGSMFile   =  2,
-  };
-
-  virtual Type   type  () = 0;
   virtual bool   init  () = 0;
   virtual bool   open  (char const * file_name) = 0;
   virtual size_t write (uint8_t const * const buf, size_t const num_bytes) = 0;
