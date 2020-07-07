@@ -20,9 +20,9 @@
  ******************************************************************************/
 
 #include <ArduinoIoTCloud_Config.h>
-#if OTA_STORAGE_MKRGSM
+#if OTA_STORAGE_SSU
 
-#include "OTAStorage_MKRGSM.h"
+#include "OTAStorage_SSU.h"
 
 /******************************************************************************
    CONSTANTS
@@ -35,7 +35,7 @@ static char const SSU_CHECK_FILE_NAME[] = "UPDATE.OK";
    PUBLIC MEMBER FUNCTIONS
  ******************************************************************************/
 
-bool OTAStorage_MKRGSM::init()
+bool OTAStorage_SSU::init()
 {
   if (!_fileUtils.begin())
     return false;
@@ -49,28 +49,28 @@ bool OTAStorage_MKRGSM::init()
       return false;
 }
 
-bool OTAStorage_MKRGSM::open(char const * /* file_name */)
+bool OTAStorage_SSU::open(char const * /* file_name */)
 {
   return true;
 }
 
-size_t OTAStorage_MKRGSM::write(uint8_t const* const buf, size_t const num_bytes)
+size_t OTAStorage_SSU::write(uint8_t const* const buf, size_t const num_bytes)
 {
   _fileUtils.appendFile(SSU_UPDATE_FILENAME, (const char*)buf, num_bytes);
   return num_bytes;
 }
 
-void OTAStorage_MKRGSM::close()
+void OTAStorage_SSU::close()
 {
   /* Nothing to do */
 }
 
-void OTAStorage_MKRGSM::remove(char const * /* file_name */)
+void OTAStorage_SSU::remove(char const * /* file_name */)
 {
   _fileUtils.deleteFile(SSU_UPDATE_FILENAME);
 }
 
-bool OTAStorage_MKRGSM::rename(char const * /* old_file_name */, char const * /* new_file_name */)
+bool OTAStorage_SSU::rename(char const * /* old_file_name */, char const * /* new_file_name */)
 {
   /* Create a file 'UPDATE.OK' which is used by the SSU
    * 2nd stage bootloader to recognise that the update
@@ -82,9 +82,9 @@ bool OTAStorage_MKRGSM::rename(char const * /* old_file_name */, char const * /*
   return (_fileUtils.appendFile(SSU_CHECK_FILE_NAME, &c, sizeof(c)) == sizeof(c));
 }
 
-void OTAStorage_MKRGSM::deinit()
+void OTAStorage_SSU::deinit()
 {
   /* Nothing to do */
 }
 
-#endif /* OTA_STORAGE_MKRGSM */
+#endif /* OTA_STORAGE_SSU */

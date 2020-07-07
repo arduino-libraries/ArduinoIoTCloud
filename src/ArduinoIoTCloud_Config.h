@@ -27,16 +27,16 @@
 #endif
 
 #ifdef ARDUINO_SAMD_MKRGSM1400
-  #define OTA_STORAGE_MKRGSM      (1)
+  #define OTA_STORAGE_SSU         (1)
 #else
-  #define OTA_STORAGE_MKRGSM      (0)
+  #define OTA_STORAGE_SSU         (0)
 #endif
 
 /******************************************************************************
  * AUTOMATIC CONFIGURED DEFINES
  ******************************************************************************/
 
-#if OTA_STORAGE_MKRMEM || OTA_STORAGE_MKRGSM
+#if OTA_STORAGE_MKRMEM || OTA_STORAGE_SSU
   #define OTA_ENABLED             (1)
 #else
   #define OTA_ENABLED             (0)
