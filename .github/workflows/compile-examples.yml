@@ -18,7 +18,13 @@ jobs:
 
     env:
       # libraries to install for all boards
-      UNIVERSAL_LIBRARIES: '"Arduino_ConnectionHandler" "Arduino_DebugUtils" "ArduinoMqttClient"'
+      UNIVERSAL_LIBRARIES: |
+        # Install the ArduinoIoTCloud library from the repository
+        - source-path: ./
+        - source-url: https://github.com/arduino-libraries/Arduino_ConnectionHandler.git
+          version: latest
+        - name: Arduino_DebugUtils
+        - name: ArduinoMqttClient
       # sketch paths to compile (recursive) for all boards
       UNIVERSAL_SKETCH_PATHS: '"examples/ArduinoIoTCloud-Advanced" "examples/ArduinoIoTCloud-Basic" "examples/utility/ArduinoIoTCloud_Travis_CI"'
 
@@ -33,7 +39,7 @@ jobs:
           {"fqbn": "arduino:samd:mkrwan1300", "type": "wan"},
           {"fqbn": "arduino:samd:mkrgsm1400", "type": "gsm"},
           {"fqbn": "arduino:samd:mkrnb1500", "type": "nb"},
-          {"fqbn": '"esp8266:esp8266:huzzah" "https://arduino.esp8266.com/stable/package_esp8266com_index.json"', "type": "esp8266"}
+          {"fqbn": "esp8266:esp8266:huzzah", "type": "esp8266"}
         ]
 
         # make board type-specific customizations to the matrix jobs
@@ -41,26 +47,65 @@ jobs:
           # WiFi boards
           - board:
               type: "wifi"
-            libraries: '"ArduinoECCX08" "RTCZero" "WiFi101" "WiFiNINA" "Arduino_MKRMEM"'
+            platforms: |
+              # Install Arduino SAMD Boards via Boards Manager for the toolchain
+              - name: arduino:samd
+              # Overwrite the Arduino SAMD Boards release version with version from the tip of the master branch
+              - source-url: https://github.com/arduino/ArduinoCore-samd/archive/master.zip
+                name: arduino:samd
+            libraries: |
+              - name: ArduinoECCX08
+              - name: RTCZero
+              - name: WiFi101
+              - name: WiFiNINA
+              - name: Arduino_MKRMEM
             sketch-paths: '"examples/utility/Provisioning" "examples/utility/WiFi_Cloud_Blink"'
           # LoRaWAN boards
           - board:
               type: "wan"
-            libraries: '"ArduinoECCX08" "RTCZero" "MKRWAN"'
+            platforms: |
+              - name: arduino:samd
+              - source-url: https://github.com/arduino/ArduinoCore-samd/archive/master.zip
+                name: arduino:samd
+            libraries: |
+              - name: ArduinoECCX08
+              - name: RTCZero
+              - name: MKRWAN
             sketch-paths:
           # GSM boards
           - board:
               type: "gsm"
-            libraries: '"ArduinoECCX08" "RTCZero" "MKRGSM" "Arduino_MKRMEM"'
+            platforms: |
+              - name: arduino:samd
+              - source-url: https://github.com/arduino/ArduinoCore-samd/archive/master.zip
+                name: arduino:samd
+            libraries: |
+              - name: ArduinoECCX08
+              - name: RTCZero
+              # Use the version of MKRGSM from the tip of its repository's default branch
+              - source-url: https://github.com/arduino-libraries/MKRGSM.git
+              - name: Arduino_MKRMEM
             sketch-paths: '"examples/utility/Provisioning" "examples/utility/GSM_Cloud_Blink"'
           # NB boards
           - board:
               type: "nb"
-            libraries: '"ArduinoECCX08" "RTCZero" "MKRNB" "Arduino_MKRMEM"'
+            platforms: |
+              - name: arduino:samd
+              - source-url: https://github.com/arduino/ArduinoCore-samd/archive/master.zip
+                name: arduino:samd
+            libraries: |
+              - name: ArduinoECCX08
+              - name: RTCZero
+              - name: MKRNB
+              - name: Arduino_MKRMEM
             sketch-paths: '"examples/utility/Provisioning" "examples/utility/NB_Cloud_Blink"'
           # ESP8266 boards
           - board:
               type: "esp8266"
+            platforms: |
+              # Install ESP8266 platform via Boards Manager
+              - name: esp8266:esp8266
+                source-url: https://arduino.esp8266.com/stable/package_esp8266com_index.json
             libraries:
             sketch-paths: '"examples/utility/WiFi_Cloud_Blink_with_security_credentials"'
 
@@ -71,10 +116,11 @@ jobs:
       - name: Compile examples
         uses: arduino/actions/libraries/compile-examples@master
         with:
-          platforms |
-            - source-url: https://github.com/arduino/ArduinoCore-samd/archive/master.zip
+          platforms: ${{ matrix.platforms }}
           fqbn: ${{ matrix.board.fqbn }}
-          libraries: "${{ env.UNIVERSAL_LIBRARIES }} ${{ matrix.libraries }}"
+          libraries: |
+            ${{ env.UNIVERSAL_LIBRARIES }}
+            ${{ matrix.libraries }}
           sketch-paths: "${{ env.UNIVERSAL_SKETCH_PATHS }} ${{ matrix.sketch-paths }}"
           size-report-sketch: 'ArduinoIoTCloud_Travis_CI'
           enable-size-deltas-report: 'true'
