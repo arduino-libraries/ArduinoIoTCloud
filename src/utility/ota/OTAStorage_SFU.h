@@ -15,8 +15,8 @@
    a commercial license, send an email to license@arduino.cc.
 */
 
-#ifndef ARDUINO_OTA_STORAGE_MKRKEM_H_
-#define ARDUINO_OTA_STORAGE_MKRKEM_H_
+#ifndef ARDUINO_OTA_STORAGE_SFU_H_
+#define ARDUINO_OTA_STORAGE_SFU_H_
 
 /******************************************************************************
  * INCLUDE
@@ -35,12 +35,12 @@
  * CLASS DECLARATION
  ******************************************************************************/
 
-class OTAStorage_MKRMEM : public OTAStorage
+class OTAStorage_SFU : public OTAStorage
 {
 public:
 
-           OTAStorage_MKRMEM();
-  virtual ~OTAStorage_MKRMEM() { }
+           OTAStorage_SFU();
+  virtual ~OTAStorage_SFU() { }
 
 
   virtual bool   init  () override;
@@ -60,4 +60,4 @@ private:
 
 #endif /* OTA_STORAGE_MKRMEM */
 
-#endif /* ARDUINO_OTA_STORAGE_MKRKEM_H_ */
+#endif /* ARDUINO_OTA_STORAGE_SFU_H_ */
