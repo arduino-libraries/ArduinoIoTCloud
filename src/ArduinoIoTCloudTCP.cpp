@@ -29,6 +29,8 @@
   #include "tls/utility/CryptoUtil.h"
 #endif
 
+#include "utility/ota/OTAStorage_MKRMEM.h"
+
 #include "cbor/CBOREncoder.h"
 
 /******************************************************************************
@@ -36,6 +38,10 @@
  ******************************************************************************/
 
 TimeService time_service;
+
+#if OTA_STORAGE_MKRMEM
+  static OTAStorage_MKRMEM ota_storage_sfu;
+#endif /* OTA_STORAGE_MKRMEM */
 
 /******************************************************************************
    GLOBAL CONSTANTS
@@ -134,6 +140,10 @@ int ArduinoIoTCloudTCP::begin(String brokerAddress, uint16_t brokerPort)
   _ota_topic_in   = getTopic_ota_in();
 
   printConnectionStatus(_iot_status);
+
+#if OTA_STORAGE_MKRMEM
+  setOTAStorage(ota_storage_sfu);
+#endif /* OTA_STORAGE_MKRMEM */
 
   return 1;
 }

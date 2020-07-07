@@ -27,6 +27,8 @@
 
 #include "OTAStorage.h"
 
+#include <SFU.h>
+
 #include <Arduino_MKRMEM.h>
 
 /******************************************************************************
