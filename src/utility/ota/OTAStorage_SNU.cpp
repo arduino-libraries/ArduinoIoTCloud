@@ -20,15 +20,15 @@
  ******************************************************************************/
 
 #include <ArduinoIoTCloud_Config.h>
-#if OTA_STORAGE_NINA
+#if OTA_STORAGE_SNU
 
-#include "OTAStorage_Nina.h"
+#include "OTAStorage_SNU.h"
 
 /******************************************************************************
  * CTOR/DTOR
  ******************************************************************************/
 
-OTAStorage_Nina::OTAStorage_Nina()
+OTAStorage_SNU::OTAStorage_SNU()
 : _file{nullptr}
 {
 
@@ -38,13 +38,13 @@ OTAStorage_Nina::OTAStorage_Nina()
  * PUBLIC MEMBER FUNCTIONS
  ******************************************************************************/
 
-bool OTAStorage_Nina::init()
+bool OTAStorage_SNU::init()
 {
   /* Nothing to do */
   return true;
 }
 
-bool OTAStorage_Nina::open(char const * file_name)
+bool OTAStorage_SNU::open(char const * file_name)
 {
   /* It is necessary to prepend "/fs/" when opening a file on the nina
    * for the rename operation "/fs/"" does not need to be prepended.
@@ -65,7 +65,7 @@ bool OTAStorage_Nina::open(char const * file_name)
   return true;
 }
 
-size_t OTAStorage_Nina::write(uint8_t const * const buf, size_t const num_bytes)
+size_t OTAStorage_SNU::write(uint8_t const * const buf, size_t const num_bytes)
 {
   /* We have to write in chunks because otherwise we exceed the size of
    * the SPI buffer within the nina module.
@@ -84,13 +84,13 @@ size_t OTAStorage_Nina::write(uint8_t const * const buf, size_t const num_bytes)
   return bytes_written;
 }
 
-void OTAStorage_Nina::close()
+void OTAStorage_SNU::close()
 {
   /* There is no close API within WiFiNiNa */
   delete _file;
 }
 
-void OTAStorage_Nina::remove(char const * file_name)
+void OTAStorage_SNU::remove(char const * file_name)
 {
   /* Prepend "/fs/" */
   char nina_file_name[32] = {0};
@@ -101,14 +101,14 @@ void OTAStorage_Nina::remove(char const * file_name)
   WiFiStorage.remove(nina_file_name);
 }
 
-bool OTAStorage_Nina::rename(char const * old_file_name, char const * new_file_name)
+bool OTAStorage_SNU::rename(char const * old_file_name, char const * new_file_name)
 {
   return (WiFiStorage.rename(old_file_name, new_file_name) == 0);
 }
 
-void OTAStorage_Nina::deinit()
+void OTAStorage_SNU::deinit()
 {
   /* Nothing to do */
 }
 
-#endif /* OTA_STORAGE_NINA */
+#endif /* OTA_STORAGE_SNU */

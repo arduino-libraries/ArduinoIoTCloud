@@ -29,8 +29,9 @@
   #include "tls/utility/CryptoUtil.h"
 #endif
 
-#include "utility/ota/OTAStorage_SSU.h"
+#include "utility/ota/OTAStorage_SNU.h"
 #include "utility/ota/OTAStorage_SFU.h"
+#include "utility/ota/OTAStorage_SSU.h"
 
 #include "cbor/CBOREncoder.h"
 
@@ -44,6 +45,8 @@ TimeService time_service;
   static OTAStorage_SSU ota_storage_ssu;
 #elif OTA_STORAGE_SFU
   static OTAStorage_SFU ota_storage_sfu;
+#elif OTA_STORAGE_SNU
+  static OTAStorage_SNU ota_storage_snu;
 #endif
 
 /******************************************************************************
@@ -148,6 +151,8 @@ int ArduinoIoTCloudTCP::begin(String brokerAddress, uint16_t brokerPort)
   setOTAStorage(ota_storage_ssu);
 #elif OTA_STORAGE_SFU
   setOTAStorage(ota_storage_sfu);
+#elif OTA_STORAGE_SNU
+  setOTAStorage(ota_storage_snu);
 #endif
 
   return 1;

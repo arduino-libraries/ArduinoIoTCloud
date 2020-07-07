@@ -15,15 +15,17 @@
    a commercial license, send an email to license@arduino.cc.
 */
 
-#ifndef ARDUINO_OTA_STORAGE_NINA_H_
-#define ARDUINO_OTA_STORAGE_NINA_H_
+#ifndef ARDUINO_OTA_STORAGE_SNU_H_
+#define ARDUINO_OTA_STORAGE_SNU_H_
 
 /******************************************************************************
  * INCLUDE
  ******************************************************************************/
 
 #include <ArduinoIoTCloud_Config.h>
-#if OTA_STORAGE_NINA
+#if OTA_STORAGE_SNU
+
+#include <SNU.h>
 
 #include "OTAStorage.h"
 
@@ -33,15 +35,14 @@
  * CLASS DECLARATION
  ******************************************************************************/
 
-class OTAStorage_Nina : public OTAStorage
+class OTAStorage_SNU : public OTAStorage
 {
 public:
 
-           OTAStorage_Nina();
-  virtual ~OTAStorage_Nina() { }
+           OTAStorage_SNU();
+  virtual ~OTAStorage_SNU() { }
 
 
-  virtual Type   type  () override { return Type::Nina; }
   virtual bool   init  () override;
   virtual bool   open  (char const * file_name) override;
   virtual size_t write (uint8_t const * const buf, size_t const num_bytes) override;
@@ -57,6 +58,6 @@ private:
 
 };
 
-#endif /* OTA_STORAGE_NINA */
+#endif /* OTA_STORAGE_SNU */
 
-#endif /* ARDUINO_OTA_STORAGE_NINA_H_ */
+#endif /* ARDUINO_OTA_STORAGE_SNU_H_ */

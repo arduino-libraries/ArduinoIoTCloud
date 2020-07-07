@@ -26,6 +26,12 @@
   #define OTA_STORAGE_SFU         (0)
 #endif
 
+#if defined(ARDUINO_SAMD_MKRWIFI1010) || defined(ARDUINO_SAMD_NANO_33_IOT)
+  #define OTA_STORAGE_SNU         (1)
+#else
+  #define OTA_STORAGE_SNU         (0)
+#endif
+
 #ifdef ARDUINO_SAMD_MKRGSM1400
   #define OTA_STORAGE_SSU         (1)
 #else
@@ -36,7 +42,7 @@
  * AUTOMATIC CONFIGURED DEFINES
  ******************************************************************************/
 
-#if OTA_STORAGE_SFU || OTA_STORAGE_SSU || OTA_STORAGE_NINA
+#if OTA_STORAGE_SFU || OTA_STORAGE_SSU || OTA_STORAGE_SNU
   #define OTA_ENABLED             (1)
 #else
   #define OTA_ENABLED             (0)
