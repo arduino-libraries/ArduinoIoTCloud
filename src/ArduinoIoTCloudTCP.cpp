@@ -30,7 +30,7 @@
 #endif
 
 #include "utility/ota/OTAStorage_SSU.h"
-#include "utility/ota/OTAStorage_MKRMEM.h"
+#include "utility/ota/OTAStorage_SFU.h"
 
 #include "cbor/CBOREncoder.h"
 
@@ -43,7 +43,7 @@ TimeService time_service;
 #if   OTA_STORAGE_SSU
   static OTAStorage_SSU ota_storage_ssu;
 #elif OTA_STORAGE_MKRMEM
-  static OTAStorage_MKRMEM ota_storage_sfu;
+  static OTAStorage_SFU ota_storage_sfu;
 #endif
 
 /******************************************************************************
