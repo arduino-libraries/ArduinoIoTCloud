@@ -26,17 +26,15 @@
   #define OTA_STORAGE_MKRMEM      (0)
 #endif
 
-#ifndef OTA_STORAGE_MKRGSM
+#ifdef ARDUINO_SAMD_MKRGSM1400
+  #define OTA_STORAGE_MKRGSM      (1)
+#else
   #define OTA_STORAGE_MKRGSM      (0)
 #endif
 
 /******************************************************************************
  * AUTOMATIC CONFIGURED DEFINES
  ******************************************************************************/
-
-#if !defined(ARDUINO_SAMD_MKR1000) && !defined(ARDUINO_SAMD_MKRWIFI1010) && !defined(ARDUINO_SAMD_MKRGSM1400) && !defined(ARDUINO_SAMD_MKRNB1500)
-  #define OTA_STORAGE_MKRMEM      (0)
-#endif
 
 #if OTA_STORAGE_MKRMEM || OTA_STORAGE_MKRGSM
   #define OTA_ENABLED             (1)
