@@ -81,7 +81,6 @@ ArduinoIoTCloudTCP::ArduinoIoTCloudTCP()
 , _dataTopicIn("")
 , _ota_topic_in{""}
 #if OTA_ENABLED
-, _ota_storage_type{static_cast<int>(OTAStorage::Type::NotAvailable)}
 , _ota_error{static_cast<int>(OTAError::None)}
 #endif /* OTA_ENABLED */
 {
@@ -203,8 +202,6 @@ void ArduinoIoTCloudTCP::printDebugInfo()
 #if OTA_ENABLED
 void ArduinoIoTCloudTCP::setOTAStorage(OTAStorage & ota_storage)
 {
-  _ota_storage_type = static_cast<int>(ota_storage.type());
-  addPropertyReal(_ota_storage_type, "OTA_STORAGE_TYPE", Permission::Read);
   addPropertyReal(_ota_error, "OTA_ERROR", Permission::Read);
   _ota_logic.setOTAStorage(ota_storage);
 }
