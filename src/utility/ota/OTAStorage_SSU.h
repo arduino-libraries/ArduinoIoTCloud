@@ -15,15 +15,17 @@
    a commercial license, send an email to license@arduino.cc.
 */
 
-#ifndef ARDUINO_OTA_STORAGE_MKRGSM_H_
-#define ARDUINO_OTA_STORAGE_MKRGSM_H_
+#ifndef ARDUINO_OTA_STORAGE_SSU_H_
+#define ARDUINO_OTA_STORAGE_SSU_H_
 
 /******************************************************************************
  * INCLUDE
  ******************************************************************************/
 
 #include <ArduinoIoTCloud_Config.h>
-#if OTA_STORAGE_MKRGSM
+#if OTA_STORAGE_SSU
+
+#include <SSU.h>
 
 #include "OTAStorage.h"
 
@@ -33,11 +35,11 @@
  * CLASS DECLARATION
  ******************************************************************************/
 
-class OTAStorage_MKRGSM : public OTAStorage
+class OTAStorage_SSU : public OTAStorage
 {
 public:
 
-  virtual ~OTAStorage_MKRGSM() { }
+  virtual ~OTAStorage_SSU() { }
 
 
   virtual bool   init  () override;
@@ -54,6 +56,6 @@ private:
 
 };
 
-#endif /* OTA_STORAGE_MKRGSM */
+#endif /* OTA_STORAGE_SSU */
 
-#endif /* ARDUINO_OTA_STORAGE_MKRGSM_H_ */
+#endif /* ARDUINO_OTA_STORAGE_SSU_H_ */
