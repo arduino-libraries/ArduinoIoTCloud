@@ -93,7 +93,8 @@ unsigned long TimeService::getTime()
 
 unsigned long TimeService::getRemoteTime()
 {
-  if(_con_hdl == nullptr) return 0;
+  if(_con_hdl == nullptr)
+    return EPOCH_AT_COMPILE_TIME;
 
   /* At first try to see if a valid time can be obtained
    * using the network time available via the connection
@@ -112,7 +113,12 @@ unsigned long TimeService::getRemoteTime()
     return ntp_time;
   }
 
-  return 0;
+  /* Return the epoch timestamp at compile time as a last
+   * line of defense. Otherwise the certificate expiration
+   * date is wrong and we'll be unable to establish a connection
+   * to the server.
+   */
+  return EPOCH_AT_COMPILE_TIME;
 }
 
 bool TimeService::isTimeValid(unsigned long const time)
