@@ -18,10 +18,12 @@ static unsigned long current_millis = 0;
    PUBLIC FUNCTIONS
  ******************************************************************************/
 
-void set_millis(unsigned long const millis) {
+void set_millis(unsigned long const millis)
+{
   current_millis = millis;
 }
 
-unsigned long millis() {
+unsigned long millis()
+{
   return current_millis;
 }
