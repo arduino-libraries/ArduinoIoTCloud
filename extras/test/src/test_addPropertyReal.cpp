@@ -19,8 +19,10 @@
    TEST CODE
  **************************************************************************************/
 
-SCENARIO("The same arduino cloud properties are added multiple times", "[ArduinoCloudThing::addPropertyToContainer]") {
-  WHEN("The same bool property is added multiple times") {
+SCENARIO("The same arduino cloud properties are added multiple times", "[ArduinoCloudThing::addPropertyToContainer]")
+{
+  WHEN("The same bool property is added multiple times")
+  {
     PropertyContainer property_container;
 
     CloudBool bool_property = false;
@@ -34,7 +36,8 @@ SCENARIO("The same arduino cloud properties are added multiple times", "[Arduino
 
   /**************************************************************************************/
 
-  WHEN("the same int property is added multiple times") {
+  WHEN("the same int property is added multiple times")
+  {
     PropertyContainer property_container;
 
     CloudInt int_property = 1;
@@ -49,7 +52,8 @@ SCENARIO("The same arduino cloud properties are added multiple times", "[Arduino
 
   /**************************************************************************************/
 
-  WHEN("the same float property is added multiple times") {
+  WHEN("the same float property is added multiple times")
+  {
     PropertyContainer property_container;
 
     CloudFloat float_property = 1.0f;
@@ -64,7 +68,8 @@ SCENARIO("The same arduino cloud properties are added multiple times", "[Arduino
 
   /**************************************************************************************/
 
-  WHEN("the same String property is added multiple times") {
+  WHEN("the same String property is added multiple times")
+  {
     PropertyContainer property_container;
 
     CloudString str_property;

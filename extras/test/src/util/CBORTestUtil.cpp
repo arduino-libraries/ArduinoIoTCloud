@@ -24,7 +24,8 @@ namespace cbor
    PUBLIC FUNCTIONS
  **************************************************************************************/
 
-std::vector<uint8_t> encode(PropertyContainer & property_container, bool lightPayload) {
+std::vector<uint8_t> encode(PropertyContainer & property_container, bool lightPayload)
+{
   int bytes_encoded = 0;
   uint8_t buf[200] = {0};
 
@@ -34,7 +35,8 @@ std::vector<uint8_t> encode(PropertyContainer & property_container, bool lightPa
     return std::vector<uint8_t>();
 }
 
-void print(std::vector<uint8_t> const & vect) {
+void print(std::vector<uint8_t> const & vect)
+{
   for (auto i = vect.begin(); i != vect.end(); i++) {
     std::cout << std::uppercase
               << std::hex
