@@ -42,7 +42,8 @@
  ******************************************************************************/
 
 OTALogic::OTALogic()
-: _ota_storage{nullptr}
+: _is_configured{false}
+, _ota_storage{nullptr}
 , _ota_state{OTAState::Init}
 , _ota_error{OTAError::None}
 {
@@ -54,8 +55,24 @@ OTALogic::OTALogic()
  * PUBLIC MEMBER FUNCTIONS
  ******************************************************************************/
 
+void OTALogic::setOTAStorage(OTAStorage & ota_storage)
+{
+  _ota_storage = &ota_storage;
+  _is_configured = true;
+}
+
 OTAError OTALogic::update()
 {
+  /* This if clause should never happen. None the less we
+   * should insure ourselves against this scenario because
+   * otherwise we'll have a nullptr dereferencing.
+   */
+  if (!_is_configured) {
+    _ota_state = OTAState::Error;
+    _ota_error = OTAError::NoOTAStorageConfigured;
+    return _ota_error;
+  }
+
   OTAState prev_ota_state;
   /* The purpose of this loop is to allow the transition of
    * more than one state per a singular call of 'update'. If
