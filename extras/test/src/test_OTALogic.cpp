@@ -49,6 +49,27 @@ void simulateOTABinaryReception(OTALogic & ota_logic, ota::OTAData const & ota_t
    TEST CODE
  **************************************************************************************/
 
+TEST_CASE("No OTA Storage configured", "[OTALogic-01]")
+{
+  /* Perform test */
+  OTALogic ota_logic;
+
+  WHEN("OTALogic::update() is called")
+  {
+    ota_logic.update();
+    THEN("The OTA logic should be in the 'Error' state")
+    {
+      REQUIRE(ota_logic.state()  == OTAState::Error);
+    }
+    THEN("The OTA error should be set to OTAError::NoOTAStorageConfigured")
+    {
+      REQUIRE(ota_logic.error() == OTAError::NoOTAStorageConfigured);
+    }
+  }
+}
+
+/**************************************************************************************/
+
 TEST_CASE("OTAStorage initialisation fails", "[OTAStorage::init() -> returns false]")
 {
   Mock<OTAStorage> ota_storage;

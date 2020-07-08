@@ -56,7 +56,8 @@ enum class OTAError : int
   StorageWriteFailed     = 3,
   ChecksumMismatch       = 4,
   ReceivedDataOverrun    = 5,
-  RenameOfTempFileFailed = 6
+  RenameOfTempFileFailed = 6,
+  NoOTAStorageConfigured = 7
 };
 
 /******************************************************************************
@@ -71,7 +72,7 @@ public:
   OTALogic();
 
 
-  inline void setOTAStorage(OTAStorage & ota_storage) { _ota_storage = &ota_storage; }
+  void setOTAStorage(OTAStorage & ota_storage);
 
 
   OTAError update();
@@ -99,6 +100,7 @@ private:
     crc_t    crc32;
   } sOTABinaryData;
 
+  bool _is_configured;
   OTAStorage * _ota_storage;
   OTAState _ota_state;
   OTAError _ota_error;
