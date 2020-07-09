@@ -83,8 +83,7 @@ jobs:
             libraries: |
               - name: ArduinoECCX08
               - name: RTCZero
-              # Use the version of MKRGSM from the tip of its repository's default branch
-              - source-url: https://github.com/arduino-libraries/MKRGSM.git
+              - name: MKRGSM
               - name: Arduino_MKRMEM
             sketch-paths: '"examples/utility/Provisioning" "examples/utility/GSM_Cloud_Blink"'
           # NB boards
