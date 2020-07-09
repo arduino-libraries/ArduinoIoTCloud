@@ -19,12 +19,16 @@
 #define ARDUINO_AIOTC_CONFIG_H_
 
 /******************************************************************************
- * USER CONFIGURED DEFINES
+ * USER CONFIGURABLE DEFINES
  ******************************************************************************/
 
 #ifndef OTA_STORAGE_SFU
   #define OTA_STORAGE_SFU         (0)
 #endif
+
+/******************************************************************************
+ * AUTOMATICALLY CONFIGURED DEFINES
+ ******************************************************************************/
 
 #if defined(ARDUINO_SAMD_MKRWIFI1010) || defined(ARDUINO_SAMD_NANO_33_IOT)
   #define OTA_STORAGE_SNU         (1)
@@ -37,10 +41,6 @@
 #else
   #define OTA_STORAGE_SSU         (0)
 #endif
-
-/******************************************************************************
- * AUTOMATIC CONFIGURED DEFINES
- ******************************************************************************/
 
 #if OTA_STORAGE_SFU || OTA_STORAGE_SSU || OTA_STORAGE_SNU
   #define OTA_ENABLED             (1)
