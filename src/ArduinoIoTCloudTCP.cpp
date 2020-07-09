@@ -19,7 +19,7 @@
  * INCLUDE
  ******************************************************************************/
 
-#include <ArduinoIoTCloud_Config.h>
+#include <AIoTC_Config.h>
 
 #ifdef HAS_TCP
 #include <ArduinoIoTCloudTCP.h>
@@ -119,9 +119,9 @@ int ArduinoIoTCloudTCP::begin(String brokerAddress, uint16_t brokerPort)
   _brokerPort = brokerPort;
 
   #ifdef BOARD_HAS_ECCX08
-  if (!ECCX08.begin())                                                                                                                                                         { Debug.print(DBG_ERROR, "Cryptography processor failure. Make sure you have a compatible board."); return 0; }
-  if (!CryptoUtil::readDeviceId(ECCX08, getDeviceId(), ECCX08Slot::DeviceId))                                                                                                  { Debug.print(DBG_ERROR, "Cryptography processor read failure."); return 0; }
-  if (!CryptoUtil::reconstructCertificate(_eccx08_cert, getDeviceId(), ECCX08Slot::Key, ECCX08Slot::CompressedCertificate, ECCX08Slot::SerialNumberAndAuthorityKeyIdentifier)) { Debug.print(DBG_ERROR, "Cryptography certificate reconstruction failure."); return 0; }
+  if (!ECCX08.begin())                                                                                                                                                         { DBG_ERROR("Cryptography processor failure. Make sure you have a compatible board."); return 0; }
+  if (!CryptoUtil::readDeviceId(ECCX08, getDeviceId(), ECCX08Slot::DeviceId))                                                                                                  { DBG_ERROR("Cryptography processor read failure."); return 0; }
+  if (!CryptoUtil::reconstructCertificate(_eccx08_cert, getDeviceId(), ECCX08Slot::Key, ECCX08Slot::CompressedCertificate, ECCX08Slot::SerialNumberAndAuthorityKeyIdentifier)) { DBG_ERROR("Cryptography certificate reconstruction failure."); return 0; }
   _sslClient.setClient(_connection->getClient());
   _sslClient.setEccSlot(static_cast<int>(ECCX08Slot::Key), _eccx08_cert.bytes(), _eccx08_cert.length());
   #elif defined(BOARD_ESP)
@@ -219,10 +219,10 @@ int ArduinoIoTCloudTCP::connected()
 
 void ArduinoIoTCloudTCP::printDebugInfo()
 {
-  Debug.print(DBG_INFO, "***** Arduino IoT Cloud - configuration info *****");
-  Debug.print(DBG_INFO, "Device ID: %s", getDeviceId().c_str());
-  Debug.print(DBG_INFO, "Thing ID: %s", getThingId().c_str());
-  Debug.print(DBG_INFO, "MQTT Broker: %s:%d", _brokerAddress.c_str(), _brokerPort);
+  DBG_INFO("***** Arduino IoT Cloud - configuration info *****");
+  DBG_INFO("Device ID: %s", getDeviceId().c_str());
+  DBG_INFO("Thing ID: %s", getThingId().c_str());
+  DBG_INFO("MQTT Broker: %s:%d", _brokerAddress.c_str(), _brokerPort);
 }
 
 #if OTA_ENABLED
@@ -342,7 +342,7 @@ ArduinoIoTConnectionStatus ArduinoIoTCloudTCP::checkCloudConnection()
     case ArduinoIoTConnectionStatus::DISCONNECTED: next_iot_status = ArduinoIoTConnectionStatus::RECONNECTING; break;
     case ArduinoIoTConnectionStatus::CONNECTING:
     {
-      Debug.print(DBG_INFO, "Arduino IoT Cloud connecting ...");
+      DBG_INFO("Arduino IoT Cloud connecting ...");
       int const ret = connect();
       if (ret == CONNECT_SUCCESS)
       {
@@ -352,14 +352,14 @@ ArduinoIoTConnectionStatus ArduinoIoTCloudTCP::checkCloudConnection()
       }
       else if (ret == CONNECT_FAILURE_SUBSCRIBE)
       {
-        Debug.print(DBG_ERROR, "ERROR - Please verify your THING ID");
+        DBG_ERROR("ERROR - Please verify your THING ID");
       }
     }
     break;
 
     case ArduinoIoTConnectionStatus::RECONNECTING:
     {
-      Debug.print(DBG_INFO, "Arduino IoT Cloud reconnecting ...");
+      DBG_INFO("Arduino IoT Cloud reconnecting ...");
       if (reconnect() == CONNECT_SUCCESS)
       {
         next_iot_status = ArduinoIoTConnectionStatus::CONNECTED;

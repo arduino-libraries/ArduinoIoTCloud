@@ -25,7 +25,7 @@
 #ifndef _BEAR_SSL_CLIENT_H_
 #define _BEAR_SSL_CLIENT_H_
 
-#include <ArduinoIoTCloud_Config.h>
+#include <AIoTC_Config.h>
 #ifdef BOARD_HAS_ECCX08
 
 #ifndef BEAR_SSL_CLIENT_OBUF_SIZE

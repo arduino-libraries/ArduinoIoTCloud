@@ -19,8 +19,10 @@
  * INCLUDE
  ******************************************************************************/
 
-#include "OTAStorage_SFU.h"
+#include <AIoTC_Config.h>
 #if OTA_STORAGE_SFU
+
+#include "OTAStorage_SFU.h"
 
 #include <Arduino_DebugUtils.h>
 
@@ -42,12 +44,12 @@ bool OTAStorage_SFU::init()
 {
   flash.begin();
   if(SPIFFS_OK != filesystem.mount()) {
-    Debug.print(DBG_ERROR, "OTAStorage_SFU::init - mount() failed with error code %d", filesystem.err());
+    DBG_ERROR("OTAStorage_SFU::init - mount() failed with error code %d", filesystem.err());
     return false;
   }
 
   if(SPIFFS_OK != filesystem.check()) {
-    Debug.print(DBG_ERROR, "OTAStorage_SFU::init - check() failed with error code %d", filesystem.err());
+    DBG_ERROR("OTAStorage_SFU::init - check() failed with error code %d", filesystem.err());
     return false;
   }
 
@@ -59,7 +61,7 @@ bool OTAStorage_SFU::open(char const * file_name)
   filesystem.clearerr();
   _file = new File(filesystem.open(file_name, CREATE | WRITE_ONLY| TRUNCATE));
   if(SPIFFS_OK != filesystem.err()) {
-    Debug.print(DBG_ERROR, "OTAStorage_SFU::open - open() failed with error code %d", filesystem.err());
+    DBG_ERROR("OTAStorage_SFU::open - open() failed with error code %d", filesystem.err());
     delete _file;
     return false;
   }

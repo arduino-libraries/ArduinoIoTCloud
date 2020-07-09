@@ -19,7 +19,7 @@
    INCLUDE
  ******************************************************************************/
 
-#include <ArduinoIoTCloud_Config.h>
+#include <AIoTC_Config.h>
 #if OTA_STORAGE_SSU
 
 #include "OTAStorage_SSU.h"

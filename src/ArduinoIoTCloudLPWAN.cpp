@@ -19,7 +19,7 @@
  * INCLUDE
  ******************************************************************************/
 
-#include <ArduinoIoTCloud_Config.h>
+#include <AIoTC_Config.h>
 
 #ifdef HAS_LORA
 
@@ -101,8 +101,8 @@ void ArduinoIoTCloudLPWAN::update()
 
 void ArduinoIoTCloudLPWAN::printDebugInfo()
 {
-  Debug.print(DBG_INFO, "***** Arduino IoT Cloud LPWAN - configuration info *****");
-  Debug.print(DBG_INFO, "Thing ID: %s", getThingId().c_str());
+  DBG_INFO("***** Arduino IoT Cloud LPWAN - configuration info *****");
+  DBG_INFO("Thing ID: %s", getThingId().c_str());
 }
 
 /******************************************************************************

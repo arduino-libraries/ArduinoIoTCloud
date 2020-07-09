@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-#include <ArduinoIoTCloud_Config.h>
+#include <AIoTC_Config.h>
 #ifdef BOARD_HAS_ECCX08
 
 #define BR_POWER_ASM_MACROS   1

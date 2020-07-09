@@ -15,16 +15,40 @@
    a commercial license, send an email to license@arduino.cc.
 */
 
-#ifndef ARDUINO_IOT_CLOUD_CONFIG_H_
-#define ARDUINO_IOT_CLOUD_CONFIG_H_
+#ifndef ARDUINO_AIOTC_CONFIG_H_
+#define ARDUINO_AIOTC_CONFIG_H_
 
 /******************************************************************************
- * USER CONFIGURED DEFINES
+ * USER CONFIGURABLE DEFINES
  ******************************************************************************/
 
 #ifndef OTA_STORAGE_SFU
   #define OTA_STORAGE_SFU         (0)
 #endif
+
+#ifndef DBG_ERROR
+  #define DBG_ERROR(fmt, ...) Debug.print(DBG_ERROR, fmt, ## __VA_ARGS__)
+#endif
+
+#ifndef DBG_WARNING
+  #define DBG_WARNING(fmt, ...) Debug.print(DBG_WARNING, fmt, ## __VA_ARGS__)
+#endif
+
+#ifndef DBG_INFO
+  #define DBG_INFO(fmt, ...) Debug.print(DBG_INFO, fmt, ## __VA_ARGS__)
+#endif
+
+#ifndef DBG_DEBUG
+  #define DBG_DEBUG(fmt, ...) Debug.print(DBG_DEBUG, fmt, ## __VA_ARGS__)
+#endif
+
+#ifndef DBG_VERBOSE
+  #define DBG_VERBOSE(fmt, ...) Debug.print(DBG_VERBOSE, fmt, ## __VA_ARGS__)
+#endif
+
+/******************************************************************************
+ * AUTOMATICALLY CONFIGURED DEFINES
+ ******************************************************************************/
 
 #if defined(ARDUINO_SAMD_MKRWIFI1010) || defined(ARDUINO_SAMD_NANO_33_IOT)
   #define OTA_STORAGE_SNU         (1)
@@ -37,10 +61,6 @@
 #else
   #define OTA_STORAGE_SSU         (0)
 #endif
-
-/******************************************************************************
- * AUTOMATIC CONFIGURED DEFINES
- ******************************************************************************/
 
 #if OTA_STORAGE_SFU || OTA_STORAGE_SSU || OTA_STORAGE_SNU
   #define OTA_ENABLED             (1)
@@ -64,4 +84,4 @@
   #define HAS_TCP
 #endif
 
-#endif /* ARDUINO_IOT_CLOUD_CONFIG_H_ */
+#endif /* ARDUINO_AIOTC_CONFIG_H_ */

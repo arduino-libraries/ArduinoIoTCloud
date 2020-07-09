@@ -1,6 +1,6 @@
 /* Automatically generated code; do not modify directly. */
 
-#include <ArduinoIoTCloud_Config.h>
+#include <AIoTC_Config.h>
 #ifdef BOARD_HAS_ECCX08
 
 #include <stddef.h>
