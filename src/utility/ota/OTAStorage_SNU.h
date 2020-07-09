@@ -29,8 +29,6 @@
 
 #include "OTAStorage.h"
 
-#include <WiFiStorage.h>
-
 /******************************************************************************
  * CLASS DECLARATION
  ******************************************************************************/
@@ -39,7 +37,6 @@ class OTAStorage_SNU : public OTAStorage
 {
 public:
 
-           OTAStorage_SNU();
   virtual ~OTAStorage_SNU() { }
 
 
@@ -50,11 +47,6 @@ public:
   virtual void   remove(char const * file_name) override;
   virtual bool   rename(char const * old_file_name, char const * new_file_name) override;
   virtual void   deinit() override;
-
-
-private:
-
-  WiFiStorageFile * _file;
 
 };
 
