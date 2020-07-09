@@ -19,8 +19,10 @@
  * INCLUDE
  ******************************************************************************/
 
-#include "OTAStorage_SFU.h"
+#include <AIoTC_Config.h>
 #if OTA_STORAGE_SFU
+
+#include "OTAStorage_SFU.h"
 
 #include <Arduino_DebugUtils.h>
 
