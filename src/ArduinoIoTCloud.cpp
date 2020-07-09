@@ -199,11 +199,11 @@ void ArduinoIoTCloudClass::printConnectionStatus(ArduinoIoTConnectionStatus stat
 {
   switch (status)
   {
-    case ArduinoIoTConnectionStatus::IDLE:         Debug.print(DBG_INFO,  "Arduino IoT Cloud Connection status: IDLE");         break;
-    case ArduinoIoTConnectionStatus::ERROR:        Debug.print(DBG_ERROR, "Arduino IoT Cloud Connection status: ERROR");        break;
-    case ArduinoIoTConnectionStatus::CONNECTING:   Debug.print(DBG_INFO,  "Arduino IoT Cloud Connection status: CONNECTING");   break;
-    case ArduinoIoTConnectionStatus::RECONNECTING: Debug.print(DBG_INFO,  "Arduino IoT Cloud Connection status: RECONNECTING"); break;
-    case ArduinoIoTConnectionStatus::CONNECTED:    Debug.print(DBG_INFO,  "Arduino IoT Cloud Connection status: CONNECTED");    break;
-    case ArduinoIoTConnectionStatus::DISCONNECTED: Debug.print(DBG_ERROR, "Arduino IoT Cloud Connection status: DISCONNECTED"); break;
+    case ArduinoIoTConnectionStatus::IDLE:         DBG_INFO   ("Arduino IoT Cloud Connection status: IDLE");         break;
+    case ArduinoIoTConnectionStatus::ERROR:        DBG_ERROR("Arduino IoT Cloud Connection status: ERROR");        break;
+    case ArduinoIoTConnectionStatus::CONNECTING:   DBG_INFO   ("Arduino IoT Cloud Connection status: CONNECTING");   break;
+    case ArduinoIoTConnectionStatus::RECONNECTING: DBG_INFO   ("Arduino IoT Cloud Connection status: RECONNECTING"); break;
+    case ArduinoIoTConnectionStatus::CONNECTED:    DBG_INFO   ("Arduino IoT Cloud Connection status: CONNECTED");    break;
+    case ArduinoIoTConnectionStatus::DISCONNECTED: DBG_ERROR("Arduino IoT Cloud Connection status: DISCONNECTED"); break;
   }
 }
