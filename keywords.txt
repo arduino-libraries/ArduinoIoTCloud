@@ -1,0 +1,60 @@
+#######################################
+# Syntax Coloring Map For ArduinoIoTCloud
+#######################################
+
+#######################################
+# Class (KEYWORD1)
+#######################################
+
+ArduinoCloud	KEYWORD1
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+
+initProperties	KEYWORD2
+
+# ArduinoIoTCloud.h
+update	KEYWORD2
+connected	KEYWORD2
+printDebugInfo	KEYWORD2
+push	KEYWORD2
+setTimestamp	KEYWORD2
+setThingId	KEYWORD2
+getThingId	KEYWORD2
+setDeviceId	KEYWORD2
+getDeviceId	KEYWORD2
+getConnection	KEYWORD2
+addCallback	KEYWORD2
+addProperty	KEYWORD2
+
+# ArduinoIoTCloudLPWAN.h
+begin	KEYWORD2
+isRetryEnabled	KEYWORD2
+getMaxRetry	KEYWORD2
+getIntervalRetry	KEYWORD2
+enableRetry	KEYWORD2
+setMaxRetry	KEYWORD2
+setIntervalRetry	KEYWORD2
+
+# ArduinoIoTCloudTCP.h
+begin	KEYWORD2
+setBoardId	KEYWORD2
+setSecretDeviceKey	KEYWORD2
+getBrokerAddress	KEYWORD2
+getBrokerPort	KEYWORD2
+setOTAStorage	KEYWORD2
+reconnect	KEYWORD2
+
+#######################################
+# Constants (LITERAL1)
+#######################################
+
+ON	LITERAL1
+OFF	LITERAL1
+ON_CHANGE	LITERAL1
+SECONDS	LITERAL1
+MINUTES	LITERAL1
+HOURS	LITERAL1
+DAYS	LITERAL1
+
