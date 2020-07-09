@@ -22,7 +22,7 @@
  * INCLUDE
  **************************************************************************************/
 
-#include "../../ArduinoIoTCloud_Config.h"
+#include "../../AIoTC_Config.h"
 #ifndef HAS_LORA
 
 #include <Arduino_ConnectionHandler.h>

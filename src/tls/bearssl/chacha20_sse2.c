@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-#include <ArduinoIoTCloud_Config.h>
+#include <AIoTC_Config.h>
 #ifdef BOARD_HAS_ECCX08
 
 #define BR_ENABLE_INTRINSICS   1

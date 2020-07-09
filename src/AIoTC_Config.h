@@ -15,8 +15,8 @@
    a commercial license, send an email to license@arduino.cc.
 */
 
-#ifndef ARDUINO_IOT_CLOUD_CONFIG_H_
-#define ARDUINO_IOT_CLOUD_CONFIG_H_
+#ifndef ARDUINO_AIOTC_CONFIG_H_
+#define ARDUINO_AIOTC_CONFIG_H_
 
 /******************************************************************************
  * USER CONFIGURED DEFINES
@@ -64,4 +64,4 @@
   #define HAS_TCP
 #endif
 
-#endif /* ARDUINO_IOT_CLOUD_CONFIG_H_ */
+#endif /* ARDUINO_AIOTC_CONFIG_H_ */

@@ -25,7 +25,7 @@
 #ifndef _ECCX08_ASN1_H_
 #define _ECCX08_ASN1_H_
 
-#include <ArduinoIoTCloud_Config.h>
+#include <AIoTC_Config.h>
 #ifdef BOARD_HAS_ECCX08
 
 #include "../bearssl/bearssl.h"
