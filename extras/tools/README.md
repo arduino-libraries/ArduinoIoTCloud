@@ -1,5 +1,18 @@
-`bin2ota.py`
-============
+Firmware Over-The-Air Tools
+===========================
+
+## How-to-OTA
+
+Arduino IDE: `Sketch` -> `Export compiled Binary`
+```bash
+cp sketch.bin ~/Arduino/libraries/ArduinoIoTCloud/extras/tools/
+cd ~/Arduino/libraries/ArduinoIoTCloud/extras/tools
+./bin2ota.py sketch.bin sketch.ota
+./bin2json.py sketch.ota sketch.json
+./ota-upload.sh CLIENT_ID CLIENT_SECRET DEVICE_ID sketch.json
+```
+
+## `bin2ota.py`
 This tool can be used to extend (actually prefix) a binary generated with e.g. the Arduino IDE with the required length and crc values required to perform an OTA (Over-The-Air) update of the firmware.
 
 ### How-To-Use
@@ -25,8 +38,20 @@ This tool can be used to extend (actually prefix) a binary generated with e.g. t
 0000030   0000 0000 7485 0000 0000 0000 0000 0000
 ```
 
-`bin2json.py`
-=============
+## `lzss.py`
+This tool allows to compress a binary file using the LZSS algorithm.
+
+### How-To-Use
+* Encoding (Compressing)
+```bash
+./lzss.py --encode sketch.bin sketch.lzss
+```
+* Decoding (Extracting)
+```bash
+./lzss.py --decode sketch.lzss sketch.bin
+```
+
+## `bin2json.py`
 This tool converts the binary file into base64 encoded JSON which is necessary for feeding it to the server.
 
 ### How-To-Use
@@ -34,8 +59,7 @@ This tool converts the binary file into base64 encoded JSON which is necessary f
 ./bin2json.py sketch.ota sketch.json
 ```
 
-`ota-upload.sh`
-==============
+## `ota-upload.sh`
 This tool allows to upload a OTA binary to a device via a Arduino cloud server.
 
 ### How-To-Use
