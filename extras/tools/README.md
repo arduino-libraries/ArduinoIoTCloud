@@ -38,6 +38,19 @@ This tool can be used to extend (actually prefix) a binary generated with e.g. t
 0000030   0000 0000 7485 0000 0000 0000 0000 0000
 ```
 
+## `lzss.py`
+This tool allows to compress a binary file using the LZSS algorithm.
+
+### How-To-Use
+* Encoding (Compressing)
+```bash
+./lzss.py --encode sketch.bin sketch.lzss
+```
+* Decoding (Extracting)
+```bash
+./lzss.py --decode sketch.lzss sketch.bin
+```
+
 ## `bin2json.py`
 This tool converts the binary file into base64 encoded JSON which is necessary for feeding it to the server.
 

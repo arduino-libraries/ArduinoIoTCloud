@@ -6,7 +6,7 @@ import ctypes
 LZSS_SO_FILE = "./lzss.so"
 
 if len(sys.argv) != 4:
-    print ("Usage: lzss.py --[encode|decode] sketch.bin sketch.lzss")
+    print ("Usage: lzss.py --[encode|decode] infile outfile")
     sys.exit()
 
 lzss_functions = ctypes.CDLL(LZSS_SO_FILE)
