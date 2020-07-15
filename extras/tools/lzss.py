@@ -1,9 +1,12 @@
 #!/usr/bin/python3
 
+import platform
 import sys
 import ctypes
 
-LZSS_SO_FILE = "./lzss.so"
+LZSS_SO_EXT = "so" if platform.uname()[0] != "Darwin" else "dylib"
+
+LZSS_SO_FILE = f"./lzss.{LZSS_SO_EXT}"
 
 if len(sys.argv) != 4:
     print ("Usage: lzss.py --[encode|decode] infile outfile")
