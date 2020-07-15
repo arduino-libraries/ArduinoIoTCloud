@@ -28,7 +28,7 @@
    CONSTANTS
  ******************************************************************************/
 
-static char const SSU_UPDATE_FILENAME[] = "UPDATE.BIN";
+static char const SSU_UPDATE_FILENAME[] = "UPDATE.BIN.LZSS";
 static char const SSU_CHECK_FILE_NAME[] = "UPDATE.OK";
 
 /******************************************************************************
