@@ -27,6 +27,13 @@
 #include <Arduino_DebugUtils.h>
 
 /******************************************************************************
+ * CONSTANTS
+ ******************************************************************************/
+
+static char const SFU_UPDATE_FILENAME[]      = "UPDATE.BIN";
+static char const SFU_TEMP_UPDATE_FILENAME[] = "UPDATE.BIN.TMP";
+
+/******************************************************************************
  * CTOR/DTOR
  ******************************************************************************/
 
@@ -56,10 +63,10 @@ bool OTAStorage_SFU::init()
   return true;
 }
 
-bool OTAStorage_SFU::open(char const * file_name)
+bool OTAStorage_SFU::open()
 {
   filesystem.clearerr();
-  _file = new File(filesystem.open(file_name, CREATE | WRITE_ONLY| TRUNCATE));
+  _file = new File(filesystem.open(SFU_TEMP_UPDATE_FILENAME, CREATE | WRITE_ONLY| TRUNCATE));
   if(SPIFFS_OK != filesystem.err()) {
     DBG_ERROR("OTAStorage_SFU::open - open() failed with error code %d", filesystem.err());
     delete _file;
@@ -79,14 +86,14 @@ void OTAStorage_SFU::close()
   delete _file;
 }
 
-void OTAStorage_SFU::remove(char const * file_name)
+void OTAStorage_SFU::remove()
 {
-  filesystem.remove(file_name);
+  filesystem.remove(SFU_TEMP_UPDATE_FILENAME);
 }
 
-bool OTAStorage_SFU::rename(char const * old_file_name, char const * new_file_name)
+bool OTAStorage_SFU::rename()
 {
-  return (SPIFFS_OK == filesystem.rename(old_file_name, new_file_name));
+  return (SPIFFS_OK == filesystem.rename(SFU_TEMP_UPDATE_FILENAME, SFU_UPDATE_FILENAME));
 }
 
 void OTAStorage_SFU::deinit()
