@@ -141,7 +141,7 @@ OTAState OTALogic::handle_Idle()
 
 OTAState OTALogic::handle_StartDownload()
 {
-  if(_ota_storage->open("UPDATE.BIN.TMP")) {
+  if(_ota_storage->open()) {
     return OTAState::WaitForHeader;
   } else {
     _ota_error = OTAError::StorageOpenFailed;
@@ -232,7 +232,7 @@ OTAState OTALogic::handle_Verify()
   if(_ota_bin_data.crc32 == _ota_bin_data.hdr_crc32) {
     return OTAState::Rename;
   } else {
-    _ota_storage->remove("UPDATE.BIN.TMP");
+    _ota_storage->remove();
     _ota_error = OTAError::ChecksumMismatch;
     return OTAState::Error;
   }
@@ -240,7 +240,7 @@ OTAState OTALogic::handle_Verify()
 
 OTAState OTALogic::handle_Rename()
 {
-  if(_ota_storage->rename("UPDATE.BIN.TMP", "UPDATE.BIN")) {
+  if(_ota_storage->rename()) {
     _ota_storage->deinit();
     return OTAState::Reset;
   }

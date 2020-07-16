@@ -63,7 +63,7 @@ bool OTAStorage_SFU::init()
   return true;
 }
 
-bool OTAStorage_SFU::open(char const * /* file_name */)
+bool OTAStorage_SFU::open()
 {
   filesystem.clearerr();
   _file = new File(filesystem.open(SFU_TEMP_UPDATE_FILENAME, CREATE | WRITE_ONLY| TRUNCATE));
@@ -86,12 +86,12 @@ void OTAStorage_SFU::close()
   delete _file;
 }
 
-void OTAStorage_SFU::remove(char const * /* file_name */)
+void OTAStorage_SFU::remove()
 {
   filesystem.remove(SFU_TEMP_UPDATE_FILENAME);
 }
 
-bool OTAStorage_SFU::rename(char const * /* old_file_name */, char const * new_file_name)
+bool OTAStorage_SFU::rename()
 {
   return (SPIFFS_OK == filesystem.rename(SFU_TEMP_UPDATE_FILENAME, SFU_UPDATE_FILENAME));
 }

@@ -49,7 +49,7 @@ bool OTAStorage_SSU::init()
       return false;
 }
 
-bool OTAStorage_SSU::open(char const * /* file_name */)
+bool OTAStorage_SSU::open()
 {
   return true;
 }
@@ -65,12 +65,12 @@ void OTAStorage_SSU::close()
   /* Nothing to do */
 }
 
-void OTAStorage_SSU::remove(char const * /* file_name */)
+void OTAStorage_SSU::remove()
 {
   _fileUtils.deleteFile(SSU_UPDATE_FILENAME);
 }
 
-bool OTAStorage_SSU::rename(char const * /* old_file_name */, char const * /* new_file_name */)
+bool OTAStorage_SSU::rename()
 {
   /* Create a file 'UPDATE.OK' which is used by the SSU
    * 2nd stage bootloader to recognise that the update

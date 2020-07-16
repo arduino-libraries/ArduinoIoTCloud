@@ -47,7 +47,7 @@ bool OTAStorage_SNU::init()
   return true;
 }
 
-bool OTAStorage_SNU::open(char const * /* file_name */)
+bool OTAStorage_SNU::open()
 {
   /* There's no need to explicitly open the file
    * because when writing to it the file will always
@@ -83,12 +83,12 @@ void OTAStorage_SNU::close()
   /* Files are closed after each file operation on the nina side. */
 }
 
-void OTAStorage_SNU::remove(char const * /* file_name */)
+void OTAStorage_SNU::remove()
 {
   WiFiStorage.remove(SNU_TEMP_UPDATE_FILENAME);
 }
 
-bool OTAStorage_SNU::rename(char const * /* old_file_name */, char const * /* new_file_name */)
+bool OTAStorage_SNU::rename()
 {
   return WiFiStorage.rename(SNU_TEMP_UPDATE_FILENAME, SNU_UPDATE_FILENAME);
 }
