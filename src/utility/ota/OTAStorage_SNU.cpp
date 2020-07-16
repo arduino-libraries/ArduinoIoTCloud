@@ -30,8 +30,8 @@
  * CONSTANTS
  ******************************************************************************/
 
-static char const SNU_UPDATE_FILENAME[]      = "/fs/UPDATE.BIN";
-static char const SNU_TEMP_UPDATE_FILENAME[] = "/fs/UPDATE.BIN.TMP";
+static char const SNU_UPDATE_FILENAME[]      = "/fs/UPDATE.BIN.LZSS";
+static char const SNU_TEMP_UPDATE_FILENAME[] = "/fs/UPDATE.BIN.TMP.LZSS";
 
 /******************************************************************************
  * PUBLIC MEMBER FUNCTIONS
