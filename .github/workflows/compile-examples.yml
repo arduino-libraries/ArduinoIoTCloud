@@ -83,7 +83,6 @@ jobs:
               - name: ArduinoECCX08
               - name: RTCZero
               - name: MKRGSM
-              - name: Arduino_MKRMEM
             sketch-paths: '"examples/utility/Provisioning"'
           # NB boards
           - board:
@@ -96,7 +95,6 @@ jobs:
               - name: ArduinoECCX08
               - name: RTCZero
               - name: MKRNB
-              - name: Arduino_MKRMEM
             sketch-paths: '"examples/utility/Provisioning"'
           # ESP8266 boards
           - board:
