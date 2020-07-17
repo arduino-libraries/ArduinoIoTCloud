@@ -59,7 +59,7 @@ jobs:
               - name: WiFi101
               - name: WiFiNINA
               - name: Arduino_MKRMEM
-            sketch-paths: '"examples/utility/Provisioning" "examples/utility/WiFi_Cloud_Blink"'
+            sketch-paths: '"examples/utility/Provisioning"'
           # LoRaWAN boards
           - board:
               type: "wan"
@@ -84,7 +84,7 @@ jobs:
               - name: RTCZero
               - name: MKRGSM
               - name: Arduino_MKRMEM
-            sketch-paths: '"examples/utility/Provisioning" "examples/utility/GSM_Cloud_Blink"'
+            sketch-paths: '"examples/utility/Provisioning"'
           # NB boards
           - board:
               type: "nb"
@@ -97,7 +97,7 @@ jobs:
               - name: RTCZero
               - name: MKRNB
               - name: Arduino_MKRMEM
-            sketch-paths: '"examples/utility/Provisioning" "examples/utility/NB_Cloud_Blink"'
+            sketch-paths: '"examples/utility/Provisioning"'
           # ESP8266 boards
           - board:
               type: "esp8266"
@@ -106,7 +106,7 @@ jobs:
               - name: esp8266:esp8266
                 source-url: https://arduino.esp8266.com/stable/package_esp8266com_index.json
             libraries:
-            sketch-paths: '"examples/utility/WiFi_Cloud_Blink_with_security_credentials"'
+            sketch-paths:
 
     steps:
       - name: Checkout
