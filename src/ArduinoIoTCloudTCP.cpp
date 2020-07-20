@@ -120,7 +120,7 @@ int ArduinoIoTCloudTCP::begin(String brokerAddress, uint16_t brokerPort)
   _brokerAddress = brokerAddress;
   _brokerPort = brokerPort;
 
-#ifdef OTA_ENABLED
+#if OTA_ENABLED
   /* Calculate the SHA256 checksum over the firmware stored in the flash of the
    * MCU. Note: As we don't know the length per-se we read chunks of the flash
    * until we detect one containing only 0xFF (= flash erased). This only works
