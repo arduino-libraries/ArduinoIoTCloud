@@ -94,6 +94,7 @@ ArduinoIoTCloudTCP::ArduinoIoTCloudTCP()
 , _ota_topic_in{""}
 #if OTA_ENABLED
 , _ota_error{static_cast<int>(OTAError::None)}
+, _ota_img_sha256{"Inv."}
 #endif /* OTA_ENABLED */
 {
 
@@ -229,6 +230,7 @@ void ArduinoIoTCloudTCP::printDebugInfo()
 void ArduinoIoTCloudTCP::setOTAStorage(OTAStorage & ota_storage)
 {
   addPropertyReal(_ota_error, "OTA_ERROR", Permission::Read);
+  addPropertyReal(_ota_img_sha256, "OTA_SHA256", Permission::Read);
   _ota_logic.setOTAStorage(ota_storage);
 }
 #endif /* OTA_ENABLED */
