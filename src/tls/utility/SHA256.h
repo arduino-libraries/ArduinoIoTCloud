@@ -33,9 +33,11 @@ class SHA256
 
 public:
 
+  static constexpr size_t HASH_SIZE = 32;
+
   void begin   ();
   void update  (uint8_t const * data, size_t const len);
-  void finalize(char * hash);
+  void finalize(uint8_t * hash);
 
 private:
 

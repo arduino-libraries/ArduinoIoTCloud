@@ -22,6 +22,12 @@
 #include "SHA256.h"
 
 /******************************************************************************
+ * STATIC MEMBER DECLARATION
+ ******************************************************************************/
+
+constexpr size_t SHA256::HASH_SIZE;
+
+/******************************************************************************
  * PUBLIC MEMBER FUNCTIONS
  ******************************************************************************/
 
@@ -35,7 +41,7 @@ void SHA256::update(uint8_t const * data, size_t const len)
   br_sha256_update(&_ctx, data, len);
 }
 
-void SHA256::finalize(char * hash)
+void SHA256::finalize(uint8_t * hash)
 {
   br_sha256_out(&_ctx, hash);
 }
