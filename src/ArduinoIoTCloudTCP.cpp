@@ -29,6 +29,7 @@
   #include "tls/utility/CryptoUtil.h"
 #endif
 
+#include "utility/ota/FlashSHA256.h"
 #include "utility/ota/OTAStorage_SNU.h"
 #include "utility/ota/OTAStorage_SFU.h"
 #include "utility/ota/OTAStorage_SSU.h"
@@ -94,6 +95,7 @@ ArduinoIoTCloudTCP::ArduinoIoTCloudTCP()
 , _ota_topic_in{""}
 #if OTA_ENABLED
 , _ota_error{static_cast<int>(OTAError::None)}
+, _ota_img_sha256{"Inv."}
 #endif /* OTA_ENABLED */
 {
 
@@ -117,6 +119,20 @@ int ArduinoIoTCloudTCP::begin(String brokerAddress, uint16_t brokerPort)
 
   _brokerAddress = brokerAddress;
   _brokerPort = brokerPort;
+
+#if OTA_ENABLED
+  /* Calculate the SHA256 checksum over the firmware stored in the flash of the
+   * MCU. Note: As we don't know the length per-se we read chunks of the flash
+   * until we detect one containing only 0xFF (= flash erased). This only works
+   * for firmware updated via OTA and second stage bootloaders (SxU family)
+   * because only those erase the complete flash before performing an update.
+   * Since the SHA256 firmware image is only required for the cloud servers to
+   * perform a version check after the OTA update this is a acceptable trade off.
+   * The bootloader is excluded from the calculation and occupies flash address
+   * range 0 to 0x2000, total flash size of 0x40000 bytes (256 kByte).
+   */
+  _ota_img_sha256 = FlashSHA256::calc(0x2000, 0x40000 - 0x2000);
+#endif /* OTA_ENABLED */
 
   #ifdef BOARD_HAS_ECCX08
   if (!ECCX08.begin())                                                                                                                                                         { DBG_ERROR("Cryptography processor failure. Make sure you have a compatible board."); return 0; }
@@ -229,6 +245,7 @@ void ArduinoIoTCloudTCP::printDebugInfo()
 void ArduinoIoTCloudTCP::setOTAStorage(OTAStorage & ota_storage)
 {
   addPropertyReal(_ota_error, "OTA_ERROR", Permission::Read);
+  addPropertyReal(_ota_img_sha256, "OTA_SHA256", Permission::Read);
   _ota_logic.setOTAStorage(ota_storage);
 }
 #endif /* OTA_ENABLED */

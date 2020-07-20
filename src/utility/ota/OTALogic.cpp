@@ -125,7 +125,7 @@ void OTALogic::onOTADataReceived(uint8_t const * const data, size_t const length
 OTAState OTALogic::handle_Init()
 {
 #ifndef HOST
-  DBG_VERBOSE(__PRETTY_FUNCTION__);
+  DBG_VERBOSE("OTALogic::%s", __FUNCTION__);
 #endif
   if (_ota_storage->init()) {
     return OTAState::Idle;
@@ -146,7 +146,7 @@ OTAState OTALogic::handle_Idle()
 OTAState OTALogic::handle_StartDownload()
 {
 #ifndef HOST
-  DBG_VERBOSE(__PRETTY_FUNCTION__);
+  DBG_VERBOSE("OTALogic::%s", __FUNCTION__);
 #endif
   if(_ota_storage->open()) {
     return OTAState::WaitForHeader;
@@ -159,7 +159,7 @@ OTAState OTALogic::handle_StartDownload()
 OTAState OTALogic::handle_WaitForHeader()
 {
 #ifndef HOST
-  DBG_VERBOSE(__PRETTY_FUNCTION__);
+  DBG_VERBOSE("OTALogic::%s", __FUNCTION__);
 #endif
   if(_mqtt_ota_buf.num_bytes >= OTA_BINARY_HEADER_SIZE) {
     return OTAState::HeaderReceived;
@@ -190,8 +190,8 @@ OTAState OTALogic::handle_HeaderReceived()
   _ota_bin_data.hdr_crc32 = ota_header.header.crc32;
 
 #ifndef HOST
-  DBG_VERBOSE("%s: header length = %d", __PRETTY_FUNCTION__, _ota_bin_data.hdr_len);
-  DBG_VERBOSE("%s: header CRC32 = %d", __PRETTY_FUNCTION__, _ota_bin_data.hdr_crc32);
+  DBG_VERBOSE("OTALogic::%s: header length = %d", __FUNCTION__, _ota_bin_data.hdr_len);
+  DBG_VERBOSE("OTALogic::%s: header crc32 = %X", __FUNCTION__, _ota_bin_data.hdr_crc32);
 #endif
 
   /* Reset the counter which is responsible for keeping tabs on how many bytes have been received */
@@ -234,7 +234,7 @@ OTAState OTALogic::handle_BinaryReceived()
   _mqtt_ota_buf.num_bytes = 0;
 
 #ifndef HOST
-  DBG_VERBOSE("%s: %d bytes written", __PRETTY_FUNCTION__, _ota_bin_data.bytes_received);
+  DBG_VERBOSE("OTALogic::%s: %d bytes written", __FUNCTION__, _ota_bin_data.bytes_received);
 #endif
 
   if(_ota_bin_data.bytes_received >= _ota_bin_data.hdr_len) {
@@ -249,7 +249,7 @@ OTAState OTALogic::handle_BinaryReceived()
 OTAState OTALogic::handle_Verify()
 {
 #ifndef HOST
-  DBG_VERBOSE(__PRETTY_FUNCTION__);
+  DBG_VERBOSE("OTALogic::%s", __FUNCTION__);
 #endif
   if(_ota_bin_data.crc32 == _ota_bin_data.hdr_crc32) {
     return OTAState::Rename;
@@ -263,7 +263,7 @@ OTAState OTALogic::handle_Verify()
 OTAState OTALogic::handle_Rename()
 {
 #ifndef HOST
-  DBG_VERBOSE(__PRETTY_FUNCTION__);
+  DBG_VERBOSE("OTALogic::%s", __FUNCTION__);
 #endif
   if(_ota_storage->rename()) {
     _ota_storage->deinit();
@@ -286,7 +286,7 @@ OTAState OTALogic::handle_Reset()
    * is started directly.
    */
 #ifndef HOST
-  DBG_VERBOSE(__PRETTY_FUNCTION__);
+  DBG_VERBOSE("OTALogic::%s", __FUNCTION__);
   delay(250);
 #endif
   NVIC_SystemReset();
