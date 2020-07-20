@@ -27,13 +27,9 @@
 #ifdef BOARD_HAS_ECCX08
   #include "tls/BearSSLTrustAnchors.h"
   #include "tls/utility/CryptoUtil.h"
-  #include "tls/utility/SHA256.h"
 #endif
 
-#undef max
-#undef min
-#include <algorithm>
-
+#include "utility/ota/FlashSHA256.h"
 #include "utility/ota/OTAStorage_SNU.h"
 #include "utility/ota/OTAStorage_SFU.h"
 #include "utility/ota/OTAStorage_SSU.h"
@@ -132,75 +128,10 @@ int ArduinoIoTCloudTCP::begin(String brokerAddress, uint16_t brokerPort)
    * because only those erase the complete flash before performing an update.
    * Since the SHA256 firmware image is only required for the cloud servers to
    * perform a version check after the OTA update this is a acceptable trade off.
+   * The bootloader is excluded from the calculation and occupies flash address
+   * range 0 to 0x2000, total flash size of 0x40000 bytes (256 kByte).
    */
-  SHA256 sha256;
-  sha256.begin();
-
-  uint32_t const APP_START_ADDR = 0x2000; /* Start after the bootloader. */
-  #undef FLASH_SIZE
-  uint32_t const FLASH_READ_SIZE = 0x40000 - APP_START_ADDR;
-  uint32_t const FLASH_READ_CHUNK_SIZE = 64;
-
-  uint32_t flash_addr = APP_START_ADDR;
-  for(; flash_addr < FLASH_READ_SIZE; flash_addr += FLASH_READ_CHUNK_SIZE)
-  {
-    /* Read from the MCU's flash. */
-    uint8_t buf[FLASH_READ_CHUNK_SIZE];
-    memcpy(buf, reinterpret_cast<const void *>(flash_addr), FLASH_READ_CHUNK_SIZE);
-
-    /* Check if the next segment is erased, that is if all bytes within
-     * a read segment are 0xFF -> then we've reached the end of the
-     * firmware.
-     */
-    uint8_t buf_2[FLASH_READ_CHUNK_SIZE];
-    memcpy(buf_2, reinterpret_cast<const void *>(flash_addr + FLASH_READ_CHUNK_SIZE), FLASH_READ_CHUNK_SIZE);
-    size_t valid_bytes_in_buf = 0;
-    DBG_VERBOSE("[%X]", flash_addr);
-      char msg[4];
-      for(size_t i=0; i<FLASH_READ_CHUNK_SIZE; i++)
-      {
-        snprintf(msg, 4, "%02X", buf[i]);
-        Serial.print(msg);
-      }
-      Serial.println();
-
-
-    if (std::all_of(buf_2, buf_2+FLASH_READ_CHUNK_SIZE, [](uint8_t const elem) { return (elem == 0xFF); }))
-    {
-      /* Eliminate trailing 0xFF. */
-      for(valid_bytes_in_buf = FLASH_READ_CHUNK_SIZE; valid_bytes_in_buf > 0; valid_bytes_in_buf--) {
-        if (buf[valid_bytes_in_buf-1] != 0xFF)
-          break;
-      }
-      /* Update with the remaining bytes. */
-      DBG_VERBOSE("End of firmware, %d valid bytes in last read segment", valid_bytes_in_buf);
-      sha256.update(buf, valid_bytes_in_buf);
-      break;
-    }
-    else
-    {
-      /* Otherwise update the SHA256 hash. */
-      sha256.update(buf, FLASH_READ_CHUNK_SIZE);
-    }
-  }
-  Serial.println();
-  /* Retrieve the final hash string. */
-  uint8_t sha256_hash[SHA256::HASH_SIZE] = {0};
-  sha256.finalize(sha256_hash);
-  String sha256_str;
-  std::for_each(sha256_hash,
-                sha256_hash + SHA256::HASH_SIZE,
-                [&sha256_str](uint8_t const elem)
-                {
-                  char buf[4];
-                  snprintf(buf, 4, "%02X", elem);
-                  sha256_str += buf;
-                });
-  /* Update the property. */
-  _ota_img_sha256 = sha256_str;
-  /* Do some debug printout. */
-  DBG_VERBOSE("SHA256: %d bytes read", flash_addr);
-  DBG_VERBOSE("SHA256: HASH(%d) = %s", strlen(_ota_img_sha256.c_str()), _ota_img_sha256.c_str());
+  _ota_img_sha256 = FlashSHA256::calc(0x2000, 0x40000 - 0x2000);
 #endif /* OTA_ENABLED */
 
   #ifdef BOARD_HAS_ECCX08
@@ -270,8 +201,6 @@ void ArduinoIoTCloudTCP::update()
     write(_dataTopicOut, _mqtt_data_buf, _mqtt_data_len);
     _mqtt_data_request_retransmit = false;
   }
-
-  //DBG_VERBOSE("SHA256: HASH(%d) = %s", strlen(_ota_img_sha256.c_str()), _ota_img_sha256.c_str());
 
   // MTTQClient connected!, poll() used to retrieve data from MQTT broker
   _mqttClient.poll();
