@@ -130,6 +130,8 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
     OTALogic _ota_logic;
     int _ota_error;
     String _ota_img_sha256;
+    String _ota_url;
+    bool _otq_request;
 #endif /* OTA_ENABLED */
 
     inline String getTopic_stdin    () { return String("/a/d/" + getDeviceId() + "/s/i"); }
