@@ -90,7 +90,7 @@ ArduinoIoTCloudTCP::ArduinoIoTCloudTCP()
 , _ota_error{static_cast<int>(OTAError::None)}
 , _ota_img_sha256{"Inv."}
 , _ota_url{""}
-, _otq_request{false}
+, _ota_req{false}
 #endif /* OTA_ENABLED */
 {
 
@@ -214,7 +214,7 @@ void ArduinoIoTCloudTCP::setOTAStorage(OTAStorage & ota_storage)
   addPropertyReal(_ota_error, "OTA_ERROR", Permission::Read);
   addPropertyReal(_ota_img_sha256, "OTA_SHA256", Permission::Read);
   addPropertyReal(_ota_url, "OTA_URL", Permission::ReadWrite).onSync(DEVICE_WINS);
-  addPropertyReal(_otq_request, "OTA_REQ", Permission::ReadWrite).onSync(DEVICE_WINS);
+  addPropertyReal(_ota_req, "OTA_REQ", Permission::ReadWrite).onSync(DEVICE_WINS).onUpdate(ArduinoIoTCloudTCP::on_OTA_REQ_Update);
   _ota_logic.setOTAStorage(ota_storage);
 }
 #endif /* OTA_ENABLED */
@@ -418,6 +418,65 @@ int ArduinoIoTCloudTCP::write(String const topic, byte const data[], int const l
   }
   return 0;
 }
+
+#if OTA_ENABLED
+void ArduinoIoTCloudTCP::on_OTA_REQ_Update()
+{
+  ArduinoCloud.onOTARequest();
+}
+
+void ArduinoIoTCloudTCP::onOTARequest()
+{
+  DBG_VERBOSE("ArduinoIoTCloudTCP::%s _ota_req = %s", __FUNCTION__, _ota_req ? "true" : "false");
+  DBG_VERBOSE("ArduinoIoTCloudTCP::%s _ota_url = %s", __FUNCTION__, _ota_url.c_str());
+
+  if (_ota_req)
+  {
+    WiFiSSLClient ota_client;
+    if (!ota_client.connect("www.107-systems.org", 443)) {
+      DBG_VERBOSE("ArduinoIoTCloudTCP::%s ota_client.connect failed", __FUNCTION__);
+      return;
+    }
+
+    /* Request binary via http-get */
+    char get_msg[128];
+    snprintf(get_msg, 128, "GET /ota/%s HTTP/1.1", _ota_url.c_str());
+    DBG_VERBOSE("ArduinoIoTCloudTCP::%s \"%s\"", __FUNCTION__, get_msg);
+
+    ota_client.println(get_msg);
+    ota_client.println("Host: www.107-systems.org");
+    ota_client.println("Connection: close");
+    ota_client.println();
+
+    /* Read and parse the received data. */
+    bool is_header_complete = false;
+    size_t bytes_recv = 0;
+    String http_header;
+
+    while (ota_client.available())
+    {
+      char const c = ota_client.read();
+      Serial.print(c);
+
+      /* Check if header is complete. */
+      if(!is_header_complete)
+      {
+        http_header += c;
+        is_header_complete = http_header.endsWith("\r\n\r\n");
+        break;
+      }
+
+      /* If we reach this point then the HTTP header has
+       * been received and we can feed the incoming binary
+       * data into the OTA state machine.
+       */
+      _ota_logic.onOTADataReceived(reinterpret_cast<uint8_t const *>(&c), 1);
+      _ota_error = static_cast<int>(_ota_logic.update());
+      DBG_VERBOSE("ArduinoIoTCloudTCP::%s %d bytes received", __FUNCTION__, ++bytes_recv);
+    }
+  }
+}
+#endif
 
 /******************************************************************************
  * EXTERN DEFINITION
