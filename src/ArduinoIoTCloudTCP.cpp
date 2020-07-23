@@ -56,10 +56,6 @@ TimeService time_service;
 
 static const int TIMEOUT_FOR_LASTVALUES_SYNC = 10000;
 
-const static int CONNECT_SUCCESS							               = 1;
-const static int CONNECT_FAILURE							               = 0;
-const static int CONNECT_FAILURE_SUBSCRIBE					         = -1;
-
 /******************************************************************************
    LOCAL MODULE FUNCTIONS
  ******************************************************************************/
@@ -159,8 +155,6 @@ int ArduinoIoTCloudTCP::begin(String brokerAddress, uint16_t brokerPort)
   _dataTopicOut   = getTopic_dataout();
   _dataTopicIn    = getTopic_datain();
   _ota_topic_in   = getTopic_ota_in();
-
-  printConnectionStatus(_iot_status);
 
 #if   OTA_STORAGE_SSU
   setOTAStorage(ota_storage_ssu);
