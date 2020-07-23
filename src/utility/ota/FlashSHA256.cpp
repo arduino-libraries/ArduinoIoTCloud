@@ -73,7 +73,6 @@ String FlashSHA256::calc(uint32_t const start_addr, uint32_t const max_flash_siz
         if (chunk[valid_bytes_in_chunk-1] != 0xFF)
           break;
       }
-      DBG_VERBOSE("FlashSHA256::calc: end of firmware, %d valid bytes in last read chunk", valid_bytes_in_chunk);
       /* Update with the remaining bytes. */
       sha256.update(chunk, valid_bytes_in_chunk);
       break;
