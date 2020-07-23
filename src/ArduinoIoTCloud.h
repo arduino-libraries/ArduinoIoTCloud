@@ -59,13 +59,6 @@ enum class ArduinoIoTConnectionStatus
   ERROR,
 };
 
-enum class ArduinoIoTSynchronizationStatus
-{
-  SYNC_STATUS_SYNCHRONIZED,
-  SYNC_STATUS_WAIT_FOR_CLOUD_VALUES,
-  SYNC_STATUS_VALUES_PROCESSED
-};
-
 enum class ArduinoIoTCloudEvent : size_t
 {
   SYNC = 0, CONNECT = 1, DISCONNECT = 2

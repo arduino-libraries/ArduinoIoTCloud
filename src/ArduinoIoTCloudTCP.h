@@ -100,6 +100,7 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
     {
       ConnectMqttBroker,
       SubscribeMqttTopics,
+      RequestLastValues,
       Connected,
     };
 
@@ -121,8 +122,6 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
     #endif
 
     MqttClient _mqttClient;
-
-    ArduinoIoTSynchronizationStatus _syncStatus;
 
     // Class attribute to define MTTQ topics 2 for stdIn/out and 2 for data, in order to avoid getting previous pupblished payload
     String _stdinTopic;
@@ -149,6 +148,7 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
 
     State handle_ConnectMqttBroker();
     State handle_SubscribeMqttTopics();
+    State handle_RequestLastValues();
     State handle_Connected();
 
     static void onMessage(int length);
