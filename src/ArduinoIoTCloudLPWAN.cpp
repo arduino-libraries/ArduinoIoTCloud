@@ -39,7 +39,7 @@ static size_t const CBOR_LORA_MSG_MAX_SIZE = 255;
 
 extern "C" unsigned long getTime()
 {
-  return ArduinoCloud.getTime();
+  return ArduinoCloud.getInternalTime();
 }
 
 /******************************************************************************
@@ -107,6 +107,7 @@ ArduinoIoTCloudLPWAN::State ArduinoIoTCloudLPWAN::handle_SyncTime()
 {
   unsigned long const internal_posix_time = _time_service.getTime();
   DBG_VERBOSE("ArduinoIoTCloudLPWAN::%s internal clock configured to posix timestamp %d", __FUNCTION__, internal_posix_time);
+  DBG_INFO("Connected to Arduino IoT Cloud");
   return State::Connected;
 }
 
@@ -158,7 +159,8 @@ int ArduinoIoTCloudLPWAN::writeProperties(const byte data[], int length)
 {
   int retcode = _connection->write(data, length);
   int i = 0;
-  while (_retryEnable && retcode < 0 && i < _maxNumRetry) {
+  while (_retryEnable && retcode < 0 && i < _maxNumRetry)
+  {
     delay(_intervalRetry);
     retcode = _connection->write(data, length);
     i++;
