@@ -99,6 +99,7 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
     enum class State
     {
       ConnectPhy,
+      SyncTime,
       ConnectMqttBroker,
       SubscribeMqttTopics,
       RequestLastValues,
@@ -148,6 +149,7 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
     inline String getTopic_ota_in   () { return String("/a/d/" + getDeviceId() + "/ota/i"); }
 
     State handle_ConnectPhy();
+    State handle_SyncTime();
     State handle_ConnectMqttBroker();
     State handle_SubscribeMqttTopics();
     State handle_RequestLastValues();

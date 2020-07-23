@@ -178,6 +178,7 @@ void ArduinoIoTCloudTCP::update()
   switch (_state)
   {
   case State::ConnectPhy:          next_state = handle_ConnectPhy();          break;
+  case State::SyncTime:            next_state = handle_SyncTime();            break;
   case State::ConnectMqttBroker:   next_state = handle_ConnectMqttBroker();   break;
   case State::SubscribeMqttTopics: next_state = handle_SubscribeMqttTopics(); break;
   case State::RequestLastValues:   next_state = handle_RequestLastValues();   break;
@@ -215,9 +216,16 @@ void ArduinoIoTCloudTCP::setOTAStorage(OTAStorage & ota_storage)
 ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_ConnectPhy()
 {
   if (_connection->check() == NetworkConnectionState::CONNECTED)
-    return State::ConnectMqttBroker;
+    return State::SyncTime;
   else
     return State::ConnectPhy;
+}
+
+ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_SyncTime()
+{
+  unsigned long const internal_posix_time = time_service.getTime();
+  DBG_VERBOSE("ArduinoIoTCloudTCP::%s internal clock configured to posix timestamp %d", __FUNCTION__, internal_posix_time);
+  return State::ConnectMqttBroker;
 }
 
 ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_ConnectMqttBroker()
