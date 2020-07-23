@@ -50,11 +50,7 @@
    DECLARATION OF getTime
  ******************************************************************************/
 
-#ifdef HAS_LORA
-static unsigned long constexpr getTime() { return 0; }
-#else
 extern "C" unsigned long getTime();
-#endif
 
 /******************************************************************************
    TYPEDEF

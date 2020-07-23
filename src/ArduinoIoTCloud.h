@@ -38,6 +38,8 @@
 #include "property/types/CloudWrapperInt.h"
 #include "property/types/CloudWrapperString.h"
 
+#include "utility/time/TimeService.h"
+
 /******************************************************************************
    TYPEDEF
  ******************************************************************************/
@@ -57,13 +59,6 @@ enum class ArduinoIoTConnectionStatus
   DISCONNECTED,
   RECONNECTING,
   ERROR,
-};
-
-enum class ArduinoIoTSynchronizationStatus
-{
-  SYNC_STATUS_SYNCHRONIZED,
-  SYNC_STATUS_WAIT_FOR_CLOUD_VALUES,
-  SYNC_STATUS_VALUES_PROCESSED
 };
 
 enum class ArduinoIoTCloudEvent : size_t
@@ -97,6 +92,8 @@ class ArduinoIoTCloudClass
     inline String & getDeviceId()                       { return _device_id; };
 
     inline ConnectionHandler * getConnection()          { return _connection; }
+
+    inline unsigned long getInternalTime() { return _time_service.getTime(); }
 
     void addCallback(ArduinoIoTCloudEvent const event, OnCloudEventCallback callback);
 
@@ -138,18 +135,11 @@ class ArduinoIoTCloudClass
 
   protected:
 
-    virtual int  connect   () = 0;
-    virtual void disconnect() = 0;
-
-    inline ArduinoIoTConnectionStatus getIoTStatus() { return _iot_status; }
-
     ConnectionHandler * _connection = nullptr;
     PropertyContainer _property_container;
-    ArduinoIoTConnectionStatus _iot_status = ArduinoIoTConnectionStatus::IDLE;
+    TimeService _time_service;
 
-           NetworkConnectionState checkPhyConnection();
-           void execCloudEventCallback(ArduinoIoTCloudEvent const event);
-    static void printConnectionStatus(ArduinoIoTConnectionStatus status);
+    void execCloudEventCallback(ArduinoIoTCloudEvent const event);
 
   private:
 

@@ -34,11 +34,21 @@
 static size_t const CBOR_LORA_MSG_MAX_SIZE = 255;
 
 /******************************************************************************
+   LOCAL MODULE FUNCTIONS
+ ******************************************************************************/
+
+extern "C" unsigned long getTime()
+{
+  return ArduinoCloud.getInternalTime();
+}
+
+/******************************************************************************
    CTOR/DTOR
  ******************************************************************************/
 
 ArduinoIoTCloudLPWAN::ArduinoIoTCloudLPWAN()
-: _retryEnable{false}
+: _state{State::ConnectPhy}
+, _retryEnable{false}
 , _maxNumRetry{5}
 , _intervalRetry{1000}
 {
@@ -58,45 +68,21 @@ int ArduinoIoTCloudLPWAN::begin(ConnectionHandler& connection, bool retry)
 {
   _connection = &connection;
   _retryEnable = retry;
+  _time_service.begin(nullptr);
   return 1;
 }
 
 void ArduinoIoTCloudLPWAN::update()
 {
-  // Check if a primitive property wrapper is locally changed
-  updateTimestampOnLocallyChangedProperties(_property_container);
-
-  ArduinoIoTConnectionStatus next_iot_status = _iot_status;
-
-  /* Since we do not have a direct connection to the Arduino IoT Cloud servers
-   * there is no such thing is a 'cloud connection state' since the LoRa
-   * board connection state to the gateway is all the information we have.
-   */
-  NetworkConnectionState const net_con_state = checkPhyConnection();
-  if     (net_con_state == NetworkConnectionState::CONNECTED)    { next_iot_status = ArduinoIoTConnectionStatus::CONNECTED;    execCloudEventCallback(ArduinoIoTCloudEvent::CONNECT); }
-  else if(net_con_state == NetworkConnectionState::CONNECTING)   { next_iot_status = ArduinoIoTConnectionStatus::CONNECTING; }
-  else if(net_con_state == NetworkConnectionState::DISCONNECTED) { next_iot_status = ArduinoIoTConnectionStatus::DISCONNECTED; execCloudEventCallback(ArduinoIoTCloudEvent::DISCONNECT); }
-
-  if(next_iot_status != _iot_status)
+  /* Run through the state machine. */
+  State next_state = _state;
+  switch (_state)
   {
-    printConnectionStatus(next_iot_status);
-    _iot_status = next_iot_status;
+  case State::ConnectPhy: next_state = handle_ConnectPhy(); break;
+  case State::SyncTime:   next_state = handle_SyncTime();   break;
+  case State::Connected:  next_state = handle_Connected();  break;
   }
-
-  if(net_con_state != NetworkConnectionState::CONNECTED) return;
-
-  if (_connection->available()) {
-    uint8_t msgBuf[CBOR_LORA_MSG_MAX_SIZE];
-    uint8_t i = 0;
-    while (_connection->available()) {
-      msgBuf[i++] = _connection->read();
-    }
-
-    CBORDecoder::decode(_property_container, msgBuf, sizeof(msgBuf));
-  }
-
-  sendPropertiesToCloud();
-  execCloudEventCallback(ArduinoIoTCloudEvent::SYNC);
+  _state = next_state;
 }
 
 void ArduinoIoTCloudLPWAN::printDebugInfo()
@@ -106,23 +92,58 @@ void ArduinoIoTCloudLPWAN::printDebugInfo()
 }
 
 /******************************************************************************
- * PROTECTED MEMBER FUNCTIONS
- ******************************************************************************/
-
-int ArduinoIoTCloudLPWAN::connect()
-{
-  _connection->connect();
-  return 1;
-}
-
-void ArduinoIoTCloudLPWAN::disconnect()
-{
-  _connection->disconnect();
-}
-
-/******************************************************************************
  * PRIVATE MEMBER FUNCTIONS
  ******************************************************************************/
+
+ArduinoIoTCloudLPWAN::State ArduinoIoTCloudLPWAN::handle_ConnectPhy()
+{
+  if (_connection->check() == NetworkConnectionState::CONNECTED)
+    return State::SyncTime;
+  else
+    return State::ConnectPhy;
+}
+
+ArduinoIoTCloudLPWAN::State ArduinoIoTCloudLPWAN::handle_SyncTime()
+{
+  unsigned long const internal_posix_time = _time_service.getTime();
+  DBG_VERBOSE("ArduinoIoTCloudLPWAN::%s internal clock configured to posix timestamp %d", __FUNCTION__, internal_posix_time);
+  DBG_INFO("Connected to Arduino IoT Cloud");
+  return State::Connected;
+}
+
+ArduinoIoTCloudLPWAN::State ArduinoIoTCloudLPWAN::handle_Connected()
+{
+  if (!connected())
+  {
+    DBG_ERROR("ArduinoIoTCloudLPWAN::%s connection to gateway lost", __FUNCTION__);
+    return State::ConnectPhy;
+  }
+
+  /* Check if a primitive property wrapper is locally changed. */
+  updateTimestampOnLocallyChangedProperties(_property_container);
+  
+  /* Decode available data. */
+  if (_connection->available())
+    decodePropertiesFromCloud();
+
+  /* If properties need updating sent them to the cloud. */
+  sendPropertiesToCloud();
+
+  return State::Connected;
+}
+
+void ArduinoIoTCloudLPWAN::decodePropertiesFromCloud()
+{
+  uint8_t lora_msg_buf[CBOR_LORA_MSG_MAX_SIZE];
+  size_t bytes_received;
+  for (bytes_received = 0;
+       _connection->available() && (bytes_received < CBOR_LORA_MSG_MAX_SIZE);
+       bytes_received++)
+  {
+    lora_msg_buf[bytes_received] = _connection->read();
+  }
+  CBORDecoder::decode(_property_container, lora_msg_buf, bytes_received);
+}
 
 void ArduinoIoTCloudLPWAN::sendPropertiesToCloud()
 {
@@ -138,7 +159,8 @@ int ArduinoIoTCloudLPWAN::writeProperties(const byte data[], int length)
 {
   int retcode = _connection->write(data, length);
   int i = 0;
-  while (_retryEnable && retcode < 0 && i < _maxNumRetry) {
+  while (_retryEnable && retcode < 0 && i < _maxNumRetry)
+  {
     delay(_intervalRetry);
     retcode = _connection->write(data, length);
     i++;

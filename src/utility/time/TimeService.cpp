@@ -19,9 +19,6 @@
  * INCLUDE
  **************************************************************************************/
 
-#include "../../AIoTC_Config.h"
-#ifndef HAS_LORA
-
 #include "TimeService.h"
 
 #include <time.h>
@@ -93,6 +90,9 @@ unsigned long TimeService::getTime()
 
 unsigned long TimeService::getRemoteTime()
 {
+#include "../../AIoTC_Config.h"
+#ifndef HAS_LORA
+
   if(_con_hdl == nullptr)
     return EPOCH_AT_COMPILE_TIME;
 
@@ -112,6 +112,8 @@ unsigned long TimeService::getRemoteTime()
   if(isTimeValid(ntp_time)) {
     return ntp_time;
   }
+
+#endif /* ifndef HAS_LORA */
 
   /* Return the epoch timestamp at compile time as a last
    * line of defense. Otherwise the certificate expiration
@@ -159,5 +161,3 @@ time_t cvt_time(char const * time)
 
   return mktime(&t);
 }
-
-#endif /* #ifndef HAS_LORA */

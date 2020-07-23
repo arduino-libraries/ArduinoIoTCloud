@@ -84,17 +84,21 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
     void setOTAStorage(OTAStorage & ota_storage);
 #endif /* OTA_ENABLED */
 
-    // Clean up existing Mqtt connection, create a new one and initialize it
-    int reconnect();
-
-  protected:
-
-    virtual int  connect       () override;
-    virtual void disconnect    () override;
-
 
   private:
     static const int MQTT_TRANSMIT_BUFFER_SIZE = 256;
+
+    enum class State
+    {
+      ConnectPhy,
+      SyncTime,
+      ConnectMqttBroker,
+      SubscribeMqttTopics,
+      RequestLastValues,
+      Connected,
+    };
+
+    State _state;
 
     int _lastSyncRequestTickTime;
     String _brokerAddress;
@@ -112,8 +116,6 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
     #endif
 
     MqttClient _mqttClient;
-
-    ArduinoIoTSynchronizationStatus _syncStatus;
 
     // Class attribute to define MTTQ topics 2 for stdIn/out and 2 for data, in order to avoid getting previous pupblished payload
     String _stdinTopic;
@@ -138,11 +140,17 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
     inline String getTopic_datain   () { return ( getThingId().length() == 0) ? String("/a/d/" + getDeviceId() + "/e/i") : String("/a/t/" + getThingId() + "/e/i"); }
     inline String getTopic_ota_in   () { return String("/a/d/" + getDeviceId() + "/ota/i"); }
 
+    State handle_ConnectPhy();
+    State handle_SyncTime();
+    State handle_ConnectMqttBroker();
+    State handle_SubscribeMqttTopics();
+    State handle_RequestLastValues();
+    State handle_Connected();
+
     static void onMessage(int length);
     void handleMessage(int length);
     void sendPropertiesToCloud();
     void requestLastValue();
-    ArduinoIoTConnectionStatus checkCloudConnection();
     int write(String const topic, byte const data[], int const length);
 
 };
