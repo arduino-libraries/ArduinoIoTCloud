@@ -22,9 +22,6 @@
  * INCLUDE
  **************************************************************************************/
 
-#include "../../AIoTC_Config.h"
-#ifndef HAS_LORA
-
 #include <Arduino_ConnectionHandler.h>
 
 #ifdef ARDUINO_ARCH_SAMD
@@ -57,7 +54,5 @@ private:
   static bool isTimeValid(unsigned long const time);
 
 };
-
-#endif /* #ifndef HAS_LORA */
 
 #endif /* ARDUINO_IOT_CLOUD_TIME_SERVICE_H_ */
