@@ -74,7 +74,7 @@ extern "C" unsigned long getTime()
  ******************************************************************************/
 
 ArduinoIoTCloudTCP::ArduinoIoTCloudTCP()
-: _state{State::ConnectMqttBroker}
+: _state{State::ConnectPhy}
 , _lastSyncRequestTickTime{0}
 , _mqtt_data_buf{0}
 , _mqtt_data_len{0}
@@ -116,7 +116,6 @@ int ArduinoIoTCloudTCP::begin(ConnectionHandler & connection, String brokerAddre
 
 int ArduinoIoTCloudTCP::begin(String brokerAddress, uint16_t brokerPort)
 {
-
   _brokerAddress = brokerAddress;
   _brokerPort = brokerPort;
 
@@ -176,8 +175,6 @@ int ArduinoIoTCloudTCP::begin(String brokerAddress, uint16_t brokerPort)
 
 void ArduinoIoTCloudTCP::update()
 {
-  if(checkPhyConnection()   != NetworkConnectionState::CONNECTED)     return;
-
   /* Retrieve the latest data from the MQTT Client. */
   if (_mqttClient.connected())
     _mqttClient.poll();
@@ -186,6 +183,7 @@ void ArduinoIoTCloudTCP::update()
   State next_state = _state;
   switch (_state)
   {
+  case State::ConnectPhy:          next_state = handle_ConnectPhy();          break;
   case State::ConnectMqttBroker:   next_state = handle_ConnectMqttBroker();   break;
   case State::SubscribeMqttTopics: next_state = handle_SubscribeMqttTopics(); break;
   case State::RequestLastValues:   next_state = handle_RequestLastValues();   break;
@@ -219,6 +217,14 @@ void ArduinoIoTCloudTCP::setOTAStorage(OTAStorage & ota_storage)
 /******************************************************************************
  * PRIVATE MEMBER FUNCTIONS
  ******************************************************************************/
+
+ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_ConnectPhy()
+{
+  if (_connection->check() == NetworkConnectionState::CONNECTED)
+    return State::ConnectMqttBroker;
+  else
+    return State::ConnectPhy;
+}
 
 ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_ConnectMqttBroker()
 {
