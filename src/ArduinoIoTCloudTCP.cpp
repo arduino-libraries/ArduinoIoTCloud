@@ -273,7 +273,7 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_SubscribeMqttTopics()
 
 ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_RequestLastValues()
 {
-  /* Check wether or not we need to send a new request. */
+  /* Check whether or not we need to send a new request. */
   unsigned long const now = millis();
   if ((now - _lastSyncRequestTickTime) > TIMEOUT_FOR_LASTVALUES_SYNC)
   {
