@@ -268,7 +268,11 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_SubscribeMqttTopics()
 
   DBG_VERBOSE("Connected to Arduino IoT Cloud");
   execCloudEventCallback(ArduinoIoTCloudEvent::CONNECT);
-  return State::RequestLastValues;
+
+  if (_shadowTopicIn != "")
+    return State::RequestLastValues;
+  else
+    return State::Connected;
 }
 
 ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_RequestLastValues()
