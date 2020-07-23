@@ -84,14 +84,6 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
     void setOTAStorage(OTAStorage & ota_storage);
 #endif /* OTA_ENABLED */
 
-    // Clean up existing Mqtt connection, create a new one and initialize it
-    int reconnect();
-
-  protected:
-
-    virtual int  connect       () override { }
-    virtual void disconnect    () override { }
-
 
   private:
     static const int MQTT_TRANSMIT_BUFFER_SIZE = 256;

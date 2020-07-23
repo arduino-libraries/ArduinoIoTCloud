@@ -23,7 +23,6 @@
 
 #ifdef HAS_TCP
 #include <ArduinoIoTCloudTCP.h>
-#include "utility/time/TimeService.h"
 #ifdef BOARD_HAS_ECCX08
   #include "tls/BearSSLTrustAnchors.h"
   #include "tls/utility/CryptoUtil.h"
@@ -39,8 +38,6 @@
 /******************************************************************************
    GLOBAL VARIABLES
  ******************************************************************************/
-
-TimeService time_service;
 
 #if   OTA_STORAGE_SSU
   static OTAStorage_SSU ota_storage_ssu;
@@ -62,7 +59,7 @@ static const int TIMEOUT_FOR_LASTVALUES_SYNC = 10000;
 
 extern "C" unsigned long getTime()
 {
-  return time_service.getTime();
+  return ArduinoCloud.getInternalTime();
 }
 
 /******************************************************************************
@@ -106,7 +103,7 @@ int ArduinoIoTCloudTCP::begin(ConnectionHandler & connection, String brokerAddre
   _connection = &connection;
   _brokerAddress = brokerAddress;
   _brokerPort = brokerPort;
-  time_service.begin(&connection);
+  _time_service.begin(&connection);
   return begin(_brokerAddress, _brokerPort);
 }
 
@@ -223,7 +220,7 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_ConnectPhy()
 
 ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_SyncTime()
 {
-  unsigned long const internal_posix_time = time_service.getTime();
+  unsigned long const internal_posix_time = _time_service.getTime();
   DBG_VERBOSE("ArduinoIoTCloudTCP::%s internal clock configured to posix timestamp %d", __FUNCTION__, internal_posix_time);
   return State::ConnectMqttBroker;
 }

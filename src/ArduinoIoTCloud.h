@@ -93,7 +93,7 @@ class ArduinoIoTCloudClass
 
     inline ConnectionHandler * getConnection()          { return _connection; }
 
-    inline unsigned long getTime() { return _time_service.getTime(); }
+    inline unsigned long getInternalTime() { return _time_service.getTime(); }
 
     void addCallback(ArduinoIoTCloudEvent const event, OnCloudEventCallback callback);
 
