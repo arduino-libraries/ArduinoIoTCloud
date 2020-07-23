@@ -166,6 +166,15 @@ int ArduinoIoTCloudTCP::begin(String brokerAddress, uint16_t brokerPort)
 
 void ArduinoIoTCloudTCP::update()
 {
+#if OTA_ENABLED
+    /* If a _ota_logic object has been instantiated then we are spinning its
+     * 'update' method here in order to process incoming data and generally
+     * to transition to the OTA logic update states.
+     */
+    OTAError const err = _ota_logic.update();
+    _ota_error = static_cast<int>(err);
+#endif /* OTA_ENABLED */
+
   /* Run through the state machine. */
   State next_state = _state;
   switch (_state)
@@ -182,15 +191,6 @@ void ArduinoIoTCloudTCP::update()
   /* Check for new data from the MQTT client. */
   if (_mqttClient.connected())
     _mqttClient.poll();
-
-#if OTA_ENABLED
-    /* If a _ota_logic object has been instantiated then we are spinning its
-     * 'update' method here in order to process incoming data and generally
-     * to transition to the OTA logic update states.
-     */
-    OTAError const err = _ota_logic.update();
-    _ota_error = static_cast<int>(err);
-#endif /* OTA_ENABLED */
 }
 
 int ArduinoIoTCloudTCP::connected()
