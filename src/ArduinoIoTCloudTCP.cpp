@@ -176,15 +176,6 @@ int ArduinoIoTCloudTCP::begin(String brokerAddress, uint16_t brokerPort)
 
 void ArduinoIoTCloudTCP::update()
 {
-#if OTA_ENABLED
-  /* If a _ota_logic object has been instantiated then we are spinning its
-   * 'update' method here in order to process incoming data and generally
-   * to transition to the OTA logic update states.
-   */
-  OTAError const err = _ota_logic.update();
-  _ota_error = static_cast<int>(err);
-#endif /* OTA_ENABLED */
-
   if(checkPhyConnection()   != NetworkConnectionState::CONNECTED)     return;
 
   /* Retrieve the latest data from the MQTT Client. */
@@ -201,25 +192,6 @@ void ArduinoIoTCloudTCP::update()
   case State::Connected:           next_state = handle_Connected();           break;
   }
   _state = next_state;
-
-  /* For now exit here if we are not connected. */
-  if (_state != State::Connected) return;
-
-  /* Check if a primitive property wrapper is locally changed.
-   * This function requires an existing time service which in
-   * turn requires an established connection. Not having that
-   * leads to a wrong time set in the time service which inhibits
-   * the connection from being established due to a wrong data
-   * in the reconstructed certificate.
-   */
-  updateTimestampOnLocallyChangedProperties(_property_container);
-
-  if(_mqtt_data_request_retransmit && (_mqtt_data_len > 0)) {
-    write(_dataTopicOut, _mqtt_data_buf, _mqtt_data_len);
-    _mqtt_data_request_retransmit = false;
-  }
-
-  sendPropertiesToCloud();
 }
 
 int ArduinoIoTCloudTCP::connected()
@@ -307,18 +279,54 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_RequestLastValues()
 
 ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_Connected()
 {
-  if (_mqttClient.connected())
+  if (!_mqttClient.connected())
+  {
+    /* The last message was definitely lost, trigger a retransmit. */
+    _mqtt_data_request_retransmit = true;
+
+    /* We are not connected anymore, trigger the callback for a disconnected event. */
+    execCloudEventCallback(ArduinoIoTCloudEvent::DISCONNECT);
+
+    /* Forcefully disconnect MQTT client and trigger a reconnection. */
+    _mqttClient.stop();
+    return State::ConnectMqttBroker;
+  }
+  /* We are connected so let's to our stuff here. */
+  else
+  {
+#if OTA_ENABLED
+    /* If a _ota_logic object has been instantiated then we are spinning its
+     * 'update' method here in order to process incoming data and generally
+     * to transition to the OTA logic update states.
+     */
+    OTAError const err = _ota_logic.update();
+    _ota_error = static_cast<int>(err);
+#endif /* OTA_ENABLED */
+
+    /* Check if a primitive property wrapper is locally changed.
+    * This function requires an existing time service which in
+    * turn requires an established connection. Not having that
+    * leads to a wrong time set in the time service which inhibits
+    * the connection from being established due to a wrong data
+    * in the reconstructed certificate.
+    */
+    updateTimestampOnLocallyChangedProperties(_property_container);
+
+    /* Retransmit data in case there was a lost transaction due
+    * to phy layer or MQTT connectivity loss.
+    */
+    if(_mqtt_data_request_retransmit && (_mqtt_data_len > 0)) {
+      write(_dataTopicOut, _mqtt_data_buf, _mqtt_data_len);
+      _mqtt_data_request_retransmit = false;
+    }
+
+    /* Check if any properties need encoding and send them to
+    * the cloud if necessary.
+    */
+    sendPropertiesToCloud();
+
     return State::Connected;
-
-  /* The last message was definitely lost, trigger a retransmit. */
-  _mqtt_data_request_retransmit = true;
-
-  /* We are not connected anymore, trigger the callback for a disconnected event. */
-  execCloudEventCallback(ArduinoIoTCloudEvent::DISCONNECT);
-
-  /* Forcefully disconnect MQTT client and trigger a reconnection. */
-  _mqttClient.stop();
-  return State::ConnectMqttBroker;
+  }
 }
 
 void ArduinoIoTCloudTCP::onMessage(int length)
