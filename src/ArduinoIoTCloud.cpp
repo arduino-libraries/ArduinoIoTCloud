@@ -172,38 +172,10 @@ Property& ArduinoIoTCloudClass::addPropertyReal(String& property, String name, i
  * PROTECTED MEMBER FUNCTIONS
  ******************************************************************************/
 
-NetworkConnectionState ArduinoIoTCloudClass::checkPhyConnection()
-{
-  NetworkConnectionState const connect_state = _connection->check();
-
-  if (_connection->check() != NetworkConnectionState::CONNECTED)
-  {
-    if (_iot_status == ArduinoIoTConnectionStatus::CONNECTED)
-    {
-      disconnect();
-    }
-  }
-
-  return connect_state;
-}
-
 void ArduinoIoTCloudClass::execCloudEventCallback(ArduinoIoTCloudEvent const event)
 {
   OnCloudEventCallback callback = _cloud_event_callback[static_cast<size_t>(event)];
   if (callback) {
     (*callback)();
-  }
-}
-
-void ArduinoIoTCloudClass::printConnectionStatus(ArduinoIoTConnectionStatus status)
-{
-  switch (status)
-  {
-    case ArduinoIoTConnectionStatus::IDLE:         DBG_INFO   ("Arduino IoT Cloud Connection status: IDLE");         break;
-    case ArduinoIoTConnectionStatus::ERROR:        DBG_ERROR("Arduino IoT Cloud Connection status: ERROR");        break;
-    case ArduinoIoTConnectionStatus::CONNECTING:   DBG_INFO   ("Arduino IoT Cloud Connection status: CONNECTING");   break;
-    case ArduinoIoTConnectionStatus::RECONNECTING: DBG_INFO   ("Arduino IoT Cloud Connection status: RECONNECTING"); break;
-    case ArduinoIoTConnectionStatus::CONNECTED:    DBG_INFO   ("Arduino IoT Cloud Connection status: CONNECTED");    break;
-    case ArduinoIoTConnectionStatus::DISCONNECTED: DBG_ERROR("Arduino IoT Cloud Connection status: DISCONNECTED"); break;
   }
 }

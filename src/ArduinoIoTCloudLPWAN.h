@@ -50,18 +50,25 @@ class ArduinoIoTCloudLPWAN : public ArduinoIoTCloudClass
     inline void setIntervalRetry(long val) { _intervalRetry = val; }
 
 
-  protected:
-
-    virtual int  connect       () override;
-    virtual void disconnect    () override;
-
-
   private:
 
+    enum class State
+    {
+      ConnectPhy,
+      SyncTime,
+      Connected,
+    };
+
+    State _state;
     bool _retryEnable;
     int _maxNumRetry;
     long _intervalRetry;
 
+    State handle_ConnectPhy();
+    State handle_SyncTime();
+    State handle_Connected();
+
+    void decodePropertiesFromCloud();
     void sendPropertiesToCloud();
     int writeProperties(const byte data[], int length);
 };

@@ -38,6 +38,8 @@
 #include "property/types/CloudWrapperInt.h"
 #include "property/types/CloudWrapperString.h"
 
+#include "utility/time/TimeService.h"
+
 /******************************************************************************
    TYPEDEF
  ******************************************************************************/
@@ -91,6 +93,8 @@ class ArduinoIoTCloudClass
 
     inline ConnectionHandler * getConnection()          { return _connection; }
 
+    inline unsigned long getTime() { return _time_service.getTime(); }
+
     void addCallback(ArduinoIoTCloudEvent const event, OnCloudEventCallback callback);
 
 #define addProperty( v, ...) addPropertyReal(v, #v, __VA_ARGS__)
@@ -131,18 +135,11 @@ class ArduinoIoTCloudClass
 
   protected:
 
-    virtual int  connect   () = 0;
-    virtual void disconnect() = 0;
-
-    inline ArduinoIoTConnectionStatus getIoTStatus() { return _iot_status; }
-
     ConnectionHandler * _connection = nullptr;
     PropertyContainer _property_container;
-    ArduinoIoTConnectionStatus _iot_status = ArduinoIoTConnectionStatus::IDLE;
+    TimeService _time_service;
 
-           NetworkConnectionState checkPhyConnection();
-           void execCloudEventCallback(ArduinoIoTCloudEvent const event);
-    static void printConnectionStatus(ArduinoIoTConnectionStatus status);
+    void execCloudEventCallback(ArduinoIoTCloudEvent const event);
 
   private:
 
