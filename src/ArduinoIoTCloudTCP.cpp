@@ -166,10 +166,6 @@ int ArduinoIoTCloudTCP::begin(String brokerAddress, uint16_t brokerPort)
 
 void ArduinoIoTCloudTCP::update()
 {
-  /* Retrieve the latest data from the MQTT Client. */
-  if (_mqttClient.connected())
-    _mqttClient.poll();
-
   /* Run through the state machine. */
   State next_state = _state;
   switch (_state)
@@ -182,6 +178,19 @@ void ArduinoIoTCloudTCP::update()
   case State::Connected:           next_state = handle_Connected();           break;
   }
   _state = next_state;
+
+  /* Check for new data from the MQTT client. */
+  if (_mqttClient.connected())
+    _mqttClient.poll();
+
+#if OTA_ENABLED
+    /* If a _ota_logic object has been instantiated then we are spinning its
+     * 'update' method here in order to process incoming data and generally
+     * to transition to the OTA logic update states.
+     */
+    OTAError const err = _ota_logic.update();
+    _ota_error = static_cast<int>(err);
+#endif /* OTA_ENABLED */
 }
 
 int ArduinoIoTCloudTCP::connected()
@@ -231,7 +240,7 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_ConnectMqttBroker()
     return State::SubscribeMqttTopics;
 
   DBG_ERROR("ArduinoIoTCloudTCP::%s could not connect to %s:%d", __FUNCTION__, _brokerAddress.c_str(), _brokerPort);
-  return State::ConnectMqttBroker;
+  return State::ConnectPhy;
 }
 
 ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_SubscribeMqttTopics()
@@ -290,28 +299,22 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_Connected()
 {
   if (!_mqttClient.connected())
   {
+    DBG_ERROR("ArduinoIoTCloudTCP::%s MQTT client connection lost", __FUNCTION__);
+
+    /* Forcefully disconnect MQTT client and trigger a reconnection. */
+    _mqttClient.stop();
+
     /* The last message was definitely lost, trigger a retransmit. */
     _mqtt_data_request_retransmit = true;
 
     /* We are not connected anymore, trigger the callback for a disconnected event. */
     execCloudEventCallback(ArduinoIoTCloudEvent::DISCONNECT);
 
-    /* Forcefully disconnect MQTT client and trigger a reconnection. */
-    _mqttClient.stop();
-    return State::ConnectMqttBroker;
+    return State::ConnectPhy;
   }
   /* We are connected so let's to our stuff here. */
   else
   {
-#if OTA_ENABLED
-    /* If a _ota_logic object has been instantiated then we are spinning its
-     * 'update' method here in order to process incoming data and generally
-     * to transition to the OTA logic update states.
-     */
-    OTAError const err = _ota_logic.update();
-    _ota_error = static_cast<int>(err);
-#endif /* OTA_ENABLED */
-
     /* Check if a primitive property wrapper is locally changed.
     * This function requires an existing time service which in
     * turn requires an established connection. Not having that
