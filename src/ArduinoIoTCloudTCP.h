@@ -89,12 +89,21 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
 
   protected:
 
-    virtual int  connect       () override;
-    virtual void disconnect    () override;
+    virtual int  connect       () override { }
+    virtual void disconnect    () override { }
 
 
   private:
     static const int MQTT_TRANSMIT_BUFFER_SIZE = 256;
+
+    enum class State
+    {
+      ConnectMqttBroker,
+      SubscribeMqttTopics,
+      Connected,
+    };
+
+    State _state;
 
     int _lastSyncRequestTickTime;
     String _brokerAddress;
@@ -138,11 +147,14 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
     inline String getTopic_datain   () { return ( getThingId().length() == 0) ? String("/a/d/" + getDeviceId() + "/e/i") : String("/a/t/" + getThingId() + "/e/i"); }
     inline String getTopic_ota_in   () { return String("/a/d/" + getDeviceId() + "/ota/i"); }
 
+    State handle_ConnectMqttBroker();
+    State handle_SubscribeMqttTopics();
+    State handle_Connected();
+
     static void onMessage(int length);
     void handleMessage(int length);
     void sendPropertiesToCloud();
     void requestLastValue();
-    ArduinoIoTConnectionStatus checkCloudConnection();
     int write(String const topic, byte const data[], int const length);
 
 };
