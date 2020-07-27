@@ -103,18 +103,20 @@ OTAError OTALogic::update()
   return _ota_error;
 }
 
-void OTALogic::onOTADataReceived(uint8_t const * const data, size_t const length)
+uint32_t OTALogic::onOTADataReceived(uint8_t const * const data, size_t const length)
 {
   size_t const bytes_available = (MQTT_OTA_BUF_SIZE - _mqtt_ota_buf.num_bytes);
   if(length <= bytes_available)
   {
     memcpy(_mqtt_ota_buf.buf + _mqtt_ota_buf.num_bytes, data, length);
     _mqtt_ota_buf.num_bytes += length;
+    return _mqtt_ota_buf.num_bytes;
   }
   else
   {
     _ota_state = OTAState::Error;
     _ota_error = OTAError::ReceivedDataOverrun;
+    return 0;
   }
 }
 
