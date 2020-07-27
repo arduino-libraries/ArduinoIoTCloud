@@ -439,11 +439,14 @@ void ArduinoIoTCloudTCP::onOTARequest()
     }
 
     /* Request binary via http-get */
+    /*
     char get_msg[128];
     snprintf(get_msg, 128, "GET /ota/%s HTTP/1.1", _ota_url.c_str());
     DBG_VERBOSE("ArduinoIoTCloudTCP::%s \"%s\"", __FUNCTION__, get_msg);
 
     ota_client.println(get_msg);
+    */
+    ota_client.println("GET /ota/wifi1010-sha256-remote.ota HTTP/1.1");
     ota_client.println("Host: www.107-systems.org");
     ota_client.println("Connection: close");
     ota_client.println();
@@ -453,26 +456,30 @@ void ArduinoIoTCloudTCP::onOTARequest()
     size_t bytes_recv = 0;
     String http_header;
 
-    while (ota_client.available())
+    for(; _ota_error == static_cast<int>(OTAError::None);)
     {
-      char const c = ota_client.read();
-      Serial.print(c);
-
-      /* Check if header is complete. */
-      if(!is_header_complete)
+      while (ota_client.available())
       {
-        http_header += c;
-        is_header_complete = http_header.endsWith("\r\n\r\n");
-        break;
-      }
+        char const c = ota_client.read();
 
-      /* If we reach this point then the HTTP header has
-       * been received and we can feed the incoming binary
-       * data into the OTA state machine.
-       */
-      _ota_logic.onOTADataReceived(reinterpret_cast<uint8_t const *>(&c), 1);
-      _ota_error = static_cast<int>(_ota_logic.update());
-      DBG_VERBOSE("ArduinoIoTCloudTCP::%s %d bytes received", __FUNCTION__, ++bytes_recv);
+        /* Check if header is complete. */
+        if(!is_header_complete)
+        {
+          http_header += c;
+          is_header_complete = http_header.endsWith("\r\n\r\n");
+          break;
+        }
+
+        /* If we reach this point then the HTTP header has
+        * been received and we can feed the incoming binary
+        * data into the OTA state machine.
+        */
+        if (_ota_logic.onOTADataReceived(reinterpret_cast<uint8_t const *>(&c), 1) == 200)
+        {
+          _ota_error = static_cast<int>(_ota_logic.update());
+          bytes_recv += 200;
+        }
+      }
     }
   }
 }
