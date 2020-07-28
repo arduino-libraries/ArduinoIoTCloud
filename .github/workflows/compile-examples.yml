@@ -39,6 +39,8 @@ jobs:
           {"fqbn": "arduino:samd:mkrwan1300", "type": "wan"},
           {"fqbn": "arduino:samd:mkrgsm1400", "type": "gsm"},
           {"fqbn": "arduino:samd:mkrnb1500", "type": "nb"},
+          {"fqbn": "arduino-beta:mbed:envie_m4", "type": "mbed"},
+          {"fqbn": "arduino-beta:mbed:envie_m7", "type": "mbed"},
           {"fqbn": "esp8266:esp8266:huzzah", "type": "esp8266"}
         ]
 
@@ -95,6 +97,14 @@ jobs:
               - name: ArduinoECCX08
               - name: RTCZero
               - name: MKRNB
+            sketch-paths: '"examples/utility/Provisioning"'
+          # Portenta
+          - board:
+              type: "mbed"
+            platforms: |
+              - name: arduino-beta:mbed
+            libraries: |
+              - name: ArduinoECCX08
             sketch-paths: '"examples/utility/Provisioning"'
           # ESP8266 boards
           - board:
