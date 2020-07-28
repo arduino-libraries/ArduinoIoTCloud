@@ -50,9 +50,6 @@ jobs:
             platforms: |
               # Install Arduino SAMD Boards via Boards Manager for the toolchain
               - name: arduino:samd
-              # Overwrite the Arduino SAMD Boards release version with version from the tip of the master branch
-              - source-url: https://github.com/arduino/ArduinoCore-samd/archive/master.zip
-                name: arduino:samd
             libraries: |
               - name: ArduinoECCX08
               - name: RTCZero
@@ -65,8 +62,6 @@ jobs:
               type: "wan"
             platforms: |
               - name: arduino:samd
-              - source-url: https://github.com/arduino/ArduinoCore-samd/archive/master.zip
-                name: arduino:samd
             libraries: |
               - name: ArduinoECCX08
               - name: RTCZero
@@ -77,8 +72,6 @@ jobs:
               type: "gsm"
             platforms: |
               - name: arduino:samd
-              - source-url: https://github.com/arduino/ArduinoCore-samd/archive/master.zip
-                name: arduino:samd
             libraries: |
               - name: ArduinoECCX08
               - name: RTCZero
@@ -89,8 +82,6 @@ jobs:
               type: "nb"
             platforms: |
               - name: arduino:samd
-              - source-url: https://github.com/arduino/ArduinoCore-samd/archive/master.zip
-                name: arduino:samd
             libraries: |
               - name: ArduinoECCX08
               - name: RTCZero
