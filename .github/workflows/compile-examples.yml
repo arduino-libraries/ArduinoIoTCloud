@@ -27,6 +27,8 @@ jobs:
         - name: ArduinoMqttClient
       # sketch paths to compile (recursive) for all boards
       UNIVERSAL_SKETCH_PATHS: '"examples/ArduinoIoTCloud-Advanced" "examples/ArduinoIoTCloud-Basic" "examples/utility/ArduinoIoTCloud_Travis_CI"'
+      ARDUINOCORE_MBED_STAGING_PATH: extras/ArduinoCore-mbed
+      ARDUINOCORE_API_STAGING_PATH: extras/ArduinoCore-API
 
     strategy:
       fail-fast: false
@@ -102,7 +104,11 @@ jobs:
           - board:
               type: "mbed"
             platforms: |
+              # Install Arduino mbed-Enabled Boards via Boards Manager for the toolchain
               - name: arduino-beta:mbed
+              # Overwrite the Arduino mbed-Enabled Boards release version with version from the tip of the master branch (located in local path because of the need to first install ArduinoCore-API)
+              - source-path: extras/ArduinoCore-mbed
+                name: arduino-beta:mbed
             libraries: |
               - name: ArduinoECCX08
             sketch-paths: '"examples/utility/Provisioning"'
@@ -119,6 +125,37 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+
+      # it's necessary to checkout the platform before installing it so that the ArduinoCore-API dependency can be added
+      - name: Checkout ArduinoCore-mbed
+        # this step only needed when the Arduino mbed-Enabled Boards platform sourced from the repository is being used
+        if: matrix.board.type == 'mbed'
+        uses: actions/checkout@v2
+        with:
+          repository: arduino/ArduinoCore-mbed
+          # the arduino/actions/libraries/compile-examples action will install the platform from this path
+          path: ${{ env.ARDUINOCORE_MBED_STAGING_PATH }}
+
+      - name: Remove ArduinoCore-API symlink from Arduino mbed-Enabled Boards platform
+        # this step only needed when the Arduino mbed-Enabled Boards platform sourced from the repository is being used
+        if: matrix.board.type == 'mbed'
+        run: rm "${{ env.ARDUINOCORE_MBED_STAGING_PATH }}/cores/arduino/api"
+
+      - name: Checkout ArduinoCore-API
+        # this step only needed when the Arduino mbed-Enabled Boards platform sourced from the repository is being used
+        if: matrix.board.type == 'mbed'
+        uses: actions/checkout@v2
+        with:
+          repository: arduino/ArduinoCore-API
+          # as specified at https://github.com/arduino/ArduinoCore-mbed/blob/master/README.md#installation
+          ref: namespace_arduino
+          path: ${{ env.ARDUINOCORE_API_STAGING_PATH }}
+
+      - name: Install ArduinoCore-API
+        # this step only needed when the Arduino mbed-Enabled Boards platform sourced from the repository is being used
+        if: matrix.board.type == 'mbed'
+        run: |
+          mv "${{ env.ARDUINOCORE_API_STAGING_PATH }}/api" "${{ env.ARDUINOCORE_MBED_STAGING_PATH }}/cores/arduino"
 
       - name: Compile examples
         uses: arduino/actions/libraries/compile-examples@master
