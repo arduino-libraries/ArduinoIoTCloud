@@ -257,7 +257,7 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_SubscribeMqttTopics()
     return State::SubscribeMqttTopics;
   }
 
-  if (!_mqttClient.subscribe(_ota_topic_in))
+  if (!_mqttClient.subscribe(_ota_topic_in, 2 /* qos */))
   {
     DBG_ERROR("ArduinoIoTCloudTCP::%s could not subscribe to %s", __FUNCTION__, _ota_topic_in.c_str());
     return State::SubscribeMqttTopics;
@@ -370,8 +370,10 @@ void ArduinoIoTCloudTCP::handleMessage(int length)
   }
 
 #if OTA_ENABLED
-  if (_ota_topic_in == topic) {
+  if (_ota_topic_in == topic)
+  {
     _ota_logic.onOTADataReceived(bytes, length);
+    _ota_error =static_cast<int>(_ota_logic.update());
   }
 #endif /* OTA_ENABLED */
 }
