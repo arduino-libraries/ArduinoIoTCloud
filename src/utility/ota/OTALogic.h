@@ -57,7 +57,8 @@ enum class OTAError : int
   ChecksumMismatch       = 4,
   ReceivedDataOverrun    = 5,
   RenameOfTempFileFailed = 6,
-  NoOTAStorageConfigured = 7
+  NoOTAStorageConfigured = 7,
+  DownloadFailed         = 8,
 };
 
 /******************************************************************************

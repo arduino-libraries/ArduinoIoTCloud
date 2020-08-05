@@ -173,8 +173,8 @@ void ArduinoIoTCloudTCP::update()
      * 'update' method here in order to process incoming data and generally
      * to transition to the OTA logic update states.
      */
-    OTAError const err = _ota_logic.update();
-    _ota_error = static_cast<int>(err);
+    //OTAError const err = _ota_logic.update();
+    //_ota_error = static_cast<int>(err);
 #endif /* OTA_ENABLED */
 
   /* Run through the state machine. */
@@ -432,55 +432,34 @@ void ArduinoIoTCloudTCP::onOTARequest()
 
   if (_ota_req)
   {
-    WiFiSSLClient ota_client;
-    if (!ota_client.connect("www.107-systems.org", 443)) {
-      DBG_VERBOSE("ArduinoIoTCloudTCP::%s ota_client.connect failed", __FUNCTION__);
+    /* Clear the request flag. */
+    _ota_req = false;
+
+    /* Status flag to prevent the reset from being executed
+     * when HTTPS download is not supported.
+     */
+    bool ota_download_success = false;
+
+#if OTA_STORAGE_SNU
+    /* Just to be safe delete any remains from previous updates. */
+    WiFiStorage.remove("/fs/UPDATE.BIN.LZSS");
+    WiFiStorage.remove("/fs/UPDATE.BIN.LZSS.TMP");
+
+    /* Trigger direct download to nina module. */
+    if (!WiFiStorage.downloadOTA(_ota_url.c_str()))
+    {
+      DBG_ERROR("ArduinoIoTCloudTCP::%s download to NiNa failed", __FUNCTION__, _ota_req ? "true" : "false");
+      _ota_error = static_cast<int>(OTAError::DownloadFailed);
       return;
     }
 
-    /* Request binary via http-get */
-    /*
-    char get_msg[128];
-    snprintf(get_msg, 128, "GET /ota/%s HTTP/1.1", _ota_url.c_str());
-    DBG_VERBOSE("ArduinoIoTCloudTCP::%s \"%s\"", __FUNCTION__, get_msg);
+    /* The download was a success. */
+    ota_download_success = true;
+#endif /* OTA_STORAGE_SNU */
 
-    ota_client.println(get_msg);
-    */
-    ota_client.println("GET /ota/wifi1010-sha256-remote.ota HTTP/1.1");
-    ota_client.println("Host: www.107-systems.org");
-    ota_client.println("Connection: close");
-    ota_client.println();
-
-    /* Read and parse the received data. */
-    bool is_header_complete = false;
-    size_t bytes_recv = 0;
-    String http_header;
-
-    for(; _ota_error == static_cast<int>(OTAError::None);)
-    {
-      while (ota_client.available())
-      {
-        char const c = ota_client.read();
-
-        /* Check if header is complete. */
-        if(!is_header_complete)
-        {
-          http_header += c;
-          is_header_complete = http_header.endsWith("\r\n\r\n");
-          break;
-        }
-
-        /* If we reach this point then the HTTP header has
-        * been received and we can feed the incoming binary
-        * data into the OTA state machine.
-        */
-        if (_ota_logic.onOTADataReceived(reinterpret_cast<uint8_t const *>(&c), 1) == 200)
-        {
-          _ota_error = static_cast<int>(_ota_logic.update());
-          bytes_recv += 200;
-        }
-      }
-    }
+    /* Perform the reset to reboot to SxU. */
+    if (ota_download_success)
+      NVIC_SystemReset();
   }
 }
 #endif
