@@ -25,6 +25,18 @@
 #include <AIoTC_Config.h>
 #if OTA_ENABLED
 
+#if OTA_STORAGE_SNU
+  #include <SNU.h>
+#endif /* OTA_STORAGE_SNU */
+
+#if OTA_STORAGE_SSU
+  #include <SSU.h>
+#endif /* OTA_STORAGE_SSU */
+
+#if OTA_STORAGE_SFU
+  #include <SFU.h>
+#endif /* OTA_STORAGE_SFU */
+
 /******************************************************************************
  * TYPEDEF
  ******************************************************************************/
