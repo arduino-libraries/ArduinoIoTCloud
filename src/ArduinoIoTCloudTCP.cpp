@@ -28,24 +28,10 @@
   #include "tls/utility/CryptoUtil.h"
 #endif
 
+#include "utility/ota/OTA.h"
 #include "utility/ota/FlashSHA256.h"
-#include "utility/ota/OTAStorage_SNU.h"
-#include "utility/ota/OTAStorage_SFU.h"
-#include "utility/ota/OTAStorage_SSU.h"
 
 #include "cbor/CBOREncoder.h"
-
-/******************************************************************************
-   GLOBAL VARIABLES
- ******************************************************************************/
-
-#if   OTA_STORAGE_SSU
-  static OTAStorage_SSU ota_storage_ssu;
-#elif OTA_STORAGE_SFU
-  static OTAStorage_SFU ota_storage_sfu;
-#elif OTA_STORAGE_SNU
-  static OTAStorage_SNU ota_storage_snu;
-#endif
 
 /******************************************************************************
    GLOBAL CONSTANTS
@@ -155,28 +141,18 @@ int ArduinoIoTCloudTCP::begin(String brokerAddress, uint16_t brokerPort)
   _dataTopicIn    = getTopic_datain();
   _ota_topic_in   = getTopic_ota_in();
 
-#if   OTA_STORAGE_SSU
-  setOTAStorage(ota_storage_ssu);
-#elif OTA_STORAGE_SFU
-  setOTAStorage(ota_storage_sfu);
-#elif OTA_STORAGE_SNU
-  setOTAStorage(ota_storage_snu);
-#endif
+#if OTA_ENABLED
+  addPropertyReal(_ota_error, "OTA_ERROR", Permission::Read);
+  addPropertyReal(_ota_img_sha256, "OTA_SHA256", Permission::Read);
+  addPropertyReal(_ota_url, "OTA_URL", Permission::ReadWrite).onSync(DEVICE_WINS);
+  addPropertyReal(_ota_req, "OTA_REQ", Permission::ReadWrite).onSync(DEVICE_WINS).onUpdate(ArduinoIoTCloudTCP::on_OTA_REQ_Update);
+#endif /* OTA_ENABLED */
 
   return 1;
 }
 
 void ArduinoIoTCloudTCP::update()
 {
-#if OTA_ENABLED
-    /* If a _ota_logic object has been instantiated then we are spinning its
-     * 'update' method here in order to process incoming data and generally
-     * to transition to the OTA logic update states.
-     */
-    //OTAError const err = _ota_logic.update();
-    //_ota_error = static_cast<int>(err);
-#endif /* OTA_ENABLED */
-
   /* Run through the state machine. */
   State next_state = _state;
   switch (_state)
@@ -207,17 +183,6 @@ void ArduinoIoTCloudTCP::printDebugInfo()
   DBG_INFO("Thing ID: %s", getThingId().c_str());
   DBG_INFO("MQTT Broker: %s:%d", _brokerAddress.c_str(), _brokerPort);
 }
-
-#if OTA_ENABLED
-void ArduinoIoTCloudTCP::setOTAStorage(OTAStorage & ota_storage)
-{
-  addPropertyReal(_ota_error, "OTA_ERROR", Permission::Read);
-  addPropertyReal(_ota_img_sha256, "OTA_SHA256", Permission::Read);
-  addPropertyReal(_ota_url, "OTA_URL", Permission::ReadWrite).onSync(DEVICE_WINS);
-  addPropertyReal(_ota_req, "OTA_REQ", Permission::ReadWrite).onSync(DEVICE_WINS).onUpdate(ArduinoIoTCloudTCP::on_OTA_REQ_Update);
-  _ota_logic.setOTAStorage(ota_storage);
-}
-#endif /* OTA_ENABLED */
 
 /******************************************************************************
  * PRIVATE MEMBER FUNCTIONS
@@ -372,12 +337,6 @@ void ArduinoIoTCloudTCP::handleMessage(int length)
     execCloudEventCallback(ArduinoIoTCloudEvent::SYNC);
     _state = State::Connected;
   }
-
-#if OTA_ENABLED
-  if (_ota_topic_in == topic) {
-    _ota_logic.onOTADataReceived(bytes, length);
-  }
-#endif /* OTA_ENABLED */
 }
 
 void ArduinoIoTCloudTCP::sendPropertiesToCloud()

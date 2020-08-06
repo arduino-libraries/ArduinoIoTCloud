@@ -25,39 +25,6 @@
 #include <AIoTC_Config.h>
 #if OTA_STORAGE_SFU
 
-#include "OTAStorage.h"
-
 #include <SFU.h>
-
-#include <Arduino_MKRMEM.h>
-
-/******************************************************************************
- * CLASS DECLARATION
- ******************************************************************************/
-
-class OTAStorage_SFU : public OTAStorage
-{
-public:
-
-           OTAStorage_SFU();
-  virtual ~OTAStorage_SFU() { }
-
-
-  virtual bool   init  () override;
-  virtual bool   open  () override;
-  virtual size_t write (uint8_t const * const buf, size_t const num_bytes) override;
-  virtual void   close () override;
-  virtual void   remove() override;
-  virtual bool   rename() override;
-  virtual void   deinit() override;
-
-
-private:
-
-  File  * _file;
-
-};
-
-#endif /* OTA_STORAGE_SFU */
 
 #endif /* ARDUINO_OTA_STORAGE_SFU_H_ */

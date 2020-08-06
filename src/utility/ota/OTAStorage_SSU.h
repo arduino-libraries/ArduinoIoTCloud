@@ -27,35 +27,6 @@
 
 #include <SSU.h>
 
-#include "OTAStorage.h"
-
-#include <GSMFileUtils.h>
-
-/******************************************************************************
- * CLASS DECLARATION
- ******************************************************************************/
-
-class OTAStorage_SSU : public OTAStorage
-{
-public:
-
-  virtual ~OTAStorage_SSU() { }
-
-
-  virtual bool   init  () override;
-  virtual bool   open  () override;
-  virtual size_t write (uint8_t const * const buf, size_t const num_bytes) override;
-  virtual void   close () override;
-  virtual void   remove() override;
-  virtual bool   rename() override;
-  virtual void   deinit() override;
-
-private:
-
-   GSMFileUtils _fileUtils;
-
-};
-
 #endif /* OTA_STORAGE_SSU */
 
 #endif /* ARDUINO_OTA_STORAGE_SSU_H_ */

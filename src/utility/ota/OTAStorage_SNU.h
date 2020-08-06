@@ -27,29 +27,6 @@
 
 #include <SNU.h>
 
-#include "OTAStorage.h"
-
-/******************************************************************************
- * CLASS DECLARATION
- ******************************************************************************/
-
-class OTAStorage_SNU : public OTAStorage
-{
-public:
-
-  virtual ~OTAStorage_SNU() { }
-
-
-  virtual bool   init  () override;
-  virtual bool   open  () override;
-  virtual size_t write (uint8_t const * const buf, size_t const num_bytes) override;
-  virtual void   close () override;
-  virtual void   remove() override;
-  virtual bool   rename() override;
-  virtual void   deinit() override;
-
-};
-
 #endif /* OTA_STORAGE_SNU */
 
 #endif /* ARDUINO_OTA_STORAGE_SNU_H_ */

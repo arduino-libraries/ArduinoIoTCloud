@@ -35,11 +35,6 @@
 
 #include <ArduinoMqttClient.h>
 
-#if OTA_ENABLED
-  #include "utility/ota/OTALogic.h"
-  #include "utility/ota/OTAStorage.h"
-#endif /* OTA_ENABLED */
-
 /******************************************************************************
    CONSTANTS
  ******************************************************************************/
@@ -79,10 +74,6 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
 
     inline String   getBrokerAddress() const { return _brokerAddress; }
     inline uint16_t getBrokerPort   () const { return _brokerPort; }
-
-#if OTA_ENABLED
-    void setOTAStorage(OTAStorage & ota_storage);
-#endif /* OTA_ENABLED */
 
 
   private:
@@ -127,7 +118,6 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
     String _ota_topic_in;
 
 #if OTA_ENABLED
-    OTALogic _ota_logic;
     int _ota_error;
     String _ota_img_sha256;
     String _ota_url;
