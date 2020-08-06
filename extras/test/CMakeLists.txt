@@ -12,7 +12,6 @@ include_directories(include)
 include_directories(../../src)
 include_directories(../../src/cbor)
 include_directories(../../src/property)
-include_directories(../../src/utility/ota)
 include_directories(external/catch/v2.12.1/include)
 include_directories(external/fakeit/v2.0.5/include)
 
@@ -29,8 +28,6 @@ set(TEST_TARGET ${CMAKE_PROJECT_NAME})
 ##########################################################################
 
 set(TEST_SRCS
-  src/test_OTALogic.cpp
-
   src/test_addPropertyReal.cpp
   src/test_callback.cpp
   src/test_CloudColor.cpp
@@ -46,14 +43,10 @@ set(TEST_SRCS
 
 set(TEST_UTIL_SRCS
   src/util/CBORTestUtil.cpp
-  src/util/OTATestUtil.cpp
   src/util/PropertyTestUtil.cpp
 )
 
 set(TEST_DUT_SRCS
-  ../../src/utility/ota/crc.cpp
-  ../../src/utility/ota/OTALogic.cpp
-
   ../../src/property/Property.cpp
   ../../src/property/PropertyContainer.cpp
   ../../src/cbor/CBORDecoder.cpp
