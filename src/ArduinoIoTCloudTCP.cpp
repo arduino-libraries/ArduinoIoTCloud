@@ -446,9 +446,10 @@ void ArduinoIoTCloudTCP::onOTARequest()
     WiFiStorage.remove("/fs/UPDATE.BIN.LZSS.TMP");
 
     /* Trigger direct download to nina module. */
-    if (!WiFiStorage.downloadOTA(_ota_url.c_str()))
+    uint8_t nina_ota_err_code = 0;
+    if (!WiFiStorage.downloadOTA(_ota_url.c_str(), &nina_ota_err_code))
     {
-      DBG_ERROR("ArduinoIoTCloudTCP::%s download to NiNa failed", __FUNCTION__, _ota_req ? "true" : "false");
+      DBG_ERROR("ArduinoIoTCloudTCP::%s error download to nina: %d", __FUNCTION__, nina_ota_err_code);
       _ota_error = static_cast<int>(OTAError::DownloadFailed);
       return;
     }
