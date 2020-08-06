@@ -71,7 +71,6 @@ ArduinoIoTCloudTCP::ArduinoIoTCloudTCP()
 , _shadowTopicIn("")
 , _dataTopicOut("")
 , _dataTopicIn("")
-, _ota_topic_in{""}
 #if OTA_ENABLED
 , _ota_error{static_cast<int>(OTAError::None)}
 , _ota_img_sha256{"Inv."}
@@ -139,7 +138,6 @@ int ArduinoIoTCloudTCP::begin(String brokerAddress, uint16_t brokerPort)
   _shadowTopicIn  = getTopic_shadowin();
   _dataTopicOut   = getTopic_dataout();
   _dataTopicIn    = getTopic_datain();
-  _ota_topic_in   = getTopic_ota_in();
 
 #if OTA_ENABLED
   addPropertyReal(_ota_error, "OTA_ERROR", Permission::Read);
@@ -226,17 +224,11 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_SubscribeMqttTopics()
     return State::SubscribeMqttTopics;
   }
 
-  if (!_mqttClient.subscribe(_ota_topic_in))
-  {
-    DBG_ERROR("ArduinoIoTCloudTCP::%s could not subscribe to %s", __FUNCTION__, _ota_topic_in.c_str());
-    return State::SubscribeMqttTopics;
-  }
-
   if (_shadowTopicIn != "")
   {
     if (!_mqttClient.subscribe(_shadowTopicIn))
     {
-      DBG_ERROR("ArduinoIoTCloudTCP::%s could not subscribe to %s", __FUNCTION__, _ota_topic_in.c_str());
+      DBG_ERROR("ArduinoIoTCloudTCP::%s could not subscribe to %s", __FUNCTION__, _shadowTopicIn.c_str());
       return State::SubscribeMqttTopics;
     }
   }
