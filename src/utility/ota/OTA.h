@@ -15,36 +15,38 @@
    a commercial license, send an email to license@arduino.cc.
 */
 
-#ifndef ARDUINO_OTA_STORAGE_H_
-#define ARDUINO_OTA_STORAGE_H_
+#ifndef ARDUINO_OTA_LOGIC_H_
+#define ARDUINO_OTA_LOGIC_H_
 
 /******************************************************************************
  * INCLUDE
  ******************************************************************************/
 
-#include <stdlib.h>
-#include <stdint.h>
-#include <stdbool.h>
+#include <AIoTC_Config.h>
+#if OTA_ENABLED
+
+#if OTA_STORAGE_SNU
+  #include <SNU.h>
+#endif /* OTA_STORAGE_SNU */
+
+#if OTA_STORAGE_SSU
+  #include <SSU.h>
+#endif /* OTA_STORAGE_SSU */
+
+#if OTA_STORAGE_SFU
+  #include <SFU.h>
+#endif /* OTA_STORAGE_SFU */
 
 /******************************************************************************
- * CLASS DECLARATION
+ * TYPEDEF
  ******************************************************************************/
 
-class OTAStorage
+enum class OTAError : int
 {
-public:
-
-  virtual ~OTAStorage() { }
-
-
-  virtual bool   init  () = 0;
-  virtual bool   open  () = 0;
-  virtual size_t write (uint8_t const * const buf, size_t const num_bytes) = 0;
-  virtual void   close () = 0;
-  virtual void   remove() = 0;
-  virtual bool   rename() = 0;
-  virtual void   deinit() = 0;
-
+  None           = 0,
+  DownloadFailed = 1,
 };
 
-#endif /* ARDUINO_OTA_STORAGE_H_ */
+#endif /* OTA_ENABLED */
+
+#endif /* ARDUINO_OTA_LOGIC_H_ */

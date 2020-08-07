@@ -35,11 +35,6 @@
 
 #include <ArduinoMqttClient.h>
 
-#if OTA_ENABLED
-  #include "utility/ota/OTALogic.h"
-  #include "utility/ota/OTAStorage.h"
-#endif /* OTA_ENABLED */
-
 /******************************************************************************
    CONSTANTS
  ******************************************************************************/
@@ -79,10 +74,6 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
 
     inline String   getBrokerAddress() const { return _brokerAddress; }
     inline uint16_t getBrokerPort   () const { return _brokerPort; }
-
-#if OTA_ENABLED
-    void setOTAStorage(OTAStorage & ota_storage);
-#endif /* OTA_ENABLED */
 
 
   private:
@@ -124,12 +115,12 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
     String _shadowTopicIn;
     String _dataTopicOut;
     String _dataTopicIn;
-    String _ota_topic_in;
 
 #if OTA_ENABLED
-    OTALogic _ota_logic;
     int _ota_error;
     String _ota_img_sha256;
+    String _ota_url;
+    bool _ota_req;
 #endif /* OTA_ENABLED */
 
     inline String getTopic_stdin    () { return String("/a/d/" + getDeviceId() + "/s/i"); }
@@ -138,7 +129,6 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
     inline String getTopic_shadowin () { return ( getThingId().length() == 0) ? String("")                            : String("/a/t/" + getThingId() + "/shadow/i"); }
     inline String getTopic_dataout  () { return ( getThingId().length() == 0) ? String("/a/d/" + getDeviceId() + "/e/o") : String("/a/t/" + getThingId() + "/e/o"); }
     inline String getTopic_datain   () { return ( getThingId().length() == 0) ? String("/a/d/" + getDeviceId() + "/e/i") : String("/a/t/" + getThingId() + "/e/i"); }
-    inline String getTopic_ota_in   () { return String("/a/d/" + getDeviceId() + "/ota/i"); }
 
     State handle_ConnectPhy();
     State handle_SyncTime();
@@ -153,6 +143,10 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
     void requestLastValue();
     int write(String const topic, byte const data[], int const length);
 
+#if OTA_ENABLED
+    static void on_OTA_REQ_Update();
+    void onOTARequest();
+#endif
 };
 
 /******************************************************************************
