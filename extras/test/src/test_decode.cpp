@@ -24,7 +24,7 @@
 #include "types/automation/CloudMotionSensor.h"
 #include "types/automation/CloudSmartPlug.h"
 #include "types/automation/CloudSwitch.h"
-#include "types/automation/CloudTemperature.h"
+#include "types/automation/CloudTemperatureSensor.h"
 #include "types/automation/CloudTelevision.h"
 
 /**************************************************************************************
@@ -368,7 +368,7 @@ SCENARIO("Arduino Cloud Properties are decoded", "[ArduinoCloudThing::decode]")
   {
     PropertyContainer property_container;
         
-    CloudTemperature test;
+    CloudTemperatureSensor test;
     test = 0.0f;
     addPropertyToContainer(property_container, test, "test", Permission::ReadWrite);
 

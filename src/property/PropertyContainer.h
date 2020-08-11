@@ -43,7 +43,7 @@
 #include "types/automation/CloudMotionSensor.h"
 #include "types/automation/CloudSmartPlug.h"
 #include "types/automation/CloudSwitch.h"
-#include "types/automation/CloudTemperature.h"
+#include "types/automation/CloudTemperatureSensor.h"
 #include "types/automation/CloudTelevision.h"
 
 /******************************************************************************
@@ -57,6 +57,37 @@ extern "C" unsigned long getTime();
  ******************************************************************************/
 
 typedef std::list<Property *> PropertyContainer;
+
+typedef CloudFloat CloudEnergy;
+typedef CloudFloat CloudForce;
+typedef CloudFloat CloudTemperature;
+typedef CloudFloat CloudPower;
+typedef CloudFloat CloudElectricCurrent;
+typedef CloudFloat CloudElectricPotention;
+typedef CloudFloat CloudElectricResistance;
+typedef CloudFloat CloudCapacitance;
+typedef CloudFloat CloudTime;
+typedef CloudFloat CloudFrequency;
+typedef CloudFloat CloudDataRate;
+typedef CloudFloat CloudHeartRate;
+typedef CloudInt   CloudCounter;
+typedef CloudFloat CloudAcceleration;
+typedef CloudFloat CloudArea;
+typedef CloudFloat CloudLenght;
+typedef CloudFloat CloudVelocity;
+typedef CloudFloat CloudMass;
+typedef CloudFloat CloudVolume;
+typedef CloudFloat CloudFlowRate;
+typedef CloudFloat CloudAngle;
+typedef CloudFloat CloudIlluminance;
+typedef CloudFloat CloudLuminousFlux;
+typedef CloudFloat CloudLuminance;
+typedef CloudFloat CloudLuminousIntensity;
+typedef CloudFloat CloudLogarithmicQuantity;
+typedef CloudFloat CloudPressure;
+typedef CloudInt   CloudInformationContent;
+typedef CloudFloat CloudPercentage;
+typedef CloudFloat CloudRelativeHumidity;
 
 /******************************************************************************
    FUNCTION DECLARATION
