@@ -15,30 +15,28 @@
 // a commercial license, send an email to license@arduino.cc.
 //
 
-#ifndef CLOUDTEMPERATURE_H_
-#define CLOUDTEMPERATURE_H_
+#ifndef CLOUD_TEMPERATURE_SENSOR_H_
+#define CLOUD_TEMPERATURE_SENSOR_H_
 
 /******************************************************************************
    INCLUDE
  ******************************************************************************/
 
-#include <Arduino.h>
 #include "../CloudFloat.h"
 
 /******************************************************************************
    CLASS DECLARATION
  ******************************************************************************/
 
-
-
-class CloudTemperature : public CloudFloat {
-  private:
+class CloudTemperatureSensor : public CloudFloat
+{
   public:
-    CloudTemperature& operator=(float v) {
+
+    CloudTemperatureSensor & operator = (float v)
+    {
       CloudFloat::operator=(v);
       return *this;
     }
 };
 
-
-#endif /* CLOUDTEMPERATURE_H_ */
+#endif /* CLOUD_TEMPERATURE_SENSOR_H_ */
