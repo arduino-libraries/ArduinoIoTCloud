@@ -146,6 +146,14 @@ int ArduinoIoTCloudTCP::begin(String brokerAddress, uint16_t brokerPort)
   addPropertyReal(_ota_req, "OTA_REQ", Permission::ReadWrite).onSync(DEVICE_WINS).onUpdate(ArduinoIoTCloudTCP::on_OTA_REQ_Update);
 #endif /* OTA_ENABLED */
 
+#if OTA_STORAGE_SNU
+  String const nina_fw_version = WiFi.firmwareVersion();
+  if (nina_fw_version < "1.4.1") {
+    DBG_ERROR("ArduinoIoTCloudTCP::%s error nina firmware needs to be >= 1.4.1, current %s", __FUNCTION__, nina_fw_version.c_str());
+    return 0;
+  }
+#endif /* OTA_STORAGE_SNU */
+
   return 1;
 }
 
