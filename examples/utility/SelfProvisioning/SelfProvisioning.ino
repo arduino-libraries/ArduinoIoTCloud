@@ -17,7 +17,6 @@
 
 #include "arduino_secrets.h"
 #include "ECCX08TLSConfig.h"
-#include <ArduinoBearSSL.h>
 #include <ArduinoECCX08.h>
 #include <Arduino_JSON.h>
 #include <ArduinoIoTCloud.h>
@@ -80,18 +79,15 @@ void setup() {
 
   while ( status != WL_CONNECTED) {
     Serial.print("Attempting to connect to Network named: ");
-    Serial.println(ssid);                   // print the network name (SSID);
+    Serial.println(ssid);
 
-    // Connect to WPA/WPA2 network:
     status = WiFi.begin(ssid, pass);
-    delay(5000);
+    delay(10000);
   }
 
-  // print the SSID of the network you're attached to:
   Serial.print("SSID: ");
   Serial.println(WiFi.SSID());
 
-  // print your WiFi shield's IP address:
   IPAddress ip = WiFi.localIP();
   Serial.print("IP Address: ");
   Serial.println(ip);
@@ -325,7 +321,6 @@ void ArduinoToken(String client_id, String client_secret) {
   PostData += "&audience=https://api2.arduino.cc/iot";
   
   if (client.connect(server, 443)) {
-    //Serial.println("connected to server");
     client.println("POST /iot/v1/clients/token HTTP/1.1");
     client.println("Host: api2.arduino.cc");
     client.println("Connection: close");
@@ -354,7 +349,6 @@ void ArduinoToken(String client_id, String client_secret) {
   int intIndex = 0;
   while (client.available()) {
     tokenResponse[intIndex] = client.read();
-    //Serial.write(tokenResponse[intIndex]);
     if (tokenResponse[intIndex] == -1) {
       break;
     }
@@ -379,7 +373,6 @@ void BoardUuid(String board_name, String board_type, String board_fqbn, String b
   PostData += "\"}";
 
   if (client.connect(server, 443)) {
-    //Serial.println("connected to server");
     client.println("PUT /iot/v2/devices HTTP/1.1");
     client.println("Host: api2.arduino.cc");
     client.println("Connection: close");
@@ -432,7 +425,6 @@ void ArduinoCertificate(String user_token, String DeviceUuid, String csr) {
   PostData += "\",\"enabled\":true}";
 
   if (client.connect(server, 443)) {
-    //Serial.println("connected to server");
     client.print("PUT ");
     client.print(url);
     client.println(" HTTP/1.1");
@@ -450,10 +442,7 @@ void ArduinoCertificate(String user_token, String DeviceUuid, String csr) {
   while (!client.available()) {
     ;
   }
-//  while (client.available()) {
-//    char c = client.read();
-//    Serial.write(c);
-//  }
+
   char endOfHeaders[] = "\r\n\r\n";
   if (!client.find(endOfHeaders)) {
     Serial.println("Invalid response");
