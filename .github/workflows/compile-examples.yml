@@ -60,7 +60,7 @@ jobs:
               - name: WiFi101
               - source-url: https://github.com/arduino-libraries/WiFiNINA.git
               - name: Arduino_MKRMEM
-            sketch-paths: '"examples/utility/Provisioning"'
+            sketch-paths: '"examples/utility/Provisioning" "examples/utility/SelfProvisioning"'
           # LoRaWAN boards
           - board:
               type: "wan"
