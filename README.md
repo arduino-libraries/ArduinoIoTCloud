@@ -14,7 +14,7 @@ The `ArduinoIoTCloud` library is the central element of the firmware enabling ce
 * **LoRa**: [`MKR WAN 1300/1310`](https://store.arduino.cc/mkr-wan-1310)
 
 ### How?
-1) Register your Arduino IoT Cloud capable board via [Device Manager](https://create.arduino.cc/devices).
+1) Register your Arduino IoT Cloud capable board via [Arduino IoT Cloud](https://create.arduino.cc/iot) (Devices Section).
 2) Create a new logical representation known as a [Thing](https://create.arduino.cc/iot/things).
 
 ### Arduino IoT Cloud Components
