@@ -35,9 +35,9 @@ jobs:
 
       matrix:
         board: [
-          {"fqbn": "arduino:samd:mkr1000", "type": "wifi"},
-          {"fqbn": "arduino:samd:mkrwifi1010", "type": "wifi"},
-          {"fqbn": "arduino:samd:nano_33_iot", "type": "wifi"},
+          {"fqbn": "arduino:samd:mkr1000", "type": "mkr1000"},
+          {"fqbn": "arduino:samd:mkrwifi1010", "type": "nina"},
+          {"fqbn": "arduino:samd:nano_33_iot", "type": "nina"},
           {"fqbn": "arduino:samd:mkrwan1300", "type": "wan"},
           {"fqbn": "arduino:samd:mkrgsm1400", "type": "gsm"},
           {"fqbn": "arduino:samd:mkrnb1500", "type": "nb"},
@@ -48,9 +48,9 @@ jobs:
 
         # make board type-specific customizations to the matrix jobs
         include:
-          # WiFi boards
+          # MKR 1000
           - board:
-              type: "wifi"
+              type: "mkr1000"
             platforms: |
               # Install Arduino SAMD Boards via Boards Manager for the toolchain
               - name: arduino:samd
@@ -58,8 +58,17 @@ jobs:
               - name: ArduinoECCX08
               - name: RTCZero
               - name: WiFi101
+            sketch-paths: '"examples/utility/Provisioning"'
+          # MKR WiFi 1010, Nano 33 IoT
+          - board:
+              type: "nina"
+            platforms: |
+              # Install Arduino SAMD Boards via Boards Manager for the toolchain
+              - name: arduino:samd
+            libraries: |
+              - name: ArduinoECCX08
+              - name: RTCZero
               - source-url: https://github.com/arduino-libraries/WiFiNINA.git
-              - name: Arduino_MKRMEM
               - name: Arduino_JSON
               - name: ArduinoBearSSL
             sketch-paths: '"examples/utility/Provisioning" "examples/utility/SelfProvisioning"'
