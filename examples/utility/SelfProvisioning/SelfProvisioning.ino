@@ -17,9 +17,10 @@
 
 #include "arduino_secrets.h"
 #include "ECCX08TLSConfig.h"
+#include "ECCX08Cert.h"
 #include <ArduinoECCX08.h>
 #include <Arduino_JSON.h>
-#include <ArduinoIoTCloud.h>
+#include <WiFiNINA.h>
 
 // from section 10.3.3 of the SAMD datasheet
 #define SERIAL_NUMBER_WORD_0  *(volatile uint32_t*)(0x0080A00C)
@@ -81,6 +82,7 @@ void setup() {
     Serial.print("Attempting to connect to Network named: ");
     Serial.println(ssid);
 
+    // Connect to WPA/WPA2 network:
     status = WiFi.begin(ssid, pass);
     delay(10000);
   }
