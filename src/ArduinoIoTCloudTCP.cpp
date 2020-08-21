@@ -65,8 +65,6 @@ ArduinoIoTCloudTCP::ArduinoIoTCloudTCP()
 , _password("")
   #endif
 , _mqttClient{nullptr}
-, _stdinTopic("")
-, _stdoutTopic("")
 , _shadowTopicOut("")
 , _shadowTopicIn("")
 , _dataTopicOut("")
@@ -132,8 +130,6 @@ int ArduinoIoTCloudTCP::begin(String brokerAddress, uint16_t brokerPort)
   _mqttClient.setConnectionTimeout(1500);
   _mqttClient.setId(getDeviceId().c_str());
 
-  _stdinTopic     = getTopic_stdin();
-  _stdoutTopic    = getTopic_stdout();
   _shadowTopicOut = getTopic_shadowout();
   _shadowTopicIn  = getTopic_shadowin();
   _dataTopicOut   = getTopic_dataout();
@@ -220,12 +216,6 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_ConnectMqttBroker()
 
 ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_SubscribeMqttTopics()
 {
-  if (!_mqttClient.subscribe(_stdinTopic))
-  {
-    DBG_ERROR("ArduinoIoTCloudTCP::%s could not subscribe to %s", __FUNCTION__, _stdinTopic.c_str());
-    return State::SubscribeMqttTopics;
-  }
-
   if (!_mqttClient.subscribe(_dataTopicIn))
   {
     DBG_ERROR("ArduinoIoTCloudTCP::%s could not subscribe to %s", __FUNCTION__, _dataTopicIn.c_str());
