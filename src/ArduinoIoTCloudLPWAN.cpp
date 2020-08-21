@@ -87,8 +87,8 @@ void ArduinoIoTCloudLPWAN::update()
 
 void ArduinoIoTCloudLPWAN::printDebugInfo()
 {
-  DBG_INFO("***** Arduino IoT Cloud LPWAN - configuration info *****");
-  DBG_INFO("Thing ID: %s", getThingId().c_str());
+  DBG_INFO(F("***** Arduino IoT Cloud LPWAN - configuration info *****"));
+  DBG_INFO(F("Thing ID: %s"), getThingId().c_str());
 }
 
 /******************************************************************************
@@ -106,8 +106,8 @@ ArduinoIoTCloudLPWAN::State ArduinoIoTCloudLPWAN::handle_ConnectPhy()
 ArduinoIoTCloudLPWAN::State ArduinoIoTCloudLPWAN::handle_SyncTime()
 {
   unsigned long const internal_posix_time = _time_service.getTime();
-  DBG_VERBOSE("ArduinoIoTCloudLPWAN::%s internal clock configured to posix timestamp %d", __FUNCTION__, internal_posix_time);
-  DBG_INFO("Connected to Arduino IoT Cloud");
+  DBG_VERBOSE(F("ArduinoIoTCloudLPWAN::%s internal clock configured to posix timestamp %d"), __FUNCTION__, internal_posix_time);
+  DBG_INFO(F("Connected to Arduino IoT Cloud"));
   return State::Connected;
 }
 
@@ -115,7 +115,7 @@ ArduinoIoTCloudLPWAN::State ArduinoIoTCloudLPWAN::handle_Connected()
 {
   if (!connected())
   {
-    DBG_ERROR("ArduinoIoTCloudLPWAN::%s connection to gateway lost", __FUNCTION__);
+    DBG_ERROR(F("ArduinoIoTCloudLPWAN::%s connection to gateway lost"), __FUNCTION__);
     return State::ConnectPhy;
   }
 
