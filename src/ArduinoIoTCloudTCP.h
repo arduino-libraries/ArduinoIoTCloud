@@ -114,6 +114,7 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
     String _dataTopicIn;
 
 #if OTA_ENABLED
+    bool _ota_cap;
     int _ota_error;
     String _ota_img_sha256;
     String _ota_url;

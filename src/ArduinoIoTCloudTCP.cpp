@@ -70,6 +70,7 @@ ArduinoIoTCloudTCP::ArduinoIoTCloudTCP()
 , _dataTopicOut("")
 , _dataTopicIn("")
 #if OTA_ENABLED
+, _ota_cap{false}
 , _ota_error{static_cast<int>(OTAError::None)}
 , _ota_img_sha256{"Inv."}
 , _ota_url{""}
@@ -136,6 +137,10 @@ int ArduinoIoTCloudTCP::begin(String brokerAddress, uint16_t brokerPort)
   _dataTopicIn    = getTopic_datain();
 
 #if OTA_ENABLED
+#if OTA_STORAGE_SNU
+  _ota_cap = true;
+#endif
+  addPropertyReal(_ota_cap, "OTA_CAP", Permission::Read);
   addPropertyReal(_ota_error, "OTA_ERROR", Permission::Read);
   addPropertyReal(_ota_img_sha256, "OTA_SHA256", Permission::Read);
   addPropertyReal(_ota_url, "OTA_URL", Permission::ReadWrite).onSync(DEVICE_WINS);
