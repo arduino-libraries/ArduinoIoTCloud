@@ -23,7 +23,7 @@ jobs:
         - source-path: ./
         - source-url: https://github.com/arduino-libraries/Arduino_ConnectionHandler.git
           version: latest
-        - source-url: https://github.com/arduino-libraries/Arduino_DebugUtils.git
+        - name: Arduino_DebugUtils
         - name: ArduinoMqttClient
       # sketch paths to compile (recursive) for all boards
       UNIVERSAL_SKETCH_PATHS: '"examples/ArduinoIoTCloud-Advanced" "examples/ArduinoIoTCloud-Basic" "examples/utility/ArduinoIoTCloud_Travis_CI"'
