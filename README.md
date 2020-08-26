@@ -64,3 +64,10 @@ void onLedChange() {
   digitalWrite(LED_BUILTIN, led);
 }
 ```
+
+### FAQ
+* Device can not subscribe to `THING_ID`
+```
+ArduinoIoTCloudTCP::handle_SubscribeMqttTopics could not subscribe to /a/t/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/e/i
+```
+In this case either the device has not been associated with the thing within the Arduino IoT Cloud GUI configuration or there's a typo in the thing id.
