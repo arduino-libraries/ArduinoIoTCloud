@@ -148,7 +148,7 @@ int ArduinoIoTCloudTCP::begin(String brokerAddress, uint16_t brokerPort)
   String const nina_fw_version = WiFi.firmwareVersion();
   if (nina_fw_version < "1.4.1") {
     _ota_cap = false;
-    DBG_WARNING(F("ArduinoIoTCloudTCP::%s In order to be ready for cloud OTA nina firmware needs to be >= 1.4.1, current %s"), __FUNCTION__, nina_fw_version.c_str());
+    DBG_WARNING(F("ArduinoIoTCloudTCP::%s In order to be ready for cloud OTA, NINA firmware needs to be >= 1.4.1, current %s"), __FUNCTION__, nina_fw_version.c_str());
   }
   else {
     _ota_cap = true;
