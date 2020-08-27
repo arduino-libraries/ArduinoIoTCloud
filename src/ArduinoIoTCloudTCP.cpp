@@ -137,9 +137,6 @@ int ArduinoIoTCloudTCP::begin(String brokerAddress, uint16_t brokerPort)
   _dataTopicIn    = getTopic_datain();
 
 #if OTA_ENABLED
-#if OTA_STORAGE_SNU
-  _ota_cap = true;
-#endif
   addPropertyReal(_ota_cap, "OTA_CAP", Permission::Read);
   addPropertyReal(_ota_error, "OTA_ERROR", Permission::Read);
   addPropertyReal(_ota_img_sha256, "OTA_SHA256", Permission::Read);
@@ -150,8 +147,11 @@ int ArduinoIoTCloudTCP::begin(String brokerAddress, uint16_t brokerPort)
 #if OTA_STORAGE_SNU
   String const nina_fw_version = WiFi.firmwareVersion();
   if (nina_fw_version < "1.4.1") {
-    DBG_ERROR(F("ArduinoIoTCloudTCP::%s error nina firmware needs to be >= 1.4.1, current %s"), __FUNCTION__, nina_fw_version.c_str());
-    return 0;
+    _ota_cap = false;
+    DBG_WARNING(F("ArduinoIoTCloudTCP::%s In order to be ready for cloud OTA, NINA firmware needs to be >= 1.4.1, current %s"), __FUNCTION__, nina_fw_version.c_str());
+  }
+  else {
+    _ota_cap = true;
   }
 #endif /* OTA_STORAGE_SNU */
 
