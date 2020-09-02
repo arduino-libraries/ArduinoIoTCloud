@@ -54,8 +54,8 @@ String str_property_6;
 String str_property_7;
 String str_property_8;
 
-const int MIN_NTP_PORT = 49152;
-const int MAX_NTP_PORT = 65535;
+int MIN_NTP_PORT = 49152;
+int MAX_NTP_PORT = 65535;
 
 #if defined(BOARD_HAS_WIFI)
   WiFiConnectionHandler ArduinoIoTPreferredConnection(SECRET_SSID, SECRET_PASS);
