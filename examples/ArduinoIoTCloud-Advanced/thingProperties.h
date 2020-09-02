@@ -4,6 +4,9 @@
 #define THING_ID "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
 #define BOARD_ID "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
 
+const int MIN_NTP_PORT = 49152;
+const int MAX_NTP_PORT = 65535;
+
 void onSwitchButtonChange();
 void onColorChange();
 
