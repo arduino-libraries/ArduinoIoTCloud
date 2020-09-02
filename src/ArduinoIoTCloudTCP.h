@@ -108,23 +108,19 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
 
     MqttClient _mqttClient;
 
-    // Class attribute to define MTTQ topics 2 for stdIn/out and 2 for data, in order to avoid getting previous pupblished payload
-    String _stdinTopic;
-    String _stdoutTopic;
     String _shadowTopicOut;
     String _shadowTopicIn;
     String _dataTopicOut;
     String _dataTopicIn;
 
 #if OTA_ENABLED
+    bool _ota_cap;
     int _ota_error;
     String _ota_img_sha256;
     String _ota_url;
     bool _ota_req;
 #endif /* OTA_ENABLED */
 
-    inline String getTopic_stdin    () { return String("/a/d/" + getDeviceId() + "/s/i"); }
-    inline String getTopic_stdout   () { return String("/a/d/" + getDeviceId() + "/s/o"); }
     inline String getTopic_shadowout() { return ( getThingId().length() == 0) ? String("")                            : String("/a/t/" + getThingId() + "/shadow/o"); }
     inline String getTopic_shadowin () { return ( getThingId().length() == 0) ? String("")                            : String("/a/t/" + getThingId() + "/shadow/i"); }
     inline String getTopic_dataout  () { return ( getThingId().length() == 0) ? String("/a/d/" + getDeviceId() + "/e/o") : String("/a/t/" + getThingId() + "/e/o"); }
