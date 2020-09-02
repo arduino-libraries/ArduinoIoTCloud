@@ -37,22 +37,26 @@
  * CLASS DECLARATION
  **************************************************************************************/
 
+#define NTP_DEFAULT_LOCAL_PORT 8888
+extern const int  MIN_NTP_PORT;
+extern const int  MAX_NTP_PORT;
+
 class NTPUtils
 {
 public:
 
   static unsigned long getTime(UDP & udp);
+  int setRandomPort(int minValue, int maxValue);
 
 private:
 
   static size_t        const NTP_PACKET_SIZE      = 48;
   static int           const NTP_TIME_SERVER_PORT = 123;
-  static int           const NTP_LOCAL_PORT       = 8888;
+  static int           const NTP_LOCAL_PORT       = NTP_DEFAULT_LOCAL_PORT;
   static unsigned long const NTP_TIMEOUT_MS       = 1000;
   static char constexpr *    NTP_TIME_SERVER      = "time.arduino.cc";
 
   static void sendNTPpacket(UDP & udp);
-
 };
 
 #endif /* #ifndef HAS_LORA */

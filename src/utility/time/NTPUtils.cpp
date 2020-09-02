@@ -25,6 +25,12 @@
 #include "NTPUtils.h"
 
 #include <Arduino.h>
+#ifdef BOARD_HAS_ECCX08
+  #include <ArduinoECCX08.h>
+  bool has_crypto = 1;
+#else
+  bool has_crypto = 0;
+#endif
 
 /**************************************************************************************
  * PUBLIC MEMBER FUNCTIONS
@@ -32,8 +38,10 @@
 
 unsigned long NTPUtils::getTime(UDP & udp)
 {
-  udp.begin(NTP_LOCAL_PORT);
-  
+  NTPUtils randomPort;
+  int _randomPort = randomPort.setRandomPort(MIN_NTP_PORT, MAX_NTP_PORT);
+  udp.begin(_randomPort);
+
   sendNTPpacket(udp);
 
   bool is_timeout = false;
@@ -81,6 +89,15 @@ void NTPUtils::sendNTPpacket(UDP & udp)
   udp.beginPacket(NTP_TIME_SERVER, NTP_TIME_SERVER_PORT);
   udp.write(ntp_packet_buf, NTP_PACKET_SIZE);
   udp.endPacket();
+}
+
+int NTPUtils::setRandomPort(int minValue, int maxValue) {
+  if (has_crypto) {
+    return ECCX08.random(minValue, maxValue);
+  } else {
+    randomSeed(analogRead(0));
+    return random(minValue, maxValue);
+  }
 }
 
 #endif /* #ifndef HAS_LORA */
