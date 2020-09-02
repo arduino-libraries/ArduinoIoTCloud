@@ -9,6 +9,9 @@ const int compressedCertSlot                        = 10;
 const int serialNumberAndAuthorityKeyIdentifierSlot = 11;
 const int deviceIdSlot                              = 12;
 
+const int MIN_NTP_PORT = 49152;
+const int MAX_NTP_PORT = 65535;
+
 ECCX08CertClass ECCX08Cert;
 
 void setup() {
