@@ -34,9 +34,6 @@ const int compressedCertSlot                        = 10;
 const int serialNumberAndAuthorityKeyIdentifierSlot = 11;
 const int deviceIdSlot                              = 12;
 
-int MIN_NTP_PORT = 49152;
-int MAX_NTP_PORT = 65535;
-
 char ssid[] = SECRET_SSID;
 char pass[] = SECRET_PASS;
 char client_id[] = SECRET_CLIENT_ID;
