@@ -27,9 +27,6 @@
 #include <Arduino.h>
 #ifdef BOARD_HAS_ECCX08
   #include <ArduinoECCX08.h>
-  bool has_crypto = 1;
-#else
-  bool has_crypto = 0;
 #endif
 
 /**************************************************************************************
@@ -91,13 +88,14 @@ void NTPUtils::sendNTPpacket(UDP & udp)
   udp.endPacket();
 }
 
-int NTPUtils::setRandomPort(int minValue, int maxValue) {
-  if (has_crypto) {
-    return ECCX08.random(minValue, maxValue);
-  } else {
-    randomSeed(analogRead(0));
-    return random(minValue, maxValue);
-  }
+int NTPUtils::setRandomPort(int minValue, int maxValue)
+{
+#ifdef BOARD_HAS_ECCX08
+  return ECCX08.random(minValue, maxValue);
+#else
+  randomSeed(analogRead(0));
+  return random(minValue, maxValue);
+#endif
 }
 
 #endif /* #ifndef HAS_LORA */
