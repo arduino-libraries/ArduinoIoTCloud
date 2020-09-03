@@ -25,6 +25,9 @@
 #include "NTPUtils.h"
 
 #include <Arduino.h>
+#ifdef BOARD_HAS_ECCX08
+  #include <ArduinoECCX08.h>
+#endif
 
 /**************************************************************************************
  * PUBLIC MEMBER FUNCTIONS
@@ -32,8 +35,12 @@
 
 unsigned long NTPUtils::getTime(UDP & udp)
 {
+#ifdef NTP_USE_RANDOM_PORT
+  udp.begin(NTPUtils::getRandomPort(MIN_NTP_PORT, MAX_NTP_PORT));
+#else
   udp.begin(NTP_LOCAL_PORT);
-  
+#endif
+
   sendNTPpacket(udp);
 
   bool is_timeout = false;
@@ -81,6 +88,16 @@ void NTPUtils::sendNTPpacket(UDP & udp)
   udp.beginPacket(NTP_TIME_SERVER, NTP_TIME_SERVER_PORT);
   udp.write(ntp_packet_buf, NTP_PACKET_SIZE);
   udp.endPacket();
+}
+
+int NTPUtils::getRandomPort(int const min_port, int const max_port)
+{
+#ifdef BOARD_HAS_ECCX08
+  return ECCX08.random(min_port, max_port);
+#else
+  randomSeed(analogRead(0));
+  return random(min_port, max_port);
+#endif
 }
 
 #endif /* #ifndef HAS_LORA */

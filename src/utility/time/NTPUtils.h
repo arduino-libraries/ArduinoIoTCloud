@@ -42,17 +42,21 @@ class NTPUtils
 public:
 
   static unsigned long getTime(UDP & udp);
+  static int getRandomPort(int const min_port, int const max_port);
 
 private:
 
   static size_t        const NTP_PACKET_SIZE      = 48;
   static int           const NTP_TIME_SERVER_PORT = 123;
   static int           const NTP_LOCAL_PORT       = 8888;
+#if NTP_USE_RANDOM_PORT
+  static int           const MIN_NTP_PORT         = 49152;
+  static int           const MAX_NTP_PORT         = 65535;
+#endif
   static unsigned long const NTP_TIMEOUT_MS       = 1000;
   static char constexpr *    NTP_TIME_SERVER      = "time.arduino.cc";
 
   static void sendNTPpacket(UDP & udp);
-
 };
 
 #endif /* #ifndef HAS_LORA */

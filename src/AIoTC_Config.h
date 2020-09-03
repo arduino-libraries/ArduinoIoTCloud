@@ -26,6 +26,10 @@
   #define OTA_STORAGE_SFU         (0)
 #endif
 
+#ifndef NTP_USE_RANDOM_PORT
+  #define NTP_USE_RANDOM_PORT     (1)
+#endif
+
 #ifndef DBG_ERROR
   #define DBG_ERROR(fmt, ...) Debug.print(DBG_ERROR, fmt, ## __VA_ARGS__)
 #endif
