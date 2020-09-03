@@ -35,9 +35,11 @@
 
 unsigned long NTPUtils::getTime(UDP & udp)
 {
-  NTPUtils randomPort;
-  int _randomPort = randomPort.setRandomPort(MIN_NTP_PORT, MAX_NTP_PORT);
-  udp.begin(_randomPort);
+#ifdef NTP_USE_RANDOM_PORT
+  udp.begin(NTPUtils::getRandomPort(MIN_NTP_PORT, MAX_NTP_PORT));
+#else
+  udp.begin(NTP_LOCAL_PORT);
+#endif
 
   sendNTPpacket(udp);
 
@@ -88,13 +90,13 @@ void NTPUtils::sendNTPpacket(UDP & udp)
   udp.endPacket();
 }
 
-int NTPUtils::setRandomPort(int minValue, int maxValue)
+int NTPUtils::getRandomPort(int const min_port, int const max_port)
 {
 #ifdef BOARD_HAS_ECCX08
-  return ECCX08.random(minValue, maxValue);
+  return ECCX08.random(min_port, max_port);
 #else
   randomSeed(analogRead(0));
-  return random(minValue, maxValue);
+  return random(min_port, max_port);
 #endif
 }
 
