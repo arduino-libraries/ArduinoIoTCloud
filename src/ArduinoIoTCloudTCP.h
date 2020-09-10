@@ -98,13 +98,15 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
     int _mqtt_data_len;
     bool _mqtt_data_request_retransmit;
 
-    #ifdef BOARD_HAS_ECCX08
+#if BOARD_HAS_NINA
+    WiFiSSLClient _sslClient;
+#elif defined(BOARD_HAS_ECCX08)
     ECCX08CertClass _eccx08_cert;
     BearSSLClient _sslClient;
-    #elif defined(BOARD_ESP)
+#elif defined(BOARD_ESP)
     WiFiClientSecure _sslClient;
     String _password;
-    #endif
+#endif
 
     MqttClient _mqttClient;
 

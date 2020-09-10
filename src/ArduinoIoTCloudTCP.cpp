@@ -58,7 +58,9 @@ ArduinoIoTCloudTCP::ArduinoIoTCloudTCP()
 , _mqtt_data_buf{0}
 , _mqtt_data_len{0}
 , _mqtt_data_request_retransmit{false}
-#ifdef BOARD_HAS_ECCX08
+#if BOARD_HAS_NINA
+  /* Do nothing here because we are using onboard onboard SSL on NINA. */
+#elif defined(BOARD_HAS_ECCX08)
 , _sslClient(nullptr, ArduinoIoTCloudTrustAnchor, ArduinoIoTCloudTrustAnchor_NUM, getTime)
 #endif
   #ifdef BOARD_ESP
@@ -112,15 +114,17 @@ int ArduinoIoTCloudTCP::begin(String brokerAddress, uint16_t brokerPort)
   _ota_img_sha256 = FlashSHA256::calc(0x2000, 0x40000 - 0x2000);
 #endif /* OTA_ENABLED */
 
-  #ifdef BOARD_HAS_ECCX08
+#if BOARD_HAS_NINA
+  /* Do nothing here because we are using onboard SSL on NINA. */
+#elif defined(BOARD_HAS_ECCX08)
   if (!ECCX08.begin())                                                                                                                                                         { DBG_ERROR(F("Cryptography processor failure. Make sure you have a compatible board.")); return 0; }
   if (!CryptoUtil::readDeviceId(ECCX08, getDeviceId(), ECCX08Slot::DeviceId))                                                                                                  { DBG_ERROR(F("Cryptography processor read failure.")); return 0; }
   if (!CryptoUtil::reconstructCertificate(_eccx08_cert, getDeviceId(), ECCX08Slot::Key, ECCX08Slot::CompressedCertificate, ECCX08Slot::SerialNumberAndAuthorityKeyIdentifier)) { DBG_ERROR(F("Cryptography certificate reconstruction failure.")); return 0; }
   _sslClient.setClient(_connection->getClient());
   _sslClient.setEccSlot(static_cast<int>(ECCX08Slot::Key), _eccx08_cert.bytes(), _eccx08_cert.length());
-  #elif defined(BOARD_ESP)
+#elif defined(BOARD_ESP)
   _sslClient.setInsecure();
-  #endif
+#endif
 
   _mqttClient.setClient(_sslClient);
   #ifdef BOARD_ESP
