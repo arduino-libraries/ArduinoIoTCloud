@@ -17,14 +17,11 @@ in_file = open(ifile, "rb")
 bin_data = bytearray(in_file.read())
 in_file.close()
 
-# Magic number (VID/PID), hard coded for MKR VIDOR 4000 right now
-magic_number_mkr_wifi_1010 = bytearray([0x23, 0x41, 0x80, 0x54])
-magic_number_nano_33_iot   = bytearray([0x23, 0x41, 0x80, 0x57])
-
+# Magic number (VID/PID)
 if board == "MKR_WIFI_1010":
-    magic_number = magic_number_mkr_wifi_1010
+    magic_number = 0x23418054.to_bytes(4,byteorder='little')
 elif board == "NANO_33_IOT":
-    magic_number = magic_number_nano_33_iot
+    magic_number = 0x23418057.to_bytes(4,byteorder='little')
 else:
     print ("Error,", board, "is not a supported board type")
     sys.exit()
