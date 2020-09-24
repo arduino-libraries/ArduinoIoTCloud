@@ -141,7 +141,7 @@ int ArduinoIoTCloudTCP::begin(String brokerAddress, uint16_t brokerPort)
   addPropertyReal(_ota_error, "OTA_ERROR", Permission::Read);
   addPropertyReal(_ota_img_sha256, "OTA_SHA256", Permission::Read);
   addPropertyReal(_ota_url, "OTA_URL", Permission::ReadWrite).onSync(DEVICE_WINS);
-  addPropertyReal(_ota_req, "OTA_REQ", Permission::ReadWrite).onSync(DEVICE_WINS).onUpdate(ArduinoIoTCloudTCP::on_OTA_REQ_Update);
+  addPropertyReal(_ota_req, "OTA_REQ", Permission::ReadWrite).onSync(DEVICE_WINS);
 #endif /* OTA_ENABLED */
 
 #if OTA_STORAGE_SNU
@@ -301,6 +301,19 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_Connected()
     */
     sendPropertiesToCloud();
 
+#if OTA_ENABLED
+    /* Request a OTA download if the hidden property
+     * OTA request has been set.
+     */
+    if (_ota_req)
+    {
+      /* Clear the request flag. */
+      _ota_req = false;
+      /* Call member function to handle OTA request. */
+      onOTARequest();
+    }
+#endif /* OTA_ENABLED */
+
     return State::Connected;
   }
 }
@@ -374,48 +387,36 @@ int ArduinoIoTCloudTCP::write(String const topic, byte const data[], int const l
 }
 
 #if OTA_ENABLED
-void ArduinoIoTCloudTCP::on_OTA_REQ_Update()
-{
-  ArduinoCloud.onOTARequest();
-}
-
 void ArduinoIoTCloudTCP::onOTARequest()
 {
-  DBG_VERBOSE(F("ArduinoIoTCloudTCP::%s _ota_req = %s"), __FUNCTION__, _ota_req ? "true" : "false");
   DBG_VERBOSE(F("ArduinoIoTCloudTCP::%s _ota_url = %s"), __FUNCTION__, _ota_url.c_str());
 
-  if (_ota_req)
-  {
-    /* Clear the request flag. */
-    _ota_req = false;
-
-    /* Status flag to prevent the reset from being executed
-     * when HTTPS download is not supported.
-     */
-    bool ota_download_success = false;
+  /* Status flag to prevent the reset from being executed
+   * when HTTPS download is not supported.
+   */
+  bool ota_download_success = false;
 
 #if OTA_STORAGE_SNU
-    /* Just to be safe delete any remains from previous updates. */
-    WiFiStorage.remove("/fs/UPDATE.BIN.LZSS");
-    WiFiStorage.remove("/fs/UPDATE.BIN.LZSS.TMP");
+  /* Just to be safe delete any remains from previous updates. */
+  WiFiStorage.remove("/fs/UPDATE.BIN.LZSS");
+  WiFiStorage.remove("/fs/UPDATE.BIN.LZSS.TMP");
 
-    /* Trigger direct download to nina module. */
-    uint8_t nina_ota_err_code = 0;
-    if (!WiFiStorage.downloadOTA(_ota_url.c_str(), &nina_ota_err_code))
-    {
-      DBG_ERROR(F("ArduinoIoTCloudTCP::%s error download to nina: %d"), __FUNCTION__, nina_ota_err_code);
-      _ota_error = static_cast<int>(OTAError::DownloadFailed);
-      return;
-    }
+  /* Trigger direct download to nina module. */
+  uint8_t nina_ota_err_code = 0;
+  if (!WiFiStorage.downloadOTA(_ota_url.c_str(), &nina_ota_err_code))
+  {
+    DBG_ERROR(F("ArduinoIoTCloudTCP::%s error download to nina: %d"), __FUNCTION__, nina_ota_err_code);
+    _ota_error = static_cast<int>(OTAError::DownloadFailed);
+    return;
+  }
 
-    /* The download was a success. */
-    ota_download_success = true;
+  /* The download was a success. */
+  ota_download_success = true;
 #endif /* OTA_STORAGE_SNU */
 
-    /* Perform the reset to reboot to SxU. */
-    if (ota_download_success)
-      NVIC_SystemReset();
-  }
+  /* Perform the reset to reboot to SxU. */
+  if (ota_download_success)
+    NVIC_SystemReset();
 }
 #endif
 
