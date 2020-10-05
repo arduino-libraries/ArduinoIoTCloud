@@ -26,8 +26,8 @@ else:
     print ("Error,", board, "is not a supported board type")
     sys.exit()
 
-# Version field (byte array of size 8)
-version = bytearray(8)
+# Version field (byte array of size 8) - all 0 except the compression flag set.
+version = bytearray([0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x40])
 
 # Prepend magic number and version field to payload
 bin_data_complete = magic_number + version + bin_data

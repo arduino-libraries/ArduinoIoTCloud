@@ -11,31 +11,6 @@ cd ~/Arduino/libraries/ArduinoIoTCloud/extras/tools
 ./bin2ota.py [MKR_WIFI_1010 | NANO_33_IOT] sketch.lzss sketch.ota
 ```
 
-## `bin2ota.py`
-This tool can be used to extend (actually prefix) a binary generated with e.g. the Arduino IDE with the required length and crc values required to perform an OTA (Over-The-Air) update of the firmware.
-
-### How-To-Use
-```bash
-./bin2ota.py [MKR_WIFI_1010 | NANO_33_IOT] sketch.bin sketch.ota
-```
-#### `sketch.bin`
-```bash
-0000000   8000 2000 749D 0000 7485 0000 7485 0000
-0000030   0000 0000 0000 0000 7485 0000 74F1 0000
-...
-```
-* `length(sketch.bin) = 0x0003'A5E0`
-* `CRC32(sketch.bin)  = 0xA9D1'265B`
-* `MAGIC NUMBER(MKR WIFI 1010)  = 0x2341'8054`
-* `VERSION = 0x0000'0000'0000'0000`
-
-#### `sketch.ota`
-```bash
-0000000   A5E0 0003 265B A9D1 2341 8054 0000 0000
-0000010   0000 0000 8000 2000 749D 0000 7485 0000
-...
-```
-
 ## `lzss.py`
 This tool allows to compress a binary file using the LZSS algorithm.
 
@@ -48,3 +23,27 @@ This tool allows to compress a binary file using the LZSS algorithm.
 ```bash
 ./lzss.py --decode sketch.lzss sketch.bin
 ```
+
+## `bin2ota.py`
+This tool can be used to extend (actually prefix) a binary generated with e.g. the Arduino IDE with the required length and crc values required to perform an OTA (Over-The-Air) update of the firmware.
+
+### How-To-Use
+```bash
+./bin2ota.py [MKR_WIFI_1010 | NANO_33_IOT] sketch.lzss sketch.ota
+```
+#### `sketch.lzss`
+```bash
+ 0   80602012 0a0cbe01 0094bfa2 bff7807c
+16   bfdd00d9 655fd240 cfc11065 a071e0b2
+...
+```
+#### `sketch.ota`
+```bash
+ 0   3bca0100 7e1c3a2b 54804123 00000000
+16   00000040 80602012 0a0cbe01 0094bfa2
+...
+```
+* `length(sketch.lzss) = 3bca0100 -> 0x0001'CA3B`
+* `CRC32(sketch.lzss + MAGIC NUMBER + VERSION) = 7e1c3a2b -> 0x2B3A'1C7E`
+* `MAGIC NUMBER(MKR WIFI 1010) = 54804123 -> 0x2341'8054`
+* `VERSION = 00000000 00000040 -> 0x40'00'00'00'00'00'00'00`
