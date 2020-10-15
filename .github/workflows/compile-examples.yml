@@ -40,8 +40,8 @@ jobs:
           {"fqbn": "arduino:samd:mkrwan1300", "type": "wan"},
           {"fqbn": "arduino:samd:mkrgsm1400", "type": "gsm"},
           {"fqbn": "arduino:samd:mkrnb1500", "type": "nb"},
-          {"fqbn": "arduino-beta:mbed:envie_m4", "type": "mbed"},
-          {"fqbn": "arduino-beta:mbed:envie_m7", "type": "mbed"},
+          {"fqbn": "arduino:mbed:envie_m4", "type": "mbed"},
+          {"fqbn": "arduino:mbed:envie_m7", "type": "mbed"},
           {"fqbn": "esp8266:esp8266:huzzah", "type": "esp8266"}
         ]
 
@@ -106,10 +106,10 @@ jobs:
               type: "mbed"
             platforms: |
               # Install Arduino mbed-Enabled Boards via Boards Manager for the toolchain
-              - name: arduino-beta:mbed
+              - name: arduino:mbed
               # Overwrite the Arduino mbed-Enabled Boards release version with version from the tip of the master branch (located in local path because of the need to first install ArduinoCore-API)
               - source-path: extras/ArduinoCore-mbed
-                name: arduino-beta:mbed
+                name: arduino:mbed
             libraries: |
               - name: ArduinoECCX08
             sketch-paths: '"examples/utility/Provisioning"'
