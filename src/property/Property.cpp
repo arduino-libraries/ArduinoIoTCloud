@@ -189,7 +189,12 @@ CborError Property::appendAttributeReal(String value, String attributeName, Cbor
   }, encoder);
 }
 
-CborError Property::appendAttributeName(String attributeName, std::function<CborError (CborEncoder& mapEncoder)>appendValue, CborEncoder *encoder) {
+#ifdef __AVR__
+CborError Property::appendAttributeName(String attributeName, nonstd::function<CborError (CborEncoder& mapEncoder)>appendValue, CborEncoder *encoder)
+#else
+CborError Property::appendAttributeName(String attributeName, std::function<CborError (CborEncoder& mapEncoder)>appendValue, CborEncoder *encoder)
+#endif
+{
   if (attributeName != "") {
     // when the attribute name string is not empty, the attribute identifier is incremented in order to be encoded in the message if the _lightPayload flag is set
     _attributeIdentifier++;
@@ -271,7 +276,11 @@ void Property::setAttributeReal(String& value, String attributeName) {
   });
 }
 
+#ifdef __AVR__
+void Property::setAttributeReal(String attributeName, nonstd::function<void (CborMapData & md)>setValue)
+#else
 void Property::setAttributeReal(String attributeName, std::function<void (CborMapData & md)>setValue)
+#endif
 {
   if (attributeName != "") {
     _attributeIdentifier++;

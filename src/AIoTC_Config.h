@@ -79,7 +79,8 @@
   #define HAS_TCP
 #endif
 
-#if defined(ARDUINO_SAMD_MKRWIFI1010) || defined(ARDUINO_SAMD_NANO_33_IOT)
+#if defined(ARDUINO_SAMD_MKRWIFI1010) || defined(ARDUINO_SAMD_NANO_33_IOT) || \
+  defined(ARDUINO_AVR_UNO_WIFI_REV2)
   #define BOARD_HAS_OFFLOADED_ECCX08
   #define HAS_TCP
   #undef OTA_ENABLED
