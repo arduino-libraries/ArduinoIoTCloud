@@ -34,6 +34,10 @@
 
 #include <unistd.h>
 
+#ifdef __AVR__
+typedef size_t ssize_t;
+#endif
+
 typedef ssize_t RetType;
 typedef size_t LenType;
 
