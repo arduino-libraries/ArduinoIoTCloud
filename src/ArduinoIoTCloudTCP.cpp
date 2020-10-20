@@ -28,6 +28,11 @@
   #include "tls/utility/CryptoUtil.h"
 #endif
 
+#ifdef BOARD_HAS_OFFLOADED_ECCX08
+#include <ArduinoECCX08.h>
+#include "tls/utility/CryptoUtil.h"
+#endif
+
 #include "utility/ota/OTA.h"
 #include "utility/ota/FlashSHA256.h"
 
@@ -112,6 +117,12 @@ int ArduinoIoTCloudTCP::begin(String brokerAddress, uint16_t brokerPort)
   _ota_img_sha256 = FlashSHA256::calc(0x2000, 0x40000 - 0x2000);
 #endif /* OTA_ENABLED */
 
+  #ifdef BOARD_HAS_OFFLOADED_ECCX08
+  if (!ECCX08.begin())                                                                                                                                                         { DBG_ERROR(F("Cryptography processor failure. Make sure you have a compatible board.")); return 0; }
+  if (!CryptoUtil::readDeviceId(ECCX08, getDeviceId(), ECCX08Slot::DeviceId))                                                                                                  { DBG_ERROR(F("Cryptography processor read failure.")); return 0; }
+  ECCX08.end();
+  #endif
+
   #ifdef BOARD_HAS_ECCX08
   if (!ECCX08.begin())                                                                                                                                                         { DBG_ERROR(F("Cryptography processor failure. Make sure you have a compatible board.")); return 0; }
   if (!CryptoUtil::readDeviceId(ECCX08, getDeviceId(), ECCX08Slot::DeviceId))                                                                                                  { DBG_ERROR(F("Cryptography processor read failure.")); return 0; }
@@ -146,7 +157,7 @@ int ArduinoIoTCloudTCP::begin(String brokerAddress, uint16_t brokerPort)
   addPropertyReal(_ota_req, "OTA_REQ", Permission::ReadWrite).onSync(DEVICE_WINS);
 #endif /* OTA_ENABLED */
 
-#if OTA_STORAGE_SNU
+#if OTA_STORAGE_SNU && OTA_ENABLED
   String const nina_fw_version = WiFi.firmwareVersion();
   if (nina_fw_version < "1.4.1") {
     _ota_cap = false;
