@@ -19,34 +19,23 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      BUILD_PATH: "${{ github.workspace }}/extras/test/build"
+      COVERAGE_DATA_PATH: extras/coverage-data/coverage.info
 
     steps:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Install valgrind
-        run: |
-          sudo apt-get install valgrind
-
-      - name: Run unit tests
-        run: |
-          mkdir "$BUILD_PATH"
-          cd "$BUILD_PATH"
-          cmake ..
-          make
-          valgrind --leak-check=yes --error-exitcode=1 bin/testArduinoIoTCloud
-
-      - name: Check code coverage
-        run: |
-          cd "$BUILD_PATH"
-          sudo apt-get --assume-yes install lcov > /dev/null
-          lcov --directory . --capture --output-file coverage.info
-          lcov --quiet --remove coverage.info '*/extras/test/*' '/usr/*' '*/src/cbor/lib/*' --output-file coverage.info
-          lcov --list coverage.info
+      - uses: arduino/cpp-test-action@main
+        with:
+          runtime-path: extras/test/build/bin/testArduinoIoTCloud
+          coverage-exclude-paths: |
+            - '*/extras/test/*'
+            - '/usr/*'
+            - '*/src/cbor/lib/*'
+          coverage-data-path: ${{ env.COVERAGE_DATA_PATH }}
 
       - name: Upload coverage report to Codecov
         uses: codecov/codecov-action@v1
         with:
-          file: "${{ env.BUILD_PATH }}/coverage.info"
+          file: "${{ env.COVERAGE_DATA_PATH }}"
           fail_ci_if_error: true
