@@ -170,12 +170,14 @@ jobs:
           sketch-paths: "${{ env.UNIVERSAL_SKETCH_PATHS }} ${{ matrix.sketch-paths }}"
           size-report-sketch: 'ArduinoIoTCloud_Travis_CI'
           enable-size-deltas-report: 'true'
+          sketches-report-path: ${{ env.SKETCHES_REPORTS_PATH }}
 
       - name: Write data to size trends report spreadsheet
         # Update report on every push to the master branch
         if: github.event_name == 'push' && github.ref == 'refs/heads/master'
         uses: arduino/report-size-trends@main
         with:
+          sketches-report-path: ${{ env.SKETCHES_REPORTS_PATH }}
           google-key-file: ${{ secrets.GOOGLE_KEY_FILE }}
           spreadsheet-id: 1I6NZkpZpf8KugBkE92adB1Z3_b7ZepOpCdYTOigJpN4
 
