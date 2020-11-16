@@ -83,8 +83,6 @@
   defined(ARDUINO_AVR_UNO_WIFI_REV2)
   #define BOARD_HAS_OFFLOADED_ECCX08
   #define HAS_TCP
-  #undef OTA_ENABLED
-  #define OTA_ENABLED             (0)
 #endif
 
 #if defined(ARDUINO_SAMD_MKRWAN1300) || defined(ARDUINO_SAMD_MKRWAN1310)
