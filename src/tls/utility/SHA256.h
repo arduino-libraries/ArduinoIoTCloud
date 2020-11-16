@@ -22,7 +22,7 @@
  * INCLUDE
  ******************************************************************************/
 
-#include "../bearssl/bearssl_hash.h"
+#include "ArduinoECCX08.h"
 
 /******************************************************************************
  * CLASS DECLARATION
@@ -40,9 +40,8 @@ public:
   void finalize(uint8_t * hash);
 
 private:
-
-  br_sha256_context _ctx;
-
+  uint8_t spare_buf[64];
+  size_t spare_len = 0;
 };
 
 #endif /* ARDUINO_TLS_UTILITY_SHA256_H_ */
