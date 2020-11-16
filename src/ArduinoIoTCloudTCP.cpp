@@ -103,7 +103,7 @@ int ArduinoIoTCloudTCP::begin(String brokerAddress, uint16_t brokerPort)
   _brokerAddress = brokerAddress;
   _brokerPort = brokerPort;
 
-#if OTA_ENABLED
+#if OTA_ENABLED && !defined(__AVR__)
   /* Calculate the SHA256 checksum over the firmware stored in the flash of the
    * MCU. Note: As we don't know the length per-se we read chunks of the flash
    * until we detect one containing only 0xFF (= flash erased). This only works
@@ -429,9 +429,11 @@ void ArduinoIoTCloudTCP::onOTARequest()
   ota_download_success = true;
 #endif /* OTA_STORAGE_SNU */
 
+#ifndef __AVR__
   /* Perform the reset to reboot to SxU. */
   if (ota_download_success)
     NVIC_SystemReset();
+#endif
 }
 #endif
 
