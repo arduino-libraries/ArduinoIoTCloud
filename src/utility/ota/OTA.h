@@ -25,7 +25,7 @@
 #include <AIoTC_Config.h>
 #if OTA_ENABLED
 
-#if OTA_STORAGE_SNU
+#if OTA_STORAGE_SNU && !defined(ARDUINO_AVR_UNO_WIFI_REV2)
   #include <SNU.h>
 #endif /* OTA_STORAGE_SNU */
 

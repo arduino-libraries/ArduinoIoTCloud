@@ -20,7 +20,7 @@
  ******************************************************************************/
 
 #include <AIoTC_Config.h>
-#if OTA_ENABLED
+#if OTA_ENABLED && !defined(__AVR__)
 
 #include "FlashSHA256.h"
 

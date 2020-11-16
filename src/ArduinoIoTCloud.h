@@ -154,4 +154,7 @@ class ArduinoIoTCloudClass
   #include "ArduinoIoTCloudLPWAN.h"
 #endif
 
+// declaration for boards without debug library
+void setDebugMessageLevel(int const level);
+
 #endif

@@ -30,6 +30,16 @@
   #define NTP_USE_RANDOM_PORT     (1)
 #endif
 
+#if defined(ARDUINO_AVR_UNO_WIFI_REV2)
+#define DBG_ERROR
+#define DBG_WARNING
+#define DBG_INFO
+#define DBG_DEBUG
+#define DBG_VERBOSE
+// avoid including debugutils
+#define ARDUINO_DEBUG_UTILS_H_
+#endif
+
 #ifndef DBG_ERROR
   #define DBG_ERROR(fmt, ...) Debug.print(DBG_ERROR, fmt, ## __VA_ARGS__)
 #endif
@@ -54,7 +64,8 @@
  * AUTOMATICALLY CONFIGURED DEFINES
  ******************************************************************************/
 
-#if defined(ARDUINO_SAMD_MKRWIFI1010) || defined(ARDUINO_SAMD_NANO_33_IOT)
+#if defined(ARDUINO_SAMD_MKRWIFI1010) || defined(ARDUINO_SAMD_NANO_33_IOT) || \
+  defined(ARDUINO_AVR_UNO_WIFI_REV2)
   #define OTA_STORAGE_SNU         (1)
 #else
   #define OTA_STORAGE_SNU         (0)
@@ -66,7 +77,7 @@
   #define OTA_STORAGE_SSU         (0)
 #endif
 
-#if OTA_STORAGE_SFU || OTA_STORAGE_SSU || OTA_STORAGE_SNU
+#if OTA_STORAGE_SFU || OTA_STORAGE_SSU || OTA_STORAGE_SNU && !defined(ARDUINO_AVR_UNO_WIFI_REV2)
   #define OTA_ENABLED             (1)
 #else
   #define OTA_ENABLED             (0)
