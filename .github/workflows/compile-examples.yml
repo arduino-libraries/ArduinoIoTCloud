@@ -28,6 +28,7 @@ jobs:
       UNIVERSAL_SKETCH_PATHS: '"examples/ArduinoIoTCloud-Advanced" "examples/ArduinoIoTCloud-Basic" "examples/utility/ArduinoIoTCloud_Travis_CI"'
       ARDUINOCORE_MBED_STAGING_PATH: extras/ArduinoCore-mbed
       ARDUINOCORE_API_STAGING_PATH: extras/ArduinoCore-API
+      SKETCHES_REPORTS_PATH: sketches-reports
 
     strategy:
       fail-fast: false
@@ -159,7 +160,7 @@ jobs:
           mv "${{ env.ARDUINOCORE_API_STAGING_PATH }}/api" "${{ env.ARDUINOCORE_MBED_STAGING_PATH }}/cores/arduino"
 
       - name: Compile examples
-        uses: arduino/actions/libraries/compile-examples@master
+        uses: arduino/compile-sketches@main
         with:
           platforms: ${{ matrix.platforms }}
           fqbn: ${{ matrix.board.fqbn }}
@@ -173,7 +174,7 @@ jobs:
       - name: Write data to size trends report spreadsheet
         # Update report on every push to the master branch
         if: github.event_name == 'push' && github.ref == 'refs/heads/master'
-        uses: arduino/actions/libraries/report-size-trends@master
+        uses: arduino/report-size-trends@main
         with:
           google-key-file: ${{ secrets.GOOGLE_KEY_FILE }}
           spreadsheet-id: 1I6NZkpZpf8KugBkE92adB1Z3_b7ZepOpCdYTOigJpN4
@@ -182,5 +183,5 @@ jobs:
         if: github.event_name == 'pull_request'
         uses: actions/upload-artifact@v1
         with:
-          name: 'size-deltas-reports'
-          path: 'size-deltas-reports'
+          name: ${{ env.SKETCHES_REPORTS_PATH }}
+          path: ${{ env.SKETCHES_REPORTS_PATH }}
