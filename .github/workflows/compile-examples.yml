@@ -25,7 +25,10 @@ jobs:
         - name: Arduino_DebugUtils
         - name: ArduinoMqttClient
       # sketch paths to compile (recursive) for all boards
-      UNIVERSAL_SKETCH_PATHS: '"examples/ArduinoIoTCloud-Advanced" "examples/ArduinoIoTCloud-Basic" "examples/utility/ArduinoIoTCloud_Travis_CI"'
+      UNIVERSAL_SKETCH_PATHS: |
+        - examples/ArduinoIoTCloud-Advanced
+        - examples/ArduinoIoTCloud-Basic
+        - examples/utility/ArduinoIoTCloud_Travis_CI
       ARDUINOCORE_MBED_STAGING_PATH: extras/ArduinoCore-mbed
       ARDUINOCORE_API_STAGING_PATH: extras/ArduinoCore-API
       SKETCHES_REPORTS_PATH: sketches-reports
@@ -58,7 +61,8 @@ jobs:
               - name: ArduinoECCX08
               - name: RTCZero
               - name: WiFi101
-            sketch-paths: '"examples/utility/Provisioning"'
+            sketch-paths: |
+              - examples/utility/Provisioning
           # MKR WiFi 1010, Nano 33 IoT
           - board:
               type: "nina"
@@ -71,7 +75,9 @@ jobs:
               - name: WiFiNINA
               - name: Arduino_JSON
               - name: ArduinoBearSSL
-            sketch-paths: '"examples/utility/Provisioning" "examples/utility/SelfProvisioning"'
+            sketch-paths: |
+              - examples/utility/Provisioning
+              - examples/utility/SelfProvisioning
           # LoRaWAN boards
           - board:
               type: "wan"
@@ -91,7 +97,8 @@ jobs:
               - name: ArduinoECCX08
               - name: RTCZero
               - name: MKRGSM
-            sketch-paths: '"examples/utility/Provisioning"'
+            sketch-paths: |
+              - examples/utility/Provisioning
           # NB boards
           - board:
               type: "nb"
@@ -101,7 +108,8 @@ jobs:
               - name: ArduinoECCX08
               - name: RTCZero
               - name: MKRNB
-            sketch-paths: '"examples/utility/Provisioning"'
+            sketch-paths: |
+              - examples/utility/Provisioning
           # Portenta
           - board:
               type: "mbed"
@@ -113,7 +121,8 @@ jobs:
                 name: arduino:mbed
             libraries: |
               - name: ArduinoECCX08
-            sketch-paths: '"examples/utility/Provisioning"'
+            sketch-paths: |
+              - examples/utility/Provisioning
           # ESP8266 boards
           - board:
               type: "esp8266"
@@ -167,9 +176,10 @@ jobs:
           libraries: |
             ${{ env.UNIVERSAL_LIBRARIES }}
             ${{ matrix.libraries }}
-          sketch-paths: "${{ env.UNIVERSAL_SKETCH_PATHS }} ${{ matrix.sketch-paths }}"
-          size-report-sketch: 'ArduinoIoTCloud_Travis_CI'
-          enable-size-deltas-report: 'true'
+          sketch-paths: |
+            ${{ env.UNIVERSAL_SKETCH_PATHS }}
+            ${{ matrix.sketch-paths }}
+          enable-deltas-report: 'true'
           sketches-report-path: ${{ env.SKETCHES_REPORTS_PATH }}
 
       - name: Write data to size trends report spreadsheet
