@@ -33,21 +33,15 @@ constexpr size_t SHA256::HASH_SIZE;
 
 void SHA256::begin()
 {
-  spare_len = 0;
-  ECCX08.beginSHA256();
+  br_sha256_init(&_ctx);
 }
 
 void SHA256::update(uint8_t const * data, size_t const len)
 {
-  if (len == 64) {
-    ECCX08.updateSHA256(data);
-  } else {
-    memcpy(spare_buf, data, len);
-    spare_len = len;
-  }
+  br_sha256_update(&_ctx, data, len);
 }
 
 void SHA256::finalize(uint8_t * hash)
 {
-  ECCX08.endSHA256(spare_buf, spare_len, hash);
+  br_sha256_out(&_ctx, hash);
 }
