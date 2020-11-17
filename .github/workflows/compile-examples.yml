@@ -37,6 +37,7 @@ jobs:
           {"fqbn": "arduino:samd:mkr1000", "type": "mkr1000"},
           {"fqbn": "arduino:samd:mkrwifi1010", "type": "nina"},
           {"fqbn": "arduino:samd:nano_33_iot", "type": "nina"},
+          {"fqbn": "arduino:megaavr:uno2018", "type": "megaavr"},
           {"fqbn": "arduino:samd:mkrwan1300", "type": "wan"},
           {"fqbn": "arduino:samd:mkrgsm1400", "type": "gsm"},
           {"fqbn": "arduino:samd:mkrnb1500", "type": "nb"},
@@ -67,6 +68,18 @@ jobs:
             libraries: |
               - name: ArduinoECCX08
               - name: RTCZero
+              - name: WiFiNINA
+              - name: Arduino_JSON
+              - name: ArduinoBearSSL
+            sketch-paths: '"examples/utility/Provisioning" "examples/utility/SelfProvisioning"'
+          # Uno WiFi Rev2
+          - board:
+              type: "megaavr"
+            platforms: |
+              - name: arduino:megaavr
+            libraries: |
+              - name: ArduinoECCX08
+              - name: ArduinoSTL
               - name: WiFiNINA
               - name: Arduino_JSON
               - name: ArduinoBearSSL
