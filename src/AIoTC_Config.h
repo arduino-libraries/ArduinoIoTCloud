@@ -31,31 +31,31 @@
 #endif
 
 #if defined(ARDUINO_AVR_UNO_WIFI_REV2)
-#define DBG_ERROR
-#define DBG_WARNING
-#define DBG_INFO
-#define DBG_DEBUG
-#define DBG_VERBOSE
+#define DEBUG_ERROR
+#define DEBUG_WARNING
+#define DEBUG_INFO
+#define DEBUG_DEBUG
+#define DEBUG_VERBOSE
 #endif
 
-#ifndef DBG_ERROR
-  #define DBG_ERROR(fmt, ...) Debug.print(DBG_ERROR, fmt, ## __VA_ARGS__)
+#ifndef DEBUG_ERROR
+  #define DEBUG_ERROR(fmt, ...) Debug.print(DBG_ERROR, fmt, ## __VA_ARGS__)
 #endif
 
-#ifndef DBG_WARNING
-  #define DBG_WARNING(fmt, ...) Debug.print(DBG_WARNING, fmt, ## __VA_ARGS__)
+#ifndef DEBUG_WARNING
+  #define DEBUG_WARNING(fmt, ...) Debug.print(DBG_WARNING, fmt, ## __VA_ARGS__)
 #endif
 
-#ifndef DBG_INFO
-  #define DBG_INFO(fmt, ...) Debug.print(DBG_INFO, fmt, ## __VA_ARGS__)
+#ifndef DEBUG_INFO
+  #define DEBUG_INFO(fmt, ...) Debug.print(DBG_INFO, fmt, ## __VA_ARGS__)
 #endif
 
-#ifndef DBG_DEBUG
-  #define DBG_DEBUG(fmt, ...) Debug.print(DBG_DEBUG, fmt, ## __VA_ARGS__)
+#ifndef DEBUG_DEBUG
+  #define DEBUG_DEBUG(fmt, ...) Debug.print(DBG_DEBUG, fmt, ## __VA_ARGS__)
 #endif
 
-#ifndef DBG_VERBOSE
-  #define DBG_VERBOSE(fmt, ...) //Debug.print(DBG_VERBOSE, fmt, ## __VA_ARGS__)
+#ifndef DEBUG_VERBOSE
+  #define DEBUG_VERBOSE(fmt, ...) //Debug.print(DBG_VERBOSE, fmt, ## __VA_ARGS__)
 #endif
 
 /******************************************************************************
