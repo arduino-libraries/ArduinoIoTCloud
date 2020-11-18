@@ -23,7 +23,7 @@
  ******************************************************************************/
 #ifdef __AVR__
 #include <Arduino.h>
-#include <ArduinoSTL.h>
+#include <Arduino_AVRSTL.h>
 #endif
 
 #undef max

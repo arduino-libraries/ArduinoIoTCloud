@@ -24,7 +24,7 @@
 
 #ifdef __AVR__
 #include <Arduino.h>
-#include <ArduinoSTL.h>
+#include <Arduino_AVRSTL.h>
 #endif
 
 #include "../property/PropertyContainer.h"
