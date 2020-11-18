@@ -73,7 +73,7 @@ typedef CloudFloat CloudHeartRate;
 typedef CloudInt   CloudCounter;
 typedef CloudFloat CloudAcceleration;
 typedef CloudFloat CloudArea;
-typedef CloudFloat CloudLenght;
+typedef CloudFloat CloudLength;
 typedef CloudFloat CloudVelocity;
 typedef CloudFloat CloudMass;
 typedef CloudFloat CloudVolume;
