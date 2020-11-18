@@ -100,8 +100,8 @@ String FlashSHA256::calc(uint32_t const start_addr, uint32_t const max_flash_siz
                   sha256_str += buf;
                 });
   /* Do some debug printout. */
-  DBG_VERBOSE("SHA256: %d bytes read", flash_addr);
-  DBG_VERBOSE("SHA256: HASH(%d) = %s", strlen(sha256_str.c_str()), sha256_str.c_str());
+  DEBUG_VERBOSE("SHA256: %d bytes read", flash_addr);
+  DEBUG_VERBOSE("SHA256: HASH(%d) = %s", strlen(sha256_str.c_str()), sha256_str.c_str());
   return sha256_str;
 }
 
