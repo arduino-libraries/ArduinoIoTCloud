@@ -31,11 +31,24 @@
 #endif
 
 #if defined(ARDUINO_AVR_UNO_WIFI_REV2)
-#define DEBUG_ERROR
-#define DEBUG_WARNING
-#define DEBUG_INFO
-#define DEBUG_DEBUG
-#define DEBUG_VERBOSE
+/* Define debug macros which effectively removes them from the
+ * the codebase for Arduino Uno WiFi. Rev. 2.
+ */
+#  define DEBUG_ERROR
+#  define DEBUG_WARNING
+#  define DEBUG_INFO
+#  define DEBUG_DEBUG
+#  define DEBUG_VERBOSE
+/* Provide defines for constants provided within Arduino_DebugUtils
+ * in order to allow older sketches using those constants to still
+ * compile.
+ */
+#  define DBG_NONE    -1
+#  define DBG_ERROR    0
+#  define DBG_WARNING  1
+#  define DBG_INFO     2
+#  define DBG_DEBUG    3
+#  define DBG_VERBOSE  4
 #endif
 
 #ifndef DEBUG_ERROR
