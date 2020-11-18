@@ -36,8 +36,6 @@
 #define DBG_INFO
 #define DBG_DEBUG
 #define DBG_VERBOSE
-// avoid including debugutils
-#define ARDUINO_DEBUG_UTILS_H_
 #endif
 
 #ifndef DBG_ERROR

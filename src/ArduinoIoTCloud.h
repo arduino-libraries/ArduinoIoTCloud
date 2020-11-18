@@ -25,7 +25,10 @@
 #include <AIoTC_Config.h>
 
 #include <Arduino_ConnectionHandler.h>
-#include <Arduino_DebugUtils.h>
+
+#if !defined(__AVR__)
+#  include <Arduino_DebugUtils.h>
+#endif
 
 #include "AIoTC_Const.h"
 
