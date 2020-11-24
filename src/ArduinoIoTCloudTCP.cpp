@@ -224,6 +224,7 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_SubscribeMqttTopics()
   if (!_mqttClient.subscribe(_dataTopicIn))
   {
     DBG_ERROR(F("ArduinoIoTCloudTCP::%s could not subscribe to %s"), __FUNCTION__, _dataTopicIn.c_str());
+    DBG_ERROR(F("Check your thing configuration, and press the reset button on your board."));
     return State::SubscribeMqttTopics;
   }
 
@@ -232,6 +233,7 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_SubscribeMqttTopics()
     if (!_mqttClient.subscribe(_shadowTopicIn))
     {
       DBG_ERROR(F("ArduinoIoTCloudTCP::%s could not subscribe to %s"), __FUNCTION__, _shadowTopicIn.c_str());
+      DBG_ERROR(F("Check your thing configuration, and press the reset button on your board."));
       return State::SubscribeMqttTopics;
     }
   }
