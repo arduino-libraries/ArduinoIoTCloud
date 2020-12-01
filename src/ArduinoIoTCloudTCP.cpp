@@ -149,11 +149,11 @@ int ArduinoIoTCloudTCP::begin(String brokerAddress, uint16_t brokerPort)
 #if OTA_STORAGE_SNU
   String const nina_fw_version = WiFi.firmwareVersion();
   if (nina_fw_version < "1.4.1") {
-	_ota_cap = false;
-	DBG_WARNING(F("ArduinoIoTCloudTCP::%s In order to be ready for cloud OTA, NINA firmware needs to be >= 1.4.1, current %s"), __FUNCTION__, nina_fw_version.c_str());
+  _ota_cap = false;
+  DBG_WARNING(F("ArduinoIoTCloudTCP::%s In order to be ready for cloud OTA, NINA firmware needs to be >= 1.4.1, current %s"), __FUNCTION__, nina_fw_version.c_str());
   }
   else {
-	_ota_cap = true;
+  _ota_cap = true;
   }
 #endif /* OTA_STORAGE_SNU */
 
@@ -177,7 +177,7 @@ void ArduinoIoTCloudTCP::update()
 
   /* Check for new data from the MQTT client. */
   if (_mqttClient.connected())
-	_mqttClient.poll();
+  _mqttClient.poll();
 }
 
 int ArduinoIoTCloudTCP::connected()
@@ -200,9 +200,9 @@ void ArduinoIoTCloudTCP::printDebugInfo()
 ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_ConnectPhy()
 {
   if (_connection->check() == NetworkConnectionState::CONNECTED)
-	return State::SyncTime;
+  return State::SyncTime;
   else
-	return State::ConnectPhy;
+  return State::ConnectPhy;
 }
 
 ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_SyncTime()
@@ -215,7 +215,7 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_SyncTime()
 ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_ConnectMqttBroker()
 {
   if (_mqttClient.connect(_brokerAddress.c_str(), _brokerPort))
-	return State::SubscribeMqttTopics;
+  return State::SubscribeMqttTopics;
 
   DBG_ERROR(F("ArduinoIoTCloudTCP::%s could not connect to %s:%d"), __FUNCTION__, _brokerAddress.c_str(), _brokerPort);
   return State::ConnectPhy;
@@ -225,26 +225,26 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_SubscribeMqttTopics()
 {
   if (!_mqttClient.subscribe(_dataTopicIn))
   {
-	DBG_ERROR(F("ArduinoIoTCloudTCP::%s could not subscribe to %s"), __FUNCTION__, _dataTopicIn.c_str());
-	return State::SubscribeMqttTopics;
+  DBG_ERROR(F("ArduinoIoTCloudTCP::%s could not subscribe to %s"), __FUNCTION__, _dataTopicIn.c_str());
+  return State::SubscribeMqttTopics;
   }
 
   if (_shadowTopicIn != "")
   {
-	if (!_mqttClient.subscribe(_shadowTopicIn))
-	{
-	  DBG_ERROR(F("ArduinoIoTCloudTCP::%s could not subscribe to %s"), __FUNCTION__, _shadowTopicIn.c_str());
-	  return State::SubscribeMqttTopics;
-	}
+  if (!_mqttClient.subscribe(_shadowTopicIn))
+  {
+    DBG_ERROR(F("ArduinoIoTCloudTCP::%s could not subscribe to %s"), __FUNCTION__, _shadowTopicIn.c_str());
+    return State::SubscribeMqttTopics;
+  }
   }
 
   DBG_INFO(F("Connected to Arduino IoT Cloud"));
   execCloudEventCallback(ArduinoIoTCloudEvent::CONNECT);
 
   if (_shadowTopicIn != "")
-	return State::RequestLastValues;
+  return State::RequestLastValues;
   else
-	return State::Connected;
+  return State::Connected;
 }
 
 ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_RequestLastValues()
@@ -253,9 +253,9 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_RequestLastValues()
   unsigned long const now = millis();
   if ((now - _lastSyncRequestTickTime) > TIMEOUT_FOR_LASTVALUES_SYNC)
   {
-	DBG_VERBOSE(F("ArduinoIoTCloudTCP::%s [%d] last values requested"), __FUNCTION__, now);
-	requestLastValue();
-	_lastSyncRequestTickTime = now;
+  DBG_VERBOSE(F("ArduinoIoTCloudTCP::%s [%d] last values requested"), __FUNCTION__, now);
+  requestLastValue();
+  _lastSyncRequestTickTime = now;
   }
 
   return State::RequestLastValues;
@@ -265,62 +265,62 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_Connected()
 {
   if (!_mqttClient.connected())
   {
-	DBG_ERROR(F("ArduinoIoTCloudTCP::%s MQTT client connection lost"), __FUNCTION__);
+  DBG_ERROR(F("ArduinoIoTCloudTCP::%s MQTT client connection lost"), __FUNCTION__);
 
-	/* Forcefully disconnect MQTT client and trigger a reconnection. */
-	_mqttClient.stop();
+  /* Forcefully disconnect MQTT client and trigger a reconnection. */
+  _mqttClient.stop();
 
-	/* The last message was definitely lost, trigger a retransmit. */
-	_mqtt_data_request_retransmit = true;
+  /* The last message was definitely lost, trigger a retransmit. */
+  _mqtt_data_request_retransmit = true;
 
-	/* We are not connected anymore, trigger the callback for a disconnected event. */
-	execCloudEventCallback(ArduinoIoTCloudEvent::DISCONNECT);
+  /* We are not connected anymore, trigger the callback for a disconnected event. */
+  execCloudEventCallback(ArduinoIoTCloudEvent::DISCONNECT);
 
-	return State::ConnectPhy;
+  return State::ConnectPhy;
   }
   /* We are connected so let's to our stuff here. */
   else
   {
-	/* Check if a primitive property wrapper is locally changed.
-	* This function requires an existing time service which in
-	* turn requires an established connection. Not having that
-	* leads to a wrong time set in the time service which inhibits
-	* the connection from being established due to a wrong data
-	* in the reconstructed certificate.
-	*/
-	updateTimestampOnLocallyChangedProperties(_property_container);
+  /* Check if a primitive property wrapper is locally changed.
+  * This function requires an existing time service which in
+  * turn requires an established connection. Not having that
+  * leads to a wrong time set in the time service which inhibits
+  * the connection from being established due to a wrong data
+  * in the reconstructed certificate.
+  */
+  updateTimestampOnLocallyChangedProperties(_property_container);
 
-	/* Retransmit data in case there was a lost transaction due
-	* to phy layer or MQTT connectivity loss.
-	*/
-	if(_mqtt_data_request_retransmit && (_mqtt_data_len > 0)) {
-	  write(_dataTopicOut, _mqtt_data_buf, _mqtt_data_len);
-	  _mqtt_data_request_retransmit = false;
-	}
+  /* Retransmit data in case there was a lost transaction due
+  * to phy layer or MQTT connectivity loss.
+  */
+  if(_mqtt_data_request_retransmit && (_mqtt_data_len > 0)) {
+    write(_dataTopicOut, _mqtt_data_buf, _mqtt_data_len);
+    _mqtt_data_request_retransmit = false;
+  }
 
-	/* Check if any properties need encoding and send them to
-	* the cloud if necessary.
-	*/
-	sendPropertiesToCloud();
+  /* Check if any properties need encoding and send them to
+  * the cloud if necessary.
+  */
+  sendPropertiesToCloud();
 
 #if OTA_ENABLED
-	/* Request a OTA download if the hidden property
-	 * OTA request has been set.
-	 */
-	if (_ota_req)
-	{
-	  /* Clear the error flag. */
-	  _ota_error = static_cast<int>(OTAError::None);
-	  /* Transmit the cleared error flag to the cloud. */
-	  sendPropertiesToCloud();
-	  /* Clear the request flag. */
-	  _ota_req = false;
-	  /* Call member function to handle OTA request. */
-	  onOTARequest();
-	}
+  /* Request a OTA download if the hidden property
+   * OTA request has been set.
+   */
+  if (_ota_req)
+  {
+    /* Clear the error flag. */
+    _ota_error = static_cast<int>(OTAError::None);
+    /* Transmit the cleared error flag to the cloud. */
+    sendPropertiesToCloud();
+    /* Clear the request flag. */
+    _ota_req = false;
+    /* Call member function to handle OTA request. */
+    onOTARequest();
+  }
 #endif /* OTA_ENABLED */
 
-	return State::Connected;
+  return State::Connected;
   }
 }
 
@@ -336,20 +336,20 @@ void ArduinoIoTCloudTCP::handleMessage(int length)
   byte bytes[length];
 
   for (int i = 0; i < length; i++) {
-	bytes[i] = _mqttClient.read();
+  bytes[i] = _mqttClient.read();
   }
 
   if (_dataTopicIn == topic) {
-	CBORDecoder::decode(_property_container, (uint8_t*)bytes, length);
+  CBORDecoder::decode(_property_container, (uint8_t*)bytes, length);
   }
 
   if ((_shadowTopicIn == topic) && (_state == State::RequestLastValues))
   {
-	DBG_VERBOSE(F("ArduinoIoTCloudTCP::%s [%d] last values received"), __FUNCTION__, millis());
-	CBORDecoder::decode(_property_container, (uint8_t*)bytes, length, true);
-	sendPropertiesToCloud();
-	execCloudEventCallback(ArduinoIoTCloudEvent::SYNC);
-	_state = State::Connected;
+  DBG_VERBOSE(F("ArduinoIoTCloudTCP::%s [%d] last values received"), __FUNCTION__, millis());
+  CBORDecoder::decode(_property_container, (uint8_t*)bytes, length, true);
+  sendPropertiesToCloud();
+  execCloudEventCallback(ArduinoIoTCloudEvent::SYNC);
+  _state = State::Connected;
   }
 }
 
@@ -359,16 +359,16 @@ void ArduinoIoTCloudTCP::sendPropertiesToCloud()
   uint8_t data[MQTT_TRANSMIT_BUFFER_SIZE];
 
   if (CBOREncoder::encode(_property_container, data, sizeof(data), bytes_encoded, false) == CborNoError)
-	if (bytes_encoded > 0)
-	{
-	  /* If properties have been encoded store them in the back-up buffer
-	   * in order to allow retransmission in case of failure.
-	   */
-	  _mqtt_data_len = bytes_encoded;
-	  memcpy(_mqtt_data_buf, data, _mqtt_data_len);
-	  /* Transmit the properties to the MQTT broker */
-	  write(_dataTopicOut, _mqtt_data_buf, _mqtt_data_len);
-	}
+  if (bytes_encoded > 0)
+  {
+    /* If properties have been encoded store them in the back-up buffer
+     * in order to allow retransmission in case of failure.
+     */
+    _mqtt_data_len = bytes_encoded;
+    memcpy(_mqtt_data_buf, data, _mqtt_data_len);
+    /* Transmit the properties to the MQTT broker */
+    write(_dataTopicOut, _mqtt_data_buf, _mqtt_data_len);
+  }
 }
 
 void ArduinoIoTCloudTCP::requestLastValue()
@@ -383,11 +383,11 @@ void ArduinoIoTCloudTCP::requestLastValue()
 int ArduinoIoTCloudTCP::write(String const topic, byte const data[], int const length)
 {
   if (_mqttClient.beginMessage(topic, length, false, 0)) {
-	if (_mqttClient.write(data, length)) {
-	  if (_mqttClient.endMessage()) {
-		return 1;
-	  }
-	}
+  if (_mqttClient.write(data, length)) {
+    if (_mqttClient.endMessage()) {
+    return 1;
+    }
+  }
   }
   return 0;
 }
@@ -411,9 +411,9 @@ void ArduinoIoTCloudTCP::onOTARequest()
   uint8_t nina_ota_err_code = 0;
   if (!WiFiStorage.downloadOTA(_ota_url.c_str(), &nina_ota_err_code))
   {
-	DBG_ERROR(F("ArduinoIoTCloudTCP::%s error download to nina: %d"), __FUNCTION__, nina_ota_err_code);
-	_ota_error = static_cast<int>(OTAError::DownloadFailed);
-	return;
+  DBG_ERROR(F("ArduinoIoTCloudTCP::%s error download to nina: %d"), __FUNCTION__, nina_ota_err_code);
+  _ota_error = static_cast<int>(OTAError::DownloadFailed);
+  return;
   }
 
   /* The download was a success. */
@@ -422,7 +422,7 @@ void ArduinoIoTCloudTCP::onOTARequest()
 
   /* Perform the reset to reboot to SxU. */
   if (ota_download_success)
-	NVIC_SystemReset();
+  NVIC_SystemReset();
 }
 #endif
 
