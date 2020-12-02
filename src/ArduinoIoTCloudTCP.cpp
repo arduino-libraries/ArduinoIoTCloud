@@ -119,7 +119,9 @@ int ArduinoIoTCloudTCP::begin(String brokerAddress, uint16_t brokerPort)
   _sslClient.setClient(_connection->getClient());
   _sslClient.setEccSlot(static_cast<int>(ECCX08Slot::Key), _eccx08_cert.bytes(), _eccx08_cert.length());
   #elif defined(BOARD_ESP)
+  #ifndef ESP32
   _sslClient.setInsecure();
+  #endif
   #endif
 
   _mqttClient.setClient(_sslClient);
