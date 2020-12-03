@@ -147,6 +147,8 @@ class Property
     Property & publishOnDemand();
     Property & encodeTimestamp();
 
+    inline Property & onExternalChange(UpdateCallbackFunc func) { return onUpdate(func); }
+
     inline String name() const {
       return _name;
     }
