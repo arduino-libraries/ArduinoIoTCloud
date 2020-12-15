@@ -147,11 +147,6 @@ jobs:
           # the arduino/actions/libraries/compile-examples action will install the platform from this path
           path: ${{ env.ARDUINOCORE_MBED_STAGING_PATH }}
 
-      - name: Remove ArduinoCore-API symlink from Arduino mbed-Enabled Boards platform
-        # this step only needed when the Arduino mbed-Enabled Boards platform sourced from the repository is being used
-        if: matrix.board.type == 'mbed'
-        run: rm "${{ env.ARDUINOCORE_MBED_STAGING_PATH }}/cores/arduino/api"
-
       - name: Checkout ArduinoCore-API
         # this step only needed when the Arduino mbed-Enabled Boards platform sourced from the repository is being used
         if: matrix.board.type == 'mbed'
