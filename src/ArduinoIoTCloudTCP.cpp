@@ -475,6 +475,30 @@ void ArduinoIoTCloudTCP::onOTARequest()
   ota_download_success = true;
 #endif /* OTA_STORAGE_SNU */
 
+#if OTA_STORAGE_PORTENTA_QSPI
+  /* Just to be safe delete any remains from previous updates. */
+  remove("/fs/UPDATE.BIN.LZSS");
+
+  OTAPortenta.begin(QSPI_FLASH_FATFS_MBR, 2048);
+
+  if (OTAPortenta.download(_ota_url.c_str()))
+  {
+    DBG_ERROR(F("ArduinoIoTCloudTCP::%s error download to nina: %d"), __FUNCTION__, nina_ota_err_code);
+    _ota_error = static_cast<int>(OTAError::DownloadFailed);
+    return;
+  }
+
+  auto update_file_size = OTAPortenta.decompress();
+  OTAPortenta.setUpdateLen(update_file_size);
+
+  /* The download was a success. */
+  ota_download_success = true;
+
+  while (1) {
+    OTAPortenta.update();
+  }
+#endif /* OTA_STORAGE_PORTENTA_QSPI */
+
 #ifndef __AVR__
   /* Perform the reset to reboot to SxU. */
   if (ota_download_success)
