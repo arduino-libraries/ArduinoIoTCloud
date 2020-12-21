@@ -109,7 +109,12 @@ int ArduinoIoTCloudTCP::begin(String brokerAddress, uint16_t brokerPort)
    * The bootloader is excluded from the calculation and occupies flash address
    * range 0 to 0x2000, total flash size of 0x40000 bytes (256 kByte).
    */
+#if defined(ARDUINO_PORTENTA_H7_M7)
+  // TODO: check if we need to checksum the whole flash or just the first megabyte
+  _ota_img_sha256 = FlashSHA256::calc(0x8040000, 0x200000 - 0x40000);
+#else
   _ota_img_sha256 = FlashSHA256::calc(0x2000, 0x40000 - 0x2000);
+#endif
 #endif /* OTA_ENABLED */
 
   #ifdef BOARD_HAS_ECCX08
@@ -394,6 +399,10 @@ int ArduinoIoTCloudTCP::write(String const topic, byte const data[], int const l
   return 0;
 }
 
+#if OTA_STORAGE_PORTENTA_QSPI
+#include "ArduinoOTAPortenta.h"
+#endif
+
 #if OTA_ENABLED
 void ArduinoIoTCloudTCP::onOTARequest()
 {
@@ -421,6 +430,30 @@ void ArduinoIoTCloudTCP::onOTARequest()
   /* The download was a success. */
   ota_download_success = true;
 #endif /* OTA_STORAGE_SNU */
+
+#if OTA_STORAGE_PORTENTA_QSPI
+  /* Just to be safe delete any remains from previous updates. */
+  remove("/fs/UPDATE.BIN.LZSS");
+
+  OTAPortenta.begin(QSPI_FLASH_FATFS_MBR, 2048);
+
+  if (OTAPortenta.download(_ota_url.c_str()))
+  {
+    DBG_ERROR(F("ArduinoIoTCloudTCP::%s error download to nina: %d"), __FUNCTION__, nina_ota_err_code);
+    _ota_error = static_cast<int>(OTAError::DownloadFailed);
+    return;
+  }
+
+  auto update_file_size = OTAPortenta.decompress();
+  OTAPortenta.setUpdateLen(update_file_size);
+
+  /* The download was a success. */
+  ota_download_success = true;
+
+  while (1) {
+    OTAPortenta.update();
+  }
+#endif /* OTA_STORAGE_PORTENTA_QSPI */
 
   /* Perform the reset to reboot to SxU. */
   if (ota_download_success)
