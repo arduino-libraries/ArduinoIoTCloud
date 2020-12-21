@@ -151,6 +151,17 @@ int ArduinoIoTCloudTCP::begin(String brokerAddress, uint16_t brokerPort)
   addPropertyReal(_ota_req, "OTA_REQ", Permission::ReadWrite).onSync(DEVICE_WINS);
 #endif /* OTA_ENABLED */
 
+#if OTA_STORAGE_PORTENTA_QSPI
+  #define BOOTLOADER_ADDR   (0x8000000)
+  uint32_t bootloader_data_offset = 0x1F000;
+  uint8_t* bootloader_data = (uint8_t*)(BOOTLOADER_ADDR + bootloader_data_offset);
+  uint8_t currentBootloaderVersion = bootloader_data[1];
+  if (currentBootloaderVersion < 22) {
+    _ota_cap = false;
+    DBG_WARNING(F("ArduinoIoTCloudTCP::%s In order to be ready for cloud OTA, update the bootloader"), __FUNCTION__);
+  }
+#endif
+
 #if OTA_STORAGE_SNU
   String const nina_fw_version = WiFi.firmwareVersion();
   if (nina_fw_version < "1.4.1") {
@@ -435,14 +446,10 @@ void ArduinoIoTCloudTCP::onOTARequest()
   /* Just to be safe delete any remains from previous updates. */
   remove("/fs/UPDATE.BIN.LZSS");
 
-  OTAPortenta.begin(QSPI_FLASH_FATFS_MBR, 2048);
+  // Use second partition
+  OTAPortenta.begin(QSPI_FLASH_FATFS_MBR, 2);
 
-  if (OTAPortenta.download(_ota_url.c_str()))
-  {
-    DBG_ERROR(F("ArduinoIoTCloudTCP::%s error download to nina: %d"), __FUNCTION__, nina_ota_err_code);
-    _ota_error = static_cast<int>(OTAError::DownloadFailed);
-    return;
-  }
+  OTAPortenta.download((char*)(_ota_url.c_str()));
 
   auto update_file_size = OTAPortenta.decompress();
   OTAPortenta.setUpdateLen(update_file_size);
