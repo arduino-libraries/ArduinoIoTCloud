@@ -123,7 +123,12 @@ int ArduinoIoTCloudTCP::begin(String brokerAddress, uint16_t brokerPort)
    * The bootloader is excluded from the calculation and occupies flash address
    * range 0 to 0x2000, total flash size of 0x40000 bytes (256 kByte).
    */
+#if defined(ARDUINO_PORTENTA_H7_M7)
+  // TODO: check if we need to checksum the whole flash or just the first megabyte
+  _ota_img_sha256 = FlashSHA256::calc(0x8040000, 0x200000 - 0x40000);
+#else
   _ota_img_sha256 = FlashSHA256::calc(0x2000, 0x40000 - 0x2000);
+#endif
 #endif /* OTA_ENABLED */
 
   #ifdef BOARD_HAS_OFFLOADED_ECCX08
@@ -391,7 +396,7 @@ void ArduinoIoTCloudTCP::handleMessage(int length)
 
   if ((_shadowTopicIn == topic) && (_state == State::RequestLastValues))
   {
-    DEBUG_VERBOSE("ArduinoIoTCloudTCP::%s [%d] last values received", __FUNCTION__, millis());
+    DBG_VERBOSE(F("ArduinoIoTCloudTCP::%s [%d] last values received"), __FUNCTION__, millis());
     CBORDecoder::decode(_property_container, (uint8_t*)bytes, length, true);
     sendPropertiesToCloud();
     execCloudEventCallback(ArduinoIoTCloudEvent::SYNC);
@@ -437,6 +442,10 @@ int ArduinoIoTCloudTCP::write(String const topic, byte const data[], int const l
   }
   return 0;
 }
+
+#if OTA_STORAGE_PORTENTA_QSPI
+#include "ArduinoOTAPortenta.h"
+#endif
 
 #if OTA_ENABLED
 void ArduinoIoTCloudTCP::onOTARequest()
