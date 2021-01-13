@@ -160,6 +160,9 @@ int ArduinoIoTCloudTCP::begin(String brokerAddress, uint16_t brokerPort)
     _ota_cap = false;
     DBG_WARNING(F("ArduinoIoTCloudTCP::%s In order to be ready for cloud OTA, update the bootloader"), __FUNCTION__);
   }
+  else {
+    _ota_cap = true;
+  }
 #endif
 
 #if OTA_STORAGE_SNU
