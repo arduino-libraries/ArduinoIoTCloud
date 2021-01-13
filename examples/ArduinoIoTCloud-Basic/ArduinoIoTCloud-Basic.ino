@@ -22,6 +22,10 @@
 #include "arduino_secrets.h"
 #include "thingProperties.h"
 
+#if defined(ESP32)
+static int const LED_BUILTIN = 2;
+#endif
+
 void setup() {
   /* Initialize serial and wait up to 5 seconds for port to open */
   Serial.begin(9600);

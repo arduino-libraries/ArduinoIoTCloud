@@ -41,6 +41,7 @@ typedef size_t LenType;
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wpedantic"
+#pragma GCC diagnostic ignored "-Wreturn-type"
 
 struct Buffer
 {
