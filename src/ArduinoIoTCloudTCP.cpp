@@ -457,10 +457,6 @@ int ArduinoIoTCloudTCP::write(String const topic, byte const data[], int const l
   return 0;
 }
 
-#if OTA_STORAGE_PORTENTA_QSPI
-#include "ArduinoOTAPortenta.h"
-#endif
-
 #if OTA_ENABLED
 void ArduinoIoTCloudTCP::onOTARequest()
 {
