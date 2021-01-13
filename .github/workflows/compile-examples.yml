@@ -121,6 +121,7 @@ jobs:
                 name: arduino:mbed
             libraries: |
               - name: ArduinoECCX08
+              - source-url: https://github.com/facchinm/ArduinoOTAPortenta.git
             sketch-paths: |
               - examples/utility/Provisioning
           # ESP8266 boards
