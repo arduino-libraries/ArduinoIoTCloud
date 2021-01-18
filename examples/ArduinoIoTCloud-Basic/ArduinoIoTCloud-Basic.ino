@@ -16,6 +16,7 @@
    - MKR GSM 1400
    - MKR NB 1500
    - MKR WAN 1300/1310
+   - Nano 33 IoT
    - ESP 8266
 */
 
