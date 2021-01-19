@@ -38,7 +38,7 @@
 #endif /* OTA_STORAGE_SFU */
 
 #if OTA_STORAGE_PORTENTA_QSPI
-  #include <ArduinoOTAPortenta.h>
+  #include <Arduino_OTA_Portenta.h>
 #endif /* OTA_STORAGE_PORTENTA_QSPI */
 
 /******************************************************************************

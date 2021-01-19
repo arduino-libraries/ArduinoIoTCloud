@@ -330,7 +330,7 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_Connected()
 {
   if (!_mqttClient.connected())
   {
-    DEBUG_ERROR("ArduinoIoTCloudTCP::%s MQTT client connection lost", __FUNCTION__);
+    DBG_ERROR(F("ArduinoIoTCloudTCP::%s MQTT client connection lost"), __FUNCTION__);
 
     /* Forcefully disconnect MQTT client and trigger a reconnection. */
     _mqttClient.stop();
@@ -460,12 +460,7 @@ int ArduinoIoTCloudTCP::write(String const topic, byte const data[], int const l
 #if OTA_ENABLED
 void ArduinoIoTCloudTCP::onOTARequest()
 {
-  DEBUG_VERBOSE("ArduinoIoTCloudTCP::%s _ota_url = %s", __FUNCTION__, _ota_url.c_str());
-
-  /* Status flag to prevent the reset from being executed
-   * when HTTPS download is not supported.
-   */
-  bool ota_download_success = false;
+  DBG_VERBOSE(F("ArduinoIoTCloudTCP::%s _ota_url = %s"), __FUNCTION__, _ota_url.c_str());
 
 #if OTA_STORAGE_SNU
   /* Just to be safe delete any remains from previous updates. */
@@ -481,40 +476,49 @@ void ArduinoIoTCloudTCP::onOTARequest()
     return;
   }
 
-  /* The download was a success. */
-  ota_download_success = true;
+  /* Perform the reset to reboot to SxU. */
+  NVIC_SystemReset();
 #endif /* OTA_STORAGE_SNU */
 
 #if OTA_STORAGE_PORTENTA_QSPI
   /* Just to be safe delete any remains from previous updates. */
   remove("/fs/UPDATE.BIN.LZSS");
 
-  // Use second partition
-  OTAPortenta.begin(QSPI_FLASH_FATFS_MBR, 2);
+  Arduino_OTA_Portenta::Error ota_portenta_err = Arduino_OTA_Portenta::Error::None;
+  /* Use 2nd partition of QSPI (1st partition contains WiFi firmware) */
+  Arduino_OTA_Portenta_QSPI ota_portenta_qspi(QSPI_FLASH_FATFS_MBR, 2);
 
-  if (OTAPortenta.download(_ota_url.c_str()))
-  {
-    DBG_ERROR(F("ArduinoIoTCloudTCP::%s error download to nina: %d"), __FUNCTION__, nina_ota_err_code);
-    _ota_error = static_cast<int>(OTAError::DownloadFailed);
+  /* Initialize the QSPI memory for OTA handling. */
+  if((ota_portenta_err = ota_portenta_qspi.begin()) != Arduino_OTA_Portenta::Error::None) {
+    DBG_ERROR(F("Arduino_OTA_Portenta_QSPI::begin() failed with %d"), static_cast<int>(ota_portenta_err));
     return;
   }
 
-  auto update_file_size = OTAPortenta.decompress();
-  OTAPortenta.setUpdateLen(update_file_size);
+  /* Download the OTA file from the web storage location. */
+  int const ota_portenta_qspi_download_ret_code = ota_portenta_qspi.download((char*)(_ota_url.c_str()));
+  DBG_VERBOSE(F("Arduino_OTA_Portenta_QSPI::download(%s) returns %d"), _ota_url.c_str(), ota_portenta_qspi_download_ret_code);
 
-  /* The download was a success. */
-  ota_download_success = true;
-
-  while (1) {
-    OTAPortenta.update();
+  /* Decompress the LZSS compressed OTA file. */
+  int const ota_portenta_qspi_decompress_ret_code = ota_portenta_qspi.decompress();
+  DBG_VERBOSE(F("Arduino_OTA_Portenta_QSPI::decompress() returns %d"), ota_portenta_qspi_decompress_ret_code);
+  if (ota_portenta_qspi_decompress_ret_code < 0)
+  {
+    DBG_ERROR(F("Arduino_OTA_Portenta_QSPI::decompress() failed with %d"), ota_portenta_qspi_decompress_ret_code);
+    return;
   }
-#endif /* OTA_STORAGE_PORTENTA_QSPI */
+  /* Set the correct update size. */
+  size_t const update_file_size = ota_portenta_qspi_decompress_ret_code;
+  ota_portenta_qspi.setUpdateLen(update_file_size);
 
-#ifndef __AVR__
-  /* Perform the reset to reboot to SxU. */
-  if (ota_download_success)
-    NVIC_SystemReset();
-#endif
+  /* Schedule the firmware update. */
+  if((ota_portenta_err = ota_portenta_qspi.update()) != Arduino_OTA_Portenta::Error::None) {
+    DBG_ERROR(F("Arduino_OTA_Portenta_QSPI::update() failed with %d"), static_cast<int>(ota_portenta_err));
+    return;
+  }
+
+  /* Perform the reset to reboot - then the bootloader performs the actual application update. */
+  NVIC_SystemReset();
+#endif /* OTA_STORAGE_PORTENTA_QSPI */
 }
 #endif
 
