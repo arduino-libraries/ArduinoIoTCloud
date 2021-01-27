@@ -22,10 +22,15 @@
  * INCLUDE
  ******************************************************************************/
 
-#ifdef __AVR__
 #include <Arduino.h>
-#include <Arduino_AVRSTL.h>
+
+#ifdef __AVR__
+# include <Arduino_AVRSTL.h>
 #endif
+
+#undef max
+#undef min
+#include <list>
 
 #include "../property/PropertyContainer.h"
 

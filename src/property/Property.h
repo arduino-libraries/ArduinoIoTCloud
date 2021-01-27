@@ -28,11 +28,18 @@
  ******************************************************************************/
 
 #include <Arduino.h>
-// in order to allow <functional> to define its own max and min functions
+
 #undef max
 #undef min
+
+#ifdef __AVR__
+# include <Arduino_AVRSTL.h>
+# include <nonstd/nonstd.h>
+#else
+# include <functional>
+#endif
+
 #include <list>
-#include <functional>
 
 #include "../cbor/lib/tinycbor/cbor-lib.h"
 
