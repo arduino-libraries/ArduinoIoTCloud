@@ -428,7 +428,7 @@ int ArduinoIoTCloudTCP::write(String const topic, byte const data[], int const l
 #if OTA_ENABLED
 void ArduinoIoTCloudTCP::onOTARequest()
 {
-  DEBUG_VERBOSE("ArduinoIoTCloudTCP::%s _ota_url = %s"), __FUNCTION__, _ota_url.c_str());
+  DEBUG_VERBOSE("ArduinoIoTCloudTCP::%s _ota_url = %s", __FUNCTION__, _ota_url.c_str());
 
   /* Status flag to prevent the reset from being executed
    * when HTTPS download is not supported.
@@ -444,7 +444,7 @@ void ArduinoIoTCloudTCP::onOTARequest()
   uint8_t nina_ota_err_code = 0;
   if (!WiFiStorage.downloadOTA(_ota_url.c_str(), &nina_ota_err_code))
   {
-    DEBUG_ERROR("ArduinoIoTCloudTCP::%s error download to nina: %d"), __FUNCTION__, nina_ota_err_code);
+    DEBUG_ERROR("ArduinoIoTCloudTCP::%s error download to nina: %d", __FUNCTION__, nina_ota_err_code);
     _ota_error = static_cast<int>(OTAError::DownloadFailed);
     return;
   }
