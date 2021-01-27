@@ -87,7 +87,7 @@ jobs:
               - name: arduino:megaavr
             libraries: |
               - name: ArduinoECCX08
-              - name: Arduino_AVRSTL
+              - source-url: https://github.com/arduino-libraries/Arduino_AVRSTL.git
               - name: WiFiNINA
               - name: Arduino_JSON
               - name: ArduinoBearSSL
