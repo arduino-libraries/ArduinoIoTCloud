@@ -31,14 +31,6 @@
 #endif
 
 #if defined(ARDUINO_AVR_UNO_WIFI_REV2)
-/* Define debug macros which effectively removes them from the
- * the codebase for Arduino Uno WiFi. Rev. 2.
- */
-#  define DEBUG_ERROR
-#  define DEBUG_WARNING
-#  define DEBUG_INFO
-#  define DEBUG_DEBUG
-#  define DEBUG_VERBOSE
 /* Provide defines for constants provided within Arduino_DebugUtils
  * in order to allow older sketches using those constants to still
  * compile.
@@ -52,23 +44,43 @@
 #endif
 
 #ifndef DEBUG_ERROR
-  #define DEBUG_ERROR(fmt, ...) Debug.print(DBG_ERROR, fmt, ## __VA_ARGS__)
+# if defined(ARDUINO_AVR_UNO_WIFI_REV2)
+#   define DEBUG_ERROR(fmt, ...)
+# else
+#   define DEBUG_ERROR(fmt, ...) Debug.print(DBG_ERROR, fmt, ## __VA_ARGS__)
+# endif
 #endif
 
 #ifndef DEBUG_WARNING
-  #define DEBUG_WARNING(fmt, ...) Debug.print(DBG_WARNING, fmt, ## __VA_ARGS__)
+# if defined(ARDUINO_AVR_UNO_WIFI_REV2)
+#   define DEBUG_WARNING(fmt, ...)
+# else
+#   define DEBUG_WARNING(fmt, ...) Debug.print(DBG_WARNING, fmt, ## __VA_ARGS__)
+# endif
 #endif
 
 #ifndef DEBUG_INFO
-  #define DEBUG_INFO(fmt, ...) Debug.print(DBG_INFO, fmt, ## __VA_ARGS__)
+# if defined(ARDUINO_AVR_UNO_WIFI_REV2)
+#   define DEBUG_INFO(fmt, ...)
+# else
+#   define DEBUG_INFO(fmt, ...) Debug.print(DBG_INFO, fmt, ## __VA_ARGS__)
+# endif
 #endif
 
 #ifndef DEBUG_DEBUG
-  #define DEBUG_DEBUG(fmt, ...) Debug.print(DBG_DEBUG, fmt, ## __VA_ARGS__)
+# if defined(ARDUINO_AVR_UNO_WIFI_REV2)
+#   define DEBUG_DEBUG(fmt, ...)
+# else
+#   define DEBUG_DEBUG(fmt, ...) Debug.print(DBG_DEBUG, fmt, ## __VA_ARGS__)
+# endif
 #endif
 
 #ifndef DEBUG_VERBOSE
-  #define DEBUG_VERBOSE(fmt, ...) //Debug.print(DBG_VERBOSE, fmt, ## __VA_ARGS__)
+# if defined(ARDUINO_AVR_UNO_WIFI_REV2)
+#   define DEBUG_VERBOSE(fmt, ...)
+# else
+#   define DEBUG_VERBOSE(fmt, ...) //Debug.print(DBG_VERBOSE, fmt, ## __VA_ARGS__)
+# endif
 #endif
 
 /******************************************************************************
