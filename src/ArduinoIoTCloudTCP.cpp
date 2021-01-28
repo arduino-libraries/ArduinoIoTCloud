@@ -108,7 +108,7 @@ int ArduinoIoTCloudTCP::begin(String brokerAddress, uint16_t brokerPort)
   if (nina_fw_version < "1.4.2")
   {
     DEBUG_ERROR("ArduinoIoTCloudTCP::%s NINA firmware needs to be >= 1.4.2 to support cloud on Uno WiFi Rev. 2, current %s", __FUNCTION__, nina_fw_version.c_str());
-    for(;;) { }
+    return 0;
   }
 #endif /* AVR */
 
