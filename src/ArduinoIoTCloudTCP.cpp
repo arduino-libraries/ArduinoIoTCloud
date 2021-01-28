@@ -506,9 +506,6 @@ void ArduinoIoTCloudTCP::onOTARequest()
     DEBUG_ERROR("Arduino_Portenta_OTA_QSPI::decompress() failed with %d", ota_portenta_qspi_decompress_ret_code);
     return;
   }
-  /* Set the correct update size. */
-  size_t const update_file_size = ota_portenta_qspi_decompress_ret_code;
-  ota_portenta_qspi.setUpdateLen(update_file_size);
 
   /* Schedule the firmware update. */
   if((ota_portenta_err = ota_portenta_qspi.update()) != Arduino_Portenta_OTA::Error::None) {
