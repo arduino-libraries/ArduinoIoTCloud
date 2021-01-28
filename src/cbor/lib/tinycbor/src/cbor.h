@@ -25,6 +25,11 @@
 #ifndef CBOR_H
 #define CBOR_H
 
+#ifdef __AVR__
+#define FP_NAN          NAN
+#define FP_INFINITE     INFINITY
+#endif
+
 #ifndef assert
 #include <assert.h>
 #endif

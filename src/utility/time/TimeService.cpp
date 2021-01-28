@@ -105,6 +105,7 @@ unsigned long TimeService::getRemoteTime()
     return connection_time;
   }
 
+#ifndef __AVR__
   /* If no valid network time is available try to obtain the
    * time via NTP next.
    */
@@ -112,6 +113,7 @@ unsigned long TimeService::getRemoteTime()
   if(isTimeValid(ntp_time)) {
     return ntp_time;
   }
+#endif
 
 #endif /* ifndef HAS_LORA */
 

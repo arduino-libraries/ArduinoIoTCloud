@@ -33,6 +33,11 @@
   #include <WiFiClientSecure.h>
 #endif
 
+#ifdef BOARD_HAS_OFFLOADED_ECCX08
+#include "tls/utility/ECCX08Cert.h"
+#include <WiFiSSLClient.h>
+#endif
+
 #include <ArduinoMqttClient.h>
 
 /******************************************************************************
@@ -60,7 +65,7 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
     virtual int  connected     () override;
     virtual void printDebugInfo() override;
 
-    #ifdef BOARD_HAS_ECCX08
+    #if defined(BOARD_HAS_ECCX08) || defined(BOARD_HAS_OFFLOADED_ECCX08)
     int begin(ConnectionHandler & connection, String brokerAddress = DEFAULT_BROKER_ADDRESS_SECURE_AUTH, uint16_t brokerPort = DEFAULT_BROKER_PORT_SECURE_AUTH);
     #else
     int begin(ConnectionHandler & connection, String brokerAddress = DEFAULT_BROKER_ADDRESS_USER_PASS_AUTH, uint16_t brokerPort = DEFAULT_BROKER_PORT_USER_PASS_AUTH);
@@ -98,9 +103,12 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
     int _mqtt_data_len;
     bool _mqtt_data_request_retransmit;
 
-    #ifdef BOARD_HAS_ECCX08
+    #if defined(BOARD_HAS_ECCX08)
     ECCX08CertClass _eccx08_cert;
     BearSSLClient _sslClient;
+    #elif defined(BOARD_HAS_OFFLOADED_ECCX08)
+    ECCX08CertClass _eccx08_cert;
+    WiFiBearSSLClient _sslClient;
     #elif defined(BOARD_ESP)
     WiFiClientSecure _sslClient;
     String _password;

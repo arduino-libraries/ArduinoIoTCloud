@@ -22,6 +22,12 @@
    INCLUDE
  ******************************************************************************/
 
+#include <Arduino.h>
+
+#ifdef __AVR__
+# include <Arduino_AVRSTL.h>
+#endif
+
 #undef max
 #undef min
 #include <list>

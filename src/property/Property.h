@@ -28,11 +28,18 @@
  ******************************************************************************/
 
 #include <Arduino.h>
-// in order to allow <functional> to define its own max and min functions
+
 #undef max
 #undef min
+
+#ifdef __AVR__
+# include <Arduino_AVRSTL.h>
+# include <nonstd/nonstd.h>
+#else
+# include <functional>
+#endif
+
 #include <list>
-#include <functional>
 
 #include "../cbor/lib/tinycbor/cbor-lib.h"
 
@@ -133,6 +140,10 @@ typedef void(*OnSyncCallbackFunc)(Property &);
    CLASS DECLARATION
  ******************************************************************************/
 
+#ifdef __AVR__
+#include "nonstd/nonstd.h"
+#endif
+
 class Property
 {
   public:
@@ -177,13 +188,18 @@ class Property
     CborError appendAttributeReal(int value, String attributeName = "", CborEncoder *encoder = nullptr);
     CborError appendAttributeReal(float value, String attributeName = "", CborEncoder *encoder = nullptr);
     CborError appendAttributeReal(String value, String attributeName = "", CborEncoder *encoder = nullptr);
+#ifndef __AVR__
     CborError appendAttributeName(String attributeName, std::function<CborError (CborEncoder& mapEncoder)>f, CborEncoder *encoder);
+    void setAttributeReal(String attributeName, std::function<void (CborMapData & md)>setValue);
+#else
+    CborError appendAttributeName(String attributeName, nonstd::function<CborError (CborEncoder& mapEncoder)>f, CborEncoder *encoder);
+    void setAttributeReal(String attributeName, nonstd::function<void (CborMapData & md)>setValue);
+#endif
     void setAttributesFromCloud(std::list<CborMapData> * map_data_list);
     void setAttributeReal(bool& value, String attributeName = "");
     void setAttributeReal(int& value, String attributeName = "");
     void setAttributeReal(float& value, String attributeName = "");
     void setAttributeReal(String& value, String attributeName = "");
-    void setAttributeReal(String attributeName, std::function<void (CborMapData & md)>setValue);
     String getAttributeName(String propertyName, char separator);
 
     virtual bool isDifferentFromCloud() = 0;

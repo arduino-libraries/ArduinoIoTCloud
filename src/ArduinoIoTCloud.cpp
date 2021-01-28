@@ -179,3 +179,8 @@ void ArduinoIoTCloudClass::execCloudEventCallback(ArduinoIoTCloudEvent const eve
     (*callback)();
   }
 }
+
+__attribute__((weak)) void setDebugMessageLevel(int const /* level */)
+{
+  /* do nothing */
+}

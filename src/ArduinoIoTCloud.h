@@ -25,7 +25,10 @@
 #include <AIoTC_Config.h>
 
 #include <Arduino_ConnectionHandler.h>
-#include <Arduino_DebugUtils.h>
+
+#if defined(DEBUG_ERROR) || defined(DEBUG_WARNING) || defined(DEBUG_INFO) || defined(DEBUG_DEBUG) || defined(DEBUG_VERBOSE)
+#  include <Arduino_DebugUtils.h>
+#endif
 
 #include "AIoTC_Const.h"
 
@@ -153,5 +156,8 @@ class ArduinoIoTCloudClass
 #elif defined(HAS_LORA)
   #include "ArduinoIoTCloudLPWAN.h"
 #endif
+
+// declaration for boards without debug library
+void setDebugMessageLevel(int const level);
 
 #endif

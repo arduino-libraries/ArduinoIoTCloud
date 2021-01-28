@@ -30,31 +30,65 @@
   #define NTP_USE_RANDOM_PORT     (1)
 #endif
 
-#ifndef DBG_ERROR
-  #define DBG_ERROR(fmt, ...) Debug.print(DBG_ERROR, fmt, ## __VA_ARGS__)
+#ifndef DEBUG_ERROR
+# if defined(ARDUINO_AVR_UNO_WIFI_REV2)
+#   define DEBUG_ERROR(fmt, ...) Debug.print(DBG_ERROR, fmt, ## __VA_ARGS__)
+# else
+#   define DEBUG_ERROR(fmt, ...) Debug.print(DBG_ERROR, fmt, ## __VA_ARGS__)
+# endif
 #endif
 
-#ifndef DBG_WARNING
-  #define DBG_WARNING(fmt, ...) Debug.print(DBG_WARNING, fmt, ## __VA_ARGS__)
+#ifndef DEBUG_WARNING
+# if defined(ARDUINO_AVR_UNO_WIFI_REV2)
+#   define DEBUG_WARNING(fmt, ...)
+# else
+#   define DEBUG_WARNING(fmt, ...) Debug.print(DBG_WARNING, fmt, ## __VA_ARGS__)
+# endif
 #endif
 
-#ifndef DBG_INFO
-  #define DBG_INFO(fmt, ...) Debug.print(DBG_INFO, fmt, ## __VA_ARGS__)
+#ifndef DEBUG_INFO
+# if defined(ARDUINO_AVR_UNO_WIFI_REV2)
+#   define DEBUG_INFO(fmt, ...)
+# else
+#   define DEBUG_INFO(fmt, ...) Debug.print(DBG_INFO, fmt, ## __VA_ARGS__)
+# endif
 #endif
 
-#ifndef DBG_DEBUG
-  #define DBG_DEBUG(fmt, ...) Debug.print(DBG_DEBUG, fmt, ## __VA_ARGS__)
+#ifndef DEBUG_DEBUG
+# if defined(ARDUINO_AVR_UNO_WIFI_REV2)
+#   define DEBUG_DEBUG(fmt, ...)
+# else
+#   define DEBUG_DEBUG(fmt, ...) Debug.print(DBG_DEBUG, fmt, ## __VA_ARGS__)
+# endif
 #endif
 
-#ifndef DBG_VERBOSE
-  #define DBG_VERBOSE(fmt, ...) //Debug.print(DBG_VERBOSE, fmt, ## __VA_ARGS__)
+#ifndef DEBUG_VERBOSE
+# if defined(ARDUINO_AVR_UNO_WIFI_REV2)
+#   define DEBUG_VERBOSE(fmt, ...)
+# else
+#   define DEBUG_VERBOSE(fmt, ...) //Debug.print(DBG_VERBOSE, fmt, ## __VA_ARGS__)
+# endif
+#endif
+
+#if defined(ARDUINO_AVR_UNO_WIFI_REV2) && !(defined(DEBUG_ERROR) || defined(DEBUG_WARNING) || defined(DEBUG_INFO) || defined(DEBUG_DEBUG) || defined(DEBUG_VERBOSE))
+/* Provide defines for constants provided within Arduino_DebugUtils
+ * in order to allow older sketches using those constants to still
+ * compile.
+ */
+#  define DBG_NONE    -1
+#  define DBG_ERROR    0
+#  define DBG_WARNING  1
+#  define DBG_INFO     2
+#  define DBG_DEBUG    3
+#  define DBG_VERBOSE  4
 #endif
 
 /******************************************************************************
  * AUTOMATICALLY CONFIGURED DEFINES
  ******************************************************************************/
 
-#if defined(ARDUINO_SAMD_MKRWIFI1010) || defined(ARDUINO_SAMD_NANO_33_IOT)
+#if defined(ARDUINO_SAMD_MKRWIFI1010) || defined(ARDUINO_SAMD_NANO_33_IOT) || \
+  defined(ARDUINO_AVR_UNO_WIFI_REV2)
   #define OTA_STORAGE_SNU         (1)
 #else
   #define OTA_STORAGE_SNU         (0)
@@ -66,17 +100,22 @@
   #define OTA_STORAGE_SSU         (0)
 #endif
 
-#if OTA_STORAGE_SFU || OTA_STORAGE_SSU || OTA_STORAGE_SNU
+#if (OTA_STORAGE_SFU || OTA_STORAGE_SSU || OTA_STORAGE_SNU) && !defined(ARDUINO_AVR_UNO_WIFI_REV2)
   #define OTA_ENABLED             (1)
 #else
   #define OTA_ENABLED             (0)
 #endif
 
-#if defined(ARDUINO_SAMD_MKRGSM1400) || defined(ARDUINO_SAMD_MKRWIFI1010) ||   \
-  defined(ARDUINO_SAMD_MKR1000) || defined(ARDUINO_SAMD_NANO_33_IOT)      ||   \
+#if defined(ARDUINO_SAMD_MKRGSM1400) || defined(ARDUINO_SAMD_MKR1000) ||   \
   defined(ARDUINO_SAMD_MKRNB1500) || defined(ARDUINO_PORTENTA_H7_M7)      ||   \
   defined(ARDUINO_PORTENTA_H7_M4)
   #define BOARD_HAS_ECCX08
+  #define HAS_TCP
+#endif
+
+#if defined(ARDUINO_SAMD_MKRWIFI1010) || defined(ARDUINO_SAMD_NANO_33_IOT) || \
+  defined(ARDUINO_AVR_UNO_WIFI_REV2)
+  #define BOARD_HAS_OFFLOADED_ECCX08
   #define HAS_TCP
 #endif
 
