@@ -103,6 +103,15 @@ int ArduinoIoTCloudTCP::begin(String brokerAddress, uint16_t brokerPort)
   _brokerAddress = brokerAddress;
   _brokerPort = brokerPort;
 
+#if defined(__AVR__)
+  String const nina_fw_version = WiFi.firmwareVersion();
+  if (nina_fw_version < "1.4.2")
+  {
+    DEBUG_ERROR("ArduinoIoTCloudTCP::%s NINA firmware needs to be >= 1.4.2 to support cloud on Uno WiFi Rev. 2, current %s", __FUNCTION__, nina_fw_version.c_str());
+    for(;;) { }
+  }
+#endif /* AVR */
+
 #if OTA_ENABLED && !defined(__AVR__)
   /* Calculate the SHA256 checksum over the firmware stored in the flash of the
    * MCU. Note: As we don't know the length per-se we read chunks of the flash
