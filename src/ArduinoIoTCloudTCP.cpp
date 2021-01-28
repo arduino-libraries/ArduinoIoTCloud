@@ -129,12 +129,12 @@ int ArduinoIoTCloudTCP::begin(String brokerAddress, uint16_t brokerPort)
   #ifdef BOARD_HAS_OFFLOADED_ECCX08
   if (!ECCX08.begin())
   {
-    DEBUG_ERROR("Cryptography processor failure. Make sure you have a compatible board.");
+    DEBUG_ERROR("ECCX08.begin() failed.");
     return 0;
   }
   if (!CryptoUtil::readDeviceId(ECCX08, getDeviceId(), ECCX08Slot::DeviceId))
   {
-    DEBUG_ERROR("Cryptography processor read failure.");
+    DEBUG_ERROR("CryptoUtil::readDeviceId(...) failed.");
     return 0;
   }
   ECCX08.end();
@@ -266,7 +266,9 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_SubscribeMqttTopics()
   if (!_mqttClient.subscribe(_dataTopicIn))
   {
     DEBUG_ERROR("ArduinoIoTCloudTCP::%s could not subscribe to %s", __FUNCTION__, _dataTopicIn.c_str());
+#if !defined(__AVR__)
     DEBUG_ERROR("Check your thing configuration, and press the reset button on your board.");
+#endif
     return State::SubscribeMqttTopics;
   }
 
@@ -275,7 +277,9 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_SubscribeMqttTopics()
     if (!_mqttClient.subscribe(_shadowTopicIn))
     {
       DEBUG_ERROR("ArduinoIoTCloudTCP::%s could not subscribe to %s", __FUNCTION__, _shadowTopicIn.c_str());
+#if !defined(__AVR__)
       DEBUG_ERROR("Check your thing configuration, and press the reset button on your board.");
+#endif
       return State::SubscribeMqttTopics;
     }
   }
