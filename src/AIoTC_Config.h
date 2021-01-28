@@ -30,19 +30,6 @@
   #define NTP_USE_RANDOM_PORT     (1)
 #endif
 
-#if defined(ARDUINO_AVR_UNO_WIFI_REV2)
-/* Provide defines for constants provided within Arduino_DebugUtils
- * in order to allow older sketches using those constants to still
- * compile.
- */
-#  define DBG_NONE    -1
-#  define DBG_ERROR    0
-#  define DBG_WARNING  1
-#  define DBG_INFO     2
-#  define DBG_DEBUG    3
-#  define DBG_VERBOSE  4
-#endif
-
 #ifndef DEBUG_ERROR
 # if defined(ARDUINO_AVR_UNO_WIFI_REV2)
 #   define DEBUG_ERROR(fmt, ...)
@@ -81,6 +68,19 @@
 # else
 #   define DEBUG_VERBOSE(fmt, ...) //Debug.print(DBG_VERBOSE, fmt, ## __VA_ARGS__)
 # endif
+#endif
+
+#if defined(ARDUINO_AVR_UNO_WIFI_REV2) && !(defined(DEBUG_ERROR) || defined(DEBUG_WARNING) || defined(DEBUG_INFO) || defined(DEBUG_DEBUG) || defined(DEBUG_VERBOSE))
+/* Provide defines for constants provided within Arduino_DebugUtils
+ * in order to allow older sketches using those constants to still
+ * compile.
+ */
+#  define DBG_NONE    -1
+#  define DBG_ERROR    0
+#  define DBG_WARNING  1
+#  define DBG_INFO     2
+#  define DBG_DEBUG    3
+#  define DBG_VERBOSE  4
 #endif
 
 /******************************************************************************

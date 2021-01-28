@@ -26,7 +26,7 @@
 
 #include <Arduino_ConnectionHandler.h>
 
-#if !defined(__AVR__)
+#if defined(DEBUG_ERROR) || defined(DEBUG_WARNING) || defined(DEBUG_INFO) || defined(DEBUG_DEBUG) || defined(DEBUG_VERBOSE)
 #  include <Arduino_DebugUtils.h>
 #endif
 
