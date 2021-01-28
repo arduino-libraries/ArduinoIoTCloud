@@ -330,7 +330,7 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_Connected()
 {
   if (!_mqttClient.connected())
   {
-    DBG_ERROR(F("ArduinoIoTCloudTCP::%s MQTT client connection lost"), __FUNCTION__);
+    DEBUG_ERROR("ArduinoIoTCloudTCP::%s MQTT client connection lost", __FUNCTION__);
 
     /* Forcefully disconnect MQTT client and trigger a reconnection. */
     _mqttClient.stop();
@@ -410,7 +410,7 @@ void ArduinoIoTCloudTCP::handleMessage(int length)
 
   if ((_shadowTopicIn == topic) && (_state == State::RequestLastValues))
   {
-    DBG_VERBOSE(F("ArduinoIoTCloudTCP::%s [%d] last values received"), __FUNCTION__, millis());
+    DEBUG_VERBOSE("ArduinoIoTCloudTCP::%s [%d] last values received", __FUNCTION__, millis());
     CBORDecoder::decode(_property_container, (uint8_t*)bytes, length, true);
     sendPropertiesToCloud();
     execCloudEventCallback(ArduinoIoTCloudEvent::SYNC);
@@ -490,7 +490,7 @@ void ArduinoIoTCloudTCP::onOTARequest()
 
   /* Initialize the QSPI memory for OTA handling. */
   if((ota_portenta_err = ota_portenta_qspi.begin()) != Arduino_Portenta_OTA::Error::None) {
-    DBG_ERROR(F("Arduino_Portenta_OTA_QSPI::begin() failed with %d"), static_cast<int>(ota_portenta_err));
+    DEBUG_ERROR("Arduino_Portenta_OTA_QSPI::begin() failed with %d", static_cast<int>(ota_portenta_err));
     return;
   }
 
@@ -503,7 +503,7 @@ void ArduinoIoTCloudTCP::onOTARequest()
   DBG_VERBOSE(F("Arduino_Portenta_OTA_QSPI::decompress() returns %d"), ota_portenta_qspi_decompress_ret_code);
   if (ota_portenta_qspi_decompress_ret_code < 0)
   {
-    DBG_ERROR(F("Arduino_Portenta_OTA_QSPI::decompress() failed with %d"), ota_portenta_qspi_decompress_ret_code);
+    DEBUG_ERROR("Arduino_Portenta_OTA_QSPI::decompress() failed with %d", ota_portenta_qspi_decompress_ret_code);
     return;
   }
   /* Set the correct update size. */
@@ -512,7 +512,7 @@ void ArduinoIoTCloudTCP::onOTARequest()
 
   /* Schedule the firmware update. */
   if((ota_portenta_err = ota_portenta_qspi.update()) != Arduino_Portenta_OTA::Error::None) {
-    DBG_ERROR(F("Arduino_Portenta_OTA_QSPI::update() failed with %d"), static_cast<int>(ota_portenta_err));
+    DEBUG_ERROR(F("Arduino_Portenta_OTA_QSPI::update() failed with %d"), static_cast<int>(ota_portenta_err));
     return;
   }
 
