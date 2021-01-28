@@ -32,7 +32,7 @@
 
 #ifndef DEBUG_ERROR
 # if defined(ARDUINO_AVR_UNO_WIFI_REV2)
-#   define DEBUG_ERROR(fmt, ...)
+#   define DEBUG_ERROR(fmt, ...) Debug.print(DBG_ERROR, fmt, ## __VA_ARGS__)
 # else
 #   define DEBUG_ERROR(fmt, ...) Debug.print(DBG_ERROR, fmt, ## __VA_ARGS__)
 # endif
