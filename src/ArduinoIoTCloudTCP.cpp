@@ -198,7 +198,7 @@ int ArduinoIoTCloudTCP::begin(String brokerAddress, uint16_t brokerPort)
   uint8_t currentBootloaderVersion = bootloader_data[1];
   if (currentBootloaderVersion < 22) {
     _ota_cap = false;
-    DBG_WARNING(F("ArduinoIoTCloudTCP::%s In order to be ready for cloud OTA, update the bootloader"), __FUNCTION__);
+    DEBUG_WARNING("ArduinoIoTCloudTCP::%s In order to be ready for cloud OTA, update the bootloader", __FUNCTION__);
   }
   else {
     _ota_cap = true;
@@ -460,7 +460,7 @@ int ArduinoIoTCloudTCP::write(String const topic, byte const data[], int const l
 #if OTA_ENABLED
 void ArduinoIoTCloudTCP::onOTARequest()
 {
-  DBG_VERBOSE(F("ArduinoIoTCloudTCP::%s _ota_url = %s"), __FUNCTION__, _ota_url.c_str());
+  DEBUG_VERBOSE("ArduinoIoTCloudTCP::%s _ota_url = %s", __FUNCTION__, _ota_url.c_str());
 
 #if OTA_STORAGE_SNU
   /* Just to be safe delete any remains from previous updates. */
@@ -496,11 +496,11 @@ void ArduinoIoTCloudTCP::onOTARequest()
 
   /* Download the OTA file from the web storage location. */
   int const ota_portenta_qspi_download_ret_code = ota_portenta_qspi.download((char*)(_ota_url.c_str()));
-  DBG_VERBOSE(F("Arduino_Portenta_OTA_QSPI::download(%s) returns %d"), _ota_url.c_str(), ota_portenta_qspi_download_ret_code);
+  DEBUG_VERBOSE("Arduino_Portenta_OTA_QSPI::download(%s) returns %d", _ota_url.c_str(), ota_portenta_qspi_download_ret_code);
 
   /* Decompress the LZSS compressed OTA file. */
   int const ota_portenta_qspi_decompress_ret_code = ota_portenta_qspi.decompress();
-  DBG_VERBOSE(F("Arduino_Portenta_OTA_QSPI::decompress() returns %d"), ota_portenta_qspi_decompress_ret_code);
+  DEBUG_VERBOSE("Arduino_Portenta_OTA_QSPI::decompress() returns %d", ota_portenta_qspi_decompress_ret_code);
   if (ota_portenta_qspi_decompress_ret_code < 0)
   {
     DEBUG_ERROR("Arduino_Portenta_OTA_QSPI::decompress() failed with %d", ota_portenta_qspi_decompress_ret_code);
@@ -509,7 +509,7 @@ void ArduinoIoTCloudTCP::onOTARequest()
 
   /* Schedule the firmware update. */
   if((ota_portenta_err = ota_portenta_qspi.update()) != Arduino_Portenta_OTA::Error::None) {
-    DEBUG_ERROR(F("Arduino_Portenta_OTA_QSPI::update() failed with %d"), static_cast<int>(ota_portenta_err));
+    DEBUG_ERROR("Arduino_Portenta_OTA_QSPI::update() failed with %d", static_cast<int>(ota_portenta_err));
     return;
   }
 
