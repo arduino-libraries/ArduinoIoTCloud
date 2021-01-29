@@ -195,7 +195,6 @@ jobs:
       - name: Compile examples
         uses: arduino/compile-sketches@main
         with:
-          cli-version: 0.13.0
           platforms: ${{ matrix.platforms }}
           fqbn: ${{ matrix.board.fqbn }}
           libraries: |
