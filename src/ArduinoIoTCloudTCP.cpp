@@ -481,9 +481,6 @@ void ArduinoIoTCloudTCP::onOTARequest()
 #endif /* OTA_STORAGE_SNU */
 
 #if OTA_STORAGE_PORTENTA_QSPI
-  /* Just to be safe delete any remains from previous updates. */
-  remove("/fs/UPDATE.BIN.LZSS");
-
   Arduino_Portenta_OTA::Error ota_portenta_err = Arduino_Portenta_OTA::Error::None;
   /* Use 2nd partition of QSPI (1st partition contains WiFi firmware) */
   Arduino_Portenta_OTA_QSPI ota_portenta_qspi(QSPI_FLASH_FATFS_MBR, 2);
@@ -493,6 +490,9 @@ void ArduinoIoTCloudTCP::onOTARequest()
     DEBUG_ERROR("Arduino_Portenta_OTA_QSPI::begin() failed with %d", static_cast<int>(ota_portenta_err));
     return;
   }
+
+  /* Just to be safe delete any remains from previous updates. */
+  remove("/fs/UPDATE.BIN.LZSS");
 
   /* Download the OTA file from the web storage location. */
   int const ota_portenta_qspi_download_ret_code = ota_portenta_qspi.download((char*)(_ota_url.c_str()));
