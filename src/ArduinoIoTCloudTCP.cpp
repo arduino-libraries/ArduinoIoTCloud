@@ -492,6 +492,7 @@ void ArduinoIoTCloudTCP::onOTARequest()
   }
 
   /* Just to be safe delete any remains from previous updates. */
+  remove("/fs/UPDATE.BIN");
   remove("/fs/UPDATE.BIN.LZSS");
 
   /* Download the OTA file from the web storage location. */
