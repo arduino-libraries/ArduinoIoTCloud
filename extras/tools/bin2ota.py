@@ -22,6 +22,8 @@ if board == "MKR_WIFI_1010":
     magic_number = 0x23418054.to_bytes(4,byteorder='little')
 elif board == "NANO_33_IOT":
     magic_number = 0x23418057.to_bytes(4,byteorder='little')
+elif board == "PORTENTA_H7_M7":
+    magic_number = 0x2341025B.to_bytes(4,byteorder='little')
 else:
     print ("Error,", board, "is not a supported board type")
     sys.exit()
