@@ -100,7 +100,13 @@
   #define OTA_STORAGE_SSU         (0)
 #endif
 
-#if (OTA_STORAGE_SFU || OTA_STORAGE_SSU || OTA_STORAGE_SNU) && !defined(ARDUINO_AVR_UNO_WIFI_REV2)
+#if defined(ARDUINO_PORTENTA_H7_M7)
+  #define OTA_STORAGE_PORTENTA_QSPI   (1)
+#else
+  #define OTA_STORAGE_PORTENTA_QSPI   (0)
+#endif
+
+#if (OTA_STORAGE_SFU || OTA_STORAGE_SSU || OTA_STORAGE_SNU || OTA_STORAGE_PORTENTA_QSPI) && !defined(ARDUINO_AVR_UNO_WIFI_REV2)
   #define OTA_ENABLED             (1)
 #else
   #define OTA_ENABLED             (0)
