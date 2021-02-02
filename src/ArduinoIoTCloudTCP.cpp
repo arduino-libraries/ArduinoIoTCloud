@@ -497,7 +497,7 @@ void ArduinoIoTCloudTCP::onOTARequest()
   remove("/fs/UPDATE.BIN.LZSS");
 
   /* Download the OTA file from the web storage location. */
-  int const ota_portenta_qspi_download_ret_code = ota_portenta_qspi.download((char*)(_ota_url.c_str()));
+  int const ota_portenta_qspi_download_ret_code = ota_portenta_qspi.download((char*)(_ota_url.c_str()), true /* is_https */);
   DEBUG_VERBOSE("Arduino_Portenta_OTA_QSPI::download(%s) returns %d", _ota_url.c_str(), ota_portenta_qspi_download_ret_code);
 
   /* Decompress the LZSS compressed OTA file. */
