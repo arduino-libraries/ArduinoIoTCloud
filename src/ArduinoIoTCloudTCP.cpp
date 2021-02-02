@@ -199,6 +199,7 @@ int ArduinoIoTCloudTCP::begin(String brokerAddress, uint16_t brokerPort)
   if (currentBootloaderVersion < 22) {
     _ota_cap = false;
     DEBUG_WARNING("ArduinoIoTCloudTCP::%s In order to be ready for cloud OTA, update the bootloader", __FUNCTION__);
+    DEBUG_WARNING("ArduinoIoTCloudTCP::%s File -> Examples -> Portenta_System -> PortentaH7_updateBootloader", __FUNCTION__);
   }
   else {
     _ota_cap = true;
