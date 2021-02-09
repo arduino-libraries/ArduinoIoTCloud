@@ -87,7 +87,7 @@ jobs:
               - name: arduino:megaavr
             libraries: |
               - name: ArduinoECCX08
-              - source-url: https://github.com/arduino-libraries/Arduino_AVRSTL.git
+              - name: Arduino_AVRSTL
               - name: WiFiNINA
               - name: Arduino_JSON
               - name: ArduinoBearSSL
@@ -137,7 +137,7 @@ jobs:
                 name: arduino:mbed
             libraries: |
               - name: ArduinoECCX08
-              - source-url: https://github.com/arduino-libraries/Arduino_Portenta_OTA.git
+              - name: Arduino_Portenta_OTA
             sketch-paths: |
               - examples/utility/Provisioning
           # ESP8266 boards
