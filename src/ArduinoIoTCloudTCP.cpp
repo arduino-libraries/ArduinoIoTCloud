@@ -33,10 +33,23 @@
 #include "tls/utility/CryptoUtil.h"
 #endif
 
+#if defined(ARDUINO_PORTENTA_H7_M7)
+#  include "tls/utility/SHA256.h"
+#  include <stm32h7xx_hal_rtc_ex.h>
+#endif
+
 #include "utility/ota/OTA.h"
 #include "utility/ota/FlashSHA256.h"
 
 #include "cbor/CBOREncoder.h"
+
+/******************************************************************************
+ * EXTERN
+ ******************************************************************************/
+
+#if defined(ARDUINO_PORTENTA_H7_M7)
+extern RTC_HandleTypeDef RTCHandle;
+#endif
 
 /******************************************************************************
    GLOBAL CONSTANTS
@@ -113,6 +126,40 @@ int ArduinoIoTCloudTCP::begin(String brokerAddress, uint16_t brokerPort)
 #endif /* AVR */
 
 #if OTA_ENABLED && !defined(__AVR__)
+#if defined(ARDUINO_PORTENTA_H7_M7)
+  /* The length of the application can be retrieved the same way it was
+   * communicated to the bootloader, that is by writing to the non-volatile
+   * storage registers of the RTC.
+   */
+  SHA256         sha256;
+  uint32_t const app_start = 0x8040000;
+  uint32_t const app_size  = HAL_RTCEx_BKUPRead(&RTCHandle, RTC_BKP_DR3);
+
+  sha256.begin();
+  uint32_t b = 0;
+  uint32_t bytes_read = 0; for(uint32_t a = app_start;
+                               bytes_read < app_size;
+                               bytes_read += sizeof(b), a += sizeof(b))
+  {
+    /* Read the next chunk of memory. */
+    memcpy(&b, reinterpret_cast<const void *>(a), sizeof(b));
+    /* Feed it to SHA256. */
+    sha256.update(reinterpret_cast<uint8_t *>(&b), sizeof(b));
+  }
+  /* Retrieve the final hash string. */
+  uint8_t sha256_hash[SHA256::HASH_SIZE] = {0};
+  sha256.finalize(sha256_hash);
+  String sha256_str;
+  std::for_each(sha256_hash,
+                sha256_hash + SHA256::HASH_SIZE,
+                [&sha256_str](uint8_t const elem)
+                {
+                  char buf[4];
+                  snprintf(buf, 4, "%02X", elem);
+                  sha256_str += buf;
+                });
+  DEBUG_VERBOSE("SHA256: %d bytes (of %d) read", bytes_read, app_size);
+#else
   /* Calculate the SHA256 checksum over the firmware stored in the flash of the
    * MCU. Note: As we don't know the length per-se we read chunks of the flash
    * until we detect one containing only 0xFF (= flash erased). This only works
@@ -123,12 +170,10 @@ int ArduinoIoTCloudTCP::begin(String brokerAddress, uint16_t brokerPort)
    * The bootloader is excluded from the calculation and occupies flash address
    * range 0 to 0x2000, total flash size of 0x40000 bytes (256 kByte).
    */
-#if defined(ARDUINO_PORTENTA_H7_M7)
-  // TODO: check if we need to checksum the whole flash or just the first megabyte
-  _ota_img_sha256 = FlashSHA256::calc(0x8040000, 0x200000 - 0x40000);
-#else
-  _ota_img_sha256 = FlashSHA256::calc(0x2000, 0x40000 - 0x2000);
+  String const sha256_str = FlashSHA256::calc(0x2000, 0x40000 - 0x2000);
 #endif
+  DEBUG_VERBOSE("SHA256: HASH(%d) = %s", strlen(sha256_str.c_str()), sha256_str.c_str());
+  _ota_img_sha256 = sha256_str;
 #endif /* OTA_ENABLED */
 
   #ifdef BOARD_HAS_OFFLOADED_ECCX08
