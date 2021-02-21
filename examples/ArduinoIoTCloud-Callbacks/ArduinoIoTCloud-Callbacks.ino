@@ -56,7 +56,7 @@ void setup() {
   */
   ArduinoCloud.addCallback(ArduinoIoTCloudEvent::CONNECT, doThisOnConnect);
   ArduinoCloud.addCallback(ArduinoIoTCloudEvent::SYNC, doThisOnSync);
-  ArduinoCloud.addCallback(ArduinoIoTCloudEvent::CONNECT, doThisOnDisconnect);
+  ArduinoCloud.addCallback(ArduinoIoTCloudEvent::DISCONNECT, doThisOnDisconnect);
 
   setDebugMessageLevel(DBG_INFO);
   ArduinoCloud.printDebugInfo();
