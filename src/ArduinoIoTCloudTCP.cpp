@@ -328,6 +328,14 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_ConnectMqttBroker()
 
 ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_SubscribeMqttTopics()
 {
+  if (!_mqttClient.connected())
+  {
+    DEBUG_ERROR("ArduinoIoTCloudTCP::%s MQTT client connection lost", __FUNCTION__);
+    _mqttClient.stop();
+    execCloudEventCallback(ArduinoIoTCloudEvent::DISCONNECT);
+    return State::ConnectPhy;
+  }
+
   if (!_mqttClient.subscribe(_dataTopicIn))
   {
     DEBUG_ERROR("ArduinoIoTCloudTCP::%s could not subscribe to %s", __FUNCTION__, _dataTopicIn.c_str());
@@ -360,6 +368,14 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_SubscribeMqttTopics()
 
 ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_RequestLastValues()
 {
+  if (!_mqttClient.connected())
+  {
+    DEBUG_ERROR("ArduinoIoTCloudTCP::%s MQTT client connection lost", __FUNCTION__);
+    _mqttClient.stop();
+    execCloudEventCallback(ArduinoIoTCloudEvent::DISCONNECT);
+    return State::ConnectPhy;
+  }
+
   /* Check whether or not we need to send a new request. */
   unsigned long const now = millis();
   if ((now - _lastSyncRequestTickTime) > TIMEOUT_FOR_LASTVALUES_SYNC)
