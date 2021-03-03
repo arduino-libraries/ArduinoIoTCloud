@@ -329,7 +329,6 @@ extern "C" void br_ssl_engine_fail(br_ssl_engine_context *rc, int err);
 int BearSSLClient::clientRead(void *ctx, unsigned char *buf, size_t len)
 {
   if (BearSSLClient::_sslio_closing) {
-    br_ssl_engine_fail(reinterpret_cast<br_sslio_context *>(ctx)->engine, BR_ERR_IO);
     return -1;
   }
 
@@ -365,7 +364,6 @@ int BearSSLClient::clientRead(void *ctx, unsigned char *buf, size_t len)
 int BearSSLClient::clientWrite(void *ctx, const unsigned char *buf, size_t len)
 {
   if (BearSSLClient::_sslio_closing) {
-    br_ssl_engine_fail(reinterpret_cast<br_sslio_context *>(ctx)->engine, BR_ERR_IO);
     return -1;
   }
 
