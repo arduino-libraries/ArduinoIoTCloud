@@ -113,14 +113,14 @@
 #endif
 
 #if defined(ARDUINO_SAMD_MKRGSM1400) || defined(ARDUINO_SAMD_MKR1000) ||   \
-  defined(ARDUINO_SAMD_MKRWIFI1010) || defined(ARDUINO_SAMD_NANO_33_IOT) || \
   defined(ARDUINO_SAMD_MKRNB1500) || defined(ARDUINO_PORTENTA_H7_M7)      ||   \
   defined(ARDUINO_PORTENTA_H7_M4) || defined (ARDUINO_NANO_RP2040_CONNECT)
   #define BOARD_HAS_ECCX08
   #define HAS_TCP
 #endif
 
-#if defined(ARDUINO_AVR_UNO_WIFI_REV2)
+#if defined(ARDUINO_AVR_UNO_WIFI_REV2) || \
+  defined(ARDUINO_SAMD_MKRWIFI1010) || defined(ARDUINO_SAMD_NANO_33_IOT)
   #define BOARD_HAS_OFFLOADED_ECCX08
   #define HAS_TCP
 #endif
