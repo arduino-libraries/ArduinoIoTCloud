@@ -36,6 +36,10 @@
 
 extern "C" void aiotc_client_profile_init(br_ssl_client_context *cc, br_x509_minimal_context *xc, const br_x509_trust_anchor *trust_anchors, size_t trust_anchors_num);
 
+
+bool BearSSLClient::_sslio_closing = false;
+
+
 BearSSLClient::BearSSLClient(Client* client, const br_x509_trust_anchor* myTAs, int myNumTAs, GetTimeCallbackFunc func) :
   _client(client),
   _TAs(myTAs),
@@ -156,6 +160,7 @@ void BearSSLClient::stop()
 {
   if (_client->connected()) {
     if ((br_ssl_engine_current_state(&_sc.eng) & BR_SSL_CLOSED) == 0) {
+      BearSSLClient::_sslio_closing = true;
       br_sslio_close(&_ioc);
     }
 
@@ -258,6 +263,9 @@ int BearSSLClient::errorCode()
 
 int BearSSLClient::connectSSL(const char* host)
 {
+  /* Ensure this flag is cleared so we don't terminate a just starting connection. */
+  _sslio_closing = false;
+
   // initialize client context with all necessary algorithms and hardcoded trust anchors.
   aiotc_client_profile_init(&_sc, &_xc, _TAs, _numTAs);
 
@@ -315,6 +323,10 @@ int BearSSLClient::connectSSL(const char* host)
 
 int BearSSLClient::clientRead(void *ctx, unsigned char *buf, size_t len)
 {
+  if (BearSSLClient::_sslio_closing) {
+    return -1;
+  }
+
   Client* c = (Client*)ctx;
 
   if (!c->connected()) {
@@ -346,6 +358,10 @@ int BearSSLClient::clientRead(void *ctx, unsigned char *buf, size_t len)
 
 int BearSSLClient::clientWrite(void *ctx, const unsigned char *buf, size_t len)
 {
+  if (BearSSLClient::_sslio_closing) {
+    return -1;
+  }
+
   Client* c = (Client*)ctx;
 
 #ifdef DEBUGSERIAL
