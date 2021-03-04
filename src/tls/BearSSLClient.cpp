@@ -321,11 +321,6 @@ int BearSSLClient::connectSSL(const char* host)
 
 // #define DEBUGSERIAL Serial
 
-/* Define the prototype so that it can be found by the compiler,
- * the correct function is then assigned at link time.
- */
-extern "C" void br_ssl_engine_fail(br_ssl_engine_context *rc, int err);
-
 int BearSSLClient::clientRead(void *ctx, unsigned char *buf, size_t len)
 {
   if (BearSSLClient::_sslio_closing) {
