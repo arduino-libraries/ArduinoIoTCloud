@@ -43,6 +43,8 @@
 
 #include "cbor/CBOREncoder.h"
 
+#include "utility/watchdog/Watchdog.h"
+
 /******************************************************************************
  * EXTERN
  ******************************************************************************/
@@ -262,11 +264,36 @@ int ArduinoIoTCloudTCP::begin(String brokerAddress, uint16_t brokerPort)
   }
 #endif /* OTA_STORAGE_SNU */
 
+#ifdef ARDUINO_ARCH_SAMD
+  /* Since we do not control what code the user inserts
+   * between ArduinoIoTCloudTCP::begin() and the first
+   * call to ArduinoIoTCloudTCP::update() it is wise to
+   * set a rather large timeout at first.
+   */
+  Watchdog.enable(120 * 1000);
+#endif /* ARDUINO_ARCH_SAMD */
+
   return 1;
 }
 
 void ArduinoIoTCloudTCP::update()
 {
+#ifdef ARDUINO_ARCH_SAMD
+  /* Now that we are within the regularly called function
+   * ArduinoIoTCloudTCP::update() it's a wise idea to reduce
+   * the watchdog timeout to a smaller amount of time.
+   */
+  static bool is_watchdog_set = false;
+  if (!is_watchdog_set) {
+    Watchdog.enable(30 * 1000);
+    is_watchdog_set = true;
+  }
+  /* Feed the watchdog. If any of the functions called below
+   * get stuck than we can at least reset and recover.
+   */
+  Watchdog.reset();
+#endif /* ARDUINO_ARCH_SAMD */
+
   /* Run through the state machine. */
   State next_state = _state;
   switch (_state)
