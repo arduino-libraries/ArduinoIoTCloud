@@ -189,7 +189,6 @@ int ArduinoIoTCloudTCP::begin(String brokerAddress, uint16_t brokerPort)
     DEBUG_ERROR("CryptoUtil::readDeviceId(...) failed.");
     return 0;
   }
-  ECCX08.end();
   #endif
 
   #ifdef BOARD_HAS_ECCX08
