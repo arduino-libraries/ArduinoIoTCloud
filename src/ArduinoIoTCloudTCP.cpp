@@ -43,6 +43,8 @@
 
 #include "cbor/CBOREncoder.h"
 
+#include "utility/watchdog/Watchdog.h"
+
 /******************************************************************************
  * EXTERN
  ******************************************************************************/
@@ -262,11 +264,27 @@ int ArduinoIoTCloudTCP::begin(String brokerAddress, uint16_t brokerPort)
   }
 #endif /* OTA_STORAGE_SNU */
 
+#ifdef ARDUINO_ARCH_SAMD
+  /* Since we do not control what code the user inserts
+   * between ArduinoIoTCloudTCP::begin() and the first
+   * call to ArduinoIoTCloudTCP::update() it is wise to
+   * set a rather large timeout at first.
+   */
+  Watchdog.enable(SAMD_WATCHDOG_MAX_TIME_ms);
+#endif /* ARDUINO_ARCH_SAMD */
+
   return 1;
 }
 
 void ArduinoIoTCloudTCP::update()
 {
+#ifdef ARDUINO_ARCH_SAMD
+  /* Feed the watchdog. If any of the functions called below
+   * get stuck than we can at least reset and recover.
+   */
+  Watchdog.reset();
+#endif /* ARDUINO_ARCH_SAMD */
+
   /* Run through the state machine. */
   State next_state = _state;
   switch (_state)
@@ -522,12 +540,20 @@ int ArduinoIoTCloudTCP::write(String const topic, byte const data[], int const l
 #if OTA_ENABLED
 void ArduinoIoTCloudTCP::onOTARequest()
 {
+#ifdef ARDUINO_ARCH_SAMD
+  Watchdog.reset();
+#endif /* ARDUINO_ARCH_SAMD */
+
   DEBUG_VERBOSE("ArduinoIoTCloudTCP::%s _ota_url = %s", __FUNCTION__, _ota_url.c_str());
 
 #if OTA_STORAGE_SNU
   /* Just to be safe delete any remains from previous updates. */
   WiFiStorage.remove("/fs/UPDATE.BIN.LZSS");
   WiFiStorage.remove("/fs/UPDATE.BIN.LZSS.TMP");
+
+#ifdef ARDUINO_ARCH_SAMD
+  Watchdog.reset();
+#endif /* ARDUINO_ARCH_SAMD */
 
   /* Trigger direct download to nina module. */
   uint8_t nina_ota_err_code = 0;
