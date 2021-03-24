@@ -25,7 +25,8 @@
  * FUNCTION DEFINITION
  ******************************************************************************/
 
-#ifdef ARDUINO_ARCH_SAMD
+#if WATCHDOG_ENABLED
+#  ifdef ARDUINO_ARCH_SAMD
 /* This function is called within the WiFiNINA library when invoking
  * the method 'connectBearSSL' in order to prevent a premature bite
  * of the watchdog (max timeout on SAMD is 16 s). wifi_nina_feed...
@@ -36,4 +37,5 @@ void wifi_nina_feed_watchdog()
 {
     Watchdog.reset();
 }
-#endif /* ARDUINO_ARCH_SAMD */
+#  endif /* ARDUINO_ARCH_SAMD */
+#endif /* WATCHDOG_ENABLED */
