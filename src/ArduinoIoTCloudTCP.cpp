@@ -253,15 +253,21 @@ int ArduinoIoTCloudTCP::begin(String brokerAddress, uint16_t brokerPort)
 #endif
 
 #if OTA_STORAGE_SNU && OTA_ENABLED
-  String const nina_fw_version = WiFi.firmwareVersion();
-  if (nina_fw_version < "1.4.1") {
+  if (String(WiFi.firmwareVersion()) < String("1.4.1")) {
     _ota_cap = false;
-    DEBUG_WARNING("ArduinoIoTCloudTCP::%s In order to be ready for cloud OTA, NINA firmware needs to be >= 1.4.1, current %s", __FUNCTION__, nina_fw_version.c_str());
+    DEBUG_WARNING("ArduinoIoTCloudTCP::%s In order to be ready for cloud OTA, NINA firmware needs to be >= 1.4.1, current %s", __FUNCTION__, WiFi.firmwareVersion());
   }
   else {
     _ota_cap = true;
   }
 #endif /* OTA_STORAGE_SNU */
+
+#ifdef BOARD_HAS_OFFLOADED_ECCX08
+  if (String(WiFi.firmwareVersion()) < String("1.4.3")) {
+    DEBUG_ERROR("ArduinoIoTCloudTCP::%s In order to connect to Arduino IoT Cloud, NINA firmware needs to be >= 1.4.3, current %s", __FUNCTION__, WiFi.firmwareVersion());
+    return 0;
+  }
+#endif /* BOARD_HAS_OFFLOADED_ECCX08 */
 
 #ifdef ARDUINO_ARCH_SAMD
   /* Since we do not control what code the user inserts
