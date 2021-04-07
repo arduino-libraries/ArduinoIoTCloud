@@ -185,7 +185,7 @@ jobs:
         uses: actions/checkout@v2
         with:
           repository: arduino/ArduinoCore-mbed
-          # the arduino/actions/libraries/compile-examples action will install the platform from this path
+          # the arduino/compile-sketches action will install the platform from this path
           path: ${{ env.ARDUINOCORE_MBED_STAGING_PATH }}
 
       - name: Checkout ArduinoCore-API
@@ -207,7 +207,7 @@ jobs:
         run: pip3 install pyserial
 
       - name: Compile examples
-        uses: arduino/compile-sketches@main
+        uses: arduino/compile-sketches@v1
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           platforms: ${{ matrix.platforms }}
@@ -232,7 +232,7 @@ jobs:
 
       - name: Save memory usage change report as artifact
         if: github.event_name == 'pull_request'
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v2
         with:
           name: ${{ env.SKETCHES_REPORTS_PATH }}
           path: ${{ env.SKETCHES_REPORTS_PATH }}
