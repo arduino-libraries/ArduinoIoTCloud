@@ -105,6 +105,7 @@ jobs:
               - name: ArduinoECCX08
               - name: RTCZero
               - name: MKRWAN
+              - source-url: https://github.com/adafruit/Adafruit_SleepyDog.git
             sketch-paths:
           # GSM boards
           - board:
