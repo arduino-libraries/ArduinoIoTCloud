@@ -24,11 +24,22 @@
 
 #include <AIoTC_Config.h>
 
-#if WATCHDOG_ENABLED
-#  ifdef ARDUINO_ARCH_SAMD
-#    include <Adafruit_SleepyDog.h>
-#    define SAMD_WATCHDOG_MAX_TIME_ms (16 * 1000)
-#  endif /* ARDUINO_ARCH_SAMD */
-#endif /* WATCHDOG_ENABLED */
+/******************************************************************************
+ * PREPROCESSOR SECTION
+ ******************************************************************************/
+
+#ifdef ARDUINO_ARCH_SAMD
+#  include <Adafruit_SleepyDog.h>
+#  define SAMD_WATCHDOG_MAX_TIME_ms (16 * 1000)
+#endif /* ARDUINO_ARCH_SAMD */
+
+/******************************************************************************
+ * FUNCTION DECLARATION
+ ******************************************************************************/
+
+#ifdef ARDUINO_ARCH_SAMD
+void samd_watchdog_enable();
+void samd_watchdog_reset();
+#endif /* ARDUINO_ARCH_SAMD */
 
 #endif /* ARDUINO_AIOTC_UTILITY_WATCHDOG_H_ */

@@ -22,11 +22,29 @@
 #include "Watchdog.h"
 
 /******************************************************************************
+ * GLOBAL VARIABLES
+ ******************************************************************************/
+
+static bool is_watchdog_enabled = false;
+
+/******************************************************************************
  * FUNCTION DEFINITION
  ******************************************************************************/
 
-#if WATCHDOG_ENABLED
-#  ifdef ARDUINO_ARCH_SAMD
+#ifdef ARDUINO_ARCH_SAMD
+void samd_watchdog_enable()
+{
+  is_watchdog_enabled = true;
+  Watchdog.enable(SAMD_WATCHDOG_MAX_TIME_ms);
+}
+
+void samd_watchdog_reset()
+{
+  if (is_watchdog_enabled) {
+    Watchdog.reset();
+  }
+}
+
 /* This function is called within the WiFiNINA library when invoking
  * the method 'connectBearSSL' in order to prevent a premature bite
  * of the watchdog (max timeout on SAMD is 16 s). wifi_nina_feed...
@@ -35,7 +53,6 @@
  */
 void wifi_nina_feed_watchdog()
 {
-    Watchdog.reset();
+  samd_watchdog_reset();
 }
-#  endif /* ARDUINO_ARCH_SAMD */
-#endif /* WATCHDOG_ENABLED */
+#endif /* ARDUINO_ARCH_SAMD */
