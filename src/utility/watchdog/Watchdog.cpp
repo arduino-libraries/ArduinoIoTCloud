@@ -15,31 +15,44 @@
    a commercial license, send an email to license@arduino.cc.
 */
 
-#ifndef ARDUINO_AIOTC_UTILITY_WATCHDOG_H_
-#define ARDUINO_AIOTC_UTILITY_WATCHDOG_H_
-
 /******************************************************************************
  * INCLUDE
  ******************************************************************************/
 
-#include <AIoTC_Config.h>
+#include "Watchdog.h"
 
 /******************************************************************************
- * PREPROCESSOR SECTION
+ * GLOBAL VARIABLES
+ ******************************************************************************/
+
+static bool is_watchdog_enabled = false;
+
+/******************************************************************************
+ * FUNCTION DEFINITION
  ******************************************************************************/
 
 #ifdef ARDUINO_ARCH_SAMD
-#  include <Adafruit_SleepyDog.h>
-#  define SAMD_WATCHDOG_MAX_TIME_ms (16 * 1000)
+void samd_watchdog_enable()
+{
+  is_watchdog_enabled = true;
+  Watchdog.enable(SAMD_WATCHDOG_MAX_TIME_ms);
+}
+
+void samd_watchdog_reset()
+{
+  if (is_watchdog_enabled) {
+    Watchdog.reset();
+  }
+}
+
+/* This function is called within the WiFiNINA library when invoking
+ * the method 'connectBearSSL' in order to prevent a premature bite
+ * of the watchdog (max timeout on SAMD is 16 s). wifi_nina_feed...
+ * is defined a weak function there and overwritten by this "strong"
+ * function here.
+ */
+void wifi_nina_feed_watchdog()
+{
+  samd_watchdog_reset();
+}
 #endif /* ARDUINO_ARCH_SAMD */
-
-/******************************************************************************
- * FUNCTION DECLARATION
- ******************************************************************************/
-
-#ifdef ARDUINO_ARCH_SAMD
-void samd_watchdog_enable();
-void samd_watchdog_reset();
-#endif /* ARDUINO_ARCH_SAMD */
-
-#endif /* ARDUINO_AIOTC_UTILITY_WATCHDOG_H_ */

@@ -104,16 +104,16 @@ ArduinoIoTCloudTCP::ArduinoIoTCloudTCP()
  * PUBLIC MEMBER FUNCTIONS
  ******************************************************************************/
 
-int ArduinoIoTCloudTCP::begin(ConnectionHandler & connection, String brokerAddress, uint16_t brokerPort)
+int ArduinoIoTCloudTCP::begin(ConnectionHandler & connection, bool const enable_watchdog, String brokerAddress, uint16_t brokerPort)
 {
   _connection = &connection;
   _brokerAddress = brokerAddress;
   _brokerPort = brokerPort;
   _time_service.begin(&connection);
-  return begin(_brokerAddress, _brokerPort);
+  return begin(enable_watchdog, _brokerAddress, _brokerPort);
 }
 
-int ArduinoIoTCloudTCP::begin(String brokerAddress, uint16_t brokerPort)
+int ArduinoIoTCloudTCP::begin(bool const enable_watchdog, String brokerAddress, uint16_t brokerPort)
 {
   _brokerAddress = brokerAddress;
   _brokerPort = brokerPort;
@@ -189,7 +189,6 @@ int ArduinoIoTCloudTCP::begin(String brokerAddress, uint16_t brokerPort)
     DEBUG_ERROR("CryptoUtil::readDeviceId(...) failed.");
     return 0;
   }
-  ECCX08.end();
   #endif
 
   #ifdef BOARD_HAS_ECCX08
@@ -254,15 +253,21 @@ int ArduinoIoTCloudTCP::begin(String brokerAddress, uint16_t brokerPort)
 #endif
 
 #if OTA_STORAGE_SNU && OTA_ENABLED
-  String const nina_fw_version = WiFi.firmwareVersion();
-  if (nina_fw_version < "1.4.1") {
+  if (String(WiFi.firmwareVersion()) < String("1.4.1")) {
     _ota_cap = false;
-    DEBUG_WARNING("ArduinoIoTCloudTCP::%s In order to be ready for cloud OTA, NINA firmware needs to be >= 1.4.1, current %s", __FUNCTION__, nina_fw_version.c_str());
+    DEBUG_WARNING("ArduinoIoTCloudTCP::%s In order to be ready for cloud OTA, NINA firmware needs to be >= 1.4.1, current %s", __FUNCTION__, WiFi.firmwareVersion());
   }
   else {
     _ota_cap = true;
   }
 #endif /* OTA_STORAGE_SNU */
+
+#ifdef BOARD_HAS_OFFLOADED_ECCX08
+  if (String(WiFi.firmwareVersion()) < String("1.4.3")) {
+    DEBUG_ERROR("ArduinoIoTCloudTCP::%s In order to connect to Arduino IoT Cloud, NINA firmware needs to be >= 1.4.3, current %s", __FUNCTION__, WiFi.firmwareVersion());
+    return 0;
+  }
+#endif /* BOARD_HAS_OFFLOADED_ECCX08 */
 
 #ifdef ARDUINO_ARCH_SAMD
   /* Since we do not control what code the user inserts
@@ -270,7 +275,9 @@ int ArduinoIoTCloudTCP::begin(String brokerAddress, uint16_t brokerPort)
    * call to ArduinoIoTCloudTCP::update() it is wise to
    * set a rather large timeout at first.
    */
-  Watchdog.enable(SAMD_WATCHDOG_MAX_TIME_ms);
+  if (enable_watchdog) {
+    samd_watchdog_enable();
+  }
 #endif /* ARDUINO_ARCH_SAMD */
 
   return 1;
@@ -282,7 +289,7 @@ void ArduinoIoTCloudTCP::update()
   /* Feed the watchdog. If any of the functions called below
    * get stuck than we can at least reset and recover.
    */
-  Watchdog.reset();
+  samd_watchdog_reset();
 #endif /* ARDUINO_ARCH_SAMD */
 
   /* Run through the state machine. */
@@ -541,7 +548,7 @@ int ArduinoIoTCloudTCP::write(String const topic, byte const data[], int const l
 void ArduinoIoTCloudTCP::onOTARequest()
 {
 #ifdef ARDUINO_ARCH_SAMD
-  Watchdog.reset();
+  samd_watchdog_reset();
 #endif /* ARDUINO_ARCH_SAMD */
 
   DEBUG_VERBOSE("ArduinoIoTCloudTCP::%s _ota_url = %s", __FUNCTION__, _ota_url.c_str());
@@ -552,7 +559,7 @@ void ArduinoIoTCloudTCP::onOTARequest()
   WiFiStorage.remove("/fs/UPDATE.BIN.LZSS.TMP");
 
 #ifdef ARDUINO_ARCH_SAMD
-  Watchdog.reset();
+  samd_watchdog_reset();
 #endif /* ARDUINO_ARCH_SAMD */
 
   /* Trigger direct download to nina module. */
