@@ -78,7 +78,7 @@ void wifi_nina_feed_watchdog()
 void mbed_watchdog_enable()
 {
   watchdog_config_t cfg;
-#if defined(ARDUINO_PORTENTA_H7_M7) || defined(ARDUINO_PORTENTA_H7_M)
+#if defined(ARDUINO_PORTENTA_H7_M7) || defined(ARDUINO_PORTENTA_H7_M4)
   cfg.timeout_ms = PORTENTA_H7_WATCHDOG_MAX_TIMEOUT_ms;
 #elif defined(ARDUINO_NANO_RP2040_CONNECT)
   cfg.timeout_ms = NANO_RP2040_WATCHDOG_MAX_TIMEOUT_ms;
