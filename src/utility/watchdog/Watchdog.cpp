@@ -35,6 +35,7 @@
 #ifdef ARDUINO_ARCH_MBED
 #  include <watchdog_api.h>
 #  define PORTENTA_H7_WATCHDOG_MAX_TIMEOUT_ms (32760)
+#  define NANO_RP2040_WATCHDOG_MAX_TIMEOUT_ms (32760)
 #endif /* ARDUINO_ARCH_MBED */
 
 /******************************************************************************
@@ -79,6 +80,8 @@ void mbed_watchdog_enable()
   watchdog_config_t cfg;
 #if defined(ARDUINO_PORTENTA_H7_M7) || defined(ARDUINO_PORTENTA_H7_M)
   cfg.timeout_ms = PORTENTA_H7_WATCHDOG_MAX_TIMEOUT_ms;
+#elif defined(ARDUINO_NANO_RP2040_CONNECT)
+  cfg.timeout_ms = NANO_RP2040_WATCHDOG_MAX_TIMEOUT_ms;
 #else
 # error "You need to define the maximum possible timeout for this architecture."
 #endif
