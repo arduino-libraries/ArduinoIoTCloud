@@ -19,12 +19,6 @@
 #define ARDUINO_AIOTC_UTILITY_WATCHDOG_H_
 
 /******************************************************************************
- * INCLUDE
- ******************************************************************************/
-
-#include <AIoTC_Config.h>
-
-/******************************************************************************
  * PREPROCESSOR SECTION
  ******************************************************************************/
 
@@ -41,5 +35,10 @@
 void samd_watchdog_enable();
 void samd_watchdog_reset();
 #endif /* ARDUINO_ARCH_SAMD */
+
+#ifdef ARDUINO_ARCH_MBED
+void mbed_watchdog_enable();
+void mbed_watchdog_reset();
+#endif /* ARDUINO_ARCH_MBED */
 
 #endif /* ARDUINO_AIOTC_UTILITY_WATCHDOG_H_ */

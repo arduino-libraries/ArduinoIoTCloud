@@ -269,28 +269,35 @@ int ArduinoIoTCloudTCP::begin(bool const enable_watchdog, String brokerAddress, 
   }
 #endif /* BOARD_HAS_OFFLOADED_ECCX08 */
 
-#ifdef ARDUINO_ARCH_SAMD
   /* Since we do not control what code the user inserts
    * between ArduinoIoTCloudTCP::begin() and the first
    * call to ArduinoIoTCloudTCP::update() it is wise to
    * set a rather large timeout at first.
    */
+#ifdef ARDUINO_ARCH_SAMD
   if (enable_watchdog) {
     samd_watchdog_enable();
   }
-#endif /* ARDUINO_ARCH_SAMD */
+#elif defined(ARDUINO_ARCH_MBED)
+  if (enable_watchdog) {
+    mbed_watchdog_enable();
+  }
+#endif
 
   return 1;
 }
 
 void ArduinoIoTCloudTCP::update()
 {
-#ifdef ARDUINO_ARCH_SAMD
   /* Feed the watchdog. If any of the functions called below
    * get stuck than we can at least reset and recover.
    */
+#ifdef ARDUINO_ARCH_SAMD
   samd_watchdog_reset();
-#endif /* ARDUINO_ARCH_SAMD */
+#elif defined(ARDUINO_ARCH_MBED)
+  mbed_watchdog_reset();
+#endif
+
 
   /* Run through the state machine. */
   State next_state = _state;
