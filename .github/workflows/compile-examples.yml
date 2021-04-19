@@ -60,6 +60,8 @@ jobs:
             type: esp8266
           - fqbn: esp32:esp32:esp32
             type: esp32
+          - fqbn: arduino:mbed_nano:nanorp2040connect
+            type: nina
 
         # make board type-specific customizations to the matrix jobs
         include:
@@ -76,12 +78,13 @@ jobs:
               - source-url: https://github.com/adafruit/Adafruit_SleepyDog.git
             sketch-paths: |
               - examples/utility/Provisioning
-          # MKR WiFi 1010, Nano 33 IoT
+          # MKR WiFi 1010, Nano 33 IoT, Nano RP2040 Connect
           - board:
               type: nina
             platforms: |
               # Install Arduino SAMD Boards via Boards Manager for the toolchain
               - name: arduino:samd
+              - name: arduino:mbed_nano
             libraries: |
               - name: ArduinoECCX08
               - name: RTCZero
