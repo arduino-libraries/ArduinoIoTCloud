@@ -21,6 +21,23 @@
 
 #include "Watchdog.h"
 
+#include <AIoTC_Config.h>
+
+#if defined(DEBUG_ERROR) || defined(DEBUG_WARNING) || defined(DEBUG_INFO) || defined(DEBUG_DEBUG) || defined(DEBUG_VERBOSE)
+#  include <Arduino_DebugUtils.h>
+#endif
+
+#ifdef ARDUINO_ARCH_SAMD
+#  include <Adafruit_SleepyDog.h>
+#  define SAMD_WATCHDOG_MAX_TIME_ms (16 * 1000)
+#endif /* ARDUINO_ARCH_SAMD */
+
+#ifdef ARDUINO_ARCH_MBED
+#  include <watchdog_api.h>
+#  define PORTENTA_H7_WATCHDOG_MAX_TIMEOUT_ms (32760)
+#  define NANO_RP2040_WATCHDOG_MAX_TIMEOUT_ms (32760)
+#endif /* ARDUINO_ARCH_MBED */
+
 /******************************************************************************
  * GLOBAL VARIABLES
  ******************************************************************************/
@@ -56,3 +73,31 @@ void wifi_nina_feed_watchdog()
   samd_watchdog_reset();
 }
 #endif /* ARDUINO_ARCH_SAMD */
+
+#ifdef ARDUINO_ARCH_MBED
+void mbed_watchdog_enable()
+{
+  watchdog_config_t cfg;
+#if defined(ARDUINO_PORTENTA_H7_M7) || defined(ARDUINO_PORTENTA_H7_M4)
+  cfg.timeout_ms = PORTENTA_H7_WATCHDOG_MAX_TIMEOUT_ms;
+#elif defined(ARDUINO_NANO_RP2040_CONNECT)
+  cfg.timeout_ms = NANO_RP2040_WATCHDOG_MAX_TIMEOUT_ms;
+#else
+# error "You need to define the maximum possible timeout for this architecture."
+#endif
+
+  if (hal_watchdog_init(&cfg) == WATCHDOG_STATUS_OK) {
+    is_watchdog_enabled = true;
+  }
+  else {
+    DEBUG_WARNING("%s: watchdog could not be enabled", __FUNCTION__);
+  }
+}
+
+void mbed_watchdog_reset()
+{
+  if (is_watchdog_enabled) {
+    hal_watchdog_kick();
+  }
+}
+#endif /* ARDUINO_ARCH_MBED */
