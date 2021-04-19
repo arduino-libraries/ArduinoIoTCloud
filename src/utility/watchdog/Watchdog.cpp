@@ -27,6 +27,11 @@
 #  include <Arduino_DebugUtils.h>
 #endif
 
+#ifdef ARDUINO_ARCH_SAMD
+#  include <Adafruit_SleepyDog.h>
+#  define SAMD_WATCHDOG_MAX_TIME_ms (16 * 1000)
+#endif /* ARDUINO_ARCH_SAMD */
+
 #ifdef ARDUINO_ARCH_MBED
 #  include <watchdog_api.h>
 #  define PORTENTA_H7_WATCHDOG_MAX_TIMEOUT_ms (32760)
