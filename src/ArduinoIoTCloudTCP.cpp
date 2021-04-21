@@ -354,6 +354,8 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_ConnectMqttBroker()
   if (_mqttClient.connect(_brokerAddress.c_str(), _brokerPort))
     return State::SubscribeMqttTopics;
 
+  execCloudEventCallback(ArduinoIoTCloudEvent::MOTT_CONNECT_FAILURE);
+
   DEBUG_ERROR("ArduinoIoTCloudTCP::%s could not connect to %s:%d", __FUNCTION__, _brokerAddress.c_str(), _brokerPort);
   return State::ConnectPhy;
 }
@@ -374,6 +376,7 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_SubscribeMqttTopics()
 #if !defined(__AVR__)
     DEBUG_ERROR("Check your thing configuration, and press the reset button on your board.");
 #endif
+    execCloudEventCallback(ArduinoIoTCloudEvent::MOTT_SUBSCRIBE_FAILURE);
     return State::SubscribeMqttTopics;
   }
 
@@ -385,6 +388,7 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_SubscribeMqttTopics()
 #if !defined(__AVR__)
       DEBUG_ERROR("Check your thing configuration, and press the reset button on your board.");
 #endif
+      execCloudEventCallback(ArduinoIoTCloudEvent::MOTT_SUBSCRIBE_FAILURE);
       return State::SubscribeMqttTopics;
     }
   }
