@@ -583,9 +583,13 @@ void ArduinoIoTCloudTCP::onOTARequest()
 #endif /* OTA_STORAGE_SNU */
 
 #if OTA_STORAGE_PORTENTA_QSPI
+  mbed_watchdog_reset();
+
   Arduino_Portenta_OTA::Error ota_portenta_err = Arduino_Portenta_OTA::Error::None;
   /* Use 2nd partition of QSPI (1st partition contains WiFi firmware) */
   Arduino_Portenta_OTA_QSPI ota_portenta_qspi(QSPI_FLASH_FATFS_MBR, 2);
+
+  mbed_watchdog_reset();
 
   /* Initialize the QSPI memory for OTA handling. */
   if((ota_portenta_err = ota_portenta_qspi.begin()) != Arduino_Portenta_OTA::Error::None) {
@@ -593,13 +597,19 @@ void ArduinoIoTCloudTCP::onOTARequest()
     return;
   }
 
+  mbed_watchdog_reset();
+
   /* Just to be safe delete any remains from previous updates. */
   remove("/fs/UPDATE.BIN");
   remove("/fs/UPDATE.BIN.LZSS");
 
+  mbed_watchdog_reset();
+
   /* Download the OTA file from the web storage location. */
   int const ota_portenta_qspi_download_ret_code = ota_portenta_qspi.download((char*)(_ota_url.c_str()), true /* is_https */);
   DEBUG_VERBOSE("Arduino_Portenta_OTA_QSPI::download(%s) returns %d", _ota_url.c_str(), ota_portenta_qspi_download_ret_code);
+
+  mbed_watchdog_reset();
 
   /* Decompress the LZSS compressed OTA file. */
   int const ota_portenta_qspi_decompress_ret_code = ota_portenta_qspi.decompress();
@@ -609,6 +619,8 @@ void ArduinoIoTCloudTCP::onOTARequest()
     DEBUG_ERROR("Arduino_Portenta_OTA_QSPI::decompress() failed with %d", ota_portenta_qspi_decompress_ret_code);
     return;
   }
+
+  mbed_watchdog_reset();
 
   /* Schedule the firmware update. */
   if((ota_portenta_err = ota_portenta_qspi.update()) != Arduino_Portenta_OTA::Error::None) {
