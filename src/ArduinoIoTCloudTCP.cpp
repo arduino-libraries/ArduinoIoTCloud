@@ -54,12 +54,6 @@ extern RTC_HandleTypeDef RTCHandle;
 #endif
 
 /******************************************************************************
-   GLOBAL CONSTANTS
- ******************************************************************************/
-
-static const int TIMEOUT_FOR_LASTVALUES_SYNC = 10000;
-
-/******************************************************************************
    LOCAL MODULE FUNCTIONS
  ******************************************************************************/
 
@@ -423,7 +417,7 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_RequestLastValues()
 
   /* Check whether or not we need to send a new request. */
   unsigned long const now = millis();
-  if ((now - _lastSyncRequestTickTime) > TIMEOUT_FOR_LASTVALUES_SYNC)
+  if ((now - _lastSyncRequestTickTime) > AIOT_CONFIG_TIMEOUT_FOR_LASTVALUES_SYNC_ms)
   {
     DEBUG_VERBOSE("ArduinoIoTCloudTCP::%s [%d] last values requested", __FUNCTION__, now);
     requestLastValue();
