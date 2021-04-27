@@ -364,7 +364,7 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_ConnectMqttBroker()
   }
 
   _last_connection_attempt_cnt++;
-  unsigned long const reconnection_retry_delay = min(MAX_RECONNECTION_RETRY_DELAY_ms, pow(2, _last_connection_attempt_cnt) * RECONNECTION_RETRY_DELAY_ms);
+  unsigned long const reconnection_retry_delay = min(AIOT_CONFIG_MAX_RECONNECTION_RETRY_DELAY_ms, pow(2, _last_connection_attempt_cnt) * AIOT_CONFIG_RECONNECTION_RETRY_DELAY_ms);
   _next_connection_attempt_tick = millis() + reconnection_retry_delay;
 
   DEBUG_ERROR("ArduinoIoTCloudTCP::%s could not connect to %s:%d", __FUNCTION__, _brokerAddress.c_str(), _brokerPort);
