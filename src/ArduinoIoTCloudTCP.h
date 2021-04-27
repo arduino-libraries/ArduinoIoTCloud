@@ -96,6 +96,8 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
 
     State _state;
 
+    unsigned long _next_connection_attempt_tick;
+    unsigned int _last_connection_attempt_cnt;
     unsigned long _lastSyncRequestTickTime;
     String _brokerAddress;
     uint16_t _brokerPort;
