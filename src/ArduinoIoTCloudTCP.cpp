@@ -335,7 +335,7 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_ConnectPhy()
   if (_connection->check() == NetworkConnectionState::CONNECTED)
   {
     bool const is_retry_attempt = (_last_connection_attempt_cnt > 0);
-    if (!is_retry_attempt || (is_retry_attempt && (_next_connection_attempt_tick > millis())))
+    if (!is_retry_attempt || (is_retry_attempt && (millis() > _next_connection_attempt_tick)))
       return State::SyncTime;
   }
 
