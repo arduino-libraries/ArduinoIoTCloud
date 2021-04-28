@@ -51,8 +51,10 @@ static bool is_watchdog_enabled = false;
 #ifdef ARDUINO_ARCH_SAMD
 void samd_watchdog_enable()
 {
+#ifndef ARDUINO_SAMD_MKRGSM1400
   is_watchdog_enabled = true;
   Watchdog.enable(SAMD_WATCHDOG_MAX_TIME_ms);
+#endif /* ARDUINO_SAMD_MKRGSM1400 */
 }
 
 void samd_watchdog_reset()
