@@ -72,6 +72,16 @@ void wifi_nina_feed_watchdog()
 {
   samd_watchdog_reset();
 }
+
+void mkr_gsm_feed_watchdog()
+{
+  samd_watchdog_reset();
+}
+
+void mkr_nb_feed_watchdog()
+{
+  samd_watchdog_reset();
+}
 #endif /* ARDUINO_ARCH_SAMD */
 
 #ifdef ARDUINO_ARCH_MBED
