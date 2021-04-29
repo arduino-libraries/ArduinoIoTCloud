@@ -134,4 +134,12 @@
   #define HAS_TCP
 #endif
 
+/******************************************************************************
+ * CONSTANTS
+ ******************************************************************************/
+
+#define AIOT_CONFIG_RECONNECTION_RETRY_DELAY_ms      (1000UL)
+#define AIOT_CONFIG_MAX_RECONNECTION_RETRY_DELAY_ms (32000UL)
+#define AIOT_CONFIG_TIMEOUT_FOR_LASTVALUES_SYNC_ms  (10000UL)
+
 #endif /* ARDUINO_AIOTC_CONFIG_H_ */

@@ -54,12 +54,6 @@ extern RTC_HandleTypeDef RTCHandle;
 #endif
 
 /******************************************************************************
-   GLOBAL CONSTANTS
- ******************************************************************************/
-
-static const int TIMEOUT_FOR_LASTVALUES_SYNC = 10000;
-
-/******************************************************************************
    LOCAL MODULE FUNCTIONS
  ******************************************************************************/
 
@@ -74,7 +68,9 @@ extern "C" unsigned long getTime()
 
 ArduinoIoTCloudTCP::ArduinoIoTCloudTCP()
 : _state{State::ConnectPhy}
-, _lastSyncRequestTickTime{0}
+, _next_connection_attempt_tick{0}
+, _last_connection_attempt_cnt{0}
+, _last_sync_request_tick{0}
 , _mqtt_data_buf{0}
 , _mqtt_data_len{0}
 , _mqtt_data_request_retransmit{false}
@@ -337,9 +333,13 @@ void ArduinoIoTCloudTCP::printDebugInfo()
 ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_ConnectPhy()
 {
   if (_connection->check() == NetworkConnectionState::CONNECTED)
-    return State::SyncTime;
-  else
-    return State::ConnectPhy;
+  {
+    bool const is_retry_attempt = (_last_connection_attempt_cnt > 0);
+    if (!is_retry_attempt || (is_retry_attempt && (millis() > _next_connection_attempt_tick)))
+      return State::SyncTime;
+  }
+
+  return State::ConnectPhy;
 }
 
 ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_SyncTime()
@@ -352,9 +352,18 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_SyncTime()
 ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_ConnectMqttBroker()
 {
   if (_mqttClient.connect(_brokerAddress.c_str(), _brokerPort))
+  {
+    _last_connection_attempt_cnt = 0;
     return State::SubscribeMqttTopics;
+  }
+
+  _last_connection_attempt_cnt++;
+  unsigned long reconnection_retry_delay = (1 << _last_connection_attempt_cnt) * AIOT_CONFIG_RECONNECTION_RETRY_DELAY_ms;
+  reconnection_retry_delay = min(reconnection_retry_delay, static_cast<unsigned long>(AIOT_CONFIG_MAX_RECONNECTION_RETRY_DELAY_ms));
+  _next_connection_attempt_tick = millis() + reconnection_retry_delay;
 
   DEBUG_ERROR("ArduinoIoTCloudTCP::%s could not connect to %s:%d", __FUNCTION__, _brokerAddress.c_str(), _brokerPort);
+  DEBUG_ERROR("ArduinoIoTCloudTCP::%s %d connection attempt at tick time %d", __FUNCTION__, _last_connection_attempt_cnt, _next_connection_attempt_tick);
   return State::ConnectPhy;
 }
 
@@ -410,11 +419,11 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_RequestLastValues()
 
   /* Check whether or not we need to send a new request. */
   unsigned long const now = millis();
-  if ((now - _lastSyncRequestTickTime) > TIMEOUT_FOR_LASTVALUES_SYNC)
+  if ((now - _last_sync_request_tick) > AIOT_CONFIG_TIMEOUT_FOR_LASTVALUES_SYNC_ms)
   {
     DEBUG_VERBOSE("ArduinoIoTCloudTCP::%s [%d] last values requested", __FUNCTION__, now);
     requestLastValue();
-    _lastSyncRequestTickTime = now;
+    _last_sync_request_tick = now;
   }
 
   return State::RequestLastValues;
