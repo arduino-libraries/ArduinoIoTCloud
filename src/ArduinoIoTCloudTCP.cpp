@@ -71,6 +71,7 @@ ArduinoIoTCloudTCP::ArduinoIoTCloudTCP()
 , _next_connection_attempt_tick{0}
 , _last_connection_attempt_cnt{0}
 , _last_sync_request_tick{0}
+, _last_sync_request_cnt{0}
 , _mqtt_data_buf{0}
 , _mqtt_data_len{0}
 , _mqtt_data_request_retransmit{false}
@@ -424,6 +425,18 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_RequestLastValues()
     DEBUG_VERBOSE("ArduinoIoTCloudTCP::%s [%d] last values requested", __FUNCTION__, now);
     requestLastValue();
     _last_sync_request_tick = now;
+    /* Track the number of times a get-last-values request was sent to the cloud.
+     * If no data is received within a certain number of retry-requests it's a better
+     * strategy to disconnect and re-establish connection from the ground up.
+     */
+    _last_sync_request_cnt++;
+    if (_last_sync_request_cnt > AIOT_CONFIG_LASTVALUES_SYNC_MAX_RETRY_CNT)
+    {
+      _last_sync_request_cnt = 0;
+      _mqttClient.stop();
+      execCloudEventCallback(ArduinoIoTCloudEvent::DISCONNECT);
+      return State::ConnectPhy;
+    }
   }
 
   return State::RequestLastValues;
@@ -517,6 +530,7 @@ void ArduinoIoTCloudTCP::handleMessage(int length)
     CBORDecoder::decode(_property_container, (uint8_t*)bytes, length, true);
     sendPropertiesToCloud();
     execCloudEventCallback(ArduinoIoTCloudEvent::SYNC);
+    _last_sync_request_cnt = 0;
     _state = State::Connected;
   }
 }
