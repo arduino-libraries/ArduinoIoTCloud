@@ -420,7 +420,9 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_RequestLastValues()
 
   /* Check whether or not we need to send a new request. */
   unsigned long const now = millis();
-  if ((now - _last_sync_request_tick) > AIOT_CONFIG_TIMEOUT_FOR_LASTVALUES_SYNC_ms)
+  bool const is_sync_request_timeout = (now - _last_sync_request_tick) > AIOT_CONFIG_TIMEOUT_FOR_LASTVALUES_SYNC_ms;
+  bool const is_first_sync_request = (_last_sync_request_cnt == 0);
+  if (is_first_sync_request || is_sync_request_timeout)
   {
     DEBUG_VERBOSE("ArduinoIoTCloudTCP::%s [%d] last values requested", __FUNCTION__, now);
     requestLastValue();
@@ -433,6 +435,7 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_RequestLastValues()
     if (_last_sync_request_cnt > AIOT_CONFIG_LASTVALUES_SYNC_MAX_RETRY_CNT)
     {
       _last_sync_request_cnt = 0;
+      _last_sync_request_tick = 0;
       _mqttClient.stop();
       execCloudEventCallback(ArduinoIoTCloudEvent::DISCONNECT);
       return State::ConnectPhy;
@@ -531,6 +534,7 @@ void ArduinoIoTCloudTCP::handleMessage(int length)
     sendPropertiesToCloud();
     execCloudEventCallback(ArduinoIoTCloudEvent::SYNC);
     _last_sync_request_cnt = 0;
+    _last_sync_request_tick = 0;
     _state = State::Connected;
   }
 }
