@@ -579,33 +579,11 @@ int ArduinoIoTCloudTCP::write(String const topic, byte const data[], int const l
 #if OTA_ENABLED
 void ArduinoIoTCloudTCP::onOTARequest()
 {
-#ifdef ARDUINO_ARCH_SAMD
-  samd_watchdog_reset();
-#endif /* ARDUINO_ARCH_SAMD */
-
   DEBUG_VERBOSE("ArduinoIoTCloudTCP::%s _ota_url = %s", __FUNCTION__, _ota_url.c_str());
 
-#if OTA_STORAGE_SNU
-  /* Just to be safe delete any remains from previous updates. */
-  WiFiStorage.remove("/fs/UPDATE.BIN.LZSS");
-  WiFiStorage.remove("/fs/UPDATE.BIN.LZSS.TMP");
-
 #ifdef ARDUINO_ARCH_SAMD
-  samd_watchdog_reset();
+  _ota_error = samd_onOTARequest(_ota_url.c_str());
 #endif /* ARDUINO_ARCH_SAMD */
-
-  /* Trigger direct download to nina module. */
-  uint8_t nina_ota_err_code = 0;
-  if (!WiFiStorage.downloadOTA(_ota_url.c_str(), &nina_ota_err_code))
-  {
-    DEBUG_ERROR("ArduinoIoTCloudTCP::%s error download to nina: %d", __FUNCTION__, nina_ota_err_code);
-    _ota_error = static_cast<int>(OTAError::DownloadFailed);
-    return;
-  }
-
-  /* Perform the reset to reboot to SxU. */
-  NVIC_SystemReset();
-#endif /* OTA_STORAGE_SNU */
 
 #if OTA_STORAGE_PORTENTA_QSPI
   mbed_watchdog_reset();

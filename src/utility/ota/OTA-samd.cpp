@@ -15,50 +15,49 @@
    a commercial license, send an email to license@arduino.cc.
 */
 
-#ifndef ARDUINO_OTA_LOGIC_H_
-#define ARDUINO_OTA_LOGIC_H_
+#ifdef ARDUINO_ARCH_SAMD
 
 /******************************************************************************
  * INCLUDE
  ******************************************************************************/
 
-#include <AIoTC_Config.h>
-#if OTA_ENABLED
+#include "OTA.h"
 
-#if OTA_STORAGE_SNU && !defined(ARDUINO_AVR_UNO_WIFI_REV2)
-  #include <SNU.h>
-#endif /* OTA_STORAGE_SNU */
+#include <Arduino.h>
+#include <Arduino_DebugUtils.h>
 
-#if OTA_STORAGE_SSU
-  #include <SSU.h>
-#endif /* OTA_STORAGE_SSU */
+#include "../watchdog/Watchdog.h"
 
-#if OTA_STORAGE_SFU
-  #include <SFU.h>
-#endif /* OTA_STORAGE_SFU */
-
-#if OTA_STORAGE_PORTENTA_QSPI
-  #include <Arduino_Portenta_OTA.h>
-#endif /* OTA_STORAGE_PORTENTA_QSPI */
-
-/******************************************************************************
- * TYPEDEF
- ******************************************************************************/
-
-enum class OTAError : int
-{
-  None           = 0,
-  DownloadFailed = 1,
-};
+#if OTA_STORAGE_SNU
+#  include <WiFiNINA.h> /* WiFiStorage */
+#endif
 
 /******************************************************************************
  * FUNCTION DEFINITION
  ******************************************************************************/
 
-#ifdef ARDUINO_ARCH_SAMD
-int samd_onOTARequest(char const * ota_url);
-#endif
+int samd_onOTARequest(char const * ota_url)
+{
+  samd_watchdog_reset();
 
-#endif /* OTA_ENABLED */
+#if OTA_STORAGE_SNU
+  /* Just to be safe delete any remains from previous updates. */
+  WiFiStorage.remove("/fs/UPDATE.BIN.LZSS");
+  WiFiStorage.remove("/fs/UPDATE.BIN.LZSS.TMP");
 
-#endif /* ARDUINO_OTA_LOGIC_H_ */
+  samd_watchdog_reset();
+
+  /* Trigger direct download to nina module. */
+  uint8_t nina_ota_err_code = 0;
+  if (!WiFiStorage.downloadOTA(ota_url, &nina_ota_err_code))
+  {
+    DEBUG_ERROR("ArduinoIoTCloudTCP::%s error download to nina: %d", __FUNCTION__, nina_ota_err_code);
+    return static_cast<int>(OTAError::DownloadFailed);
+  }
+
+  /* Perform the reset to reboot to SxU. */
+  NVIC_SystemReset();
+#endif /* OTA_STORAGE_SNU */
+}
+
+#endif /* ARDUINO_ARCH_SAMD */
