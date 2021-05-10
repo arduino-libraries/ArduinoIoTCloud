@@ -23,7 +23,6 @@
  ******************************************************************************/
 
 #include <AIoTC_Config.h>
-#if OTA_ENABLED
 
 #if OTA_STORAGE_SNU && !defined(ARDUINO_AVR_UNO_WIFI_REV2)
   #include <SNU.h>
@@ -58,7 +57,5 @@ enum class OTAError : int
 #ifdef ARDUINO_ARCH_SAMD
 int samd_onOTARequest(char const * ota_url);
 #endif
-
-#endif /* OTA_ENABLED */
 
 #endif /* ARDUINO_OTA_LOGIC_H_ */
