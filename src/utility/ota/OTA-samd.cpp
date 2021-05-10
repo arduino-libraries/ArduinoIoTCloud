@@ -28,6 +28,7 @@
 #include "../watchdog/Watchdog.h"
 
 #if OTA_STORAGE_SNU
+#  include <SNU.h>
 #  include <WiFiNINA.h> /* WiFiStorage */
 #endif
 
