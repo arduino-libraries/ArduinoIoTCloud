@@ -33,7 +33,8 @@
 #include "tls/utility/CryptoUtil.h"
 #endif
 
-#if defined(ARDUINO_PORTENTA_H7_M7)
+#if defined(ARDUINO_PORTENTA_H7_M7) || defined(ARDUINO_PORTENTA_H7_M4)
+#  include <algorithm>
 #  include "tls/utility/SHA256.h"
 #  include <stm32h7xx_hal_rtc_ex.h>
 #endif
@@ -44,6 +45,7 @@
 #include "cbor/CBOREncoder.h"
 
 #include "utility/watchdog/Watchdog.h"
+
 
 /******************************************************************************
  * EXTERN

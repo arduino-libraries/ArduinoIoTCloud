@@ -36,10 +36,6 @@
   #include <SFU.h>
 #endif /* OTA_STORAGE_SFU */
 
-#if OTA_STORAGE_PORTENTA_QSPI
-  #include <Arduino_Portenta_OTA.h>
-#endif /* OTA_STORAGE_PORTENTA_QSPI */
-
 /******************************************************************************
  * TYPEDEF
  ******************************************************************************/

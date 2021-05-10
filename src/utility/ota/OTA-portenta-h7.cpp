@@ -24,6 +24,7 @@
 #include "OTA.h"
 
 #include <Arduino_DebugUtils.h>
+#include <Arduino_Portenta_OTA.h>
 
 #include "../watchdog/Watchdog.h"
 
