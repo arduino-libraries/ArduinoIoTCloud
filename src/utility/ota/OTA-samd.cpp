@@ -23,7 +23,6 @@
 
 #include "OTA.h"
 
-#include <Arduino.h>
 #include <Arduino_DebugUtils.h>
 
 #include "../watchdog/Watchdog.h"

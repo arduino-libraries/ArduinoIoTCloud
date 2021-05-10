@@ -583,57 +583,11 @@ void ArduinoIoTCloudTCP::onOTARequest()
 
 #ifdef ARDUINO_ARCH_SAMD
   _ota_error = samd_onOTARequest(_ota_url.c_str());
-#endif /* ARDUINO_ARCH_SAMD */
+#endif
 
-#if OTA_STORAGE_PORTENTA_QSPI
-  mbed_watchdog_reset();
-
-  Arduino_Portenta_OTA::Error ota_portenta_err = Arduino_Portenta_OTA::Error::None;
-  /* Use 2nd partition of QSPI (1st partition contains WiFi firmware) */
-  Arduino_Portenta_OTA_QSPI ota_portenta_qspi(QSPI_FLASH_FATFS_MBR, 2);
-
-  mbed_watchdog_reset();
-
-  /* Initialize the QSPI memory for OTA handling. */
-  if((ota_portenta_err = ota_portenta_qspi.begin()) != Arduino_Portenta_OTA::Error::None) {
-    DEBUG_ERROR("Arduino_Portenta_OTA_QSPI::begin() failed with %d", static_cast<int>(ota_portenta_err));
-    return;
-  }
-
-  mbed_watchdog_reset();
-
-  /* Just to be safe delete any remains from previous updates. */
-  remove("/fs/UPDATE.BIN");
-  remove("/fs/UPDATE.BIN.LZSS");
-
-  mbed_watchdog_reset();
-
-  /* Download the OTA file from the web storage location. */
-  int const ota_portenta_qspi_download_ret_code = ota_portenta_qspi.download((char*)(_ota_url.c_str()), true /* is_https */);
-  DEBUG_VERBOSE("Arduino_Portenta_OTA_QSPI::download(%s) returns %d", _ota_url.c_str(), ota_portenta_qspi_download_ret_code);
-
-  mbed_watchdog_reset();
-
-  /* Decompress the LZSS compressed OTA file. */
-  int const ota_portenta_qspi_decompress_ret_code = ota_portenta_qspi.decompress();
-  DEBUG_VERBOSE("Arduino_Portenta_OTA_QSPI::decompress() returns %d", ota_portenta_qspi_decompress_ret_code);
-  if (ota_portenta_qspi_decompress_ret_code < 0)
-  {
-    DEBUG_ERROR("Arduino_Portenta_OTA_QSPI::decompress() failed with %d", ota_portenta_qspi_decompress_ret_code);
-    return;
-  }
-
-  mbed_watchdog_reset();
-
-  /* Schedule the firmware update. */
-  if((ota_portenta_err = ota_portenta_qspi.update()) != Arduino_Portenta_OTA::Error::None) {
-    DEBUG_ERROR("Arduino_Portenta_OTA_QSPI::update() failed with %d", static_cast<int>(ota_portenta_err));
-    return;
-  }
-
-  /* Perform the reset to reboot - then the bootloader performs the actual application update. */
-  NVIC_SystemReset();
-#endif /* OTA_STORAGE_PORTENTA_QSPI */
+#if defined(ARDUINO_PORTENTA_H7_M7) || defined(ARDUINO_PORTENTA_H7_M4)
+  _ota_error = portenta_h7_onOTARequest(_ota_url.c_str());
+#endif
 }
 #endif
 

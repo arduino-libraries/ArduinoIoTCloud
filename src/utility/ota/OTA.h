@@ -58,4 +58,8 @@ enum class OTAError : int
 int samd_onOTARequest(char const * ota_url);
 #endif
 
+#if defined(ARDUINO_PORTENTA_H7_M7) || defined(ARDUINO_PORTENTA_H7_M4)
+int portenta_h7_onOTARequest(char const * ota_url);
+#endif
+
 #endif /* ARDUINO_OTA_LOGIC_H_ */
