@@ -15,43 +15,49 @@
    a commercial license, send an email to license@arduino.cc.
 */
 
-#ifndef ARDUINO_OTA_LOGIC_H_
-#define ARDUINO_OTA_LOGIC_H_
+#ifdef ARDUINO_ARCH_SAMD
 
 /******************************************************************************
  * INCLUDE
  ******************************************************************************/
 
-#include <AIoTC_Config.h>
+#include "OTA.h"
 
-#if OTA_STORAGE_SSU
-  #include <SSU.h>
-#endif /* OTA_STORAGE_SSU */
+#include <Arduino_DebugUtils.h>
 
-#if OTA_STORAGE_SFU
-  #include <SFU.h>
-#endif /* OTA_STORAGE_SFU */
+#include "../watchdog/Watchdog.h"
 
-/******************************************************************************
- * TYPEDEF
- ******************************************************************************/
-
-enum class OTAError : int
-{
-  None           = 0,
-  DownloadFailed = 1,
-};
+#if OTA_STORAGE_SNU
+#  include <SNU.h>
+#  include <WiFiNINA.h> /* WiFiStorage */
+#endif
 
 /******************************************************************************
  * FUNCTION DEFINITION
  ******************************************************************************/
 
-#ifdef ARDUINO_ARCH_SAMD
-int samd_onOTARequest(char const * ota_url);
-#endif
+int samd_onOTARequest(char const * ota_url)
+{
+  samd_watchdog_reset();
 
-#if defined(ARDUINO_PORTENTA_H7_M7) || defined(ARDUINO_PORTENTA_H7_M4)
-int portenta_h7_onOTARequest(char const * ota_url);
-#endif
+#if OTA_STORAGE_SNU
+  /* Just to be safe delete any remains from previous updates. */
+  WiFiStorage.remove("/fs/UPDATE.BIN.LZSS");
+  WiFiStorage.remove("/fs/UPDATE.BIN.LZSS.TMP");
 
-#endif /* ARDUINO_OTA_LOGIC_H_ */
+  samd_watchdog_reset();
+
+  /* Trigger direct download to nina module. */
+  uint8_t nina_ota_err_code = 0;
+  if (!WiFiStorage.downloadOTA(ota_url, &nina_ota_err_code))
+  {
+    DEBUG_ERROR("ArduinoIoTCloudTCP::%s error download to nina: %d", __FUNCTION__, nina_ota_err_code);
+    return static_cast<int>(OTAError::DownloadFailed);
+  }
+
+  /* Perform the reset to reboot to SxU. */
+  NVIC_SystemReset();
+#endif /* OTA_STORAGE_SNU */
+}
+
+#endif /* ARDUINO_ARCH_SAMD */
