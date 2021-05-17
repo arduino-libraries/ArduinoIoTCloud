@@ -44,8 +44,8 @@ jobs:
             type: nina
           - fqbn: arduino:samd:nano_33_iot
             type: nina
-          - fqbn: arduino:megaavr:uno2018
-            type: megaavr
+          #- fqbn: arduino:megaavr:uno2018
+          #  type: megaavr
           - fqbn: arduino:samd:mkrwan1300
             type: wan
           - fqbn: arduino:samd:mkrgsm1400
@@ -96,19 +96,19 @@ jobs:
               - examples/utility/Provisioning
               - examples/utility/SelfProvisioning
           # Uno WiFi Rev2
-          - board:
-              type: megaavr
-            platforms: |
-              - name: arduino:megaavr
-            libraries: |
-              - name: ArduinoECCX08
-              - name: Arduino_AVRSTL
-              - name: WiFiNINA
-              - name: Arduino_JSON
-              - name: ArduinoBearSSL
-            sketch-paths: |
-              - examples/utility/Provisioning
-              - examples/utility/SelfProvisioning
+          #- board:
+          #    type: megaavr
+          #  platforms: |
+          #    - name: arduino:megaavr
+          #  libraries: |
+          #    - name: ArduinoECCX08
+          #    - name: Arduino_AVRSTL
+          #    - name: WiFiNINA
+          #    - name: Arduino_JSON
+          #    - name: ArduinoBearSSL
+          #  sketch-paths: |
+          #    - examples/utility/Provisioning
+          #    - examples/utility/SelfProvisioning
           # LoRaWAN boards
           - board:
               type: wan
