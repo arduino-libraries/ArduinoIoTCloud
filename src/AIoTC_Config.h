@@ -94,6 +94,13 @@
   #define OTA_STORAGE_SNU         (0)
 #endif
 
+#if defined(ARDUINO_NANO_RP2040_CONNECT)
+  #undef OTA_STORAGE_SFU
+  #define OTA_STORAGE_SFU         (1)
+#else
+  #define OTA_STORAGE_SFU         (0)
+#endif
+
 #ifdef ARDUINO_SAMD_MKRGSM1400
   #define OTA_STORAGE_SSU         (1)
 #else

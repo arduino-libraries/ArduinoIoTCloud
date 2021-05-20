@@ -50,6 +50,10 @@ enum class OTAError : int
 int samd_onOTARequest(char const * ota_url);
 #endif
 
+#ifdef ARDUINO_NANO_RP2040_CONNECT
+int rp2040_connect_onOTARequest(char const * ota_url);
+#endif
+
 #if defined(ARDUINO_PORTENTA_H7_M7) || defined(ARDUINO_PORTENTA_H7_M4)
 int portenta_h7_onOTARequest(char const * ota_url);
 #endif

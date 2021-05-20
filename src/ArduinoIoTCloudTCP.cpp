@@ -171,7 +171,13 @@ int ArduinoIoTCloudTCP::begin(bool const enable_watchdog, String brokerAddress, 
    * The bootloader is excluded from the calculation and occupies flash address
    * range 0 to 0x2000, total flash size of 0x40000 bytes (256 kByte).
    */
-  String const sha256_str = FlashSHA256::calc(0x2000, 0x40000 - 0x2000);
+#if defined(ARDUINO_NANO_RP2040_CONNECT)
+#define FLASH_BASE  XIP_BASE
+  _ota_cap = true;
+#else
+#define FLASH_BASE  0
+#endif
+  String const sha256_str = FlashSHA256::calc(FLASH_BASE + 0x2000, 0x40000 - 0x2000);
 #endif
   DEBUG_VERBOSE("SHA256: HASH(%d) = %s", strlen(sha256_str.c_str()), sha256_str.c_str());
   _ota_img_sha256 = sha256_str;
@@ -581,10 +587,14 @@ int ArduinoIoTCloudTCP::write(String const topic, byte const data[], int const l
 #if OTA_ENABLED
 void ArduinoIoTCloudTCP::onOTARequest()
 {
-  DEBUG_VERBOSE("ArduinoIoTCloudTCP::%s _ota_url = %s", __FUNCTION__, _ota_url.c_str());
+  DEBUG_INFO("ArduinoIoTCloudTCP::%s _ota_url = %s", __FUNCTION__, _ota_url.c_str());
 
 #ifdef ARDUINO_ARCH_SAMD
   _ota_error = samd_onOTARequest(_ota_url.c_str());
+#endif
+
+#ifdef ARDUINO_NANO_RP2040_CONNECT
+  _ota_error = rp2040_connect_onOTARequest(_ota_url.c_str());
 #endif
 
 #if defined(ARDUINO_PORTENTA_H7_M7) || defined(ARDUINO_PORTENTA_H7_M4)
