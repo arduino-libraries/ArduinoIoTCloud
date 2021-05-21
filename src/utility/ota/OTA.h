@@ -54,4 +54,8 @@ int samd_onOTARequest(char const * ota_url);
 int portenta_h7_onOTARequest(char const * ota_url);
 #endif
 
+#if defined(ARDUINO_NANO_RP2040_CONNECT)
+int nano_rp2040_connect_onOTARequest(char const * ota_url);
+#endif
+
 #endif /* ARDUINO_OTA_LOGIC_H_ */

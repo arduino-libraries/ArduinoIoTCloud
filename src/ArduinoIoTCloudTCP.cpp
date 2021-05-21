@@ -160,7 +160,7 @@ int ArduinoIoTCloudTCP::begin(bool const enable_watchdog, String brokerAddress, 
                   sha256_str += buf;
                 });
   DEBUG_VERBOSE("SHA256: %d bytes (of %d) read", bytes_read, app_size);
-#else
+#elif defined(ARDUINO_ARCH_SAMD)
   /* Calculate the SHA256 checksum over the firmware stored in the flash of the
    * MCU. Note: As we don't know the length per-se we read chunks of the flash
    * until we detect one containing only 0xFF (= flash erased). This only works
@@ -172,6 +172,10 @@ int ArduinoIoTCloudTCP::begin(bool const enable_watchdog, String brokerAddress, 
    * range 0 to 0x2000, total flash size of 0x40000 bytes (256 kByte).
    */
   String const sha256_str = FlashSHA256::calc(0x2000, 0x40000 - 0x2000);
+#elif defined(ARDUINO_NANO_RP2040_CONNECT)
+  String const sha256_str = "TODO"; /* TODO !!! */
+#else
+# error "You need to implement the SHA256 checksum calculation for this architecture"
 #endif
   DEBUG_VERBOSE("SHA256: HASH(%d) = %s", strlen(sha256_str.c_str()), sha256_str.c_str());
   _ota_img_sha256 = sha256_str;
@@ -258,6 +262,10 @@ int ArduinoIoTCloudTCP::begin(bool const enable_watchdog, String brokerAddress, 
     _ota_cap = true;
   }
 #endif /* OTA_STORAGE_SNU */
+
+#ifdef ARDUINO_NANO_RP2040_CONNECT
+  _ota_cap = true;
+#endif /* ARDUINO_NANO_RP2040_CONNECT */
 
 #ifdef BOARD_HAS_OFFLOADED_ECCX08
   if (String(WiFi.firmwareVersion()) < String("1.4.4")) {
@@ -589,6 +597,10 @@ void ArduinoIoTCloudTCP::onOTARequest()
 
 #if defined(ARDUINO_PORTENTA_H7_M7) || defined(ARDUINO_PORTENTA_H7_M4)
   _ota_error = portenta_h7_onOTARequest(_ota_url.c_str());
+#endif
+
+#if defined(ARDUINO_NANO_RP2040_CONNECT)
+  _ota_error = nano_rp2040_connect_onOTARequest(_ota_url.c_str());
 #endif
 }
 #endif
