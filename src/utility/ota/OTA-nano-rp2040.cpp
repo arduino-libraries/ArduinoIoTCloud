@@ -43,6 +43,11 @@ void kick_watchdog() {
 
 /* Original code: http://stackoverflow.com/questions/2616011/easy-way-to-parse-a-url-in-c-cross-platform */
 #include <string>
+#include <algorithm>
+#include <cctype>
+#include <functional>
+#include <iostream>
+
 struct URI {
   public:
     URI(const std::string& url_s) {
@@ -53,16 +58,10 @@ struct URI {
     void parse(const std::string& url_s);
 };
 
-#include <string>
-#include <algorithm>
-#include <cctype>
-#include <functional>
-#include <iostream>
-
 using namespace std;
 
 // ctors, copy, equality, ...
-
+// TODO: change me into something embedded friendly (this function adds ~100KB to flash)
 void URI::parse(const string& url_s)
 {
   const string prot_end("://");
@@ -104,20 +103,27 @@ int rp2040_connect_onOTARequest(char const * ota_url)
 
   Client* client;
 
+  // TODO: eventually parse port in URL
+  int port;
+
   URI url(ota_url);
 
   if (url.protocol_ == "http") {
     client = new WiFiClient();
+    port = 80;
   } else {
     client = new WiFiSSLClient();
+    port = 443;
   }
 
   const char* host = url.host_.c_str();
 
-  IPAddress ip;
-  ip.fromString(host);
+  // TODO: find if the host is an IP address and treat accordingly
+  // IPAddress ip;
+  // ip.fromString(host);
+  //int ret = client->connect(ip, port);
 
-  int ret = client->connect(ip, 80);
+  int ret = client->connect(host, port);
   if (!ret)
   {
     DEBUG_ERROR("%s: Connection failure with OTA storage server %s", __FUNCTION__, host);
