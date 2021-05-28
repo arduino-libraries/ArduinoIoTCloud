@@ -89,8 +89,8 @@ class ArduinoIoTCloudClass
             void push();
             bool setTimestamp(String const & prop_name, unsigned long const timestamp);
 
-    inline void     setThingId (String const thing_id)  { _thing_id = thing_id; };
-    inline String & getThingId ()                       { return _thing_id; };
+    inline void     setThingId (String const thing_id)  { _thing_id = thing_id; } __attribute__((deprecated("It is no longer necessary to configure a THING ID.")));
+    inline String & getThingId ()                       { return _thing_id; }     __attribute__((deprecated("It is no longer necessary to configure a THING ID.")));
     inline void     setDeviceId(String const device_id) { _device_id = device_id; };
     inline String & getDeviceId()                       { return _device_id; };
 
