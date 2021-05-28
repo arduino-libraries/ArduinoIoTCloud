@@ -132,10 +132,10 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
     bool _ota_req;
 #endif /* OTA_ENABLED */
 
-    inline String getTopic_shadowout() { return ( getThingId().length() == 0) ? String("")                            : String("/a/t/" + getThingId() + "/shadow/o"); }
-    inline String getTopic_shadowin () { return ( getThingId().length() == 0) ? String("")                            : String("/a/t/" + getThingId() + "/shadow/i"); }
-    inline String getTopic_dataout  () { return ( getThingId().length() == 0) ? String("/a/d/" + getDeviceId() + "/e/o") : String("/a/t/" + getThingId() + "/e/o"); }
-    inline String getTopic_datain   () { return ( getThingId().length() == 0) ? String("/a/d/" + getDeviceId() + "/e/i") : String("/a/t/" + getThingId() + "/e/i"); }
+    inline String getTopic_shadowout() { return ( getThingId().length() == 0) ? String("/a/d/" + getDeviceId() + "/shadow/o") : String("/a/t/" + getThingId() + "/shadow/o"); }
+    inline String getTopic_shadowin () { return ( getThingId().length() == 0) ? String("/a/d/" + getDeviceId() + "/shadow/i") : String("/a/t/" + getThingId() + "/shadow/i"); }
+    inline String getTopic_dataout  () { return ( getThingId().length() == 0) ? String("/a/d/" + getDeviceId() + "/e/o")      : String("/a/t/" + getThingId() + "/e/o"); }
+    inline String getTopic_datain   () { return ( getThingId().length() == 0) ? String("/a/d/" + getDeviceId() + "/e/i")      : String("/a/t/" + getThingId() + "/e/i"); }
 
     State handle_ConnectPhy();
     State handle_SyncTime();
