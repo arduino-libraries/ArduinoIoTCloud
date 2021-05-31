@@ -50,6 +50,7 @@ enum class OTAError : int
   RP2040_ServerConnectError   = RP2040_OTA_ERROR_BASE - 1,
   RP2040_ErrorOpenUpdateFile  = RP2040_OTA_ERROR_BASE - 2,
   RP2040_ErrorWriteUpdateFile = RP2040_OTA_ERROR_BASE - 3,
+  RP2040_ErrorParseHttpHeader = RP2040_OTA_ERROR_BASE - 4,
 };
 
 /******************************************************************************

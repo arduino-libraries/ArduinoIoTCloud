@@ -124,7 +124,7 @@ int rp2040_connect_onOTARequest(char const * ota_url)
 
   mbed_watchdog_reset();
 
-  FILE * file = fopen("/ota/UPDATE.BIN", "wb");
+  FILE * file = fopen("/ota/UPDATE.BIN.LZSS", "wb");
   if (!file)
   {
     DEBUG_ERROR("%s: fopen() failed", __FUNCTION__);
@@ -132,34 +132,59 @@ int rp2040_connect_onOTARequest(char const * ota_url)
     return static_cast<int>(OTAError::RP2040_ErrorOpenUpdateFile);
   }
 
+  /* Receive HTTP header. */
   String http_header;
-  bool is_header_complete = false;
 
-  while (!client->available())
-  {
-    delay(10);
-    mbed_watchdog_reset();
-  }
-
-  while (client->available())
+  for (bool is_header_complete = false; client->connected() && !is_header_complete; )
   {
     mbed_watchdog_reset();
 
-    char const c = client->read();
-
-    if(!is_header_complete)
+    if (client->available())
     {
+      char const c = client->read();
+      Serial.print(c);
+
       http_header += c;
       if (http_header.endsWith("\r\n\r\n"))
         is_header_complete = true;
     }
-    else
+  }
+
+  /* Extract concent length from HTTP header. */
+  int content_length_val = 0;
+  int const content_length_index = http_header.indexOf("Content-Length: ");
+  if (content_length_index > 0)
+  {
+    /* Attention: The following code is extremely ugly and needs major cleaning up. */
+    String content_length;
+    for (char * ptr = &(http_header[content_length_index + 16]); isDigit(*ptr); ptr++)
+      content_length += *ptr;
+
+    content_length_val = atoi(content_length.c_str());
+    DEBUG_VERBOSE("%s: Length of OTA binary according to HTTP header = %d bytes", __FUNCTION__, content_length_val);
+  }
+  else
+  {
+    DEBUG_ERROR("%s: Failure to extract content length from http header", __FUNCTION__);
+    return static_cast<int>(OTAError::RP2040_ErrorParseHttpHeader);
+  }
+
+  for(int bytes_received = 0;
+     (bytes_received < content_length_val) && client->connected();)
+  {
+    mbed_watchdog_reset();
+
+    if (client->available())
     {
+      char const c = client->read();
+
       if (fwrite(&c, 1, sizeof(c), file) != sizeof(c))
       {
         DEBUG_ERROR("%s: Writing of firmware image to flash failed", __FUNCTION__);
         return static_cast<int>(OTAError::RP2040_ErrorWriteUpdateFile);
       }
+
+      bytes_received++;
     }
   }
 
@@ -167,10 +192,6 @@ int rp2040_connect_onOTARequest(char const * ota_url)
   DEBUG_DEBUG("%s: %d bytes received", __FUNCTION__, file_len);
 
   mbed_watchdog_reset();
-
-  while (file_len == 0) {
-      delay(1000);
-  }
 
   fclose(file);
 
