@@ -91,12 +91,9 @@ int rp2040_connect_onOTARequest(char const * ota_url)
   }
 #endif
 
-  Client* client;
-
-  // TODO: eventually parse port in URL
-  int port;
-
   URI url(ota_url);
+  Client * client = nullptr;
+  int port = 0;
 
   if (url.protocol_ == "http") {
     client = new WiFiClient();
