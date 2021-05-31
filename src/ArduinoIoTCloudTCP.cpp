@@ -173,7 +173,10 @@ int ArduinoIoTCloudTCP::begin(bool const enable_watchdog, String brokerAddress, 
    */
   String const sha256_str = FlashSHA256::calc(0x2000, 0x40000 - 0x2000);
 #elif defined(ARDUINO_NANO_RP2040_CONNECT)
-  String const sha256_str = FlashSHA256::calc(XIP_BASE + 0x2000, 0x40000 - 0x2000);
+  /* The maximum size of a RP2040 OTA update image is 1 MByte (that is 1024 *
+   * 1024 bytes or 0x100'000 bytes).
+   */
+  String const sha256_str = FlashSHA256::calc(XIP_BASE, 0x100000);
 #else
 # error "No method for SHA256 checksum calculation over application image defined for this architecture."
 #endif
