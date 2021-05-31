@@ -160,7 +160,7 @@ int ArduinoIoTCloudTCP::begin(bool const enable_watchdog, String brokerAddress, 
                   sha256_str += buf;
                 });
   DEBUG_VERBOSE("SHA256: %d bytes (of %d) read", bytes_read, app_size);
-#else
+#elif defined(ARDUINO_ARCH_SAMD)
   /* Calculate the SHA256 checksum over the firmware stored in the flash of the
    * MCU. Note: As we don't know the length per-se we read chunks of the flash
    * until we detect one containing only 0xFF (= flash erased). This only works
@@ -171,13 +171,11 @@ int ArduinoIoTCloudTCP::begin(bool const enable_watchdog, String brokerAddress, 
    * The bootloader is excluded from the calculation and occupies flash address
    * range 0 to 0x2000, total flash size of 0x40000 bytes (256 kByte).
    */
-#if defined(ARDUINO_NANO_RP2040_CONNECT)
-#define FLASH_BASE  XIP_BASE
-  _ota_cap = true;
+  String const sha256_str = FlashSHA256::calc(0x2000, 0x40000 - 0x2000);
+#elif defined(ARDUINO_NANO_RP2040_CONNECT)
+  String const sha256_str = FlashSHA256::calc(XIP_BASE + 0x2000, 0x40000 - 0x2000);
 #else
-#define FLASH_BASE  0
-#endif
-  String const sha256_str = FlashSHA256::calc(FLASH_BASE + 0x2000, 0x40000 - 0x2000);
+# error "No method for SHA256 checksum calculation over application image defined for this architecture."
 #endif
   DEBUG_VERBOSE("SHA256: HASH(%d) = %s", strlen(sha256_str.c_str()), sha256_str.c_str());
   _ota_img_sha256 = sha256_str;
