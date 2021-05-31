@@ -92,7 +92,7 @@ ArduinoIoTCloudTCP::ArduinoIoTCloudTCP()
 , _ota_cap{false}
 , _ota_error{static_cast<int>(OTAError::None)}
 , _ota_img_sha256{"Inv."}
-, _ota_url{}
+, _ota_url{""}
 , _ota_req{false}
 #endif /* OTA_ENABLED */
 {
