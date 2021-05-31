@@ -26,20 +26,10 @@
 #include "../watchdog/Watchdog.h"
 
 #include <Arduino_DebugUtils.h>
-#include <mbed.h>
 
 /******************************************************************************
  * FUNCTION DEFINITION
  ******************************************************************************/
-
-static rtos::Thread t(osPriorityHigh);
-
-void kick_watchdog() {
-  while (1) {
-    mbed_watchdog_reset();
-    delay(2000);
-  }
-}
 
 /* Original code: http://stackoverflow.com/questions/2616011/easy-way-to-parse-a-url-in-c-cross-platform */
 #include <string>
@@ -90,7 +80,7 @@ int rp2040_connect_onOTARequest(char const * ota_url)
 {
   SFU::begin();
 
-  t.start(kick_watchdog);
+   mbed_watchdog_reset();
 
 #if 0
   /* Just to be safe delete any remains from previous updates. */
@@ -118,10 +108,7 @@ int rp2040_connect_onOTARequest(char const * ota_url)
 
   const char* host = url.host_.c_str();
 
-  // TODO: find if the host is an IP address and treat accordingly
-  // IPAddress ip;
-  // ip.fromString(host);
-  //int ret = client->connect(ip, port);
+  mbed_watchdog_reset();
 
   int ret = client->connect(host, port);
   if (!ret)
@@ -130,10 +117,14 @@ int rp2040_connect_onOTARequest(char const * ota_url)
     return -1; /* TODO: Implement better error codes. */
   }
 
+  mbed_watchdog_reset();
+
   client->println(String("GET ") + url.path_.c_str() + " HTTP/1.1");
   client->println(String("Host: ") + host);
   client->println("Connection: close");
   client->println();
+
+  mbed_watchdog_reset();
 
   FILE * file = fopen("/ota/UPDATE.BIN", "wb");
   if (!file)
@@ -146,12 +137,16 @@ int rp2040_connect_onOTARequest(char const * ota_url)
   String http_header;
   bool is_header_complete = false;
 
-  while (!client->available()) {
+  while (!client->available())
+  {
     delay(10);
+    mbed_watchdog_reset();
   }
 
   while (client->available())
   {
+    mbed_watchdog_reset();
+
     char const c = client->read();
 
     if(!is_header_complete)
@@ -172,6 +167,8 @@ int rp2040_connect_onOTARequest(char const * ota_url)
 
   int const file_len = ftell(file);
   DEBUG_DEBUG("%s: %d bytes received", __FUNCTION__, file_len);
+
+  mbed_watchdog_reset();
 
   while (file_len == 0) {
       delay(1000);
