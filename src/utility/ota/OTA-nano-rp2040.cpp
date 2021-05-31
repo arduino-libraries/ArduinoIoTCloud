@@ -101,9 +101,12 @@ int rp2040_connect_onOTARequest(char const * ota_url)
   if (url.protocol_ == "http") {
     client = new WiFiClient();
     port = 80;
-  } else {
+  } else if (url.protocol_ == "https") {
     client = new WiFiSSLClient();
     port = 443;
+  } else {
+    DEBUG_ERROR("%s: Failed to parse OTA URL %s", __FUNCTION__, ota_url);
+    return static_cast<int>(OTAError::RP2040_UrlParseError);
   }
 
   const char* host = url.host_.c_str();
@@ -114,7 +117,7 @@ int rp2040_connect_onOTARequest(char const * ota_url)
   if (!ret)
   {
     DEBUG_ERROR("%s: Connection failure with OTA storage server %s", __FUNCTION__, host);
-    return -1; /* TODO: Implement better error codes. */
+    return static_cast<int>(OTAError::RP2040_ServerConnectError);
   }
 
   mbed_watchdog_reset();
@@ -131,7 +134,7 @@ int rp2040_connect_onOTARequest(char const * ota_url)
   {
     DEBUG_ERROR("%s: fopen() failed", __FUNCTION__);
     fclose(file);
-    return errno;
+    return static_cast<int>(OTAError::RP2040_ErrorOpenUpdateFile);
   }
 
   String http_header;
@@ -160,7 +163,7 @@ int rp2040_connect_onOTARequest(char const * ota_url)
       if (fwrite(&c, 1, sizeof(c), file) != sizeof(c))
       {
         DEBUG_ERROR("%s: Writing of firmware image to flash failed", __FUNCTION__);
-        return -2; /* TODO: Find better error codes. */
+        return static_cast<int>(OTAError::RP2040_ErrorWriteUpdateFile);
       }
     }
   }
@@ -178,6 +181,8 @@ int rp2040_connect_onOTARequest(char const * ota_url)
 
   /* Perform the reset to reboot to SxU. */
   NVIC_SystemReset();
+
+  return static_cast<int>(OTAError::None);
 }
 
 #endif /* ARDUINO_NANO_RP2040_CONNECT */
