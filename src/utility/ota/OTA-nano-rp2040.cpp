@@ -137,10 +137,10 @@ int rp2040_connect_onOTARequest(char const * ota_url)
 
   for (bool is_header_complete = false; client->connected() && !is_header_complete; )
   {
-    mbed_watchdog_reset();
-
     if (client->available())
     {
+      mbed_watchdog_reset();
+
       char const c = client->read();
       Serial.print(c);
 
@@ -172,10 +172,10 @@ int rp2040_connect_onOTARequest(char const * ota_url)
   for(int bytes_received = 0;
      (bytes_received < content_length_val) && client->connected();)
   {
-    mbed_watchdog_reset();
-
     if (client->available())
     {
+      mbed_watchdog_reset();
+
       char const c = client->read();
 
       if (fwrite(&c, 1, sizeof(c), file) != sizeof(c))
