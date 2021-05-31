@@ -22,10 +22,6 @@
  * USER CONFIGURABLE DEFINES
  ******************************************************************************/
 
-#ifndef OTA_STORAGE_SFU
-  #define OTA_STORAGE_SFU         (0)
-#endif
-
 #ifndef NTP_USE_RANDOM_PORT
   #define NTP_USE_RANDOM_PORT     (1)
 #endif
@@ -95,7 +91,6 @@
 #endif
 
 #if defined(ARDUINO_NANO_RP2040_CONNECT)
-  #undef OTA_STORAGE_SFU
   #define OTA_STORAGE_SFU         (1)
 #else
   #define OTA_STORAGE_SFU         (0)
