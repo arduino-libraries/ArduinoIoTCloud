@@ -106,21 +106,19 @@ int rp2040_connect_onOTARequest(char const * ota_url)
     return static_cast<int>(OTAError::RP2040_UrlParseError);
   }
 
-  const char* host = url.host_.c_str();
-
   mbed_watchdog_reset();
 
-  int ret = client->connect(host, port);
+  int ret = client->connect(url.host_.c_str(), port);
   if (!ret)
   {
-    DEBUG_ERROR("%s: Connection failure with OTA storage server %s", __FUNCTION__, host);
+    DEBUG_ERROR("%s: Connection failure with OTA storage server %s", __FUNCTION__, url.host_.c_str());
     return static_cast<int>(OTAError::RP2040_ServerConnectError);
   }
 
   mbed_watchdog_reset();
 
   client->println(String("GET ") + url.path_.c_str() + " HTTP/1.1");
-  client->println(String("Host: ") + host);
+  client->println(String("Host: ") + url.host_.c_str());
   client->println("Connection: close");
   client->println();
 
