@@ -263,6 +263,10 @@ int ArduinoIoTCloudTCP::begin(bool const enable_watchdog, String brokerAddress, 
   }
 #endif /* OTA_STORAGE_SNU */
 
+#if defined(ARDUINO_NANO_RP2040_CONNECT)
+  _ota_cap = true;
+#endif
+
 #ifdef BOARD_HAS_OFFLOADED_ECCX08
   if (String(WiFi.firmwareVersion()) < String("1.4.4")) {
     DEBUG_ERROR("ArduinoIoTCloudTCP::%s In order to connect to Arduino IoT Cloud, NINA firmware needs to be >= 1.4.4, current %s", __FUNCTION__, WiFi.firmwareVersion());
