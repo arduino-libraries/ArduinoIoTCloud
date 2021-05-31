@@ -24,14 +24,6 @@
 
 #include <AIoTC_Config.h>
 
-#if OTA_STORAGE_SSU
-  #include <SSU.h>
-#endif /* OTA_STORAGE_SSU */
-
-#if OTA_STORAGE_SFU
-  #include <SFU.h>
-#endif /* OTA_STORAGE_SFU */
-
 /******************************************************************************
  * DEFINES
  ******************************************************************************/
