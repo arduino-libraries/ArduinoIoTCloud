@@ -82,16 +82,7 @@ int rp2040_connect_onOTARequest(char const * ota_url)
 {
   SFU::begin();
 
-   mbed_watchdog_reset();
-
-#if 0
-  /* Just to be safe delete any remains from previous updates. */
-  struct stat st;
-  int err = stat("/ota/UPDATE.BIN", &st);
-  if (err == 0) {
-    remove("/ota/UPDATE.BIN");
-  }
-#endif
+  mbed_watchdog_reset();
 
   URI url(ota_url);
   Client * client = nullptr;
@@ -136,7 +127,6 @@ int rp2040_connect_onOTARequest(char const * ota_url)
 
   /* Receive HTTP header. */
   String http_header;
-
   for (bool is_header_complete = false; client->connected() && !is_header_complete; )
   {
     if (client->available())
@@ -168,6 +158,7 @@ int rp2040_connect_onOTARequest(char const * ota_url)
   else
   {
     DEBUG_ERROR("%s: Failure to extract content length from http header", __FUNCTION__);
+    fclose(file);
     return static_cast<int>(OTAError::RP2040_ErrorParseHttpHeader);
   }
 
@@ -183,6 +174,7 @@ int rp2040_connect_onOTARequest(char const * ota_url)
       if (fwrite(&c, 1, sizeof(c), file) != sizeof(c))
       {
         DEBUG_ERROR("%s: Writing of firmware image to flash failed", __FUNCTION__);
+        fclose(file);
         return static_cast<int>(OTAError::RP2040_ErrorWriteUpdateFile);
       }
 
@@ -190,12 +182,10 @@ int rp2040_connect_onOTARequest(char const * ota_url)
     }
   }
 
+  /* Determine length. */
   int const file_len = ftell(file);
-  DEBUG_DEBUG("%s: %d bytes received", __FUNCTION__, file_len);
-
-  mbed_watchdog_reset();
-
   fclose(file);
+  DEBUG_DEBUG("%s: %d bytes received", __FUNCTION__, file_len);
 
   /* Perform the reset to reboot to SxU. */
   NVIC_SystemReset();
