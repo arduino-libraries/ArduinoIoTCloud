@@ -45,11 +45,12 @@ String FlashSHA256::calc(uint32_t const start_addr, uint32_t const max_flash_siz
   sha256.begin();
 
   /* Read the first two chunks of flash. */
-  uint32_t flash_addr = start_addr;  
+  uint32_t flash_addr = start_addr;
+  uint32_t bytes_read = 0;
   memcpy(chunk, reinterpret_cast<const void *>(flash_addr), FLASH_READ_CHUNK_SIZE);
   flash_addr += FLASH_READ_CHUNK_SIZE;
 
-  for(; flash_addr < max_flash_size; flash_addr += FLASH_READ_CHUNK_SIZE)
+  for(; bytes_read < max_flash_size; flash_addr += FLASH_READ_CHUNK_SIZE)
   {
     /* Read the next chunk of memory. */
     memcpy(next_chunk, reinterpret_cast<const void *>(flash_addr), FLASH_READ_CHUNK_SIZE);
@@ -75,6 +76,7 @@ String FlashSHA256::calc(uint32_t const start_addr, uint32_t const max_flash_siz
       }
       /* Update with the remaining bytes. */
       sha256.update(chunk, valid_bytes_in_chunk);
+      bytes_read += valid_bytes_in_chunk;
       break;
     }
 
@@ -82,6 +84,7 @@ String FlashSHA256::calc(uint32_t const start_addr, uint32_t const max_flash_siz
      * any erased elements, just update the SHA256 hash calcultion.
      */
     sha256.update(chunk, FLASH_READ_CHUNK_SIZE);
+    bytes_read += FLASH_READ_CHUNK_SIZE;
 
     /* Copy next_chunk to chunk. */
     memcpy(chunk, next_chunk, FLASH_READ_CHUNK_SIZE);
@@ -100,7 +103,7 @@ String FlashSHA256::calc(uint32_t const start_addr, uint32_t const max_flash_siz
                   sha256_str += buf;
                 });
   /* Do some debug printout. */
-  DEBUG_VERBOSE("SHA256: %d bytes read", flash_addr);
+  DEBUG_VERBOSE("SHA256: %d bytes read", bytes_read);
   return sha256_str;
 }
 
