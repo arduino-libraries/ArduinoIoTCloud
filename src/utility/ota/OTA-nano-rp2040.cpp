@@ -134,7 +134,6 @@ int rp2040_connect_onOTARequest(char const * ota_url)
       mbed_watchdog_reset();
 
       char const c = client->read();
-      Serial.print(c);
 
       http_header += c;
       if (http_header.endsWith("\r\n\r\n"))
@@ -142,26 +141,26 @@ int rp2040_connect_onOTARequest(char const * ota_url)
     }
   }
 
-  /* Extract concent length from HTTP header. */
-  int content_length_val = 0;
-  int const content_length_index = http_header.indexOf("Content-Length: ");
-  if (content_length_index > 0)
+  /* Extract concent length from HTTP header. A typical entry looks like
+   *   "Content-Length: 123456"
+   */
+  char const * content_length_ptr = strstr(http_header.c_str(), "Content-Length");
+  if (!content_length_ptr)
   {
-    /* Attention: The following code is extremely ugly and needs major cleaning up. */
-    String content_length;
-    for (char * ptr = &(http_header[content_length_index + 16]); isDigit(*ptr); ptr++)
-      content_length += *ptr;
-
-    content_length_val = atoi(content_length.c_str());
-    DEBUG_VERBOSE("%s: Length of OTA binary according to HTTP header = %d bytes", __FUNCTION__, content_length_val);
-  }
-  else
-  {
-    DEBUG_ERROR("%s: Failure to extract content length from http header", __FUNCTION__);
     fclose(file);
+    DEBUG_ERROR("%s: Failure to extract content length from http header", __FUNCTION__);
     return static_cast<int>(OTAError::RP2040_ErrorParseHttpHeader);
   }
+  /* Find start of numerical value. */
+  char * ptr = const_cast<char *>(content_length_ptr);
+  for (; (*ptr != '\0') && !isDigit(*ptr); ptr++) { }
+  /* Extract numerical value. */
+  String content_length_str;
+  for (; isDigit(*ptr); ptr++) content_length_str += *ptr;
+  int const content_length_val = atoi(content_length_str.c_str());
+  DEBUG_VERBOSE("%s: Length of OTA binary according to HTTP header = %d bytes", __FUNCTION__, content_length_val);
 
+  /* Receive as many bytes as are indicated by the HTTP header - or die trying. */
   for(int bytes_received = 0;
      (bytes_received < content_length_val) && client->connected();)
   {
