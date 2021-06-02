@@ -62,7 +62,7 @@
 # if defined(ARDUINO_AVR_UNO_WIFI_REV2)
 #   define DEBUG_VERBOSE(fmt, ...)
 # else
-#   define DEBUG_VERBOSE(fmt, ...) //Debug.print(DBG_VERBOSE, fmt, ## __VA_ARGS__)
+#   define DEBUG_VERBOSE(fmt, ...) Debug.print(DBG_VERBOSE, fmt, ## __VA_ARGS__)
 # endif
 #endif
 

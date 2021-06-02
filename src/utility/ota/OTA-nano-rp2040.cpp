@@ -29,6 +29,10 @@
 
 #include <SFU.h>
 
+#include "mbed.h"
+#include "FATFileSystem.h"
+#include "FlashIAPBlockDevice.h"
+
 /******************************************************************************
  * FUNCTION DEFINITION
  ******************************************************************************/
@@ -82,7 +86,28 @@ int rp2040_connect_onOTARequest(char const * ota_url)
 {
   mbed_watchdog_reset();
 
-  SFU::begin();
+  //SFU::begin();
+
+  int err = -1;
+  FlashIAPBlockDevice flash(XIP_BASE + 0xF00000, 0x100000);
+  if ((err = flash.init()) < 0)
+  {
+    DEBUG_ERROR("%s: flash.init() failed with %d", __FUNCTION__, err);
+    return err;
+  }
+
+  mbed_watchdog_reset();
+
+  flash.erase(XIP_BASE + 0xF00000, 0x100000);
+
+  mbed_watchdog_reset();
+
+  mbed::FATFileSystem fs("ota");
+  if ((err = fs.mount(&flash)) != 0)
+  {
+     DEBUG_ERROR("%s: fs.mount() failed with %d", __FUNCTION__, err);
+     return err;
+  }
 
   mbed_watchdog_reset();
 
@@ -199,6 +224,7 @@ int rp2040_connect_onOTARequest(char const * ota_url)
       }
 
       bytes_received++;
+      DEBUG_VERBOSE("%d", bytes_received);
     }
   }
 
