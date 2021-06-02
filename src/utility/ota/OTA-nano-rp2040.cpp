@@ -133,7 +133,7 @@ int rp2040_connect_onOTARequest(char const * ota_url)
        is_http_header_timeout = false;
   for (unsigned long const start = millis(); !is_header_complete;)
   {
-    is_http_header_timeout = (millis() - start) > (10*1000);
+    is_http_header_timeout = (millis() - start) > AIOT_CONFIG_RP2040_OTA_HTTP_HEADER_RECEIVE_TIMEOUT_ms;
     if (is_http_header_timeout) break;
 
     mbed_watchdog_reset();
@@ -178,7 +178,7 @@ int rp2040_connect_onOTARequest(char const * ota_url)
   bool is_http_data_timeout = false;
   for(unsigned long const start = millis(); bytes_received < content_length_val;)
   {
-    is_http_data_timeout = (millis() - start) > (60*1000);
+    is_http_data_timeout = (millis() - start) > AIOT_CONFIG_RP2040_OTA_HTTP_DATA_RECEIVE_TIMEOUT_ms;
     if (is_http_data_timeout) break;
 
     mbed_watchdog_reset();
