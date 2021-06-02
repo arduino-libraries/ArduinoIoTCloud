@@ -108,6 +108,7 @@ int rp2040_connect_onOTARequest(char const * ota_url)
     port = 443;
   } else {
     DEBUG_ERROR("%s: Failed to parse OTA URL %s", __FUNCTION__, ota_url);
+    fclose(file);
     return static_cast<int>(OTAError::RP2040_UrlParseError);
   }
 
@@ -115,8 +116,8 @@ int rp2040_connect_onOTARequest(char const * ota_url)
 
   if (!client->connect(url.host_.c_str(), port))
   {
-    fclose(file);
     DEBUG_ERROR("%s: Connection failure with OTA storage server %s", __FUNCTION__, url.host_.c_str());
+    fclose(file);
     return static_cast<int>(OTAError::RP2040_ServerConnectError);
   }
 
@@ -150,9 +151,10 @@ int rp2040_connect_onOTARequest(char const * ota_url)
     }
   }
 
-  if (!is_header_complete) {
-    fclose(file);
+  if (!is_header_complete)
+  {
     DEBUG_ERROR("%s: Error receiving HTTP header %s", __FUNCTION__, is_http_header_timeout ? "(timeout)":"");
+    fclose(file);
     return static_cast<int>(OTAError::RP2040_HttpHeaderError);
   }
 
@@ -162,8 +164,8 @@ int rp2040_connect_onOTARequest(char const * ota_url)
   char const * content_length_ptr = strstr(http_header.c_str(), "Content-Length");
   if (!content_length_ptr)
   {
-    fclose(file);
     DEBUG_ERROR("%s: Failure to extract content length from http header", __FUNCTION__);
+    fclose(file);
     return static_cast<int>(OTAError::RP2040_ErrorParseHttpHeader);
   }
   /* Find start of numerical value. */
@@ -201,8 +203,8 @@ int rp2040_connect_onOTARequest(char const * ota_url)
   }
 
   if (bytes_received != content_length_val) {
-    fclose(file);
     DEBUG_ERROR("%s: Error receiving HTTP data %s (%d bytes received, %d expected)", __FUNCTION__, is_http_data_timeout ? "(timeout)":"", bytes_received, content_length_val);
+    fclose(file);
     return static_cast<int>(OTAError::RP2040_HttpDataError);
   }
 
