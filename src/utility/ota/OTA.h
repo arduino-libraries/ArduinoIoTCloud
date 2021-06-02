@@ -40,9 +40,11 @@ enum class OTAError : int
   DownloadFailed = 1,
   RP2040_UrlParseError        = RP2040_OTA_ERROR_BASE - 0,
   RP2040_ServerConnectError   = RP2040_OTA_ERROR_BASE - 1,
-  RP2040_ErrorOpenUpdateFile  = RP2040_OTA_ERROR_BASE - 2,
-  RP2040_ErrorWriteUpdateFile = RP2040_OTA_ERROR_BASE - 3,
-  RP2040_ErrorParseHttpHeader = RP2040_OTA_ERROR_BASE - 4,
+  RP2040_HttpHeaderError      = RP2040_OTA_ERROR_BASE - 2,
+  RP2040_HttpDataError        = RP2040_OTA_ERROR_BASE - 3,
+  RP2040_ErrorOpenUpdateFile  = RP2040_OTA_ERROR_BASE - 4,
+  RP2040_ErrorWriteUpdateFile = RP2040_OTA_ERROR_BASE - 5,
+  RP2040_ErrorParseHttpHeader = RP2040_OTA_ERROR_BASE - 6,
 };
 
 /******************************************************************************

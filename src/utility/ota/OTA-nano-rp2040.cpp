@@ -82,6 +82,8 @@ int rp2040_connect_onOTARequest(char const * ota_url)
 {
   SFU::begin();
 
+  remove("/ota/UPDATE.BIN.LZSS");
+
   mbed_watchdog_reset();
 
   URI url(ota_url);
@@ -127,8 +129,13 @@ int rp2040_connect_onOTARequest(char const * ota_url)
 
   /* Receive HTTP header. */
   String http_header;
-  for (bool is_header_complete = false; client->connected() && !is_header_complete; )
+  bool is_header_complete     = false,
+       is_http_header_timeout = false;
+  for (unsigned long const start = millis(); !is_header_complete;)
   {
+    is_http_header_timeout = (millis() - start) > (10*1000);
+    if (is_http_header_timeout) break;
+
     if (client->available())
     {
       mbed_watchdog_reset();
@@ -139,6 +146,12 @@ int rp2040_connect_onOTARequest(char const * ota_url)
       if (http_header.endsWith("\r\n\r\n"))
         is_header_complete = true;
     }
+  }
+
+  if (!is_header_complete) {
+    fclose(file);
+    DEBUG_ERROR("%s: Error receiving HTTP header %s", __FUNCTION__, is_http_header_timeout ? "(timeout)":"");
+    return static_cast<int>(OTAError::RP2040_HttpHeaderError);
   }
 
   /* Extract concent length from HTTP header. A typical entry looks like
@@ -161,9 +174,13 @@ int rp2040_connect_onOTARequest(char const * ota_url)
   DEBUG_VERBOSE("%s: Length of OTA binary according to HTTP header = %d bytes", __FUNCTION__, content_length_val);
 
   /* Receive as many bytes as are indicated by the HTTP header - or die trying. */
-  for(int bytes_received = 0;
-     (bytes_received < content_length_val) && client->connected();)
+  int  bytes_received = 0;
+  bool is_http_data_timeout = false;
+  for(unsigned long const start = millis(); bytes_received < content_length_val;)
   {
+    is_http_data_timeout = (millis() - start) > (60*1000);
+    if (is_http_data_timeout) break;
+
     if (client->available())
     {
       mbed_watchdog_reset();
@@ -181,10 +198,16 @@ int rp2040_connect_onOTARequest(char const * ota_url)
     }
   }
 
+  if (bytes_received != content_length_val) {
+    fclose(file);
+    DEBUG_ERROR("%s: Error receiving HTTP data %s (%d bytes received, %d expected)", __FUNCTION__, is_http_data_timeout ? "(timeout)":"", bytes_received, content_length_val);
+    return static_cast<int>(OTAError::RP2040_HttpDataError);
+  }
+
   /* Determine length. */
   int const file_len = ftell(file);
   fclose(file);
-  DEBUG_DEBUG("%s: %d bytes received", __FUNCTION__, file_len);
+  DEBUG_DEBUG("%s: %d bytes received (%d expected)", __FUNCTION__, file_len, content_length_val);
 
   /* Perform the reset to reboot to SxU. */
   NVIC_SystemReset();
