@@ -208,12 +208,9 @@ int rp2040_connect_onOTARequest(char const * ota_url)
     return static_cast<int>(OTAError::RP2040_HttpDataError);
   }
 
-  /* Determine length. */
-  int const file_len = ftell(file);
+  /* Perform the reset to reboot to SFU. */
+  DEBUG_INFO("%s: %d bytes received", __FUNCTION__, ftell(file));
   fclose(file);
-  DEBUG_DEBUG("%s: %d bytes received (%d expected)", __FUNCTION__, file_len, content_length_val);
-
-  /* Perform the reset to reboot to SxU. */
   NVIC_SystemReset();
 
   return static_cast<int>(OTAError::None);
