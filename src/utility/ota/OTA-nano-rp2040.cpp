@@ -80,9 +80,19 @@ void URI::parse(const string& url_s)
 
 int rp2040_connect_onOTARequest(char const * ota_url)
 {
+  mbed_watchdog_reset();
+
   SFU::begin();
 
-  remove("/ota/UPDATE.BIN.LZSS");
+  mbed_watchdog_reset();
+
+  FILE * file = fopen("/ota/UPDATE.BIN.LZSS", "wb");
+  if (!file)
+  {
+    DEBUG_ERROR("%s: fopen() failed", __FUNCTION__);
+    fclose(file);
+    return static_cast<int>(OTAError::RP2040_ErrorOpenUpdateFile);
+  }
 
   mbed_watchdog_reset();
 
@@ -103,9 +113,9 @@ int rp2040_connect_onOTARequest(char const * ota_url)
 
   mbed_watchdog_reset();
 
-  int ret = client->connect(url.host_.c_str(), port);
-  if (!ret)
+  if (!client->connect(url.host_.c_str(), port))
   {
+    fclose(file);
     DEBUG_ERROR("%s: Connection failure with OTA storage server %s", __FUNCTION__, url.host_.c_str());
     return static_cast<int>(OTAError::RP2040_ServerConnectError);
   }
@@ -118,14 +128,6 @@ int rp2040_connect_onOTARequest(char const * ota_url)
   client->println();
 
   mbed_watchdog_reset();
-
-  FILE * file = fopen("/ota/UPDATE.BIN.LZSS", "wb");
-  if (!file)
-  {
-    DEBUG_ERROR("%s: fopen() failed", __FUNCTION__);
-    fclose(file);
-    return static_cast<int>(OTAError::RP2040_ErrorOpenUpdateFile);
-  }
 
   /* Receive HTTP header. */
   String http_header;
