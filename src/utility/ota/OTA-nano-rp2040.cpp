@@ -136,10 +136,10 @@ int rp2040_connect_onOTARequest(char const * ota_url)
     is_http_header_timeout = (millis() - start) > (10*1000);
     if (is_http_header_timeout) break;
 
+    mbed_watchdog_reset();
+
     if (client->available())
     {
-      mbed_watchdog_reset();
-
       char const c = client->read();
 
       http_header += c;
@@ -181,10 +181,10 @@ int rp2040_connect_onOTARequest(char const * ota_url)
     is_http_data_timeout = (millis() - start) > (60*1000);
     if (is_http_data_timeout) break;
 
+    mbed_watchdog_reset();
+
     if (client->available())
     {
-      mbed_watchdog_reset();
-
       char const c = client->read();
 
       if (fwrite(&c, 1, sizeof(c), file) != sizeof(c))
