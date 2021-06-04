@@ -243,6 +243,8 @@ int rp2040_connect_onOTARequest(char const * ota_url)
 
   /* Perform the reset to reboot to SFU. */
   mbed_watchdog_trigger_reset();
+  /* If watchdog is enabled we should not reach this point */
+  NVIC_SystemReset();
 
   return static_cast<int>(OTAError::None);
 }

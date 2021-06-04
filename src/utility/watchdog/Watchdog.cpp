@@ -124,11 +124,11 @@ void mbed_watchdog_trigger_reset()
 
   if (hal_watchdog_init(&cfg) == WATCHDOG_STATUS_OK) {
     is_watchdog_enabled = true;
+    while(1){}
   }
   else {
     DEBUG_WARNING("%s: watchdog could not be reconfigured", __FUNCTION__);
   }
 
-  while(1){}
 }
 #endif /* ARDUINO_ARCH_MBED */
