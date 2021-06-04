@@ -46,7 +46,7 @@ enum class OTAError : int
   RP2040_ErrorWriteUpdateFile = RP2040_OTA_ERROR_BASE - 5,
   RP2040_ErrorParseHttpHeader = RP2040_OTA_ERROR_BASE - 6,
   RP2040_ErrorFlashInit       = RP2040_OTA_ERROR_BASE - 7,
-  RP2040_ErrorMount           = RP2040_OTA_ERROR_BASE - 8,
+  RP2040_ErrorReformat        = RP2040_OTA_ERROR_BASE - 8,
   RP2040_ErrorUnmount         = RP2040_OTA_ERROR_BASE - 9,
 };
 

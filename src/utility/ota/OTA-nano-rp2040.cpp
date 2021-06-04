@@ -101,10 +101,10 @@ int rp2040_connect_onOTARequest(char const * ota_url)
   mbed_watchdog_reset();
 
   mbed::FATFileSystem fs("ota");
-  if ((err = fs.mount(&flash)) != 0)
+  if ((err = fs.reformat(&flash)) != 0)
   {
-     DEBUG_ERROR("%s: fs.mount() failed with %d", __FUNCTION__, err);
-     return static_cast<int>(OTAError::RP2040_ErrorMount);
+     DEBUG_ERROR("%s: fs.reformat() failed with %d", __FUNCTION__, err);
+     return static_cast<int>(OTAError::RP2040_ErrorReformat);
   }
 
   mbed_watchdog_reset();
