@@ -91,7 +91,7 @@ int rp2040_connect_onOTARequest(char const * ota_url)
   if ((err = flash.init()) < 0)
   {
     DEBUG_ERROR("%s: flash.init() failed with %d", __FUNCTION__, err);
-    return err;
+    return static_cast<int>(OTAError::RP2040_ErrorFlashInit);
   }
 
   mbed_watchdog_reset();
@@ -104,7 +104,7 @@ int rp2040_connect_onOTARequest(char const * ota_url)
   if ((err = fs.mount(&flash)) != 0)
   {
      DEBUG_ERROR("%s: fs.mount() failed with %d", __FUNCTION__, err);
-     return err;
+     return static_cast<int>(OTAError::RP2040_ErrorMount);
   }
 
   mbed_watchdog_reset();
@@ -231,9 +231,17 @@ int rp2040_connect_onOTARequest(char const * ota_url)
     return static_cast<int>(OTAError::RP2040_HttpDataError);
   }
 
-  /* Perform the reset to reboot to SFU. */
   DEBUG_INFO("%s: %d bytes received", __FUNCTION__, ftell(file));
   fclose(file);
+
+  /* Unmount the filesystem. */
+  if ((err = fs.unmount()) != 0)
+  {
+     DEBUG_ERROR("%s: fs.unmount() failed with %d", __FUNCTION__, err);
+     return static_cast<int>(OTAError::RP2040_ErrorUnmount);
+  }
+
+  /* Perform the reset to reboot to SFU. */
   mbed_watchdog_trigger_reset();
 
   return static_cast<int>(OTAError::None);
