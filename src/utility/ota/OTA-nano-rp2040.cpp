@@ -86,8 +86,6 @@ int rp2040_connect_onOTARequest(char const * ota_url)
 {
   mbed_watchdog_reset();
 
-  //SFU::begin();
-
   int err = -1;
   FlashIAPBlockDevice flash(XIP_BASE + 0xF00000, 0x100000);
   if ((err = flash.init()) < 0)
@@ -224,7 +222,6 @@ int rp2040_connect_onOTARequest(char const * ota_url)
       }
 
       bytes_received++;
-      DEBUG_VERBOSE("%d", bytes_received);
     }
   }
 
@@ -237,7 +234,6 @@ int rp2040_connect_onOTARequest(char const * ota_url)
   /* Perform the reset to reboot to SFU. */
   DEBUG_INFO("%s: %d bytes received", __FUNCTION__, ftell(file));
   fclose(file);
-  //NVIC_SystemReset();
   mbed_watchdog_trigger_reset();
 
   return static_cast<int>(OTAError::None);
