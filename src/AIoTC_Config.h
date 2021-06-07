@@ -22,10 +22,6 @@
  * USER CONFIGURABLE DEFINES
  ******************************************************************************/
 
-#ifndef OTA_STORAGE_SFU
-  #define OTA_STORAGE_SFU         (0)
-#endif
-
 #ifndef NTP_USE_RANDOM_PORT
   #define NTP_USE_RANDOM_PORT     (1)
 #endif
@@ -94,6 +90,12 @@
   #define OTA_STORAGE_SNU         (0)
 #endif
 
+#if defined(ARDUINO_NANO_RP2040_CONNECT)
+  #define OTA_STORAGE_SFU         (1)
+#else
+  #define OTA_STORAGE_SFU         (0)
+#endif
+
 #ifdef ARDUINO_SAMD_MKRGSM1400
   #define OTA_STORAGE_SSU         (1)
 #else
@@ -142,5 +144,8 @@
 #define AIOT_CONFIG_MAX_RECONNECTION_RETRY_DELAY_ms (32000UL)
 #define AIOT_CONFIG_TIMEOUT_FOR_LASTVALUES_SYNC_ms  (30000UL)
 #define AIOT_CONFIG_LASTVALUES_SYNC_MAX_RETRY_CNT      (10UL)
+
+#define AIOT_CONFIG_RP2040_OTA_HTTP_HEADER_RECEIVE_TIMEOUT_ms (10*1000UL)
+#define AIOT_CONFIG_RP2040_OTA_HTTP_DATA_RECEIVE_TIMEOUT_ms   (4*60*1000UL)
 
 #endif /* ARDUINO_AIOTC_CONFIG_H_ */

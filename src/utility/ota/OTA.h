@@ -24,13 +24,11 @@
 
 #include <AIoTC_Config.h>
 
-#if OTA_STORAGE_SSU
-  #include <SSU.h>
-#endif /* OTA_STORAGE_SSU */
+/******************************************************************************
+ * DEFINES
+ ******************************************************************************/
 
-#if OTA_STORAGE_SFU
-  #include <SFU.h>
-#endif /* OTA_STORAGE_SFU */
+#define RP2040_OTA_ERROR_BASE (-100)
 
 /******************************************************************************
  * TYPEDEF
@@ -40,6 +38,16 @@ enum class OTAError : int
 {
   None           = 0,
   DownloadFailed = 1,
+  RP2040_UrlParseError        = RP2040_OTA_ERROR_BASE - 0,
+  RP2040_ServerConnectError   = RP2040_OTA_ERROR_BASE - 1,
+  RP2040_HttpHeaderError      = RP2040_OTA_ERROR_BASE - 2,
+  RP2040_HttpDataError        = RP2040_OTA_ERROR_BASE - 3,
+  RP2040_ErrorOpenUpdateFile  = RP2040_OTA_ERROR_BASE - 4,
+  RP2040_ErrorWriteUpdateFile = RP2040_OTA_ERROR_BASE - 5,
+  RP2040_ErrorParseHttpHeader = RP2040_OTA_ERROR_BASE - 6,
+  RP2040_ErrorFlashInit       = RP2040_OTA_ERROR_BASE - 7,
+  RP2040_ErrorReformat        = RP2040_OTA_ERROR_BASE - 8,
+  RP2040_ErrorUnmount         = RP2040_OTA_ERROR_BASE - 9,
 };
 
 /******************************************************************************
@@ -48,6 +56,10 @@ enum class OTAError : int
 
 #ifdef ARDUINO_ARCH_SAMD
 int samd_onOTARequest(char const * ota_url);
+#endif
+
+#ifdef ARDUINO_NANO_RP2040_CONNECT
+int rp2040_connect_onOTARequest(char const * ota_url);
 #endif
 
 #if defined(ARDUINO_PORTENTA_H7_M7) || defined(ARDUINO_PORTENTA_H7_M4)

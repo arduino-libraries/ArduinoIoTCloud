@@ -110,4 +110,25 @@ void mbed_watchdog_reset()
     hal_watchdog_kick();
   }
 }
+
+void mbed_watchdog_trigger_reset()
+{
+  watchdog_config_t cfg;
+#if defined(ARDUINO_PORTENTA_H7_M7) || defined(ARDUINO_PORTENTA_H7_M4)
+  cfg.timeout_ms = 1;
+#elif defined(ARDUINO_NANO_RP2040_CONNECT)
+  cfg.timeout_ms = 1;
+#else
+# error "You need to define the maximum possible timeout for this architecture."
+#endif
+
+  if (hal_watchdog_init(&cfg) == WATCHDOG_STATUS_OK) {
+    is_watchdog_enabled = true;
+    while(1){}
+  }
+  else {
+    DEBUG_WARNING("%s: watchdog could not be reconfigured", __FUNCTION__);
+  }
+
+}
 #endif /* ARDUINO_ARCH_MBED */

@@ -160,7 +160,7 @@ int ArduinoIoTCloudTCP::begin(bool const enable_watchdog, String brokerAddress, 
                   sha256_str += buf;
                 });
   DEBUG_VERBOSE("SHA256: %d bytes (of %d) read", bytes_read, app_size);
-#else
+#elif defined(ARDUINO_ARCH_SAMD)
   /* Calculate the SHA256 checksum over the firmware stored in the flash of the
    * MCU. Note: As we don't know the length per-se we read chunks of the flash
    * until we detect one containing only 0xFF (= flash erased). This only works
@@ -172,6 +172,13 @@ int ArduinoIoTCloudTCP::begin(bool const enable_watchdog, String brokerAddress, 
    * range 0 to 0x2000, total flash size of 0x40000 bytes (256 kByte).
    */
   String const sha256_str = FlashSHA256::calc(0x2000, 0x40000 - 0x2000);
+#elif defined(ARDUINO_NANO_RP2040_CONNECT)
+  /* The maximum size of a RP2040 OTA update image is 1 MByte (that is 1024 *
+   * 1024 bytes or 0x100'000 bytes).
+   */
+  String const sha256_str = FlashSHA256::calc(XIP_BASE, 0x100000);
+#else
+# error "No method for SHA256 checksum calculation over application image defined for this architecture."
 #endif
   DEBUG_VERBOSE("SHA256: HASH(%d) = %s", strlen(sha256_str.c_str()), sha256_str.c_str());
   _ota_img_sha256 = sha256_str;
@@ -259,6 +266,10 @@ int ArduinoIoTCloudTCP::begin(bool const enable_watchdog, String brokerAddress, 
   }
 #endif /* OTA_STORAGE_SNU */
 
+#if defined(ARDUINO_NANO_RP2040_CONNECT)
+  _ota_cap = true;
+#endif
+
 #ifdef BOARD_HAS_OFFLOADED_ECCX08
   if (String(WiFi.firmwareVersion()) < String("1.4.4")) {
     DEBUG_ERROR("ArduinoIoTCloudTCP::%s In order to connect to Arduino IoT Cloud, NINA firmware needs to be >= 1.4.4, current %s", __FUNCTION__, WiFi.firmwareVersion());
@@ -308,6 +319,16 @@ void ArduinoIoTCloudTCP::update()
   case State::Connected:           next_state = handle_Connected();           break;
   }
   _state = next_state;
+
+  /* This watchdog feed is actually needed only by the RP2040 CONNECT cause its
+   * maximum watchdog window is 8388ms; despite this we feed it for all 
+   * supported ARCH to keep code aligned.
+   */
+#ifdef ARDUINO_ARCH_SAMD
+  samd_watchdog_reset();
+#elif defined(ARDUINO_ARCH_MBED)
+  mbed_watchdog_reset();
+#endif
 
   /* Check for new data from the MQTT client. */
   if (_mqttClient.connected())
@@ -491,6 +512,7 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_Connected()
     /* Request a OTA download if the hidden property
      * OTA request has been set.
      */
+
     if (_ota_req)
     {
       /* Clear the error flag. */
@@ -581,10 +603,14 @@ int ArduinoIoTCloudTCP::write(String const topic, byte const data[], int const l
 #if OTA_ENABLED
 void ArduinoIoTCloudTCP::onOTARequest()
 {
-  DEBUG_VERBOSE("ArduinoIoTCloudTCP::%s _ota_url = %s", __FUNCTION__, _ota_url.c_str());
+  DEBUG_INFO("ArduinoIoTCloudTCP::%s _ota_url = %s", __FUNCTION__, _ota_url.c_str());
 
 #ifdef ARDUINO_ARCH_SAMD
   _ota_error = samd_onOTARequest(_ota_url.c_str());
+#endif
+
+#ifdef ARDUINO_NANO_RP2040_CONNECT
+  _ota_error = rp2040_connect_onOTARequest(_ota_url.c_str());
 #endif
 
 #if defined(ARDUINO_PORTENTA_H7_M7) || defined(ARDUINO_PORTENTA_H7_M4)
