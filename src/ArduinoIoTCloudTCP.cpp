@@ -320,6 +320,16 @@ void ArduinoIoTCloudTCP::update()
   }
   _state = next_state;
 
+  /* This watchdog feed is actually needed only by the RP2040 CONNECT cause its
+   * maximum watchdog window is 8388ms; despite this we feed it for all 
+   * supported ARCH to keep code aligned.
+   */
+#ifdef ARDUINO_ARCH_SAMD
+  samd_watchdog_reset();
+#elif defined(ARDUINO_ARCH_MBED)
+  mbed_watchdog_reset();
+#endif
+
   /* Check for new data from the MQTT client. */
   if (_mqttClient.connected())
     _mqttClient.poll();
