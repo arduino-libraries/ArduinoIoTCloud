@@ -22,14 +22,12 @@
  * FUNCTION DECLARATION
  ******************************************************************************/
 
-#ifdef ARDUINO_ARCH_SAMD
-void samd_watchdog_enable();
-void samd_watchdog_reset();
-#endif /* ARDUINO_ARCH_SAMD */
+#if defined (ARDUINO_ARCH_SAMD) || (ARDUINO_ARCH_MBED)
+void watchdog_enable();
+void watchdog_reset();
+#endif /* (ARDUINO_ARCH_SAMD) || (ARDUINO_ARCH_MBED) */
 
 #ifdef ARDUINO_ARCH_MBED
-void mbed_watchdog_enable();
-void mbed_watchdog_reset();
 void mbed_watchdog_trigger_reset();
 #endif /* ARDUINO_ARCH_MBED */
 

@@ -49,13 +49,13 @@ static bool is_watchdog_enabled = false;
  ******************************************************************************/
 
 #ifdef ARDUINO_ARCH_SAMD
-void samd_watchdog_enable()
+static void samd_watchdog_enable()
 {
   is_watchdog_enabled = true;
   Watchdog.enable(SAMD_WATCHDOG_MAX_TIME_ms);
 }
 
-void samd_watchdog_reset()
+static void samd_watchdog_reset()
 {
   if (is_watchdog_enabled) {
     Watchdog.reset();
@@ -85,7 +85,7 @@ void mkr_nb_feed_watchdog()
 #endif /* ARDUINO_ARCH_SAMD */
 
 #ifdef ARDUINO_ARCH_MBED
-void mbed_watchdog_enable()
+static void mbed_watchdog_enable()
 {
   watchdog_config_t cfg;
 #if defined(ARDUINO_PORTENTA_H7_M7) || defined(ARDUINO_PORTENTA_H7_M4)
@@ -104,7 +104,7 @@ void mbed_watchdog_enable()
   }
 }
 
-void mbed_watchdog_reset()
+static void mbed_watchdog_reset()
 {
   if (is_watchdog_enabled) {
     hal_watchdog_kick();
@@ -132,3 +132,23 @@ void mbed_watchdog_trigger_reset()
 
 }
 #endif /* ARDUINO_ARCH_MBED */
+
+#if defined (ARDUINO_ARCH_SAMD) || (ARDUINO_ARCH_MBED)
+void watchdog_enable()
+{
+#ifdef ARDUINO_ARCH_SAMD
+  samd_watchdog_enable();
+#else
+  mbed_watchdog_enable();
+#endif
+}
+
+void watchdog_reset()
+{
+#ifdef ARDUINO_ARCH_SAMD
+  samd_watchdog_reset();
+#else
+  mbed_watchdog_reset();
+#endif
+}
+#endif /* (ARDUINO_ARCH_SAMD) || (ARDUINO_ARCH_MBED) */

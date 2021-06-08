@@ -84,7 +84,7 @@ void URI::parse(const string& url_s)
 
 int rp2040_connect_onOTARequest(char const * ota_url)
 {
-  mbed_watchdog_reset();
+  watchdog_reset();
 
   int err = -1;
   FlashIAPBlockDevice flash(XIP_BASE + 0xF00000, 0x100000);
@@ -94,11 +94,11 @@ int rp2040_connect_onOTARequest(char const * ota_url)
     return static_cast<int>(OTAError::RP2040_ErrorFlashInit);
   }
 
-  mbed_watchdog_reset();
+  watchdog_reset();
 
   flash.erase(XIP_BASE + 0xF00000, 0x100000);
 
-  mbed_watchdog_reset();
+  watchdog_reset();
 
   mbed::FATFileSystem fs("ota");
   if ((err = fs.reformat(&flash)) != 0)
@@ -107,7 +107,7 @@ int rp2040_connect_onOTARequest(char const * ota_url)
      return static_cast<int>(OTAError::RP2040_ErrorReformat);
   }
 
-  mbed_watchdog_reset();
+  watchdog_reset();
 
   FILE * file = fopen("/ota/UPDATE.BIN.LZSS", "wb");
   if (!file)
@@ -117,7 +117,7 @@ int rp2040_connect_onOTARequest(char const * ota_url)
     return static_cast<int>(OTAError::RP2040_ErrorOpenUpdateFile);
   }
 
-  mbed_watchdog_reset();
+  watchdog_reset();
 
   URI url(ota_url);
   Client * client = nullptr;
@@ -135,7 +135,7 @@ int rp2040_connect_onOTARequest(char const * ota_url)
     return static_cast<int>(OTAError::RP2040_UrlParseError);
   }
 
-  mbed_watchdog_reset();
+  watchdog_reset();
 
   if (!client->connect(url.host_.c_str(), port))
   {
@@ -144,14 +144,14 @@ int rp2040_connect_onOTARequest(char const * ota_url)
     return static_cast<int>(OTAError::RP2040_ServerConnectError);
   }
 
-  mbed_watchdog_reset();
+  watchdog_reset();
 
   client->println(String("GET ") + url.path_.c_str() + " HTTP/1.1");
   client->println(String("Host: ") + url.host_.c_str());
   client->println("Connection: close");
   client->println();
 
-  mbed_watchdog_reset();
+  watchdog_reset();
 
   /* Receive HTTP header. */
   String http_header;
@@ -162,7 +162,7 @@ int rp2040_connect_onOTARequest(char const * ota_url)
     is_http_header_timeout = (millis() - start) > AIOT_CONFIG_RP2040_OTA_HTTP_HEADER_RECEIVE_TIMEOUT_ms;
     if (is_http_header_timeout) break;
 
-    mbed_watchdog_reset();
+    watchdog_reset();
 
     if (client->available())
     {
@@ -208,7 +208,7 @@ int rp2040_connect_onOTARequest(char const * ota_url)
     is_http_data_timeout = (millis() - start) > AIOT_CONFIG_RP2040_OTA_HTTP_DATA_RECEIVE_TIMEOUT_ms;
     if (is_http_data_timeout) break;
 
-    mbed_watchdog_reset();
+    watchdog_reset();
 
     if (client->available())
     {
