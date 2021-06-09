@@ -68,10 +68,12 @@ static void samd_watchdog_reset()
  * is defined a weak function there and overwritten by this "strong"
  * function here.
  */
+#ifndef WIFI_HAS_FEED_WATCHDOG_FUNC
 void wifi_nina_feed_watchdog()
 {
   samd_watchdog_reset();
 }
+#endif
 
 void mkr_gsm_feed_watchdog()
 {

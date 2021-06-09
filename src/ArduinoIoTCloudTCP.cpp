@@ -285,7 +285,11 @@ int ArduinoIoTCloudTCP::begin(bool const enable_watchdog, String brokerAddress, 
 #if defined (ARDUINO_ARCH_SAMD) || (ARDUINO_ARCH_MBED)
   if (enable_watchdog) {
     watchdog_enable();
+#ifdef WIFI_HAS_FEED_WATCHDOG_FUNC
+      WiFi.setFeedWatchdogFunc(watchdog_reset);
+#endif
   }
+
 #endif
 
   return 1;
