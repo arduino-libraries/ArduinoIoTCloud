@@ -289,7 +289,6 @@ int ArduinoIoTCloudTCP::begin(bool const enable_watchdog, String brokerAddress, 
       WiFi.setFeedWatchdogFunc(watchdog_reset);
 #endif
   }
-
 #endif
 
   return 1;
