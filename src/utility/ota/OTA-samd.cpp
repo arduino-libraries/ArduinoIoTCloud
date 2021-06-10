@@ -38,14 +38,14 @@
 
 int samd_onOTARequest(char const * ota_url)
 {
-  samd_watchdog_reset();
+  watchdog_reset();
 
 #if OTA_STORAGE_SNU
   /* Just to be safe delete any remains from previous updates. */
   WiFiStorage.remove("/fs/UPDATE.BIN.LZSS");
   WiFiStorage.remove("/fs/UPDATE.BIN.LZSS.TMP");
 
-  samd_watchdog_reset();
+  watchdog_reset();
 
   /* Trigger direct download to nina module. */
   uint8_t nina_ota_err_code = 0;

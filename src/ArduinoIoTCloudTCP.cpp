@@ -282,14 +282,14 @@ int ArduinoIoTCloudTCP::begin(bool const enable_watchdog, String brokerAddress, 
    * call to ArduinoIoTCloudTCP::update() it is wise to
    * set a rather large timeout at first.
    */
-#ifdef ARDUINO_ARCH_SAMD
+#if defined (ARDUINO_ARCH_SAMD) || (ARDUINO_ARCH_MBED)
   if (enable_watchdog) {
-    samd_watchdog_enable();
+    watchdog_enable();
+#ifdef WIFI_HAS_FEED_WATCHDOG_FUNC
+      WiFi.setFeedWatchdogFunc(watchdog_reset);
+#endif
   }
-#elif defined(ARDUINO_ARCH_MBED)
-  if (enable_watchdog) {
-    mbed_watchdog_enable();
-  }
+
 #endif
 
   return 1;
@@ -300,10 +300,8 @@ void ArduinoIoTCloudTCP::update()
   /* Feed the watchdog. If any of the functions called below
    * get stuck than we can at least reset and recover.
    */
-#ifdef ARDUINO_ARCH_SAMD
-  samd_watchdog_reset();
-#elif defined(ARDUINO_ARCH_MBED)
-  mbed_watchdog_reset();
+#if defined (ARDUINO_ARCH_SAMD) || (ARDUINO_ARCH_MBED)
+  watchdog_reset();
 #endif
 
 
@@ -321,13 +319,11 @@ void ArduinoIoTCloudTCP::update()
   _state = next_state;
 
   /* This watchdog feed is actually needed only by the RP2040 CONNECT cause its
-   * maximum watchdog window is 8388ms; despite this we feed it for all 
+   * maximum watchdog window is 8389ms; despite this we feed it for all 
    * supported ARCH to keep code aligned.
    */
-#ifdef ARDUINO_ARCH_SAMD
-  samd_watchdog_reset();
-#elif defined(ARDUINO_ARCH_MBED)
-  mbed_watchdog_reset();
+#if defined (ARDUINO_ARCH_SAMD) || (ARDUINO_ARCH_MBED)
+  watchdog_reset();
 #endif
 
   /* Check for new data from the MQTT client. */
