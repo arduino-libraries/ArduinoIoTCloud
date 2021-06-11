@@ -22,7 +22,7 @@
  * FUNCTION DECLARATION
  ******************************************************************************/
 
-#if defined (ARDUINO_ARCH_SAMD) || (ARDUINO_ARCH_MBED)
+#if defined (ARDUINO_ARCH_SAMD) || defined (ARDUINO_ARCH_MBED)
 void watchdog_enable();
 void watchdog_reset();
 #endif /* (ARDUINO_ARCH_SAMD) || (ARDUINO_ARCH_MBED) */

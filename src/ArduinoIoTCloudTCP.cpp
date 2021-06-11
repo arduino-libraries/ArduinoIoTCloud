@@ -282,7 +282,7 @@ int ArduinoIoTCloudTCP::begin(bool const enable_watchdog, String brokerAddress, 
    * call to ArduinoIoTCloudTCP::update() it is wise to
    * set a rather large timeout at first.
    */
-#if defined (ARDUINO_ARCH_SAMD) || (ARDUINO_ARCH_MBED)
+#if defined (ARDUINO_ARCH_SAMD) || defined (ARDUINO_ARCH_MBED)
   if (enable_watchdog) {
     watchdog_enable();
 #ifdef WIFI_HAS_FEED_WATCHDOG_FUNC
@@ -300,7 +300,7 @@ void ArduinoIoTCloudTCP::update()
   /* Feed the watchdog. If any of the functions called below
    * get stuck than we can at least reset and recover.
    */
-#if defined (ARDUINO_ARCH_SAMD) || (ARDUINO_ARCH_MBED)
+#if defined (ARDUINO_ARCH_SAMD) || defined (ARDUINO_ARCH_MBED)
   watchdog_reset();
 #endif
 
@@ -322,7 +322,7 @@ void ArduinoIoTCloudTCP::update()
    * maximum watchdog window is 8389ms; despite this we feed it for all 
    * supported ARCH to keep code aligned.
    */
-#if defined (ARDUINO_ARCH_SAMD) || (ARDUINO_ARCH_MBED)
+#if defined (ARDUINO_ARCH_SAMD) || defined (ARDUINO_ARCH_MBED)
   watchdog_reset();
 #endif
 
