@@ -135,7 +135,7 @@ void mbed_watchdog_trigger_reset()
 }
 #endif /* ARDUINO_ARCH_MBED */
 
-#if defined (ARDUINO_ARCH_SAMD) || (ARDUINO_ARCH_MBED)
+#if defined (ARDUINO_ARCH_SAMD) || defined (ARDUINO_ARCH_MBED)
 void watchdog_enable()
 {
 #ifdef ARDUINO_ARCH_SAMD
