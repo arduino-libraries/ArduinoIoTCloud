@@ -40,6 +40,10 @@ int portenta_h7_onOTARequest(char const * ota_url)
   /* Use 2nd partition of QSPI (1st partition contains WiFi firmware) */
   Arduino_Portenta_OTA_QSPI ota_portenta_qspi(QSPI_FLASH_FATFS_MBR, 2);
 
+#if defined (ARDUINO_PORTENTA_OTA_HAS_WATCHDOG_FEED)
+  ota_portenta_qspi.setFeedWatchdogFunc(watchdog_reset);
+#endif
+
   watchdog_reset();
 
   /* Initialize the QSPI memory for OTA handling. */

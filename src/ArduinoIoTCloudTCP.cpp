@@ -37,6 +37,7 @@
 #  include <algorithm>
 #  include "tls/utility/SHA256.h"
 #  include <stm32h7xx_hal_rtc_ex.h>
+#  include <WiFi.h>
 #endif
 
 #include "utility/ota/OTA.h"
@@ -285,11 +286,10 @@ int ArduinoIoTCloudTCP::begin(bool const enable_watchdog, String brokerAddress, 
 #if defined (ARDUINO_ARCH_SAMD) || defined (ARDUINO_ARCH_MBED)
   if (enable_watchdog) {
     watchdog_enable();
-#ifdef WIFI_HAS_FEED_WATCHDOG_FUNC
+#if defined (WIFI_HAS_FEED_WATCHDOG_FUNC) || defined (ARDUINO_PORTENTA_H7_WIFI_HAS_FEED_WATCHDOG_FUNC)
       WiFi.setFeedWatchdogFunc(watchdog_reset);
 #endif
   }
-
 #endif
 
   return 1;
