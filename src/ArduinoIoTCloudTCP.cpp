@@ -511,14 +511,16 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_Connected()
 
     if (_ota_req)
     {
-      /* Clear the error flag. */
-      _ota_error = static_cast<int>(OTAError::None);
-      /* Transmit the cleared error flag to the cloud. */
-      sendPropertiesToCloud();
-      /* Clear the request flag. */
-      _ota_req = false;
-      /* Call member function to handle OTA request. */
-      onOTARequest();
+      if (_automatic_ota || (_get_ota_confirmation != nullptr && _get_ota_confirmation())) {
+        /* Clear the error flag. */
+        _ota_error = static_cast<int>(OTAError::None);
+        /* Transmit the cleared error flag to the cloud. */
+        sendPropertiesToCloud();
+        /* Clear the request flag. */
+        _ota_req = false;
+        /* Call member function to handle OTA request. */
+        onOTARequest();
+      }
     }
 #endif /* OTA_ENABLED */
 
