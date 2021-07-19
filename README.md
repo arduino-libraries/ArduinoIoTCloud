@@ -1,5 +1,7 @@
 `ArduinoIoTCloud`
 =================
+
+[![Check Arduino status](https://github.com/arduino-libraries/ArduinoIoTCloud/actions/workflows/check-arduino.yml/badge.svg)](https://github.com/arduino-libraries/ArduinoIoTCloud/actions/workflows/check-arduino.yml)
 [![Compile Examples](https://github.com/arduino-libraries/ArduinoIoTCloud/workflows/Compile%20Examples/badge.svg)](https://github.com/arduino-libraries/ArduinoIoTCloud/actions?workflow=Compile+Examples)
 [![Spell Check](https://github.com/arduino-libraries/ArduinoIoTCloud/workflows/Spell%20Check/badge.svg)](https://github.com/arduino-libraries/ArduinoIoTCloud/actions?workflow=Spell+Check)
 [![Unit Tests](https://github.com/arduino-libraries/ArduinoIoTCloud/workflows/Unit%20Tests/badge.svg)](https://github.com/arduino-libraries/ArduinoIoTCloud/actions?workflow=Unit+Tests)
