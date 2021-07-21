@@ -69,9 +69,9 @@ void onLedChange() {
 
 ### FAQ
 #### Watchdog
-This [1.0.0](https://github.com/arduino-libraries/ArduinoIoTCloud/releases/tag/1.0.0) release of this library adds watchdog functionality to all ATSAMD21G18 based cloud connected boards. A watchdog is simply an electronic timer counting down from a preset start value which, upon reaching zero, triggers a reset of the microcontroller. It can be used to automatically recover from temporary hardware faults or unrecoverable software errors. In order to avoid the watchdog from reaching zero the countdown timer needs to be regularly re-set to its start value. This is happening within `ArduinoIoTCloud.update()` which is periodically called at the start of the `loop()` function. Although the watchdog is automatically enabled it can be disabled by setting the second parameter of `ArduinoIoTCloud.begin(...)` to `false`: 
+This [1.0.0](https://github.com/arduino-libraries/ArduinoIoTCloud/releases/tag/1.0.0) release of this library adds watchdog functionality to all ATSAMD21G18 based cloud connected boards. A watchdog is simply an electronic timer counting down from a preset start value which, upon reaching zero, triggers a reset of the microcontroller. It can be used to automatically recover from temporary hardware faults or unrecoverable software errors. In order to avoid the watchdog from reaching zero the countdown timer needs to be regularly re-set to its start value. This is happening within `ArduinoCloud.update()` which is periodically called at the start of the `loop()` function. Although the watchdog is automatically enabled it can be disabled by setting the second parameter of `ArduinoCloud.begin(...)` to `false`: 
 ```C++
-ArduinoIoTCloud.begin(ArduinoIoTPreferredConnection, false).
+ArduinoCloud.begin(ArduinoIoTPreferredConnection, false).
 ```
 
 #### Device can not subscribe to `THING_ID`
