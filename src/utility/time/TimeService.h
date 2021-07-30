@@ -46,7 +46,7 @@ public:
 private:
 
   ConnectionHandler * _con_hdl;
-#ifdef ARDUINO_ARCH_SAMD
+#if defined (ARDUINO_ARCH_SAMD) || defined (ARDUINO_ARCH_MBED)
   bool _is_rtc_configured;
 #endif
 
