@@ -51,7 +51,7 @@ static time_t const EPOCH_AT_COMPILE_TIME = cvt_time(__DATE__);
 
 TimeService::TimeService()
 : _con_hdl(nullptr)
-#if defined (ARDUINO_ARCH_SAMD) || defined (ARDUINO_ARCH_MBED)
+#if defined (ARDUINO_ARCH_SAMD) || defined (TARGET_PORTENTA_H7)
 , _is_rtc_configured(false)
 #endif
 {
@@ -79,7 +79,7 @@ unsigned long TimeService::getTime()
     _is_rtc_configured = true;
   }
   return rtc.getEpoch();
-#elif ARDUINO_ARCH_MBED
+#elif TARGET_PORTENTA_H7
   if(!_is_rtc_configured)
   {
     set_time(getRemoteTime());
