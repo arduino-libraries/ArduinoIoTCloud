@@ -69,7 +69,7 @@ typedef CloudFloat CloudForce;
 typedef CloudFloat CloudTemperature;
 typedef CloudFloat CloudPower;
 typedef CloudFloat CloudElectricCurrent;
-typedef CloudFloat CloudElectricPotention;
+typedef CloudFloat CloudElectricPotential;
 typedef CloudFloat CloudElectricResistance;
 typedef CloudFloat CloudCapacitance;
 typedef CloudFloat CloudTime;
