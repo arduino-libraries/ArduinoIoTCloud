@@ -113,7 +113,7 @@ class CborMapData {
     MapEntry<String> attribute_name;
     MapEntry<int>    attribute_identifier;
     MapEntry<int>    property_identifier;
-    MapEntry<float>  val;
+    MapEntry<double> val;
     MapEntry<String> str_val;
     MapEntry<bool>   bool_val;
     MapEntry<double> time;
