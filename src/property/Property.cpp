@@ -171,6 +171,15 @@ CborError Property::appendAttributeReal(int value, String attributeName, CborEnc
   }, encoder);
 }
 
+CborError Property::appendAttributeReal(unsigned int value, String attributeName, CborEncoder *encoder) {
+  return appendAttributeName(attributeName, [value](CborEncoder & mapEncoder)
+  {
+    CHECK_CBOR(cbor_encode_int(&mapEncoder, static_cast<int>(CborIntegerMapKey::Value)));
+    CHECK_CBOR(cbor_encode_int(&mapEncoder, value));
+    return CborNoError;
+  }, encoder);
+}
+
 CborError Property::appendAttributeReal(float value, String attributeName, CborEncoder *encoder) {
   return appendAttributeName(attributeName, [value](CborEncoder & mapEncoder)
   {
@@ -259,6 +268,12 @@ void Property::setAttributeReal(bool& value, String attributeName) {
 }
 
 void Property::setAttributeReal(int& value, String attributeName) {
+  setAttributeReal(attributeName, [&value](CborMapData & md) {
+    value = md.val.get();
+  });
+}
+
+void Property::setAttributeReal(unsigned int& value, String attributeName) {
   setAttributeReal(attributeName, [&value](CborMapData & md) {
     value = md.val.get();
   });
