@@ -37,6 +37,7 @@
 #include "types/CloudBool.h"
 #include "types/CloudFloat.h"
 #include "types/CloudInt.h"
+#include "types/CloudUnsignedInt.h"
 #include "types/CloudString.h"
 #include "types/CloudLocation.h"
 #include "types/CloudColor.h"
@@ -72,7 +73,7 @@ typedef CloudFloat CloudElectricCurrent;
 typedef CloudFloat CloudElectricPotential;
 typedef CloudFloat CloudElectricResistance;
 typedef CloudFloat CloudCapacitance;
-typedef CloudFloat CloudTime;
+typedef CloudUnsignedInt CloudTime;
 typedef CloudFloat CloudFrequency;
 typedef CloudFloat CloudDataRate;
 typedef CloudFloat CloudHeartRate;
