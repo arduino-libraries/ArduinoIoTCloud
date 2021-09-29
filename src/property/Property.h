@@ -186,6 +186,7 @@ class Property
     CborError append(CborEncoder * encoder, bool lightPayload);
     CborError appendAttributeReal(bool value, String attributeName = "", CborEncoder *encoder = nullptr);
     CborError appendAttributeReal(int value, String attributeName = "", CborEncoder *encoder = nullptr);
+    CborError appendAttributeReal(unsigned int value, String attributeName = "", CborEncoder *encoder = nullptr);
     CborError appendAttributeReal(float value, String attributeName = "", CborEncoder *encoder = nullptr);
     CborError appendAttributeReal(String value, String attributeName = "", CborEncoder *encoder = nullptr);
 #ifndef __AVR__
@@ -198,6 +199,7 @@ class Property
     void setAttributesFromCloud(std::list<CborMapData> * map_data_list);
     void setAttributeReal(bool& value, String attributeName = "");
     void setAttributeReal(int& value, String attributeName = "");
+    void setAttributeReal(unsigned int& value, String attributeName = "");
     void setAttributeReal(float& value, String attributeName = "");
     void setAttributeReal(String& value, String attributeName = "");
     String getAttributeName(String propertyName, char separator);
