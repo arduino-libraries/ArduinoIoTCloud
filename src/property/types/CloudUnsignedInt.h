@@ -44,7 +44,7 @@ class CloudUnsignedInt : public Property {
       return _value;
     }
     virtual bool isDifferentFromCloud() {
-      return _value != _cloud_value && (abs(_value - _cloud_value) >= Property::_min_delta_property);
+      return _value != _cloud_value && ((max(_value , _cloud_value) - min(_value , _cloud_value)) >= Property::_min_delta_property);
     }
     virtual void fromCloudToLocal() {
       _value = _cloud_value;
