@@ -382,6 +382,24 @@ SCENARIO("Arduino Cloud Properties are decoded", "[ArduinoCloudThing::decode]")
 
   /************************************************************************************/
 
+  WHEN("A Time property is changed via CBOR message")
+  {
+    PropertyContainer property_container;
+
+    CloudTime test;
+    test = 0;
+    addPropertyToContainer(property_container, test, "test", Permission::ReadWrite);
+
+    /* [{0: "test", 2: 4294967295}] = 81 A2 00 64 74 65 73 74 02 1A FF FF FF FF */
+    uint8_t const payload[] = {0x81, 0xA2, 0x00, 0x64, 0x74, 0x65, 0x73, 0x74, 0x02, 0x1A, 0xFF, 0xFF, 0xFF, 0xFF};
+    int const payload_length = sizeof(payload) / sizeof(uint8_t);
+    CBORDecoder::decode(property_container, payload, payload_length);
+
+    REQUIRE(test == 4294967295);
+  }
+
+  /************************************************************************************/
+
   WHEN("Multiple properties is changed via CBOR message")
   {
     WHEN("Multiple properties of different type are changed via CBOR message")
