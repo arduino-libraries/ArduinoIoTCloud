@@ -306,6 +306,22 @@ SCENARIO("Arduino Cloud Properties are encoded", "[ArduinoCloudThing::encode-1]"
 
   /************************************************************************************/
 
+  WHEN("A time property is added")
+  {
+    PropertyContainer property_container;
+    cbor::encode(property_container);
+
+    CloudTime test = 1633342784;
+    addPropertyToContainer(property_container, test, "test", Permission::ReadWrite);
+
+    /* [{0: "test", 2: 1633342784}] = 9F A2 00 64 74 65 73 74 02 1A 61 5A D5 40 FF*/
+    std::vector<uint8_t> const expected = {0x9F, 0xA2, 0x00, 0x64, 0x74, 0x65, 0x73, 0x74, 0x02, 0x1A, 0x61, 0x5A, 0xD5, 0x40, 0xFF};
+    std::vector<uint8_t> const actual = cbor::encode(property_container);
+    REQUIRE(actual == expected);
+  }
+
+  /************************************************************************************/
+
   WHEN("Multiple properties are added")
   {
     PropertyContainer property_container;
