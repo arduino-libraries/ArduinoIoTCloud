@@ -21,7 +21,7 @@
 #undef min
 #include <algorithm>
 
-#ifndef ARDUINO_ARCH_SAMD
+#if !defined ARDUINO_ARCH_SAMD && !defined TARGET_PORTENTA_H7
   #pragma message "No RTC available on this architecture - ArduinoIoTCloud will not keep track of local change timestamps ."
 #endif
 
