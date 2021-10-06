@@ -32,6 +32,7 @@ set(TEST_SRCS
   src/test_callback.cpp
   src/test_CloudColor.cpp
   src/test_CloudLocation.cpp
+  src/test_CloudScheduler.cpp
   src/test_decode.cpp
   src/test_encode.cpp
   src/test_publishEvery.cpp
