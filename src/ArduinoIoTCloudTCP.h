@@ -49,6 +49,8 @@ static uint16_t const DEFAULT_BROKER_PORT_SECURE_AUTH = 8883;
 static char const DEFAULT_BROKER_ADDRESS_USER_PASS_AUTH[] = "mqtts-up.iot.arduino.cc";
 static uint16_t const DEFAULT_BROKER_PORT_USER_PASS_AUTH = 8884;
 
+typedef bool (*otaConfirmationStatus)(void);
+
 /******************************************************************************
  * CLASS DECLARATION
  ******************************************************************************/
@@ -80,6 +82,27 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
     inline String   getBrokerAddress() const { return _brokerAddress; }
     inline uint16_t getBrokerPort   () const { return _brokerPort; }
 
+#if OTA_ENABLED
+
+    // The callback is triggered when the OTA is initiated
+    // Should return true when the OTA can be applied, false otherwise
+
+/*
+    static first_run = true;
+    bool sample_ota_confirmation() {
+      if (first_run) {
+        HMI.show(confirmationModal)
+        first_run = false;
+      }
+      return HMI.getConfirmation();
+    }
+*/
+
+    void onOTARequestCb(otaConfirmationStatus cb) {
+      _get_ota_confirmation = cb;
+      _automatic_ota = false;
+    }
+#endif
 
   private:
     static const int MQTT_TRANSMIT_BUFFER_SIZE = 256;
@@ -130,6 +153,7 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
     String _ota_img_sha256;
     String _ota_url;
     bool _ota_req;
+    bool _automatic_ota = true;
 #endif /* OTA_ENABLED */
 
     inline String getTopic_shadowout() { return ( getThingId().length() == 0) ? String("")                            : String("/a/t/" + getThingId() + "/shadow/o"); }
@@ -153,6 +177,8 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
 #if OTA_ENABLED
     void onOTARequest();
 #endif
+
+    otaConfirmationStatus _get_ota_confirmation = {nullptr};
 };
 
 /******************************************************************************
