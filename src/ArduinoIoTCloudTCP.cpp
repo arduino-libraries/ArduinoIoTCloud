@@ -499,11 +499,6 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_Connected()
       _mqtt_data_request_retransmit = false;
     }
 
-    /* Check if any properties need encoding and send them to
-    * the cloud if necessary.
-    */
-    sendPropertiesToCloud();
-
 #if OTA_ENABLED
     /* Request a OTA download if the hidden property
      * OTA request has been set.
@@ -523,6 +518,11 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_Connected()
       }
     }
 #endif /* OTA_ENABLED */
+
+    /* Check if any properties need encoding and send them to
+    * the cloud if necessary.
+    */
+    sendPropertiesToCloud();
 
     return State::Connected;
   }
