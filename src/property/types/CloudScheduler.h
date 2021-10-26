@@ -30,40 +30,24 @@
 /******************************************************************************
    CLASS DECLARATION
  ******************************************************************************/
-enum class MaskType : int {
-  minute =  0,
-  hour   =  1,
-  day    =  2,
-  week   =  3, /*Weekly daymask */
-  month  =  4, /*Day of the month 1-31 */
-  year   =  5  /*Month 1-12 + Day of the month 1-31 */
-};
-
 class Scheduler : public TimeService {
   public:
-    unsigned int start, end, duration;
-    int type;
-    unsigned int mask;
-    Scheduler(unsigned int s, unsigned int e, unsigned int d, int t, unsigned int m): start(s), end(e), duration(d), type(t), mask(m) {}
+    unsigned int start, end, duration, mask;
+    Scheduler(unsigned int s, unsigned int e, unsigned int d, unsigned int m): start(s), end(e), duration(d), mask(m) {}
 
     bool isActive() {
 
       unsigned int now = getTime();
-      if(now >= start && (now < end || end == 0)) {
+      if(checkSchedulePeriod(now, start, end)) {
         /* We are in the schedule range */
 
-        if(type == 3 || type == 4 || type == 5) {
-          unsigned int nowmask = timeToMask(type, now);
-          if ( (nowmask & mask) == 0) {
-            /* This is not the correct Day or Month */
-            return false;
+        if(checkScheduleMask(now, mask)) {
+        
+          /* We can assume now that the schedule is always repeating with fixed delta */ 
+          unsigned int delta = getScheduleDelta(mask);
+          if ( ( (std::max(now , start) - std::min(now , start)) % delta ) <= duration ) {
+            return true;
           }
-        }
-
-        /* We can assume now that the schedule is always repeating with fixed delta */ 
-        unsigned int delta = getScheduleDelta(type, mask);
-        if ( ( (std::max(now , start) - std::min(now , start)) % delta ) <= duration ) {
-          return true;
         }
       }
       return false;
@@ -73,62 +57,201 @@ class Scheduler : public TimeService {
       start = aScheduler.start;
       end = aScheduler.end;
       duration = aScheduler.duration;
-      type = aScheduler.type;
       mask = aScheduler.mask;
       return *this;
     }
 
     bool operator==(Scheduler & aScheduler) {
-      return start == aScheduler.start && end == aScheduler.end && duration == aScheduler.duration && type == aScheduler.type && mask == aScheduler.mask;
+      return start == aScheduler.start && end == aScheduler.end && duration == aScheduler.duration && mask == aScheduler.mask;
     }
 
     bool operator!=(Scheduler & aScheduler) {
       return !(operator==(aScheduler));
     }
   private:
+    bool isScheduleOneShot(unsigned int mask) {
+      if((mask & 0x3C000000) == 0x00000000) {
+        return true;
+      } else {
+        return false;
+      }
+    }
 
-    unsigned int timeToMask(int type, time_t rawtime) {
+    bool isScheduleFixed(unsigned int mask) {
+      if((mask & 0x3C000000) == 0x04000000) {
+        return true;
+      } else {
+        return false;
+      }
+    }
+
+    bool isScheduleWeekly(unsigned int mask) {
+      if((mask & 0x3C000000) == 0x08000000) {
+        return true;
+      } else {
+        return false;
+      }
+    }
+
+    bool isScheduleMonthly(unsigned int mask) {
+      if((mask & 0x3C000000) == 0x0C000000) {
+        return true;
+      } else {
+        return false;
+      }
+    }
+
+    bool isScheduleYearly(unsigned int mask) {
+      if((mask & 0x3C000000) == 0x10000000) {
+        return true;
+      } else {
+        return false;
+      }
+    }
+
+    bool isScheduleInSeconds(unsigned int mask) {
+      if((mask & 0xC0000000) == 0x00000000) {
+        return true;
+      } else {
+        return false;
+      }
+    }
+
+    bool isScheduleInMinutes(unsigned int mask) {
+      if((mask & 0xC0000000) == 0x40000000) {
+        return true;
+      } else {
+        return false;
+      }
+    }
+
+    bool isScheduleInHours(unsigned int mask) {
+      if((mask & 0xC0000000) == 0x80000000) {
+        return true;
+      } else {
+        return false;
+      }
+    }
+
+    bool isScheduleInDays(unsigned int mask) {
+      if((mask & 0xC0000000) == 0xC0000000) {
+        return true;
+      } else {
+        return false;
+      }
+    }
+
+    unsigned int timeToWeekMask(time_t rawtime) {
       struct tm * ptm;
       ptm = gmtime ( &rawtime );
 
-      if (type == 3) {
-        return 1 << ptm->tm_wday;
-      }
-
-      if (type == 4) {
-        return ptm->tm_mday;
-      }
-
-      if (type == 5) {
-        return (tm->tm_mon << 16) | ptm->tm_mday;
-      }
-      return 0;
+      return 1 << ptm->tm_wday;
     }
 
-    unsigned int getScheduleDelta(int type, unsigned int mask) {
-      if (type == 0) {
-        return 60 * mask;
+    unsigned int timeToDay(time_t rawtime) {
+      struct tm * ptm;
+      ptm = gmtime ( &rawtime );
+
+      return ptm->tm_mday;
+    }
+
+    unsigned int timeToMonth(time_t rawtime) {
+      struct tm * ptm;
+      ptm = gmtime ( &rawtime );
+
+      return ptm->tm_mon;
+    }
+
+    unsigned int getScheduleRawMask(unsigned int mask) {
+      return mask & 0x03FFFFFF;
+    }
+
+    unsigned int getScheduleWeekMask(unsigned int mask) {
+      return mask & 0x000000FF;
+    }
+
+    unsigned int getScheduleDay(unsigned int mask) {
+      return mask & 0x000000FF;
+    }
+
+    unsigned int getScheduleMonth(unsigned int mask) {
+      return (mask & 0x0000FF00) >> 8;
+    }
+
+    bool checkSchedulePeriod(unsigned int now, unsigned int start, unsigned int end) {
+      if(now >= start && (now < end || end == 0)) {
+        return true;
+      } else {
+        return false;
+      }
+    }
+
+    bool checkScheduleMask(unsigned int now, unsigned int mask) {
+      if(isScheduleFixed(mask) || isScheduleOneShot(mask)) {
+        return true;
+      } 
+      
+      if(isScheduleWeekly(mask)) {
+        unsigned int nowMask = timeToWeekMask(now);
+        unsigned int scheduleMask = getScheduleWeekMask(mask);
+        
+        if((nowMask & scheduleMask) == 0) {
+          return false;
+        } else {
+          return true;
+        }
       }
 
-      if (type == 1) {
-        return 60 * 60 * mask;
+      if(isScheduleMonthly(mask)) {
+        unsigned int nowDay = timeToDay(now);
+        unsigned int scheduleDay = getScheduleDay(mask);
+
+        if(nowDay != scheduleDay) {
+          return false;
+        } else {
+          return true;
+        }
       }
 
-      if (type == 2) {
-        return 60 * 60 * 24 * mask;
+      if(isScheduleYearly(mask)) {
+        unsigned int nowDay = timeToDay(now);
+        unsigned int scheduleDay = getScheduleDay(mask);
+        unsigned int nowMonth = timeToMonth(now);
+        unsigned int scheduleMonth = getScheduleMonth(mask);
+
+        if((nowDay != scheduleDay) || (nowMonth != scheduleMonth)) {
+          return false;
+        } else {
+          return true;
+        }
       }
 
-      if (type == 3) {
+      return false;
+    }
+
+    unsigned int getScheduleDelta(unsigned int mask) {
+      if(isScheduleOneShot(mask)) {
+        return 0xFFFFFFFF;
+      }
+      
+      if(isScheduleFixed(mask)) {
+        if(isScheduleInSeconds(mask)) {
+          return getScheduleRawMask(mask);
+        }
+
+        if(isScheduleInMinutes(mask)) {
+          return 60 * getScheduleRawMask(mask);
+        }
+
+        if(isScheduleInHours(mask)) {
+          return 60 * 60 * getScheduleRawMask(mask);
+        }
+      }
+
+      if(isScheduleWeekly(mask) || isScheduleMonthly(mask) || isScheduleYearly(mask)) {
         return 60 * 60 * 24;
       }
 
-      if (type == 4) {
-        return 60 * 60 * 24;
-      }
-
-      if (type == 5) {
-        return 60 * 60 * 24;
-      }
       return 0;
     }
 };
@@ -138,8 +261,8 @@ class CloudScheduler : public Property {
     Scheduler _value,
               _cloud_value;
   public:
-    CloudScheduler() : _value(0, 0, 0, 0, 0), _cloud_value(0, 0, 0, 0, 0) {}
-    CloudScheduler(unsigned int start, unsigned int end, unsigned int duration, int type, unsigned int mask) : _value(start, end, duration, type, mask), _cloud_value(start, end, duration, type, mask) {}
+    CloudScheduler() : _value(0, 0, 0, 0), _cloud_value(0, 0, 0, 0) {}
+    CloudScheduler(unsigned int start, unsigned int end, unsigned int duration, unsigned int mask) : _value(start, end, duration, mask), _cloud_value(start, end, duration, mask) {}
 
     virtual bool isDifferentFromCloud() {
 
@@ -150,7 +273,6 @@ class CloudScheduler : public Property {
       _value.start = aScheduler.start;
       _value.end = aScheduler.end;
       _value.duration = aScheduler.duration;
-      _value.type = aScheduler.type;
       _value.mask = aScheduler.mask;
       updateLocalTimestamp();
       return *this;
@@ -174,7 +296,6 @@ class CloudScheduler : public Property {
       CHECK_CBOR(appendAttribute(_value.start));
       CHECK_CBOR(appendAttribute(_value.end));
       CHECK_CBOR(appendAttribute(_value.duration));
-      CHECK_CBOR(appendAttribute(_value.type));
       CHECK_CBOR(appendAttribute(_value.mask));
       return CborNoError;
     }
@@ -182,7 +303,6 @@ class CloudScheduler : public Property {
       setAttribute(_cloud_value.start);
       setAttribute(_cloud_value.end);
       setAttribute(_cloud_value.duration);
-      setAttribute(_cloud_value.type);
       setAttribute(_cloud_value.mask);
     }
 };

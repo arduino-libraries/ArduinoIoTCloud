@@ -30,9 +30,9 @@ unsigned long TimeService::getTime() {return time_now;}
 
 SCENARIO("Tesing cloud type 'Scheduler' Ctor", "[Scheduler::Scheduler]")
 {
-  WHEN("A Scheduler(0,0,0,0,0) is being instantiated")
+  WHEN("A Scheduler(0,0,0,0) is being instantiated")
   {
-    Scheduler schedule(0,0,0,0,0);
+    Scheduler schedule(0,0,0,0);
     THEN("The member variable 'start' should be 0") {
       REQUIRE(schedule.start == 0);
     }
@@ -41,9 +41,6 @@ SCENARIO("Tesing cloud type 'Scheduler' Ctor", "[Scheduler::Scheduler]")
     }
     THEN("The member variable 'duration' should be 0") {
       REQUIRE(schedule.duration == 0);
-    }
-    THEN("The member variable 'type' should be 0") {
-      REQUIRE(schedule.type == 0);
     }
     THEN("The member variable 'mask' should be 0") {
       REQUIRE(schedule.mask == 0);
@@ -58,8 +55,8 @@ SCENARIO("Setup a schedule that repeats each 20 minutes and test isActive Method
   Scheduler schedule(1633305600,   /* Start 4/10/2021 00:00:00 */
                      1633651200,   /* End   8/10/2021 00:00:00 */
                             600,   /* Duration        00:10:00 */
-                              0,   /* Minutes                  */
-                             20    /* Repeats         00:20:00 */
+                     1140850708    /* Minutes                  */
+                                   /* Repeats         00:20:00 */
                     );
 
   WHEN("Time is 4/10/2021 00:00:00")
@@ -142,8 +139,8 @@ SCENARIO("Setup a weekly schedule and test isActive Method", "[Scheduler::isActi
   Scheduler schedule(1633305600,   /* Start 4/10/2021 00:00:00 */
                      1633651200,   /* End   8/10/2021 00:00:00 */
                             600,   /* Duration        00:10:00 */
-                              3,   /* Weekly                   */
-                             70    /* Daymask          1000110 */
+                      134217798    /* Weekly                   */
+                                   /* Daymask          1000110 */
                     );
 
   WHEN("Time is 4/10/2021 00:05:00")
