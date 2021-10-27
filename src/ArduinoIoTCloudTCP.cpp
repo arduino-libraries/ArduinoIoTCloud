@@ -398,7 +398,7 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_SubscribeMqttTopics()
   }
 
   DEBUG_VERBOSE("ArduinoIoTCloudTCP::%s subscribing to %s ...", __FUNCTION__, _dataTopicIn.c_str());
-  if (!_mqttClient.subscribe(_dataTopicIn, 0))
+  if (!_mqttClient.subscribe(_dataTopicIn))
   {
     DEBUG_ERROR("ArduinoIoTCloudTCP::%s could not subscribe to %s", __FUNCTION__, _dataTopicIn.c_str());
 #if !defined(__AVR__)
@@ -411,7 +411,7 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_SubscribeMqttTopics()
   if (_shadowTopicIn != "")
   {
     DEBUG_VERBOSE("ArduinoIoTCloudTCP::%s subscribing to %s ...", __FUNCTION__, _shadowTopicIn.c_str());
-    if (!_mqttClient.subscribe(_shadowTopicIn, 0))
+    if (!_mqttClient.subscribe(_shadowTopicIn))
     {
       DEBUG_ERROR("ArduinoIoTCloudTCP::%s could not subscribe to %s", __FUNCTION__, _shadowTopicIn.c_str());
 #if !defined(__AVR__)
