@@ -95,6 +95,7 @@ ArduinoIoTCloudTCP::ArduinoIoTCloudTCP()
 , _ota_img_sha256{"Inv."}
 , _ota_url{""}
 , _ota_req{false}
+, _ask_user_before_executing_ota{false}
 #endif /* OTA_ENABLED */
 {
 
@@ -506,7 +507,9 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_Connected()
 
     if (_ota_req)
     {
-      if (_automatic_ota || (_get_ota_confirmation != nullptr && _get_ota_confirmation())) {
+      bool const ota_execution_allowed_by_user = (_get_ota_confirmation != nullptr && _get_ota_confirmation());
+      bool const perform_ota_now = ota_execution_allowed_by_user || !_ask_user_before_executing_ota;
+      if (perform_ota_now) {
         /* Clear the error flag. */
         _ota_error = static_cast<int>(OTAError::None);
         /* Clear the request flag. */

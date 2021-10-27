@@ -89,7 +89,7 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
      */
     void onOTARequestCb(otaConfirmationStatus cb) {
       _get_ota_confirmation = cb;
-      _automatic_ota = false;
+      _ask_user_before_executing_ota = true;
     }
 #endif
 
@@ -142,7 +142,7 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
     String _ota_img_sha256;
     String _ota_url;
     bool _ota_req;
-    bool _automatic_ota = true;
+    bool _ask_user_before_executing_ota;
 #endif /* OTA_ENABLED */
 
     inline String getTopic_shadowout() { return ( getThingId().length() == 0) ? String("")                            : String("/a/t/" + getThingId() + "/shadow/o"); }
