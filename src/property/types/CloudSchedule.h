@@ -15,8 +15,8 @@
 // a commercial license, send an email to license@arduino.cc.
 //
 
-#ifndef CLOUDSCHEDULER_H_
-#define CLOUDSCHEDULER_H_
+#ifndef CLOUDSCHEDULE_H_
+#define CLOUDSCHEDULE_H_
 
 /******************************************************************************
    INCLUDE
@@ -30,10 +30,10 @@
 /******************************************************************************
    CLASS DECLARATION
  ******************************************************************************/
-class Scheduler : public TimeService {
+class Schedule : public TimeService {
   public:
     unsigned int start, end, duration, mask;
-    Scheduler(unsigned int s, unsigned int e, unsigned int d, unsigned int m): start(s), end(e), duration(d), mask(m) {}
+    Schedule(unsigned int s, unsigned int e, unsigned int d, unsigned int m): start(s), end(e), duration(d), mask(m) {}
 
     bool isActive() {
 
@@ -53,20 +53,20 @@ class Scheduler : public TimeService {
       return false;
     }
 
-    Scheduler& operator=(Scheduler & aScheduler) {
-      start = aScheduler.start;
-      end = aScheduler.end;
-      duration = aScheduler.duration;
-      mask = aScheduler.mask;
+    Schedule& operator=(Schedule & aSchedule) {
+      start = aSchedule.start;
+      end = aSchedule.end;
+      duration = aSchedule.duration;
+      mask = aSchedule.mask;
       return *this;
     }
 
-    bool operator==(Scheduler & aScheduler) {
-      return start == aScheduler.start && end == aScheduler.end && duration == aScheduler.duration && mask == aScheduler.mask;
+    bool operator==(Schedule & aSchedule) {
+      return start == aSchedule.start && end == aSchedule.end && duration == aSchedule.duration && mask == aSchedule.mask;
     }
 
-    bool operator!=(Scheduler & aScheduler) {
-      return !(operator==(aScheduler));
+    bool operator!=(Schedule & aSchedule) {
+      return !(operator==(aSchedule));
     }
   private:
     bool isScheduleOneShot(unsigned int mask) {
@@ -256,33 +256,33 @@ class Scheduler : public TimeService {
     }
 };
 
-class CloudScheduler : public Property {
+class CloudSchedule : public Property {
   private:
-    Scheduler _value,
+    Schedule _value,
               _cloud_value;
   public:
-    CloudScheduler() : _value(0, 0, 0, 0), _cloud_value(0, 0, 0, 0) {}
-    CloudScheduler(unsigned int start, unsigned int end, unsigned int duration, unsigned int mask) : _value(start, end, duration, mask), _cloud_value(start, end, duration, mask) {}
+    CloudSchedule() : _value(0, 0, 0, 0), _cloud_value(0, 0, 0, 0) {}
+    CloudSchedule(unsigned int start, unsigned int end, unsigned int duration, unsigned int mask) : _value(start, end, duration, mask), _cloud_value(start, end, duration, mask) {}
 
     virtual bool isDifferentFromCloud() {
 
       return _value != _cloud_value;
     }
 
-    CloudScheduler& operator=(Scheduler aScheduler) {
-      _value.start = aScheduler.start;
-      _value.end = aScheduler.end;
-      _value.duration = aScheduler.duration;
-      _value.mask = aScheduler.mask;
+    CloudSchedule& operator=(Schedule aSchedule) {
+      _value.start = aSchedule.start;
+      _value.end = aSchedule.end;
+      _value.duration = aSchedule.duration;
+      _value.mask = aSchedule.mask;
       updateLocalTimestamp();
       return *this;
     }
 
-    Scheduler getCloudValue() {
+    Schedule getCloudValue() {
       return _cloud_value;
     }
 
-    Scheduler getValue() {
+    Schedule getValue() {
       return _value;
     }
 
@@ -307,4 +307,4 @@ class CloudScheduler : public Property {
     }
 };
 
-#endif /* CLOUDSCHEDULER_H_ */
+#endif /* CLOUDSCHEDULE_H_ */

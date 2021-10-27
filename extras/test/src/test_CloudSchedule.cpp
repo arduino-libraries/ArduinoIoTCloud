@@ -8,7 +8,7 @@
 
 #include <catch.hpp>
 
-#include <property/types/CloudScheduler.h>
+#include <property/types/CloudSchedule.h>
 
 unsigned long time_now = 1;
 
@@ -28,11 +28,11 @@ unsigned long TimeService::getTime() {return time_now;}
   TEST CODE
  **************************************************************************************/
 
-SCENARIO("Tesing cloud type 'Scheduler' Ctor", "[Scheduler::Scheduler]")
+SCENARIO("Tesing cloud type 'Schedule' Ctor", "[Schedule::Schedule]")
 {
-  WHEN("A Scheduler(0,0,0,0) is being instantiated")
+  WHEN("A Schedule(0,0,0,0) is being instantiated")
   {
-    Scheduler schedule(0,0,0,0);
+    Schedule schedule(0,0,0,0);
     THEN("The member variable 'start' should be 0") {
       REQUIRE(schedule.start == 0);
     }
@@ -50,9 +50,9 @@ SCENARIO("Tesing cloud type 'Scheduler' Ctor", "[Scheduler::Scheduler]")
 
 /**************************************************************************************/
 
-SCENARIO("Setup a schedule that repeats each 20 minutes and test isActive Method", "[Scheduler::isActive]")
+SCENARIO("Setup a schedule that repeats each 20 minutes and test isActive Method", "[Schedule::isActive]")
 {
-  Scheduler schedule(1633305600,   /* Start 4/10/2021 00:00:00 */
+  Schedule schedule(1633305600,    /* Start 4/10/2021 00:00:00 */
                      1633651200,   /* End   8/10/2021 00:00:00 */
                             600,   /* Duration        00:10:00 */
                      1140850708    /* Minutes                  */
@@ -134,9 +134,9 @@ SCENARIO("Setup a schedule that repeats each 20 minutes and test isActive Method
 
 /**************************************************************************************/
 
-SCENARIO("Setup a weekly schedule and test isActive Method", "[Scheduler::isActive]")
+SCENARIO("Setup a weekly schedule and test isActive Method", "[Schedule::isActive]")
 {
-  Scheduler schedule(1633305600,   /* Start 4/10/2021 00:00:00 */
+  Schedule schedule(1633305600,    /* Start 4/10/2021 00:00:00 */
                      1633651200,   /* End   8/10/2021 00:00:00 */
                             600,   /* Duration        00:10:00 */
                       134217798    /* Weekly                   */
@@ -194,9 +194,9 @@ SCENARIO("Setup a weekly schedule and test isActive Method", "[Scheduler::isActi
 
 /**************************************************************************************/
 
-SCENARIO("Setup a monthly schedule and test isActive Method", "[Scheduler::isActive]")
+SCENARIO("Setup a monthly schedule and test isActive Method", "[Schedule::isActive]")
 {
-  Scheduler schedule(1633305600,   /* Start 4/10/2021 00:00:00 */
+  Schedule schedule(1633305600,    /* Start 4/10/2021 00:00:00 */
                      1664841600,   /* End   4/10/2022 00:00:00 */
                             600,   /* Duration        00:10:00 */
                       201326598    /* Monthly                  */
@@ -342,9 +342,9 @@ SCENARIO("Setup a monthly schedule and test isActive Method", "[Scheduler::isAct
 
 /**************************************************************************************/
 
-SCENARIO("Setup a yearly schedule and test isActive Method", "[Scheduler::isActive]")
+SCENARIO("Setup a yearly schedule and test isActive Method", "[Schedule::isActive]")
 {
-  Scheduler schedule(1633305600,   /* Start 4/10/2021 00:00:00 */
+  Schedule schedule(1633305600,    /* Start 4/10/2021 00:00:00 */
                      1759536000,   /* End   4/10/2025 00:00:00 */
                             600,   /* Duration        00:10:00 */
                       268438022    /* Yearly                   */
@@ -426,9 +426,9 @@ SCENARIO("Setup a yearly schedule and test isActive Method", "[Scheduler::isActi
 
 /**************************************************************************************/
 
-SCENARIO("Setup a one shot schedule and test isActive Method", "[Scheduler::isActive]")
+SCENARIO("Setup a one shot schedule and test isActive Method", "[Schedule::isActive]")
 {
-  Scheduler schedule(1636156800,   /* Start 6/11/2021 00:00:00 */
+  Schedule schedule(1636156800,    /* Start 6/11/2021 00:00:00 */
                      1636243199,   /* End   6/11/2021 23:59:59 */
                             600,   /* Duration        00:10:00 */
                               0    /* One shot                 */
