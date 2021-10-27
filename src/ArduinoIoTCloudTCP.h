@@ -49,7 +49,11 @@ static uint16_t const DEFAULT_BROKER_PORT_SECURE_AUTH = 8883;
 static char const DEFAULT_BROKER_ADDRESS_USER_PASS_AUTH[] = "mqtts-up.iot.arduino.cc";
 static uint16_t const DEFAULT_BROKER_PORT_USER_PASS_AUTH = 8884;
 
-typedef bool (*otaConfirmationStatus)(void);
+/******************************************************************************
+ * TYPEDEF
+ ******************************************************************************/
+
+typedef bool (*onOTARequestCallbackFunc)(void);
 
 /******************************************************************************
  * CLASS DECLARATION
@@ -87,7 +91,7 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
      * It should return true when the OTA can be applied or false otherwise.
      * See example ArduinoIoTCloud-DeferredOTA.ino
      */
-    void onOTARequestCb(otaConfirmationStatus cb) {
+    void onOTARequestCb(onOTARequestCallbackFunc cb) {
       _get_ota_confirmation = cb;
       _ask_user_before_executing_ota = true;
     }
@@ -143,6 +147,7 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
     String _ota_url;
     bool _ota_req;
     bool _ask_user_before_executing_ota;
+    onOTARequestCallbackFunc _get_ota_confirmation;
 #endif /* OTA_ENABLED */
 
     inline String getTopic_shadowout() { return ( getThingId().length() == 0) ? String("")                            : String("/a/t/" + getThingId() + "/shadow/o"); }
@@ -167,7 +172,6 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
     void onOTARequest();
 #endif
 
-    otaConfirmationStatus _get_ota_confirmation = {nullptr};
 };
 
 /******************************************************************************

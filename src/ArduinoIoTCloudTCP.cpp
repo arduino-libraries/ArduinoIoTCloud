@@ -96,6 +96,7 @@ ArduinoIoTCloudTCP::ArduinoIoTCloudTCP()
 , _ota_url{""}
 , _ota_req{false}
 , _ask_user_before_executing_ota{false}
+, _get_ota_confirmation{nullptr}
 #endif /* OTA_ENABLED */
 {
 
