@@ -286,6 +286,10 @@ class CloudSchedule : public Property {
       return _value;
     }
 
+    bool isActive() {
+      return _value.isActive();
+    }
+
     virtual void fromCloudToLocal() {
       _value = _cloud_value;
     }
