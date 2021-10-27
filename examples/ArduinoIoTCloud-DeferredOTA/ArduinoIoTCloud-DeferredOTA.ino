@@ -46,6 +46,14 @@ bool ask_user_via_serial() {
   return false;
 }
 
+bool onOTARequestCallback()
+{
+  /* Select the preferred behaviour changing the called function */
+  //return always_deny();
+  //return always_allow();
+  return ask_user_via_serial();
+}
+
 void setup() {
   /* Initialize serial and wait up to 5 seconds for port to open */
   Serial.begin(9600);
@@ -61,7 +69,7 @@ void setup() {
   ArduinoCloud.begin(ArduinoIoTPreferredConnection);
 
   /* Setup OTA callback */
-  ArduinoCloud.onOTARequestCb(always_deny);
+  ArduinoCloud.onOTARequestCb(onOTARequestCallback);
 
   setDebugMessageLevel(DBG_INFO);
   ArduinoCloud.printDebugInfo();
