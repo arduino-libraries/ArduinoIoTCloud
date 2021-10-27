@@ -143,7 +143,7 @@ SCENARIO("Arduino Cloud Properties are decoded", "[ArduinoCloudThing::decode]")
     CloudLocation location_test = CloudLocation(0, 1);
     addPropertyToContainer(property_container, location_test, "test", Permission::ReadWrite);
 
-    /* [{0: "test:lat", 3: 2},{0: "test:lon", 3: 3}] = 82 A2 00 68 74 65 73 74 3A 6C 61 74 02 02 A2 00 68 74 65 73 74 3A 6C 6F 6E 02 03*/
+    /* [{0: "test:lat", 2: 2},{0: "test:lon", 2: 3}] = 82 A2 00 68 74 65 73 74 3A 6C 61 74 02 02 A2 00 68 74 65 73 74 3A 6C 6F 6E 02 03*/
     uint8_t const payload[] = { 0x82, 0xA2, 0x00, 0x68, 0x74, 0x65, 0x73, 0x74, 0x3A, 0x6C, 0x61, 0x74, 0x02, 0x02, 0xA2, 0x00, 0x68, 0x74, 0x65, 0x73, 0x74, 0x3A, 0x6C, 0x6F, 0x6E, 0x02, 0x03 };
     CBORDecoder::decode(property_container, payload, sizeof(payload) / sizeof(uint8_t));
     Location location_compare = Location(2, 3);
