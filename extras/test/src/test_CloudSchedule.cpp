@@ -33,17 +33,17 @@ SCENARIO("Tesing cloud type 'Schedule' Ctor", "[Schedule::Schedule]")
   WHEN("A Schedule(0,0,0,0) is being instantiated")
   {
     Schedule schedule(0,0,0,0);
-    THEN("The member variable 'start' should be 0") {
-      REQUIRE(schedule.start == 0);
+    THEN("The member variable 'frm' should be 0") {
+      REQUIRE(schedule.frm == 0);
     }
-    THEN("The member variable 'end' should be 0") {
-      REQUIRE(schedule.end == 0);
+    THEN("The member variable 'to' should be 0") {
+      REQUIRE(schedule.to == 0);
     }
-    THEN("The member variable 'duration' should be 0") {
-      REQUIRE(schedule.duration == 0);
+    THEN("The member variable 'len' should be 0") {
+      REQUIRE(schedule.len == 0);
     }
-    THEN("The member variable 'mask' should be 0") {
-      REQUIRE(schedule.mask == 0);
+    THEN("The member variable 'msk' should be 0") {
+      REQUIRE(schedule.msk == 0);
     }
   }
 }
@@ -52,7 +52,7 @@ SCENARIO("Tesing cloud type 'Schedule' Ctor", "[Schedule::Schedule]")
 
 SCENARIO("Setup a schedule that repeats each 20 minutes and test isActive Method", "[Schedule::isActive]")
 {
-  Schedule schedule(1633305600,    /* Start 4/10/2021 00:00:00 */
+  Schedule schedule( 1633305600,   /* Start 4/10/2021 00:00:00 */
                      1633651200,   /* End   8/10/2021 00:00:00 */
                             600,   /* Duration        00:10:00 */
                      1140850708    /* Minutes                  */
@@ -136,7 +136,7 @@ SCENARIO("Setup a schedule that repeats each 20 minutes and test isActive Method
 
 SCENARIO("Setup a weekly schedule and test isActive Method", "[Schedule::isActive]")
 {
-  Schedule schedule(1633305600,    /* Start 4/10/2021 00:00:00 */
+  Schedule schedule( 1633305600,   /* Start 4/10/2021 00:00:00 */
                      1633651200,   /* End   8/10/2021 00:00:00 */
                             600,   /* Duration        00:10:00 */
                       134217798    /* Weekly                   */
@@ -196,7 +196,7 @@ SCENARIO("Setup a weekly schedule and test isActive Method", "[Schedule::isActiv
 
 SCENARIO("Setup a monthly schedule and test isActive Method", "[Schedule::isActive]")
 {
-  Schedule schedule(1633305600,    /* Start 4/10/2021 00:00:00 */
+  Schedule schedule( 1633305600,   /* Start 4/10/2021 00:00:00 */
                      1664841600,   /* End   4/10/2022 00:00:00 */
                             600,   /* Duration        00:10:00 */
                       201326598    /* Monthly                  */
@@ -344,7 +344,7 @@ SCENARIO("Setup a monthly schedule and test isActive Method", "[Schedule::isActi
 
 SCENARIO("Setup a yearly schedule and test isActive Method", "[Schedule::isActive]")
 {
-  Schedule schedule(1633305600,    /* Start 4/10/2021 00:00:00 */
+  Schedule schedule( 1633305600,   /* Start 4/10/2021 00:00:00 */
                      1759536000,   /* End   4/10/2025 00:00:00 */
                             600,   /* Duration        00:10:00 */
                       268438022    /* Yearly                   */
@@ -428,7 +428,7 @@ SCENARIO("Setup a yearly schedule and test isActive Method", "[Schedule::isActiv
 
 SCENARIO("Setup a one shot schedule and test isActive Method", "[Schedule::isActive]")
 {
-  Schedule schedule(1636156800,    /* Start 6/11/2021 00:00:00 */
+  Schedule schedule( 1636156800,   /* Start 6/11/2021 00:00:00 */
                      1636243199,   /* End   6/11/2021 23:59:59 */
                             600,   /* Duration        00:10:00 */
                               0    /* One shot                 */

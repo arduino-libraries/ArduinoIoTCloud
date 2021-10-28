@@ -32,20 +32,20 @@
  ******************************************************************************/
 class Schedule : public TimeService {
   public:
-    unsigned int start, end, duration, mask;
-    Schedule(unsigned int s, unsigned int e, unsigned int d, unsigned int m): start(s), end(e), duration(d), mask(m) {}
+    unsigned int frm, to, len, msk;
+    Schedule(unsigned int s, unsigned int e, unsigned int d, unsigned int m): frm(s), to(e), len(d), msk(m) {}
 
     bool isActive() {
 
       unsigned int now = getTime();
-      if(checkSchedulePeriod(now, start, end)) {
+      if(checkSchedulePeriod(now, frm, to)) {
         /* We are in the schedule range */
 
-        if(checkScheduleMask(now, mask)) {
+        if(checkScheduleMask(now, msk)) {
         
           /* We can assume now that the schedule is always repeating with fixed delta */ 
-          unsigned int delta = getScheduleDelta(mask);
-          if ( ( (std::max(now , start) - std::min(now , start)) % delta ) <= duration ) {
+          unsigned int delta = getScheduleDelta(msk);
+          if ( ( (std::max(now , frm) - std::min(now , frm)) % delta ) <= len ) {
             return true;
           }
         }
@@ -54,87 +54,87 @@ class Schedule : public TimeService {
     }
 
     Schedule& operator=(Schedule & aSchedule) {
-      start = aSchedule.start;
-      end = aSchedule.end;
-      duration = aSchedule.duration;
-      mask = aSchedule.mask;
+      frm = aSchedule.frm;
+      to  = aSchedule.to;
+      len = aSchedule.len;
+      msk = aSchedule.msk;
       return *this;
     }
 
     bool operator==(Schedule & aSchedule) {
-      return start == aSchedule.start && end == aSchedule.end && duration == aSchedule.duration && mask == aSchedule.mask;
+      return frm == aSchedule.frm && to == aSchedule.to && len == aSchedule.len && msk == aSchedule.msk;
     }
 
     bool operator!=(Schedule & aSchedule) {
       return !(operator==(aSchedule));
     }
   private:
-    bool isScheduleOneShot(unsigned int mask) {
-      if((mask & 0x3C000000) == 0x00000000) {
+    bool isScheduleOneShot(unsigned int msk) {
+      if((msk & 0x3C000000) == 0x00000000) {
         return true;
       } else {
         return false;
       }
     }
 
-    bool isScheduleFixed(unsigned int mask) {
-      if((mask & 0x3C000000) == 0x04000000) {
+    bool isScheduleFixed(unsigned int msk) {
+      if((msk & 0x3C000000) == 0x04000000) {
         return true;
       } else {
         return false;
       }
     }
 
-    bool isScheduleWeekly(unsigned int mask) {
-      if((mask & 0x3C000000) == 0x08000000) {
+    bool isScheduleWeekly(unsigned int msk) {
+      if((msk & 0x3C000000) == 0x08000000) {
         return true;
       } else {
         return false;
       }
     }
 
-    bool isScheduleMonthly(unsigned int mask) {
-      if((mask & 0x3C000000) == 0x0C000000) {
+    bool isScheduleMonthly(unsigned int msk) {
+      if((msk & 0x3C000000) == 0x0C000000) {
         return true;
       } else {
         return false;
       }
     }
 
-    bool isScheduleYearly(unsigned int mask) {
-      if((mask & 0x3C000000) == 0x10000000) {
+    bool isScheduleYearly(unsigned int msk) {
+      if((msk & 0x3C000000) == 0x10000000) {
         return true;
       } else {
         return false;
       }
     }
 
-    bool isScheduleInSeconds(unsigned int mask) {
-      if((mask & 0xC0000000) == 0x00000000) {
+    bool isScheduleInSeconds(unsigned int msk) {
+      if((msk & 0xC0000000) == 0x00000000) {
         return true;
       } else {
         return false;
       }
     }
 
-    bool isScheduleInMinutes(unsigned int mask) {
-      if((mask & 0xC0000000) == 0x40000000) {
+    bool isScheduleInMinutes(unsigned int msk) {
+      if((msk & 0xC0000000) == 0x40000000) {
         return true;
       } else {
         return false;
       }
     }
 
-    bool isScheduleInHours(unsigned int mask) {
-      if((mask & 0xC0000000) == 0x80000000) {
+    bool isScheduleInHours(unsigned int msk) {
+      if((msk & 0xC0000000) == 0x80000000) {
         return true;
       } else {
         return false;
       }
     }
 
-    bool isScheduleInDays(unsigned int mask) {
-      if((mask & 0xC0000000) == 0xC0000000) {
+    bool isScheduleInDays(unsigned int msk) {
+      if((msk & 0xC0000000) == 0xC0000000) {
         return true;
       } else {
         return false;
@@ -162,38 +162,38 @@ class Schedule : public TimeService {
       return ptm->tm_mon;
     }
 
-    unsigned int getScheduleRawMask(unsigned int mask) {
-      return mask & 0x03FFFFFF;
+    unsigned int getScheduleRawMask(unsigned int msk) {
+      return msk & 0x03FFFFFF;
     }
 
-    unsigned int getScheduleWeekMask(unsigned int mask) {
-      return mask & 0x000000FF;
+    unsigned int getScheduleWeekMask(unsigned int msk) {
+      return msk & 0x000000FF;
     }
 
-    unsigned int getScheduleDay(unsigned int mask) {
-      return mask & 0x000000FF;
+    unsigned int getScheduleDay(unsigned int msk) {
+      return msk & 0x000000FF;
     }
 
-    unsigned int getScheduleMonth(unsigned int mask) {
-      return (mask & 0x0000FF00) >> 8;
+    unsigned int getScheduleMonth(unsigned int msk) {
+      return (msk & 0x0000FF00) >> 8;
     }
 
-    bool checkSchedulePeriod(unsigned int now, unsigned int start, unsigned int end) {
-      if(now >= start && (now < end || end == 0)) {
+    bool checkSchedulePeriod(unsigned int now, unsigned int frm, unsigned int to) {
+      if(now >= frm && (now < to || to == 0)) {
         return true;
       } else {
         return false;
       }
     }
 
-    bool checkScheduleMask(unsigned int now, unsigned int mask) {
-      if(isScheduleFixed(mask) || isScheduleOneShot(mask)) {
+    bool checkScheduleMask(unsigned int now, unsigned int msk) {
+      if(isScheduleFixed(msk) || isScheduleOneShot(msk)) {
         return true;
       } 
       
-      if(isScheduleWeekly(mask)) {
+      if(isScheduleWeekly(msk)) {
         unsigned int nowMask = timeToWeekMask(now);
-        unsigned int scheduleMask = getScheduleWeekMask(mask);
+        unsigned int scheduleMask = getScheduleWeekMask(msk);
         
         if((nowMask & scheduleMask) == 0) {
           return false;
@@ -202,9 +202,9 @@ class Schedule : public TimeService {
         }
       }
 
-      if(isScheduleMonthly(mask)) {
+      if(isScheduleMonthly(msk)) {
         unsigned int nowDay = timeToDay(now);
-        unsigned int scheduleDay = getScheduleDay(mask);
+        unsigned int scheduleDay = getScheduleDay(msk);
 
         if(nowDay != scheduleDay) {
           return false;
@@ -213,11 +213,11 @@ class Schedule : public TimeService {
         }
       }
 
-      if(isScheduleYearly(mask)) {
+      if(isScheduleYearly(msk)) {
         unsigned int nowDay = timeToDay(now);
-        unsigned int scheduleDay = getScheduleDay(mask);
+        unsigned int scheduleDay = getScheduleDay(msk);
         unsigned int nowMonth = timeToMonth(now);
-        unsigned int scheduleMonth = getScheduleMonth(mask);
+        unsigned int scheduleMonth = getScheduleMonth(msk);
 
         if((nowDay != scheduleDay) || (nowMonth != scheduleMonth)) {
           return false;
@@ -229,26 +229,26 @@ class Schedule : public TimeService {
       return false;
     }
 
-    unsigned int getScheduleDelta(unsigned int mask) {
-      if(isScheduleOneShot(mask)) {
+    unsigned int getScheduleDelta(unsigned int msk) {
+      if(isScheduleOneShot(msk)) {
         return 0xFFFFFFFF;
       }
       
-      if(isScheduleFixed(mask)) {
-        if(isScheduleInSeconds(mask)) {
-          return getScheduleRawMask(mask);
+      if(isScheduleFixed(msk)) {
+        if(isScheduleInSeconds(msk)) {
+          return getScheduleRawMask(msk);
         }
 
-        if(isScheduleInMinutes(mask)) {
-          return 60 * getScheduleRawMask(mask);
+        if(isScheduleInMinutes(msk)) {
+          return 60 * getScheduleRawMask(msk);
         }
 
-        if(isScheduleInHours(mask)) {
-          return 60 * 60 * getScheduleRawMask(mask);
+        if(isScheduleInHours(msk)) {
+          return 60 * 60 * getScheduleRawMask(msk);
         }
       }
 
-      if(isScheduleWeekly(mask) || isScheduleMonthly(mask) || isScheduleYearly(mask)) {
+      if(isScheduleWeekly(msk) || isScheduleMonthly(msk) || isScheduleYearly(msk)) {
         return 60 * 60 * 24;
       }
 
@@ -259,10 +259,10 @@ class Schedule : public TimeService {
 class CloudSchedule : public Property {
   private:
     Schedule _value,
-              _cloud_value;
+             _cloud_value;
   public:
     CloudSchedule() : _value(0, 0, 0, 0), _cloud_value(0, 0, 0, 0) {}
-    CloudSchedule(unsigned int start, unsigned int end, unsigned int duration, unsigned int mask) : _value(start, end, duration, mask), _cloud_value(start, end, duration, mask) {}
+    CloudSchedule(unsigned int frm, unsigned int to, unsigned int len, unsigned int msk) : _value(frm, to, len, msk), _cloud_value(frm, to, len, msk) {}
 
     virtual bool isDifferentFromCloud() {
 
@@ -270,10 +270,10 @@ class CloudSchedule : public Property {
     }
 
     CloudSchedule& operator=(Schedule aSchedule) {
-      _value.start = aSchedule.start;
-      _value.end = aSchedule.end;
-      _value.duration = aSchedule.duration;
-      _value.mask = aSchedule.mask;
+      _value.frm = aSchedule.frm;
+      _value.to  = aSchedule.to;
+      _value.len = aSchedule.len;
+      _value.msk = aSchedule.msk;
       updateLocalTimestamp();
       return *this;
     }
@@ -297,17 +297,17 @@ class CloudSchedule : public Property {
       _cloud_value = _value;
     }
     virtual CborError appendAttributesToCloud() {
-      CHECK_CBOR(appendAttribute(_value.start));
-      CHECK_CBOR(appendAttribute(_value.end));
-      CHECK_CBOR(appendAttribute(_value.duration));
-      CHECK_CBOR(appendAttribute(_value.mask));
+      CHECK_CBOR(appendAttribute(_value.frm));
+      CHECK_CBOR(appendAttribute(_value.to));
+      CHECK_CBOR(appendAttribute(_value.len));
+      CHECK_CBOR(appendAttribute(_value.msk));
       return CborNoError;
     }
     virtual void setAttributesFromCloud() {
-      setAttribute(_cloud_value.start);
-      setAttribute(_cloud_value.end);
-      setAttribute(_cloud_value.duration);
-      setAttribute(_cloud_value.mask);
+      setAttribute(_cloud_value.frm);
+      setAttribute(_cloud_value.to);
+      setAttribute(_cloud_value.len);
+      setAttribute(_cloud_value.msk);
     }
 };
 
