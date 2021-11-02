@@ -91,6 +91,18 @@ unsigned long TimeService::getTime()
 #endif
 }
 
+void TimeService::setTimeZoneData(long offset, unsigned long dst_until)
+{
+  _timezone_offset = offset;
+  _timezone_dst_until = dst_until;
+}
+
+unsigned long TimeService::getLocalTime()
+{
+  unsigned long utc = getTime();
+  return utc + _timezone_offset;
+}
+
 /**************************************************************************************
  * PRIVATE MEMBER FUNCTIONS
  **************************************************************************************/

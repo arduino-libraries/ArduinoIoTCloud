@@ -24,6 +24,7 @@
 
 #include <Arduino_ConnectionHandler.h>
 
+
 #ifdef ARDUINO_ARCH_SAMD
   #include <RTCZero.h>
 #endif
@@ -46,6 +47,8 @@ public:
 
   void          begin  (ConnectionHandler * con_hdl);
   unsigned long getTime();
+  unsigned long getLocalTime();
+  void          setTimeZoneData(long offset, unsigned long valid_until);
 
 private:
 
@@ -55,7 +58,12 @@ private:
 #endif
 
   unsigned long getRemoteTime();
+
   static bool isTimeValid(unsigned long const time);
+
+private:
+  long _timezone_offset;
+  unsigned long _timezone_dst_until;
 
 };
 

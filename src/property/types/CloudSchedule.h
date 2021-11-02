@@ -74,7 +74,7 @@ class Schedule : public TimeService {
 
     bool isActive() {
 
-      unsigned int now = getTime();
+      unsigned int now = getLocalTime();
       if(checkSchedulePeriod(now, frm, to)) {
         /* We are in the schedule range */
 
