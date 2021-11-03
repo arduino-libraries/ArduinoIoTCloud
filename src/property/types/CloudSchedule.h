@@ -24,8 +24,45 @@
 
 #include <Arduino.h>
 #include "../Property.h"
+#include "../../AIoTC_Const.h"
 #include "utility/time/TimeService.h"
 #include <time.h>
+
+/******************************************************************************
+ * DEFINE
+ ******************************************************************************/
+#define SCHEDULE_UNIT_MASK    0xC0000000
+#define SCHEDULE_UNIT_SHIFT   30
+
+#define SCHEDULE_TYPE_MASK    0x3C000000
+#define SCHEDULE_TYPE_SHIFT   26
+
+#define SCHEDULE_MONTH_MASK   0x0000FF00
+#define SCHEDULE_MONTH_SHIFT  8
+
+#define SCHEDULE_REP_MASK     0x03FFFFFF
+#define SCHEDULE_WEEK_MASK    0x000000FF
+#define SCHEDULE_DAY_MASK     0x000000FF
+
+#define SCHEDULE_ONE_SHOT     0xFFFFFFFF
+
+/******************************************************************************
+   ENUM
+ ******************************************************************************/
+enum class ScheduleUnit : int {
+  Seconds      = 0,
+  Minutes      = 1,
+  Hours        = 2,
+  Days         = 3
+};
+
+enum class ScheduleType : int {
+  OneShot      = 0,
+  FixedDelta   = 1,
+  Weekly       = 2,
+  Monthly      = 3,
+  Yearly       = 4
+};
 
 /******************************************************************************
    CLASS DECLARATION
@@ -69,116 +106,107 @@ class Schedule : public TimeService {
       return !(operator==(aSchedule));
     }
   private:
+    ScheduleUnit getScheduleUnit(unsigned int msk) {
+      return static_cast<ScheduleUnit>((msk & SCHEDULE_UNIT_MASK) >> SCHEDULE_UNIT_SHIFT);
+    }
+
+    ScheduleType getScheduleType(unsigned int msk) {
+      return static_cast<ScheduleType>((msk & SCHEDULE_TYPE_MASK) >> SCHEDULE_TYPE_SHIFT);
+    }
+
+    unsigned int getScheduleRepetition(unsigned int msk) {
+      return (msk & SCHEDULE_REP_MASK);
+    }
+
+    unsigned int getScheduleWeekMask(unsigned int msk) {
+      return (msk & SCHEDULE_WEEK_MASK);
+    }
+
+    unsigned int getScheduleDay(unsigned int msk) {
+      return (msk & SCHEDULE_DAY_MASK);
+    }
+
+    unsigned int getScheduleMonth(unsigned int msk) {
+      return ((msk & SCHEDULE_MONTH_MASK) >> SCHEDULE_MONTH_SHIFT);
+    }
+
     bool isScheduleOneShot(unsigned int msk) {
-      if((msk & 0x3C000000) == 0x00000000) {
-        return true;
-      } else {
-        return false;
-      }
+      return (getScheduleType(msk) == ScheduleType::OneShot) ? true : false ;
     }
 
     bool isScheduleFixed(unsigned int msk) {
-      if((msk & 0x3C000000) == 0x04000000) {
-        return true;
-      } else {
-        return false;
-      }
+      return (getScheduleType(msk) == ScheduleType::FixedDelta) ? true : false ;
     }
 
     bool isScheduleWeekly(unsigned int msk) {
-      if((msk & 0x3C000000) == 0x08000000) {
-        return true;
-      } else {
-        return false;
-      }
+      return (getScheduleType(msk) == ScheduleType::Weekly) ? true : false ;
     }
 
     bool isScheduleMonthly(unsigned int msk) {
-      if((msk & 0x3C000000) == 0x0C000000) {
-        return true;
-      } else {
-        return false;
-      }
+      return (getScheduleType(msk) == ScheduleType::Monthly) ? true : false ;
     }
 
     bool isScheduleYearly(unsigned int msk) {
-      if((msk & 0x3C000000) == 0x10000000) {
-        return true;
-      } else {
-        return false;
-      }
+      return (getScheduleType(msk) == ScheduleType::Yearly) ? true : false ;
     }
 
     bool isScheduleInSeconds(unsigned int msk) {
-      if((msk & 0xC0000000) == 0x00000000) {
-        return true;
+      if(isScheduleFixed(msk)) {
+        return (getScheduleUnit(msk) == ScheduleUnit::Seconds) ? true : false ;
       } else {
         return false;
       }
     }
 
     bool isScheduleInMinutes(unsigned int msk) {
-      if((msk & 0xC0000000) == 0x40000000) {
-        return true;
+      if(isScheduleFixed(msk)) {
+        return (getScheduleUnit(msk) == ScheduleUnit::Minutes) ? true : false ;
       } else {
         return false;
       }
     }
 
     bool isScheduleInHours(unsigned int msk) {
-      if((msk & 0xC0000000) == 0x80000000) {
-        return true;
+      if(isScheduleFixed(msk)) {
+        return (getScheduleUnit(msk) == ScheduleUnit::Hours) ? true : false ;
       } else {
         return false;
       }
     }
 
     bool isScheduleInDays(unsigned int msk) {
-      if((msk & 0xC0000000) == 0xC0000000) {
-        return true;
+      if(isScheduleFixed(msk)) {
+        return (getScheduleUnit(msk) == ScheduleUnit::Days) ? true : false ;
       } else {
         return false;
       }
     }
 
-    unsigned int timeToWeekMask(time_t rawtime) {
+    unsigned int getCurrentDayMask(time_t time) {
       struct tm * ptm;
-      ptm = gmtime ( &rawtime );
+      ptm = gmtime (&time);
 
       return 1 << ptm->tm_wday;
     }
 
-    unsigned int timeToDay(time_t rawtime) {
+    unsigned int getCurrentDay(time_t time) {
       struct tm * ptm;
-      ptm = gmtime ( &rawtime );
+      ptm = gmtime (&time);
 
       return ptm->tm_mday;
     }
 
-    unsigned int timeToMonth(time_t rawtime) {
+    unsigned int getCurrentMonth(time_t time) {
       struct tm * ptm;
-      ptm = gmtime ( &rawtime );
+      ptm = gmtime (&time);
 
       return ptm->tm_mon;
     }
 
-    unsigned int getScheduleRawMask(unsigned int msk) {
-      return msk & 0x03FFFFFF;
-    }
-
-    unsigned int getScheduleWeekMask(unsigned int msk) {
-      return msk & 0x000000FF;
-    }
-
-    unsigned int getScheduleDay(unsigned int msk) {
-      return msk & 0x000000FF;
-    }
-
-    unsigned int getScheduleMonth(unsigned int msk) {
-      return (msk & 0x0000FF00) >> 8;
-    }
-
     bool checkSchedulePeriod(unsigned int now, unsigned int frm, unsigned int to) {
+      /* Check if current time is inside the schedule period. If 'to' is equal to
+       * 0 the schedule has no end.
+       */
       if(now >= frm && (now < to || to == 0)) {
         return true;
       } else {
@@ -189,39 +217,33 @@ class Schedule : public TimeService {
     bool checkScheduleMask(unsigned int now, unsigned int msk) {
       if(isScheduleFixed(msk) || isScheduleOneShot(msk)) {
         return true;
-      } 
+      }
       
       if(isScheduleWeekly(msk)) {
-        unsigned int nowMask = timeToWeekMask(now);
+        unsigned int currentDayMask = getCurrentDayMask(now);
         unsigned int scheduleMask = getScheduleWeekMask(msk);
         
-        if((nowMask & scheduleMask) == 0) {
-          return false;
-        } else {
+        if((currentDayMask & scheduleMask) != 0) {
           return true;
         }
       }
 
       if(isScheduleMonthly(msk)) {
-        unsigned int nowDay = timeToDay(now);
+        unsigned int currentDay = getCurrentDay(now);
         unsigned int scheduleDay = getScheduleDay(msk);
 
-        if(nowDay != scheduleDay) {
-          return false;
-        } else {
+        if(currentDay == scheduleDay) {
           return true;
         }
       }
 
       if(isScheduleYearly(msk)) {
-        unsigned int nowDay = timeToDay(now);
+        unsigned int currentDay = getCurrentDay(now);
         unsigned int scheduleDay = getScheduleDay(msk);
-        unsigned int nowMonth = timeToMonth(now);
+        unsigned int currentMonth = getCurrentMonth(now);
         unsigned int scheduleMonth = getScheduleMonth(msk);
 
-        if((nowDay != scheduleDay) || (nowMonth != scheduleMonth)) {
-          return false;
-        } else {
+        if((currentDay == scheduleDay) && (currentMonth == scheduleMonth)) {
           return true;
         }
       }
@@ -230,29 +252,27 @@ class Schedule : public TimeService {
     }
 
     unsigned int getScheduleDelta(unsigned int msk) {
-      if(isScheduleOneShot(msk)) {
-        return 0xFFFFFFFF;
+      if(isScheduleInSeconds(msk)) {
+        return SECONDS * getScheduleRepetition(msk);
       }
-      
-      if(isScheduleFixed(msk)) {
-        if(isScheduleInSeconds(msk)) {
-          return getScheduleRawMask(msk);
-        }
 
-        if(isScheduleInMinutes(msk)) {
-          return 60 * getScheduleRawMask(msk);
-        }
+      if(isScheduleInMinutes(msk)) {
+        return MINUTES * getScheduleRepetition(msk);
+      }
 
-        if(isScheduleInHours(msk)) {
-          return 60 * 60 * getScheduleRawMask(msk);
-        }
+      if(isScheduleInHours(msk)) {
+        return HOURS * getScheduleRepetition(msk);
+      }
+
+      if(isScheduleInDays(msk)) {
+        return DAYS * getScheduleRepetition(msk);
       }
 
       if(isScheduleWeekly(msk) || isScheduleMonthly(msk) || isScheduleYearly(msk)) {
-        return 60 * 60 * 24;
+        return DAYS;
       }
 
-      return 0;
+      return SCHEDULE_ONE_SHOT;
     }
 };
 
