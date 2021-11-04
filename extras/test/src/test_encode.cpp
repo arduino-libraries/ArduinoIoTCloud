@@ -322,6 +322,24 @@ SCENARIO("Arduino Cloud Properties are encoded", "[ArduinoCloudThing::encode-1]"
 
   /************************************************************************************/
 
+  WHEN("A 'Schedule' property is added")
+  {
+    PropertyContainer property_container;
+    cbor::encode(property_container);
+
+    CloudSchedule schedule_test = CloudSchedule(1633305600, 1633651200, 600, 1140850708);
+    addPropertyToContainer(property_container, schedule_test, "test", Permission::ReadWrite);
+
+    /* [{0: "test:frm", 2: 1633305600}, {0: "test:to", 2: 1633651200}, {0: "test:len", 2: 600}, {0: "test:msk", 2: 1140850708}]
+       = 9F A2 00 68 74 65 73 74 3A 66 72 6D 02 1A 61 5A 44 00 A2 00 67 74 65 73 74 3A 74 6F 02 1A 61 5F 8A 00 A2 00 68 74 65 73 74 3A 6C 65 6E 02 19 02 58 A2 00 68 74 65 73 74 3A 6D 73 6B 02 1A 44 00 00 14 FF
+    */
+    std::vector<uint8_t> const expected = {0x9F, 0xA2, 0x00, 0x68, 0x74, 0x65, 0x73, 0x74, 0x3A, 0x66, 0x72, 0x6D, 0x02, 0x1A, 0x61, 0x5A, 0x44, 0x00, 0xA2, 0x00, 0x67, 0x74, 0x65, 0x73, 0x74, 0x3A, 0x74, 0x6F, 0x02, 0x1A, 0x61, 0x5F, 0x8A, 0x00, 0xA2, 0x00, 0x68, 0x74, 0x65, 0x73, 0x74, 0x3A, 0x6C, 0x65, 0x6E, 0x02, 0x19, 0x02, 0x58, 0xA2, 0x00, 0x68, 0x74, 0x65, 0x73, 0x74, 0x3A, 0x6D, 0x73, 0x6B, 0x02, 0x1A, 0x44, 0x00, 0x00, 0x14, 0xFF };
+    std::vector<uint8_t> const actual = cbor::encode(property_container);
+    REQUIRE(actual == expected);
+  }
+
+  /************************************************************************************/
+
   WHEN("Multiple properties are added")
   {
     PropertyContainer property_container;

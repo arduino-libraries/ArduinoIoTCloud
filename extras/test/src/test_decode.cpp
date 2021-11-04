@@ -400,6 +400,32 @@ SCENARIO("Arduino Cloud Properties are decoded", "[ArduinoCloudThing::decode]")
 
   /************************************************************************************/
 
+  WHEN("A Schedule property is changed via CBOR message")
+  {
+    PropertyContainer property_container;
+
+    CloudSchedule schedule_test = CloudSchedule(0, 0, 0, 0);
+    addPropertyToContainer(property_container, schedule_test, "test", Permission::ReadWrite);
+
+    /* [{0: "test:frm", 2: 1633305600}, {0: "test:to", 2: 1633651200}, {0: "test:len", 2: 600}, {0: "test:msk", 2: 1140850708}]
+       = 84 A2 00 68 74 65 73 74 3A 66 72 6D 02 1A 61 5A 44 00 A2 00 67 74 65 73 74 3A 74 6F 02 1A 61 5F 8A 00 A2 00 68 74 65 73 74 3A 6C 65 6E 02 19 02 58 A2 00 68 74 65 73 74 3A 6D 73 6B 02 1A 44 00 00 14
+    */
+    uint8_t const payload[] = {0x84, 0xA2, 0x00, 0x68, 0x74, 0x65, 0x73, 0x74, 0x3A, 0x66, 0x72, 0x6D, 0x02, 0x1A, 0x61, 0x5A, 0x44, 0x00, 0xA2, 0x00, 0x67, 0x74, 0x65, 0x73, 0x74, 0x3A, 0x74, 0x6F, 0x02, 0x1A, 0x61, 0x5F, 0x8A, 0x00, 0xA2, 0x00, 0x68, 0x74, 0x65, 0x73, 0x74, 0x3A, 0x6C, 0x65, 0x6E, 0x02, 0x19, 0x02, 0x58, 0xA2, 0x00, 0x68, 0x74, 0x65, 0x73, 0x74, 0x3A, 0x6D, 0x73, 0x6B, 0x02, 0x1A, 0x44, 0x00, 0x00, 0x14};
+    CBORDecoder::decode(property_container, payload, sizeof(payload) / sizeof(uint8_t));
+
+    Schedule schedule_compare = Schedule(1633305600, 1633651200, 600, 1140850708);
+    Schedule value_schedule_test = schedule_test.getValue(); 
+    
+    bool verify = (value_schedule_test == schedule_compare);
+    REQUIRE(verify);
+    REQUIRE(value_schedule_test.frm == schedule_compare.frm);
+    REQUIRE(value_schedule_test.to  == schedule_compare.to);
+    REQUIRE(value_schedule_test.len == schedule_compare.len);
+    REQUIRE(value_schedule_test.msk == schedule_compare.msk);
+  }
+
+  /************************************************************************************/
+
   WHEN("Multiple properties is changed via CBOR message")
   {
     WHEN("Multiple properties of different type are changed via CBOR message")
