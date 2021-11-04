@@ -95,6 +95,8 @@ ArduinoIoTCloudTCP::ArduinoIoTCloudTCP()
 , _ota_img_sha256{"Inv."}
 , _ota_url{""}
 , _ota_req{false}
+, _ask_user_before_executing_ota{false}
+, _get_ota_confirmation{nullptr}
 #endif /* OTA_ENABLED */
 {
 
@@ -238,8 +240,8 @@ int ArduinoIoTCloudTCP::begin(bool const enable_watchdog, String brokerAddress, 
   addPropertyReal(_ota_cap, "OTA_CAP", Permission::Read);
   addPropertyReal(_ota_error, "OTA_ERROR", Permission::Read);
   addPropertyReal(_ota_img_sha256, "OTA_SHA256", Permission::Read);
-  addPropertyReal(_ota_url, "OTA_URL", Permission::ReadWrite).onSync(DEVICE_WINS);
-  addPropertyReal(_ota_req, "OTA_REQ", Permission::ReadWrite).onSync(DEVICE_WINS);
+  addPropertyReal(_ota_url, "OTA_URL", Permission::ReadWrite).onSync(CLOUD_WINS);
+  addPropertyReal(_ota_req, "OTA_REQ", Permission::ReadWrite).onSync(CLOUD_WINS);
 #endif /* OTA_ENABLED */
 
 #if OTA_STORAGE_PORTENTA_QSPI
@@ -499,11 +501,6 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_Connected()
       _mqtt_data_request_retransmit = false;
     }
 
-    /* Check if any properties need encoding and send them to
-    * the cloud if necessary.
-    */
-    sendPropertiesToCloud();
-
 #if OTA_ENABLED
     /* Request a OTA download if the hidden property
      * OTA request has been set.
@@ -511,16 +508,25 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_Connected()
 
     if (_ota_req)
     {
-      /* Clear the error flag. */
-      _ota_error = static_cast<int>(OTAError::None);
-      /* Transmit the cleared error flag to the cloud. */
-      sendPropertiesToCloud();
-      /* Clear the request flag. */
-      _ota_req = false;
-      /* Call member function to handle OTA request. */
-      onOTARequest();
+      bool const ota_execution_allowed_by_user = (_get_ota_confirmation != nullptr && _get_ota_confirmation());
+      bool const perform_ota_now = ota_execution_allowed_by_user || !_ask_user_before_executing_ota;
+      if (perform_ota_now) {
+        /* Clear the error flag. */
+        _ota_error = static_cast<int>(OTAError::None);
+        /* Clear the request flag. */
+        _ota_req = false;
+        /* Transmit the cleared error and request flags to the cloud. */
+        sendPropertiesToCloud();
+        /* Call member function to handle OTA request. */
+        onOTARequest();
+      }
     }
 #endif /* OTA_ENABLED */
+
+    /* Check if any properties need encoding and send them to
+    * the cloud if necessary.
+    */
+    sendPropertiesToCloud();
 
     return State::Connected;
   }
