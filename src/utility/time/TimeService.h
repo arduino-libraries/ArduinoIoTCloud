@@ -28,7 +28,7 @@
   #include <RTCZero.h>
 #endif
 
-#ifdef TARGET_PORTENTA_H7
+#ifdef ARDUINO_ARCH_MBED
   #include <mbed_rtc_time.h>
 #endif
 
@@ -50,7 +50,7 @@ public:
 private:
 
   ConnectionHandler * _con_hdl;
-#if defined (ARDUINO_ARCH_SAMD) || defined (TARGET_PORTENTA_H7)
+#if defined (ARDUINO_ARCH_SAMD) || defined (ARDUINO_ARCH_MBED)
   bool _is_rtc_configured;
 #endif
 
