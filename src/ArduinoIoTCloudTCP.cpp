@@ -34,7 +34,6 @@
 #endif
 
 #if defined(ARDUINO_PORTENTA_H7_M7) || defined(ARDUINO_PORTENTA_H7_M4)
-#  include <algorithm>
 #  include "tls/utility/SHA256.h"
 #  include <stm32h7xx_hal_rtc_ex.h>
 #  include <WiFi.h>
@@ -42,7 +41,7 @@
 
 #include "utility/ota/OTA.h"
 #include "utility/ota/FlashSHA256.h"
-
+#include <algorithm>
 #include "cbor/CBOREncoder.h"
 
 #include "utility/watchdog/Watchdog.h"
@@ -516,7 +515,7 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_Connected()
         /* Clear the request flag. */
         _ota_req = false;
         /* Transmit the cleared error and request flags to the cloud. */
-        sendPropertiesToCloud();
+        sendOTAPropertiesToCloud();
         /* Call member function to handle OTA request. */
         onOTARequest();
       }
@@ -569,6 +568,37 @@ void ArduinoIoTCloudTCP::sendPropertiesToCloud()
   uint8_t data[MQTT_TRANSMIT_BUFFER_SIZE];
 
   if (CBOREncoder::encode(_property_container, data, sizeof(data), bytes_encoded, false) == CborNoError)
+    if (bytes_encoded > 0)
+    {
+      /* If properties have been encoded store them in the back-up buffer
+       * in order to allow retransmission in case of failure.
+       */
+      _mqtt_data_len = bytes_encoded;
+      memcpy(_mqtt_data_buf, data, _mqtt_data_len);
+      /* Transmit the properties to the MQTT broker */
+      write(_dataTopicOut, _mqtt_data_buf, _mqtt_data_len);
+    }
+}
+
+void ArduinoIoTCloudTCP::sendOTAPropertiesToCloud()
+{
+  int bytes_encoded = 0;
+  uint8_t data[MQTT_TRANSMIT_BUFFER_SIZE];
+
+  PropertyContainer ota_property_container;
+
+  std::list<String> const ota_property_list {"OTA_CAP", "OTA_ERROR", "OTA_SHA256", "OTA_URL", "OTA_REQ"};
+  std::for_each(ota_property_list.cbegin(),
+                ota_property_list.cend(),
+                [this, &ota_property_container ] (String const & name)
+                {
+                  Property* p = getProperty(this->_property_container, name);
+                  if(p != nullptr)
+                    addPropertyToContainer(ota_property_container, *p, p->name(), p->isWriteableByCloud() ? Permission::ReadWrite : Permission::Read);
+                }
+                );
+
+  if (CBOREncoder::encode(ota_property_container, data, sizeof(data), bytes_encoded, false) == CborNoError)
     if (bytes_encoded > 0)
     {
       /* If properties have been encoded store them in the back-up buffer
