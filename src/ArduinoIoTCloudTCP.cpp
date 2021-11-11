@@ -562,12 +562,12 @@ void ArduinoIoTCloudTCP::handleMessage(int length)
   }
 }
 
-void ArduinoIoTCloudTCP::sendPropertiesToCloud()
+void ArduinoIoTCloudTCP::sendPropertyContainerToCloud(PropertyContainer & property_container)
 {
   int bytes_encoded = 0;
   uint8_t data[MQTT_TRANSMIT_BUFFER_SIZE];
 
-  if (CBOREncoder::encode(_property_container, data, sizeof(data), bytes_encoded, false) == CborNoError)
+  if (CBOREncoder::encode(property_container, data, sizeof(data), bytes_encoded, false) == CborNoError)
     if (bytes_encoded > 0)
     {
       /* If properties have been encoded store them in the back-up buffer
@@ -580,11 +580,13 @@ void ArduinoIoTCloudTCP::sendPropertiesToCloud()
     }
 }
 
+void ArduinoIoTCloudTCP::sendPropertiesToCloud()
+{
+  sendPropertyContainerToCloud(_property_container);
+}
+
 void ArduinoIoTCloudTCP::sendOTAPropertiesToCloud()
 {
-  int bytes_encoded = 0;
-  uint8_t data[MQTT_TRANSMIT_BUFFER_SIZE];
-
   PropertyContainer ota_property_container;
 
   std::list<String> const ota_property_list {"OTA_CAP", "OTA_ERROR", "OTA_SHA256", "OTA_URL", "OTA_REQ"};
@@ -598,17 +600,7 @@ void ArduinoIoTCloudTCP::sendOTAPropertiesToCloud()
                 }
                 );
 
-  if (CBOREncoder::encode(ota_property_container, data, sizeof(data), bytes_encoded, false) == CborNoError)
-    if (bytes_encoded > 0)
-    {
-      /* If properties have been encoded store them in the back-up buffer
-       * in order to allow retransmission in case of failure.
-       */
-      _mqtt_data_len = bytes_encoded;
-      memcpy(_mqtt_data_buf, data, _mqtt_data_len);
-      /* Transmit the properties to the MQTT broker */
-      write(_dataTopicOut, _mqtt_data_buf, _mqtt_data_len);
-    }
+  sendPropertyContainerToCloud(ota_property_container);
 }
 
 void ArduinoIoTCloudTCP::requestLastValue()
