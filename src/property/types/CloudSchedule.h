@@ -64,6 +64,44 @@ enum class ScheduleType : int {
   Yearly       = 4
 };
 
+enum class ScheduleMonth : int {
+  Jan          = 0,
+  Feb          = 1,
+  Mar          = 2,
+  Apr          = 3,
+  May          = 4,
+  Jun          = 5,
+  Jul          = 6,
+  Aug          = 7,
+  Sep          = 8,
+  Oct          = 9,
+  Nov          = 10,
+  Dec          = 11
+};
+
+enum class ScheduleWeekDay : int {
+  Sun          = 0,
+  Mon          = 1,
+  Tue          = 2,
+  Wed          = 3,
+  Thu          = 4,
+  Fri          = 5,
+  Sat          = 6
+};
+
+enum class ScheduleState : int {
+  Inactive     = 0,
+  Active       = 1
+};
+
+/******************************************************************************
+ * TYPEDEF
+ ******************************************************************************/
+typedef struct ScheduleWeeklyMask {
+  ScheduleState& operator[](ScheduleWeekDay i) { return day[static_cast<int>(i)];}
+  ScheduleState day[7];
+}ScheduleWeeklyMask;
+
 /******************************************************************************
    CLASS DECLARATION
  ******************************************************************************/
@@ -88,6 +126,55 @@ class Schedule : public TimeService {
         }
       }
       return false;
+    }
+
+    static unsigned int createOneShotScheduleConfiguration() {
+      return 0;
+    }
+
+    static unsigned int createFixedDeltaScheduleConfiguration(ScheduleUnit unit, unsigned int delta) {
+      unsigned int temp_unit = static_cast<int>(unit);
+      unsigned int temp_type = static_cast<int>(ScheduleType::FixedDelta);
+      unsigned int temp_delta = delta;
+
+      if (temp_delta > SCHEDULE_REP_MASK) {
+        temp_delta = SCHEDULE_REP_MASK;
+      }
+      return (temp_unit << SCHEDULE_UNIT_SHIFT) | (temp_type << SCHEDULE_TYPE_SHIFT) | temp_delta;
+    }
+
+    static unsigned int createWeeklyScheduleConfiguration(ScheduleWeeklyMask weekMask) {
+      unsigned int temp_week = 0;
+      unsigned int temp_type = static_cast<int>(ScheduleType::Weekly);
+
+      for(int i = 0; i<7; i++) {
+        if(weekMask[static_cast<ScheduleWeekDay>(i)] == ScheduleState::Active) {
+          temp_week |= 1 << i;
+        }
+      }
+      return (temp_type << SCHEDULE_TYPE_SHIFT) | temp_week;
+    }
+
+    static unsigned int createMonthlyScheduleConfiguration(int dayOfTheMonth) {
+      int temp_day = dayOfTheMonth;
+      unsigned int temp_type = static_cast<int>(ScheduleType::Monthly);
+
+      if(temp_day < 1) {
+        temp_day = 1;
+      }
+
+      if(temp_day > 31) {
+        temp_day = 31;
+      }
+      return (temp_type << SCHEDULE_TYPE_SHIFT) | temp_day;
+    }
+
+    static unsigned int createYearlyScheduleConfiguration(ScheduleMonth month, int dayOfTheMonth) {
+      int temp_day = createMonthlyScheduleConfiguration(dayOfTheMonth);
+      int temp_month = static_cast<int>(month);
+      unsigned int temp_type = static_cast<int>(ScheduleType::Yearly);
+
+      return (temp_type << SCHEDULE_TYPE_SHIFT) | (temp_month << SCHEDULE_MONTH_SHIFT)| temp_day;
     }
 
     Schedule& operator=(Schedule & aSchedule) {
