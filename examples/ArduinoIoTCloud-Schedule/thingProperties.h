@@ -7,7 +7,13 @@
 void onSwitchButtonChange();
 
 bool switchButton;
-CloudSchedule led;
+CloudSchedule oneShot;
+CloudSchedule minute;
+CloudSchedule hourly;
+CloudSchedule daily;
+CloudSchedule weekly;
+CloudSchedule monthly;
+CloudSchedule yearly;
 
 void initProperties() {
 #if defined(BOARD_ESP8266)
@@ -17,10 +23,15 @@ void initProperties() {
   ArduinoCloud.setThingId(THING_ID);
 #if defined(BOARD_HAS_WIFI) || defined(BOARD_HAS_GSM) || defined(BOARD_HAS_NB)
   ArduinoCloud.addProperty(switchButton, WRITE, ON_CHANGE);
-  ArduinoCloud.addProperty(led, READWRITE, ON_CHANGE);
+  ArduinoCloud.addProperty(oneShot, READWRITE, ON_CHANGE);
+  ArduinoCloud.addProperty(minute, READWRITE, ON_CHANGE);
+  ArduinoCloud.addProperty(hourly, READWRITE, ON_CHANGE);
+  ArduinoCloud.addProperty(daily, READWRITE, ON_CHANGE);
+  ArduinoCloud.addProperty(weekly, READWRITE, ON_CHANGE);
+  ArduinoCloud.addProperty(monthly, READWRITE, ON_CHANGE);
+  ArduinoCloud.addProperty(yearly, READWRITE, ON_CHANGE);
 #elif defined(BOARD_HAS_LORA)
   ArduinoCloud.addProperty(switchButton, 1, WRITE, ON_CHANGE;
-  ArduinoCloud.addProperty(led, 2, READWRITE, ON_CHANGE);
 #endif
 }
 
