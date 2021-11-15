@@ -24,7 +24,6 @@
 
 #include <Arduino_ConnectionHandler.h>
 
-
 #ifdef ARDUINO_ARCH_SAMD
   #include <RTCZero.h>
 #endif
@@ -49,6 +48,10 @@ public:
   unsigned long getTime();
   unsigned long getLocalTime();
   void          setTimeZoneData(long offset, unsigned long valid_until);
+  /* Helper function to convert an input String into a UNIX timestamp.
+   * The input String format must be as follow "2021 Nov 01 17:00:00"
+   */
+  static unsigned long getTimeFromString(const String& input);
 
 private:
 

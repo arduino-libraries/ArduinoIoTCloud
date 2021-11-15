@@ -108,6 +108,66 @@ unsigned long TimeService::getLocalTime()
   return utc + _timezone_offset;
 }
 
+unsigned long TimeService::getTimeFromString(const String& input)
+{
+  struct tm t =
+  {
+    0 /* tm_sec   */,
+    0 /* tm_min   */,
+    0 /* tm_hour  */,
+    0 /* tm_mday  */,
+    0 /* tm_mon   */,
+    0 /* tm_year  */,
+    0 /* tm_wday  */,
+    0 /* tm_yday  */,
+    0 /* tm_isdst */
+  };
+
+  char s_month[16];
+  int month, day, year, hour, min, sec;
+  static const char month_names[] = "JanFebMarAprMayJunJulAugSepOctNovDec";
+  static const int expected_length = 20;
+  static const int expected_parameters = 6;
+
+  if(input == nullptr || input.length() != expected_length)
+  {
+    DEBUG_ERROR("ArduinoIoTCloudTCP::%s invalid input length", __FUNCTION__);
+    return 0;
+  }
+
+  int scanned_parameters = sscanf(input.c_str(), "%d %s %d %d:%d:%d", &year, s_month, &day, &hour, &min, &sec);
+
+  if(scanned_parameters != expected_parameters)
+  {
+    DEBUG_ERROR("ArduinoIoTCloudTCP::%s invalid input parameters number", __FUNCTION__);
+    return 0;
+  }
+
+  char * s_month_position = strstr(month_names, s_month);
+
+  if(s_month_position == nullptr || strlen(s_month) != 3) {
+    DEBUG_ERROR("ArduinoIoTCloudTCP::%s invalid month name, use %s", __FUNCTION__, month_names);
+    return 0;
+  }
+
+  month = (s_month_position - month_names) / 3;
+
+  if(month <  0 || month > 11 || day <  1 || day > 31 || year < 1900 || hour < 0 ||
+     hour  > 24 || min   <  0 || min > 60 || sec <  0 || sec  >  60) {
+    DEBUG_ERROR("ArduinoIoTCloudTCP::%s invalid date values", __FUNCTION__);
+    return 0;
+  }
+
+  t.tm_mon = month;
+  t.tm_mday = day;
+  t.tm_year = year - 1900;
+  t.tm_hour = hour;
+  t.tm_min = min;
+  t.tm_sec = sec;
+  t.tm_isdst = -1;
+
+  return mktime(&t);
+}
 /**************************************************************************************
  * PRIVATE MEMBER FUNCTIONS
  **************************************************************************************/
