@@ -12,6 +12,7 @@ include_directories(include)
 include_directories(../../src)
 include_directories(../../src/cbor)
 include_directories(../../src/property)
+include_directories(../../src/utility/time)
 include_directories(external/catch/v2.12.1/include)
 include_directories(external/fakeit/v2.0.5/include)
 
