@@ -113,15 +113,20 @@ class Schedule {
     bool isActive() {
 
       unsigned int now = _schedule_time_service->getLocalTime();
-      if(checkSchedulePeriod(now, frm, to)) {
-        /* We are in the schedule range */
 
-        if(checkScheduleMask(now, msk)) {
+      if(checkTimeValid(now)) {
+        /* We have to wait RTC configuration and Timezone setting from the cloud */
+
+        if(checkSchedulePeriod(now, frm, to)) {
+          /* We are in the schedule range */
+
+          if(checkScheduleMask(now, msk)) {
         
-          /* We can assume now that the schedule is always repeating with fixed delta */ 
-          unsigned int delta = getScheduleDelta(msk);
-          if ( ( (std::max(now , frm) - std::min(now , frm)) % delta ) <= len ) {
-            return true;
+            /* We can assume now that the schedule is always repeating with fixed delta */
+            unsigned int delta = getScheduleDelta(msk);
+            if ( ( (std::max(now , frm) - std::min(now , frm)) % delta ) <= len ) {
+              return true;
+            }
           }
         }
       }
@@ -290,6 +295,10 @@ class Schedule {
       ptm = gmtime (&time);
 
       return ptm->tm_mon;
+    }
+
+    bool checkTimeValid(unsigned int now) {
+      return (now != 0);
     }
 
     bool checkSchedulePeriod(unsigned int now, unsigned int frm, unsigned int to) {
