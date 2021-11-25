@@ -23,3 +23,8 @@ unsigned long TimeService::getLocalTime()
 {
   return getTime();
 }
+
+TimeService* ArduinoIoTCloudTimeService() {
+  static TimeService _timeService_instance;
+  return &_timeService_instance;
+}

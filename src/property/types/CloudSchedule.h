@@ -105,14 +105,14 @@ typedef struct ScheduleWeeklyMask {
 /******************************************************************************
    CLASS DECLARATION
  ******************************************************************************/
-class Schedule : public TimeService {
+class Schedule {
   public:
     unsigned int frm, to, len, msk;
     Schedule(unsigned int s, unsigned int e, unsigned int d, unsigned int m): frm(s), to(e), len(d), msk(m) {}
 
     bool isActive() {
 
-      unsigned int now = getLocalTime();
+      unsigned int now = _schedule_time_service->getLocalTime();
       if(checkSchedulePeriod(now, frm, to)) {
         /* We are in the schedule range */
 
@@ -193,6 +193,8 @@ class Schedule : public TimeService {
       return !(operator==(aSchedule));
     }
   private:
+    TimeService * _schedule_time_service = ArduinoIoTCloudTimeService();
+
     ScheduleUnit getScheduleUnit(unsigned int msk) {
       return static_cast<ScheduleUnit>((msk & SCHEDULE_UNIT_MASK) >> SCHEDULE_UNIT_SHIFT);
     }

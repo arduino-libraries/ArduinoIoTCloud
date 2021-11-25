@@ -70,4 +70,6 @@ private:
 
 };
 
+TimeService* ArduinoIoTCloudTimeService();
+
 #endif /* ARDUINO_IOT_CLOUD_TIME_SERVICE_H_ */
