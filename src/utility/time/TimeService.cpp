@@ -44,6 +44,7 @@ time_t cvt_time(char const * time);
  **************************************************************************************/
 
 static time_t const EPOCH_AT_COMPILE_TIME = cvt_time(__DATE__);
+static time_t const EPOCH = 0;
 
 /**************************************************************************************
  * CTOR/DTOR
@@ -54,6 +55,9 @@ TimeService::TimeService()
 #if defined (ARDUINO_ARCH_SAMD) || defined (ARDUINO_ARCH_MBED)
 , _is_rtc_configured(false)
 #endif
+, _is_tz_configured(false)
+, _timezone_offset(0)
+, _timezone_dst_until(0)
 {
 
 }
@@ -100,12 +104,18 @@ void TimeService::setTimeZoneData(long offset, unsigned long dst_until)
   if(_timezone_dst_until != dst_until)
     DEBUG_DEBUG("ArduinoIoTCloudTCP::%s tz_dst_unitl: [%ul]", __FUNCTION__, dst_until);
   _timezone_dst_until = dst_until;
+
+  _is_tz_configured = true;
 }
 
 unsigned long TimeService::getLocalTime()
 {
   unsigned long utc = getTime();
-  return utc + _timezone_offset;
+  if(_is_tz_configured) {
+    return utc + _timezone_offset;
+  } else {
+    return EPOCH;
+  }
 }
 
 unsigned long TimeService::getTimeFromString(const String& input)

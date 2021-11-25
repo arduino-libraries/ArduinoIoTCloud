@@ -59,14 +59,12 @@ private:
 #if defined (ARDUINO_ARCH_SAMD) || defined (ARDUINO_ARCH_MBED)
   bool _is_rtc_configured;
 #endif
-
-  unsigned long getRemoteTime();
-
-  static bool isTimeValid(unsigned long const time);
-
-private:
+  bool _is_tz_configured;
   long _timezone_offset;
   unsigned long _timezone_dst_until;
+
+  unsigned long getRemoteTime();
+  static bool isTimeValid(unsigned long const time);
 
 };
 
