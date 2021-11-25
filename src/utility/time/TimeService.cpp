@@ -79,15 +79,25 @@ unsigned long TimeService::getTime()
 #ifdef ARDUINO_ARCH_SAMD
   if(!_is_rtc_configured)
   {
-    rtc.setEpoch(getRemoteTime());
-    _is_rtc_configured = true;
+    unsigned long utc = getRemoteTime();
+    if(EPOCH_AT_COMPILE_TIME != utc)
+    {
+      rtc.setEpoch(utc);
+      _is_rtc_configured = true;
+    }
+    return utc;
   }
   return rtc.getEpoch();
 #elif ARDUINO_ARCH_MBED
   if(!_is_rtc_configured)
   {
-    set_time(getRemoteTime());
-    _is_rtc_configured = true;
+    unsigned long utc = getRemoteTime();
+    if(EPOCH_AT_COMPILE_TIME != utc)
+    {
+      set_time(utc);
+      _is_rtc_configured = true;
+    }
+    return utc;
   }
   return time(NULL);
 #else
