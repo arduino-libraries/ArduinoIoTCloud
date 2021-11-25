@@ -26,6 +26,9 @@ setDeviceId	KEYWORD2
 getDeviceId	KEYWORD2
 getConnection	KEYWORD2
 addCallback	KEYWORD2
+onPhyConnectionFailure	KEYWORD2
+onMQTTConnectionFailure	KEYWORD2
+onMQTTSubscriptionFailure	KEYWORD2
 addProperty	KEYWORD2
 
 # ArduinoIoTCloudLPWAN.h

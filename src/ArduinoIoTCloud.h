@@ -67,7 +67,7 @@ enum class ArduinoIoTConnectionStatus
 
 enum class ArduinoIoTCloudEvent : size_t
 {
-  SYNC = 0, CONNECT = 1, DISCONNECT = 2
+  SYNC = 0, CONNECT = 1, DISCONNECT = 2, MOTT_CONNECT_FAILURE = 3, MOTT_SUBSCRIBE_FAILURE = 4
 };
 
 typedef void (*OnCloudEventCallback)(void);
@@ -100,6 +100,11 @@ class ArduinoIoTCloudClass
     inline unsigned long getInternalTime() { return _time_service.getTime(); }
 
     void addCallback(ArduinoIoTCloudEvent const event, OnCloudEventCallback callback);
+
+    inline void onPhyConnectionFailure   (OnCloudEventCallback func) { if (_connection) _connection->addCallback(NetworkConnectionEvent::CONNECTION_FAILED, func); }
+    inline void onMQTTConnectionFailure  (OnCloudEventCallback func) { addCallback(ArduinoIoTCloudEvent::MOTT_CONNECT_FAILURE, func); }
+    inline void onMQTTSubscriptionFailure(OnCloudEventCallback func) { addCallback(ArduinoIoTCloudEvent::MOTT_SUBSCRIBE_FAILURE, func); }
+
 
 #define addProperty( v, ...) addPropertyReal(v, #v, __VA_ARGS__)
 
@@ -153,7 +158,7 @@ class ArduinoIoTCloudClass
 
     String _thing_id = "";
     String _device_id = "";
-    OnCloudEventCallback _cloud_event_callback[3] = {nullptr};
+    OnCloudEventCallback _cloud_event_callback[5] = {nullptr};
 };
 
 #ifdef HAS_TCP
