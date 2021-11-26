@@ -585,6 +585,7 @@ void ArduinoIoTCloudTCP::sendPropertiesToCloud()
   sendPropertyContainerToCloud(_property_container);
 }
 
+#if OTA_ENABLED
 void ArduinoIoTCloudTCP::sendOTAPropertiesToCloud()
 {
   PropertyContainer ota_property_container;
@@ -602,6 +603,7 @@ void ArduinoIoTCloudTCP::sendOTAPropertiesToCloud()
 
   sendPropertyContainerToCloud(ota_property_container);
 }
+#endif
 
 void ArduinoIoTCloudTCP::requestLastValue()
 {
