@@ -102,17 +102,20 @@ typedef struct ScheduleWeeklyMask {
   ScheduleState day[7];
 }ScheduleWeeklyMask;
 
+typedef unsigned int ScheduleTimeType;
+typedef unsigned int ScheduleConfigurationType;
+
 /******************************************************************************
    CLASS DECLARATION
  ******************************************************************************/
 class Schedule {
   public:
-    unsigned int frm, to, len, msk;
-    Schedule(unsigned int s, unsigned int e, unsigned int d, unsigned int m): frm(s), to(e), len(d), msk(m) {}
+    ScheduleTimeType frm, to, len, msk;
+    Schedule(ScheduleTimeType s, ScheduleTimeType e, ScheduleTimeType d, ScheduleConfigurationType m): frm(s), to(e), len(d), msk(m) {}
 
     bool isActive() {
 
-      unsigned int now = _schedule_time_service->getLocalTime();
+      ScheduleTimeType now = _schedule_time_service->getLocalTime();
 
       if(checkTimeValid(now)) {
         /* We have to wait RTC configuration and Timezone setting from the cloud */
@@ -121,9 +124,9 @@ class Schedule {
           /* We are in the schedule range */
 
           if(checkScheduleMask(now, msk)) {
-        
+
             /* We can assume now that the schedule is always repeating with fixed delta */
-            unsigned int delta = getScheduleDelta(msk);
+            ScheduleTimeType delta = getScheduleDelta(msk);
             if ( ( (std::max(now , frm) - std::min(now , frm)) % delta ) <= len ) {
               return true;
             }
@@ -133,11 +136,11 @@ class Schedule {
       return false;
     }
 
-    static unsigned int createOneShotScheduleConfiguration() {
+    static ScheduleConfigurationType createOneShotScheduleConfiguration() {
       return 0;
     }
 
-    static unsigned int createFixedDeltaScheduleConfiguration(ScheduleUnit unit, unsigned int delta) {
+    static ScheduleConfigurationType createFixedDeltaScheduleConfiguration(ScheduleUnit unit, unsigned int delta) {
       int temp_unit = static_cast<int>(unit);
       int temp_type = static_cast<int>(ScheduleType::FixedDelta);
       unsigned int temp_delta = delta;
@@ -148,7 +151,7 @@ class Schedule {
       return (temp_unit << SCHEDULE_UNIT_SHIFT) | (temp_type << SCHEDULE_TYPE_SHIFT) | temp_delta;
     }
 
-    static unsigned int createWeeklyScheduleConfiguration(ScheduleWeeklyMask weekMask) {
+    static ScheduleConfigurationType createWeeklyScheduleConfiguration(ScheduleWeeklyMask weekMask) {
       unsigned int temp_week = 0;
       int temp_type = static_cast<int>(ScheduleType::Weekly);
 
@@ -160,7 +163,7 @@ class Schedule {
       return (temp_type << SCHEDULE_TYPE_SHIFT) | temp_week;
     }
 
-    static unsigned int createMonthlyScheduleConfiguration(int dayOfTheMonth) {
+    static ScheduleConfigurationType createMonthlyScheduleConfiguration(int dayOfTheMonth) {
       int temp_day = dayOfTheMonth;
       int temp_type = static_cast<int>(ScheduleType::Monthly);
 
@@ -174,7 +177,7 @@ class Schedule {
       return (temp_type << SCHEDULE_TYPE_SHIFT) | temp_day;
     }
 
-    static unsigned int createYearlyScheduleConfiguration(ScheduleMonth month, int dayOfTheMonth) {
+    static ScheduleConfigurationType createYearlyScheduleConfiguration(ScheduleMonth month, int dayOfTheMonth) {
       unsigned int temp_day = createMonthlyScheduleConfiguration(dayOfTheMonth);
       int temp_month = static_cast<int>(month);
       int temp_type = static_cast<int>(ScheduleType::Yearly);
@@ -200,51 +203,51 @@ class Schedule {
   private:
     TimeService * _schedule_time_service = ArduinoIoTCloudTimeService();
 
-    ScheduleUnit getScheduleUnit(unsigned int msk) {
+    ScheduleUnit getScheduleUnit(ScheduleConfigurationType msk) {
       return static_cast<ScheduleUnit>((msk & SCHEDULE_UNIT_MASK) >> SCHEDULE_UNIT_SHIFT);
     }
 
-    ScheduleType getScheduleType(unsigned int msk) {
+    ScheduleType getScheduleType(ScheduleConfigurationType msk) {
       return static_cast<ScheduleType>((msk & SCHEDULE_TYPE_MASK) >> SCHEDULE_TYPE_SHIFT);
     }
 
-    unsigned int getScheduleRepetition(unsigned int msk) {
+    unsigned int getScheduleRepetition(ScheduleConfigurationType msk) {
       return (msk & SCHEDULE_REP_MASK);
     }
 
-    unsigned int getScheduleWeekMask(unsigned int msk) {
+    unsigned int getScheduleWeekMask(ScheduleConfigurationType msk) {
       return (msk & SCHEDULE_WEEK_MASK);
     }
 
-    unsigned int getScheduleDay(unsigned int msk) {
+    unsigned int getScheduleDay(ScheduleConfigurationType msk) {
       return (msk & SCHEDULE_DAY_MASK);
     }
 
-    unsigned int getScheduleMonth(unsigned int msk) {
+    unsigned int getScheduleMonth(ScheduleConfigurationType msk) {
       return ((msk & SCHEDULE_MONTH_MASK) >> SCHEDULE_MONTH_SHIFT);
     }
 
-    bool isScheduleOneShot(unsigned int msk) {
+    bool isScheduleOneShot(ScheduleConfigurationType msk) {
       return (getScheduleType(msk) == ScheduleType::OneShot) ? true : false ;
     }
 
-    bool isScheduleFixed(unsigned int msk) {
+    bool isScheduleFixed(ScheduleConfigurationType msk) {
       return (getScheduleType(msk) == ScheduleType::FixedDelta) ? true : false ;
     }
 
-    bool isScheduleWeekly(unsigned int msk) {
+    bool isScheduleWeekly(ScheduleConfigurationType msk) {
       return (getScheduleType(msk) == ScheduleType::Weekly) ? true : false ;
     }
 
-    bool isScheduleMonthly(unsigned int msk) {
+    bool isScheduleMonthly(ScheduleConfigurationType msk) {
       return (getScheduleType(msk) == ScheduleType::Monthly) ? true : false ;
     }
 
-    bool isScheduleYearly(unsigned int msk) {
+    bool isScheduleYearly(ScheduleConfigurationType msk) {
       return (getScheduleType(msk) == ScheduleType::Yearly) ? true : false ;
     }
 
-    bool isScheduleInSeconds(unsigned int msk) {
+    bool isScheduleInSeconds(ScheduleConfigurationType msk) {
       if(isScheduleFixed(msk)) {
         return (getScheduleUnit(msk) == ScheduleUnit::Seconds) ? true : false ;
       } else {
@@ -252,7 +255,7 @@ class Schedule {
       }
     }
 
-    bool isScheduleInMinutes(unsigned int msk) {
+    bool isScheduleInMinutes(ScheduleConfigurationType msk) {
       if(isScheduleFixed(msk)) {
         return (getScheduleUnit(msk) == ScheduleUnit::Minutes) ? true : false ;
       } else {
@@ -260,7 +263,7 @@ class Schedule {
       }
     }
 
-    bool isScheduleInHours(unsigned int msk) {
+    bool isScheduleInHours(ScheduleConfigurationType msk) {
       if(isScheduleFixed(msk)) {
         return (getScheduleUnit(msk) == ScheduleUnit::Hours) ? true : false ;
       } else {
@@ -268,7 +271,7 @@ class Schedule {
       }
     }
 
-    bool isScheduleInDays(unsigned int msk) {
+    bool isScheduleInDays(ScheduleConfigurationType msk) {
       if(isScheduleFixed(msk)) {
         return (getScheduleUnit(msk) == ScheduleUnit::Days) ? true : false ;
       } else {
@@ -297,11 +300,11 @@ class Schedule {
       return ptm->tm_mon;
     }
 
-    bool checkTimeValid(unsigned int now) {
+    bool checkTimeValid(ScheduleTimeType now) {
       return (now != 0);
     }
 
-    bool checkSchedulePeriod(unsigned int now, unsigned int frm, unsigned int to) {
+    bool checkSchedulePeriod(ScheduleTimeType now, ScheduleTimeType frm, ScheduleTimeType to) {
       /* Check if current time is inside the schedule period. If 'to' is equal to
        * 0 the schedule has no end.
        */
@@ -312,7 +315,7 @@ class Schedule {
       }
     }
 
-    bool checkScheduleMask(unsigned int now, unsigned int msk) {
+    bool checkScheduleMask(ScheduleTimeType now, ScheduleConfigurationType msk) {
       if(isScheduleFixed(msk) || isScheduleOneShot(msk)) {
         return true;
       }
@@ -349,7 +352,7 @@ class Schedule {
       return false;
     }
 
-    unsigned int getScheduleDelta(unsigned int msk) {
+    ScheduleTimeType getScheduleDelta(ScheduleConfigurationType msk) {
       if(isScheduleInSeconds(msk)) {
         return SECONDS * getScheduleRepetition(msk);
       }

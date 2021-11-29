@@ -63,12 +63,12 @@ void setup() {
   */
 void setupOneShotSchedule() {
 
-  unsigned int startingFrom = TimeService::getTimeFromString("2021 Nov 01 17:00:00");
-  unsigned int until = startingFrom + ( DAYS * 1 );
-  unsigned int activePeriod = MINUTES * 5;
+  ScheduleTimeType startingFrom = TimeService::getTimeFromString("2021 Nov 01 17:00:00");
+  ScheduleTimeType until = startingFrom + ( DAYS * 1 );
+  ScheduleTimeType activePeriod = MINUTES * 5;
 
   /* Warning: there is no cross check between until and activePeriod */
-  unsigned int scheduleConfiguration =  Schedule::createOneShotScheduleConfiguration();
+  ScheduleConfigurationType scheduleConfiguration =  Schedule::createOneShotScheduleConfiguration();
 
   oneShot = Schedule(startingFrom, until, activePeriod, scheduleConfiguration);
 }
@@ -79,13 +79,13 @@ void setupOneShotSchedule() {
   */
 void setupMinuteSchedule() {
 
-  unsigned int startingFrom = TimeService::getTimeFromString("2021 Nov 01 17:00:00");
-  unsigned int until = startingFrom + ( DAYS * 1 );
-  unsigned int activePeriod = SECONDS * 15;
+  ScheduleTimeType startingFrom = TimeService::getTimeFromString("2021 Nov 01 17:00:00");
+  ScheduleTimeType until = startingFrom + ( DAYS * 1 );
+  ScheduleTimeType activePeriod = SECONDS * 15;
   unsigned int repetitionPeriod = 1;
 
   /* Warning: there is no cross check between repetitionPeriod and activePeriod */
-  unsigned int scheduleConfiguration =  Schedule::createFixedDeltaScheduleConfiguration(ScheduleUnit::Minutes, repetitionPeriod);
+  ScheduleConfigurationType scheduleConfiguration =  Schedule::createFixedDeltaScheduleConfiguration(ScheduleUnit::Minutes, repetitionPeriod);
 
   minute = Schedule(startingFrom, until, activePeriod, scheduleConfiguration);
 }
@@ -96,13 +96,13 @@ void setupMinuteSchedule() {
  */
 void setupHourlySchedule() {
 
-  unsigned int startingFrom = TimeService::getTimeFromString("2021 Nov 01 17:00:00");
-  unsigned int until = TimeService::getTimeFromString("2021 Nov 15 13:00:00");
-  unsigned int activePeriod = MINUTES * 20;
+  ScheduleTimeType startingFrom = TimeService::getTimeFromString("2021 Nov 01 17:00:00");
+  ScheduleTimeType until = TimeService::getTimeFromString("2021 Nov 15 13:00:00");
+  ScheduleTimeType activePeriod = MINUTES * 20;
   unsigned int repetitionPeriod = 1;
 
   /* Warning: there is no cross check between repetitionPeriod and activePeriod */
-  unsigned int scheduleConfiguration =  Schedule::createFixedDeltaScheduleConfiguration(ScheduleUnit::Hours, repetitionPeriod);
+  ScheduleConfigurationType scheduleConfiguration =  Schedule::createFixedDeltaScheduleConfiguration(ScheduleUnit::Hours, repetitionPeriod);
 
   hourly = Schedule(startingFrom, until, activePeriod, scheduleConfiguration);
 }
@@ -113,13 +113,13 @@ void setupHourlySchedule() {
  */
 void setupDailySchedule() {
 
-  unsigned int startingFrom = TimeService::getTimeFromString("2021 Nov 01 17:00:00");
-  unsigned int until = TimeService::getTimeFromString("2021 Nov 15 13:00:00");
-  unsigned int activePeriod = HOURS * 2;
+  ScheduleTimeType startingFrom = TimeService::getTimeFromString("2021 Nov 01 17:00:00");
+  ScheduleTimeType until = TimeService::getTimeFromString("2021 Nov 15 13:00:00");
+  ScheduleTimeType activePeriod = HOURS * 2;
   unsigned int repetitionPeriod = 1;
 
   /* Warning: there is no cross check between repetitionPeriod and activePeriod */
-  unsigned int scheduleConfiguration =  Schedule::createFixedDeltaScheduleConfiguration(ScheduleUnit::Days, repetitionPeriod);
+  ScheduleConfigurationType scheduleConfiguration =  Schedule::createFixedDeltaScheduleConfiguration(ScheduleUnit::Days, repetitionPeriod);
 
   daily = Schedule(startingFrom, until, activePeriod, scheduleConfiguration);
 }
@@ -152,7 +152,7 @@ void setupWeeklySchedule() {
     ScheduleState::Inactive,   /* Saturday */
   };
 
-  unsigned int scheduleConfiguration =  Schedule::createWeeklyScheduleConfiguration(WeeklyMask);
+  ScheduleConfigurationType scheduleConfiguration =  Schedule::createWeeklyScheduleConfiguration(WeeklyMask);
 
   weekly = Schedule(startingFrom, until, executionPeriod, scheduleConfiguration);
 }
@@ -163,12 +163,12 @@ void setupWeeklySchedule() {
  */
 void setupMonthlySchedule() {
 
-  unsigned int startingFrom = TimeService::getTimeFromString("2021 Nov 01 17:00:00");
-  unsigned int until = TimeService::getTimeFromString("2021 Nov 15 13:00:00");
-  unsigned int activePeriod = DAYS * 1;
-  unsigned int dayOfMonth = 3;
+  ScheduleTimeType startingFrom = TimeService::getTimeFromString("2021 Nov 01 17:00:00");
+  ScheduleTimeType until = TimeService::getTimeFromString("2021 Nov 15 13:00:00");
+  ScheduleTimeType activePeriod = DAYS * 1;
+  int dayOfMonth = 3;
 
-  unsigned int scheduleConfiguration =  Schedule::createMonthlyScheduleConfiguration(dayOfMonth);
+  ScheduleConfigurationType scheduleConfiguration =  Schedule::createMonthlyScheduleConfiguration(dayOfMonth);
 
   monthly = Schedule(startingFrom, until, activePeriod, scheduleConfiguration);
 }
@@ -180,12 +180,12 @@ void setupMonthlySchedule() {
  */
 void setupYearlySchedule() {
 
-  unsigned int startingFrom = TimeService::getTimeFromString("2021 Nov 06 17:00:00");
-  unsigned int until = TimeService::getTimeFromString("2041 Nov 06 13:00:00");
-  unsigned int activePeriod = DAYS * 2;
-  unsigned int dayOfMonth = 6;
+  ScheduleTimeType startingFrom = TimeService::getTimeFromString("2021 Nov 06 17:00:00");
+  ScheduleTimeType until = TimeService::getTimeFromString("2041 Nov 06 13:00:00");
+  ScheduleTimeType activePeriod = DAYS * 2;
+  int dayOfMonth = 6;
 
-  unsigned int scheduleConfiguration =  Schedule::createYearlyScheduleConfiguration(ScheduleMonth::Nov, dayOfMonth);
+  ScheduleConfigurationType scheduleConfiguration =  Schedule::createYearlyScheduleConfiguration(ScheduleMonth::Nov, dayOfMonth);
 
   yearly = Schedule(startingFrom, until, activePeriod, scheduleConfiguration);
 }
