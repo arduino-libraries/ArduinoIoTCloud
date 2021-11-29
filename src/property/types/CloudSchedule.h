@@ -138,8 +138,8 @@ class Schedule {
     }
 
     static unsigned int createFixedDeltaScheduleConfiguration(ScheduleUnit unit, unsigned int delta) {
-      unsigned int temp_unit = static_cast<int>(unit);
-      unsigned int temp_type = static_cast<int>(ScheduleType::FixedDelta);
+      int temp_unit = static_cast<int>(unit);
+      int temp_type = static_cast<int>(ScheduleType::FixedDelta);
       unsigned int temp_delta = delta;
 
       if (temp_delta > SCHEDULE_REP_MASK) {
@@ -150,7 +150,7 @@ class Schedule {
 
     static unsigned int createWeeklyScheduleConfiguration(ScheduleWeeklyMask weekMask) {
       unsigned int temp_week = 0;
-      unsigned int temp_type = static_cast<int>(ScheduleType::Weekly);
+      int temp_type = static_cast<int>(ScheduleType::Weekly);
 
       for(int i = 0; i<7; i++) {
         if(weekMask[static_cast<ScheduleWeekDay>(i)] == ScheduleState::Active) {
@@ -162,7 +162,7 @@ class Schedule {
 
     static unsigned int createMonthlyScheduleConfiguration(int dayOfTheMonth) {
       int temp_day = dayOfTheMonth;
-      unsigned int temp_type = static_cast<int>(ScheduleType::Monthly);
+      int temp_type = static_cast<int>(ScheduleType::Monthly);
 
       if(temp_day < 1) {
         temp_day = 1;
@@ -175,9 +175,9 @@ class Schedule {
     }
 
     static unsigned int createYearlyScheduleConfiguration(ScheduleMonth month, int dayOfTheMonth) {
-      int temp_day = createMonthlyScheduleConfiguration(dayOfTheMonth);
+      unsigned int temp_day = createMonthlyScheduleConfiguration(dayOfTheMonth);
       int temp_month = static_cast<int>(month);
-      unsigned int temp_type = static_cast<int>(ScheduleType::Yearly);
+      int temp_type = static_cast<int>(ScheduleType::Yearly);
 
       return (temp_type << SCHEDULE_TYPE_SHIFT) | (temp_month << SCHEDULE_MONTH_SHIFT)| temp_day;
     }
