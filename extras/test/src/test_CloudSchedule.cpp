@@ -22,7 +22,7 @@ TimeService::TimeService() {}
  * TimeService Fake Methods
  **************************************************************************************/
 
-unsigned long TimeService::getTime() {return time_now;}
+unsigned long TimeService::getLocalTime() {return time_now;}
 
 /**************************************************************************************
   TEST CODE
