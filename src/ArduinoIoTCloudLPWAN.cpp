@@ -68,7 +68,7 @@ int ArduinoIoTCloudLPWAN::begin(ConnectionHandler& connection, bool retry)
 {
   _connection = &connection;
   _retryEnable = retry;
-  _time_service->begin(nullptr);
+  _time_service.begin(nullptr);
   return 1;
 }
 
@@ -105,7 +105,7 @@ ArduinoIoTCloudLPWAN::State ArduinoIoTCloudLPWAN::handle_ConnectPhy()
 
 ArduinoIoTCloudLPWAN::State ArduinoIoTCloudLPWAN::handle_SyncTime()
 {
-  unsigned long const internal_posix_time = _time_service->getTime();
+  unsigned long const internal_posix_time = _time_service.getTime();
   DEBUG_VERBOSE("ArduinoIoTCloudLPWAN::%s internal clock configured to posix timestamp %d", __FUNCTION__, internal_posix_time);
   DEBUG_INFO("Connected to Arduino IoT Cloud");
   return State::Connected;

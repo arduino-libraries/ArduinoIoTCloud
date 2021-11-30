@@ -268,7 +268,7 @@ time_t cvt_time(char const * time)
   return mktime(&t);
 }
 
-TimeService* ArduinoIoTCloudTimeService() {
+TimeService & ArduinoIoTCloudTimeService() {
   static TimeService _timeService_instance;
-  return &_timeService_instance;
+  return _timeService_instance;
 }

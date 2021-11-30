@@ -115,7 +115,7 @@ class Schedule {
 
     bool isActive() {
 
-      ScheduleTimeType now = _schedule_time_service->getLocalTime();
+      ScheduleTimeType now = _schedule_time_service.getLocalTime();
 
       if(checkTimeValid(now)) {
         /* We have to wait RTC configuration and Timezone setting from the cloud */
@@ -201,7 +201,7 @@ class Schedule {
       return !(operator==(aSchedule));
     }
   private:
-    TimeService * _schedule_time_service = ArduinoIoTCloudTimeService();
+    TimeService & _schedule_time_service = ArduinoIoTCloudTimeService();
 
     ScheduleUnit getScheduleUnit(ScheduleConfigurationType msk) {
       return static_cast<ScheduleUnit>((msk & SCHEDULE_UNIT_MASK) >> SCHEDULE_UNIT_SHIFT);
