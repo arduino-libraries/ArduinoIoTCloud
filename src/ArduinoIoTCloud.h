@@ -80,6 +80,7 @@ class ArduinoIoTCloudClass
 {
   public:
 
+             ArduinoIoTCloudClass();
     virtual ~ArduinoIoTCloudClass() { }
 
 
@@ -145,19 +146,19 @@ class ArduinoIoTCloudClass
 
   protected:
 
-    ConnectionHandler * _connection = nullptr;
+    ConnectionHandler * _connection;
     PropertyContainer _property_container;
-    TimeService & _time_service = ArduinoIoTCloudTimeService();
-    int _tz_offset = 0;
-    unsigned int _tz_dst_until = 0;
+    TimeService & _time_service;
+    int _tz_offset;
+    unsigned int _tz_dst_until;
 
     void execCloudEventCallback(ArduinoIoTCloudEvent const event);
 
   private:
 
-    String _thing_id = "";
-    String _device_id = "";
-    OnCloudEventCallback _cloud_event_callback[3] = {nullptr};
+    String _thing_id;
+    String _device_id;
+    OnCloudEventCallback _cloud_event_callback[3];
 };
 
 #ifdef HAS_TCP
