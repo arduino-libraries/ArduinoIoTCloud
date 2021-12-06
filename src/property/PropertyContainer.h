@@ -40,6 +40,7 @@
 #include "types/CloudUnsignedInt.h"
 #include "types/CloudString.h"
 #include "types/CloudLocation.h"
+#include "types/CloudSchedule.h"
 #include "types/CloudColor.h"
 #include "types/CloudWrapperBase.h"
 

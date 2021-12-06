@@ -22,6 +22,22 @@
 #include <ArduinoIoTCloud.h>
 
 /******************************************************************************
+   CTOR/DTOR
+ ******************************************************************************/
+
+ArduinoIoTCloudClass::ArduinoIoTCloudClass()
+: _connection{nullptr}
+, _time_service(ArduinoIoTCloudTimeService())
+, _tz_offset{0}
+, _tz_dst_until{0}
+, _thing_id{""}
+, _device_id{""}
+, _cloud_event_callback{nullptr}
+{
+
+}
+
+/******************************************************************************
  * PUBLIC MEMBER FUNCTIONS
  ******************************************************************************/
 

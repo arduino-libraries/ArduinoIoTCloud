@@ -12,6 +12,7 @@ include_directories(include)
 include_directories(../../src)
 include_directories(../../src/cbor)
 include_directories(../../src/property)
+include_directories(../../src/utility/time)
 include_directories(external/catch/v2.12.1/include)
 include_directories(external/fakeit/v2.0.5/include)
 
@@ -32,6 +33,7 @@ set(TEST_SRCS
   src/test_callback.cpp
   src/test_CloudColor.cpp
   src/test_CloudLocation.cpp
+  src/test_CloudSchedule.cpp
   src/test_decode.cpp
   src/test_encode.cpp
   src/test_publishEvery.cpp

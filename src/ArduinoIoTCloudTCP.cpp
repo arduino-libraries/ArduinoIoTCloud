@@ -64,6 +64,11 @@ extern "C" unsigned long getTime()
   return ArduinoCloud.getInternalTime();
 }
 
+extern "C" void updateTimezoneInfo()
+{
+  ArduinoCloud.updateInternalTimezoneInfo();
+}
+
 /******************************************************************************
    CTOR/DTOR
  ******************************************************************************/
@@ -242,6 +247,9 @@ int ArduinoIoTCloudTCP::begin(bool const enable_watchdog, String brokerAddress, 
   addPropertyReal(_ota_url, "OTA_URL", Permission::ReadWrite).onSync(CLOUD_WINS);
   addPropertyReal(_ota_req, "OTA_REQ", Permission::ReadWrite).onSync(CLOUD_WINS);
 #endif /* OTA_ENABLED */
+
+  addPropertyReal(_tz_offset, "tz_offset", Permission::ReadWrite).onSync(CLOUD_WINS).onUpdate(updateTimezoneInfo);
+  addPropertyReal(_tz_dst_until, "tz_dst_until", Permission::ReadWrite).onSync(CLOUD_WINS).onUpdate(updateTimezoneInfo);
 
 #if OTA_STORAGE_PORTENTA_QSPI
   #define BOOTLOADER_ADDR   (0x8000000)
@@ -527,7 +535,12 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_Connected()
     */
     sendPropertiesToCloud();
 
-    return State::Connected;
+    unsigned long const internal_posix_time = _time_service.getTime();
+    if(internal_posix_time < _tz_dst_until) {
+      return State::Connected;
+    } else {
+      return State::RequestLastValues;
+    }
   }
 }
 
@@ -555,6 +568,7 @@ void ArduinoIoTCloudTCP::handleMessage(int length)
     DEBUG_VERBOSE("ArduinoIoTCloudTCP::%s [%d] last values received", __FUNCTION__, millis());
     CBORDecoder::decode(_property_container, (uint8_t*)bytes, length, true);
     sendPropertiesToCloud();
+    _time_service.setTimeZoneData(_tz_offset, _tz_dst_until);
     execCloudEventCallback(ArduinoIoTCloudEvent::SYNC);
     _last_sync_request_cnt = 0;
     _last_sync_request_tick = 0;

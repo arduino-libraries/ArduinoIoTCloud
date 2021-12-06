@@ -80,6 +80,7 @@ class ArduinoIoTCloudClass
 {
   public:
 
+             ArduinoIoTCloudClass();
     virtual ~ArduinoIoTCloudClass() { }
 
 
@@ -97,7 +98,9 @@ class ArduinoIoTCloudClass
 
     inline ConnectionHandler * getConnection()          { return _connection; }
 
-    inline unsigned long getInternalTime() { return _time_service.getTime(); }
+    inline unsigned long getInternalTime()              { return _time_service.getTime(); }
+    inline unsigned long getLocalTime()                 { return _time_service.getLocalTime(); }
+    inline void          updateInternalTimezoneInfo()   { _time_service.setTimeZoneData(_tz_offset, _tz_dst_until); }
 
     void addCallback(ArduinoIoTCloudEvent const event, OnCloudEventCallback callback);
 
@@ -143,17 +146,19 @@ class ArduinoIoTCloudClass
 
   protected:
 
-    ConnectionHandler * _connection = nullptr;
+    ConnectionHandler * _connection;
     PropertyContainer _property_container;
-    TimeService _time_service;
+    TimeService & _time_service;
+    int _tz_offset;
+    unsigned int _tz_dst_until;
 
     void execCloudEventCallback(ArduinoIoTCloudEvent const event);
 
   private:
 
-    String _thing_id = "";
-    String _device_id = "";
-    OnCloudEventCallback _cloud_event_callback[3] = {nullptr};
+    String _thing_id;
+    String _device_id;
+    OnCloudEventCallback _cloud_event_callback[3];
 };
 
 #ifdef HAS_TCP
