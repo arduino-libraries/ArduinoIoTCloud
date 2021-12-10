@@ -762,14 +762,16 @@ void ArduinoIoTCloudTCP::sendPropertiesToCloud()
 }
 
 #if OTA_ENABLED
-void ArduinoIoTCloudTCP::sendOTAPropertiesToCloud()
+void ArduinoIoTCloudTCP::sendOTAPropertiesToCloud(bool include_ota_req)
 {
   PropertyContainer ota_property_container;
   unsigned int last_ota_property_index = 0;
 
-  std::list<String> const ota_property_list {"OTA_CAP", "OTA_ERROR", "OTA_SHA256"};
-  std::for_each(ota_property_list.cbegin(),
-                ota_property_list.cend(),
+  std::list<String> ota_property_list {"OTA_CAP", "OTA_ERROR", "OTA_SHA256"};
+  if (include_ota_req)
+    ota_property_list.push_back("OTA_REQ");
+  std::for_each(ota_property_list.begin(),
+                ota_property_list.end(),
                 [this, &ota_property_container ] (String const & name)
                 {
                   Property* p = getProperty(this->_device_property_container, name);
