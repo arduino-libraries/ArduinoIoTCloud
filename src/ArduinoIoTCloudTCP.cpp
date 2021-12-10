@@ -326,6 +326,11 @@ void ArduinoIoTCloudTCP::update()
 #endif
 
 
+  if(getThingIdOutdatedFlag()) {
+    DEBUG_VERBOSE("ArduinoIoTCloudTCP::%s Thing id outdated, reconfiguring...", __FUNCTION__);
+    _state =  State::CheckDeviceConfig;
+  }
+
   /* Run through the state machine. */
   State next_state = _state;
   switch (_state)
@@ -476,7 +481,6 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_WaitDeviceConfig()
       return State::SubscribeDeviceTopic;
     }
   }
-
   return State::WaitDeviceConfig;
 }
 
@@ -490,16 +494,13 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_CheckDeviceConfig()
     return State::ConnectPhy;
   }
 
-  if(getThingIdOutdatedFlag())
+  if(_deviceSubscribedToThing == true)
   {
-    if(_deviceSubscribedToThing == true)
-    {
-      /* Unsubscribe from old things topics and go on with a new subsctiption */
-      _mqttClient.unsubscribe(_shadowTopicIn);
-      _mqttClient.unsubscribe(_dataTopicIn);
+    /* Unsubscribe from old things topics and go on with a new subsctiption */
+    _mqttClient.unsubscribe(_shadowTopicIn);
+    _mqttClient.unsubscribe(_dataTopicIn);
 
-      _deviceSubscribedToThing = false;
-    }
+    _deviceSubscribedToThing = false;
   }
 
   updateThingTopics();
@@ -716,7 +717,6 @@ void ArduinoIoTCloudTCP::handleMessage(int length)
     CBORDecoder::decode(_device_property_container, (uint8_t*)bytes, length);
     _last_device_subscribe_cnt = 0;
     _next_device_subscribe_attempt_tick = 0;
-    _state = State::CheckDeviceConfig;
   }
 
   /* Topic for user input data */
