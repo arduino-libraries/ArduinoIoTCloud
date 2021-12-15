@@ -24,6 +24,7 @@
 #undef max
 #undef min
 #include <algorithm>
+#include <iterator>
 
 #include "lib/tinycbor/cbor-lib.h"
 
@@ -45,9 +46,18 @@ CborError CBOREncoder::encode(PropertyContainer & property_container, uint8_t * 
    */
   CborError error = CborNoError;
   int num_encoded_properties = 0;
-  std::for_each(property_container.begin(),
+  int num_checked_properties = 0;
+  static unsigned int last_property_index = 0;
+
+  if(last_property_index >= property_container.size())
+    last_property_index = 0;
+
+  PropertyContainer::iterator iter = property_container.begin();
+  std::advance(iter, last_property_index);
+
+  std::for_each(iter,
                 property_container.end(),
-                [lightPayload, &arrayEncoder, &error, &num_encoded_properties](Property * p)
+                [lightPayload, &arrayEncoder, &error, &num_encoded_properties, &num_checked_properties](Property * p)
                 {
                   if(error == CborNoError)
                   {
@@ -59,8 +69,12 @@ CborError CBOREncoder::encode(PropertyContainer & property_container, uint8_t * 
                       else
                         return;
                     }
+                    num_checked_properties++;
                   }
                 });
+
+  last_property_index += num_checked_properties;
+
   if ((CborNoError != error) && 
       (CborErrorOutOfMemory != error))
     return error;
