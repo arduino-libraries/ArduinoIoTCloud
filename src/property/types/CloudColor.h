@@ -189,9 +189,9 @@ class CloudColor : public Property {
       _cloud_value = _value;
     }
     virtual CborError appendAttributesToCloud() {
-      CHECK_CBOR(appendAttribute(_value.hue));
-      CHECK_CBOR(appendAttribute(_value.sat));
-      CHECK_CBOR(appendAttribute(_value.bri));
+      CHECK_CBOR_MULTI(appendAttribute(_value.hue));
+      CHECK_CBOR_MULTI(appendAttribute(_value.sat));
+      CHECK_CBOR_MULTI(appendAttribute(_value.bri));
       return CborNoError;
     }
     virtual void setAttributesFromCloud() {

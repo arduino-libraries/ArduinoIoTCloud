@@ -418,10 +418,10 @@ class CloudSchedule : public Property {
       _cloud_value = _value;
     }
     virtual CborError appendAttributesToCloud() {
-      CHECK_CBOR(appendAttribute(_value.frm));
-      CHECK_CBOR(appendAttribute(_value.to));
-      CHECK_CBOR(appendAttribute(_value.len));
-      CHECK_CBOR(appendAttribute(_value.msk));
+      CHECK_CBOR_MULTI(appendAttribute(_value.frm));
+      CHECK_CBOR_MULTI(appendAttribute(_value.to));
+      CHECK_CBOR_MULTI(appendAttribute(_value.len));
+      CHECK_CBOR_MULTI(appendAttribute(_value.msk));
       return CborNoError;
     }
     virtual void setAttributesFromCloud() {
