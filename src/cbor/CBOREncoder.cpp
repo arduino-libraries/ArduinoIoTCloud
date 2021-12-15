@@ -49,13 +49,16 @@ CborError CBOREncoder::encode(PropertyContainer & property_container, uint8_t * 
                 property_container.end(),
                 [lightPayload, &arrayEncoder, &error, &num_encoded_properties](Property * p)
                 {
-                  if (p->shouldBeUpdated() && p->isReadableByCloud())
+                  if(error == CborNoError)
                   {
-                    error = p->append(&arrayEncoder, lightPayload);
-                    if(error == CborNoError)
-                      num_encoded_properties++;
-                    else
-                      return;
+                    if (p->shouldBeUpdated() && p->isReadableByCloud())
+                    {
+                      error = p->append(&arrayEncoder, lightPayload);
+                      if(error == CborNoError)
+                        num_encoded_properties++;
+                      else
+                        return;
+                    }
                   }
                 });
   if ((CborNoError != error) && 
