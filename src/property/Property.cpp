@@ -107,7 +107,6 @@ bool Property::shouldBeUpdated() {
   }
 
   if (_has_been_modified_in_callback) {
-    _has_been_modified_in_callback = false;
     return true;
   }
 
@@ -148,6 +147,7 @@ CborError Property::append(CborEncoder *encoder, bool lightPayload) {
   CHECK_CBOR(appendAttributesToCloudReal(encoder));
   fromLocalToCloud();
   _has_been_updated_once = true;
+  _has_been_modified_in_callback = false;
   _update_requested = false;
   _last_updated_millis = millis();
   return CborNoError;
