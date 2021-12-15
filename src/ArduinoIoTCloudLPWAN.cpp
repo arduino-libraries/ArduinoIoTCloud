@@ -149,8 +149,9 @@ void ArduinoIoTCloudLPWAN::sendPropertiesToCloud()
 {
   int bytes_encoded = 0;
   uint8_t data[CBOR_LORA_MSG_MAX_SIZE];
+  static unsigned int last_checked_property_index = 0;
 
-  if (CBOREncoder::encode(_property_container, data, sizeof(data), bytes_encoded, true) == CborNoError)
+  if (CBOREncoder::encode(_property_container, data, sizeof(data), bytes_encoded, last_checked_property_index, true) == CborNoError)
     if (bytes_encoded > 0)
       writeProperties(data, bytes_encoded);
 }
