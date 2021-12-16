@@ -47,7 +47,7 @@ CborError CBOREncoder::encode(PropertyContainer & property_container, uint8_t * 
   CborError error = CborNoError;
   int num_encoded_properties = 0;
   int num_checked_properties = 0;
-  static int encoded_properties_message_limit = -1;
+  static int encoded_properties_message_limit = CBOR_ENCODER_NO_PROPERTIES_LIMIT;
 
   if(current_property_index >= property_container.size())
     current_property_index = 0;
@@ -59,7 +59,7 @@ CborError CBOREncoder::encode(PropertyContainer & property_container, uint8_t * 
                 property_container.end(),
                 [lightPayload, &arrayEncoder, &error, &num_encoded_properties, &num_checked_properties](Property * p)
                 {
-                  if((error == CborNoError) && ((num_encoded_properties < encoded_properties_message_limit) || (encoded_properties_message_limit == -1)))
+                  if((error == CborNoError) && ((num_encoded_properties < encoded_properties_message_limit) || (encoded_properties_message_limit == CBOR_ENCODER_NO_PROPERTIES_LIMIT)))
                   {
                     if (p->shouldBeUpdated() && p->isReadableByCloud())
                     {
@@ -88,8 +88,8 @@ CborError CBOREncoder::encode(PropertyContainer & property_container, uint8_t * 
     return error;
   }
 
-  /* Restore property message limit to NO_LIMIT */
-  encoded_properties_message_limit = -1;
+  /* Restore property message limit to CBOR_ENCODER_NO_PROPERTIES_LIMIT */
+  encoded_properties_message_limit = CBOR_ENCODER_NO_PROPERTIES_LIMIT;
 
   /* The append process has been successful, so we don't need to terty to send this properties set. Cleanup _has_been_appended_but_not_sended flag */
   iter = property_container.begin();
