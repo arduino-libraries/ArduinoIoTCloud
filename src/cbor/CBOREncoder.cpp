@@ -59,7 +59,9 @@ CborError CBOREncoder::encode(PropertyContainer & property_container, uint8_t * 
                 property_container.end(),
                 [lightPayload, &arrayEncoder, &error, &num_encoded_properties, &num_checked_properties](Property * p)
                 {
-                  if((error == CborNoError) && ((num_encoded_properties < encoded_properties_message_limit) || (encoded_properties_message_limit == CBOR_ENCODER_NO_PROPERTIES_LIMIT)))
+                  bool maximum_number_of_properties_reached = (num_encoded_properties >= encoded_properties_message_limit) && (encoded_properties_message_limit != CBOR_ENCODER_NO_PROPERTIES_LIMIT);
+                  bool cbor_encoder_error = (error != CborNoError);
+                  if((!cbor_encoder_error) && (!maximum_number_of_properties_reached))
                   {
                     if (p->shouldBeUpdated() && p->isReadableByCloud())
                     {
