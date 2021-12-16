@@ -161,6 +161,7 @@ CborError Property::append(CborEncoder *encoder, bool lightPayload) {
   _has_been_updated_once = true;
   _has_been_modified_in_callback = false;
   _update_requested = false;
+  _has_been_appended_but_not_sended = true;
   _last_updated_millis = millis();
   return CborNoError;
 }

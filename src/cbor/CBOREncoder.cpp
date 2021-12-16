@@ -47,6 +47,7 @@ CborError CBOREncoder::encode(PropertyContainer & property_container, uint8_t * 
   CborError error = CborNoError;
   int num_encoded_properties = 0;
   int num_checked_properties = 0;
+  static int encoded_properties_message_limit = -1;
 
   if(current_property_index >= property_container.size())
     current_property_index = 0;
@@ -58,7 +59,7 @@ CborError CBOREncoder::encode(PropertyContainer & property_container, uint8_t * 
                 property_container.end(),
                 [lightPayload, &arrayEncoder, &error, &num_encoded_properties, &num_checked_properties](Property * p)
                 {
-                  if(error == CborNoError)
+                  if((error == CborNoError) && ((num_encoded_properties < encoded_properties_message_limit) || (encoded_properties_message_limit == -1)))
                   {
                     if (p->shouldBeUpdated() && p->isReadableByCloud())
                     {
@@ -72,13 +73,35 @@ CborError CBOREncoder::encode(PropertyContainer & property_container, uint8_t * 
                   }
                 });
 
-  current_property_index += num_checked_properties;
-
-  if ((CborNoError != error) && 
-      (CborErrorOutOfMemory != error))
+  if ((CborNoError != error) && (CborErrorOutOfMemory != error))
+  {
+    /* Trim the number of properties to be included in the next message to avoid multivalue property split */
+    encoded_properties_message_limit = num_encoded_properties;
     return error;
+  }
+
+  /* Restore property message limit to NO_LIMIT */
+  encoded_properties_message_limit = -1;
 
   CHECK_CBOR(cbor_encoder_close_container(&encoder, &arrayEncoder));
+
+  /* The append process has been successful, so we don't need to terty to send this properties set. Cleanup _has_been_appended_but_not_sended flag */
+  iter = property_container.begin();
+  std::advance(iter, current_property_index);
+  int num_appended_properties = 0;
+  std::for_each(iter,
+                property_container.end(),
+                [&num_appended_properties, &num_checked_properties](Property * p)
+                {
+                  if (num_appended_properties < num_checked_properties)
+                  {
+                    p->appendCompleted();
+                    num_appended_properties++;
+                  }
+                });
+
+  /* Advance property index for the nex message */
+  current_property_index += num_checked_properties;
 
   if (num_encoded_properties > 0)
     bytes_encoded = cbor_encoder_get_buffer_size(&encoder, data);
