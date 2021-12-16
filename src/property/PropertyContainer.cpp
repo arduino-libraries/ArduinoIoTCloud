@@ -123,6 +123,7 @@ void updateProperty(PropertyContainer & prop_cont, String propertyName, unsigned
     } else {
       property->fromCloudToLocal();
       property->execCallbackOnChange();
+      property->provideEcho();
     }
   }
 }

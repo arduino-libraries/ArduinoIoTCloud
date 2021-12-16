@@ -49,6 +49,7 @@ Property::Property()
 , _lightPayload{false}
 , _update_requested{false}
 , _encode_timestamp{false}
+, _echo_requested{false}
 , _timestamp{0}
 {
 
@@ -115,6 +116,10 @@ bool Property::shouldBeUpdated() {
     return true;
   }
 
+  if (_echo_requested) {
+    return true;
+  }
+
   if (_update_policy == UpdatePolicy::OnChange) {
     return (isDifferentFromCloud() && ((millis() - _last_updated_millis) >= (_min_time_between_updates_millis)));
   } else if (_update_policy == UpdatePolicy::TimeInterval) {
@@ -131,6 +136,11 @@ void Property::requestUpdate()
   _update_requested = true;
 }
 
+void Property::provideEcho()
+{
+  _echo_requested = true;
+}
+
 void Property::appendCompleted()
 {
   if (_has_been_appended_but_not_sended) {
@@ -142,7 +152,7 @@ void Property::execCallbackOnChange() {
   if (_update_callback_func != nullptr) {
     _update_callback_func();
   }
-  if (!isDifferentFromCloud()) {
+  if (isDifferentFromCloud()) {
     _has_been_modified_in_callback = true;
   }
 }
@@ -161,6 +171,7 @@ CborError Property::append(CborEncoder *encoder, bool lightPayload) {
   _has_been_updated_once = true;
   _has_been_modified_in_callback = false;
   _update_requested = false;
+  _echo_requested = false;
   _has_been_appended_but_not_sended = true;
   _last_updated_millis = millis();
   return CborNoError;

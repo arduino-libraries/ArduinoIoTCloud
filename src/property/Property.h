@@ -175,6 +175,7 @@ class Property
     bool shouldBeUpdated();
     void requestUpdate();
     void appendCompleted();
+    void provideEcho();
     void execCallbackOnChange();
     void execCallbackOnSync();
     void setLastCloudChangeTimestamp(unsigned long cloudChangeTime);
@@ -248,6 +249,8 @@ class Property
     bool               _update_requested;
     /* Indicates whether the timestamp shall be encoded in the property or not */
     bool               _encode_timestamp;
+    /* Indicates if the property shall be echoed back to the cloud even if unchanged */
+    bool               _echo_requested;
     unsigned long      _timestamp;
 };
 
