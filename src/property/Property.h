@@ -174,6 +174,7 @@ class Property
     void setTimestamp(unsigned long const timestamp);
     bool shouldBeUpdated();
     void requestUpdate();
+    void appendCompleted();
     void execCallbackOnChange();
     void execCallbackOnSync();
     void setLastCloudChangeTimestamp(unsigned long cloudChangeTime);
@@ -229,7 +230,8 @@ class Property
 
     UpdatePolicy       _update_policy;
     bool               _has_been_updated_once,
-                       _has_been_modified_in_callback;
+                       _has_been_modified_in_callback,
+                       _has_been_appended_but_not_sended;
     /* Variables used for UpdatePolicy::TimeInterval */
     unsigned long      _last_updated_millis,
              _update_interval_millis;
