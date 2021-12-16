@@ -80,10 +80,16 @@ CborError CBOREncoder::encode(PropertyContainer & property_container, uint8_t * 
     return error;
   }
 
+  error = cbor_encoder_close_container(&encoder, &arrayEncoder);
+  if (CborNoError != error)
+  {
+    /* Trim the number of properties to be included in the next message to avoid error closing container */
+    encoded_properties_message_limit = num_encoded_properties - 1;
+    return error;
+  }
+
   /* Restore property message limit to NO_LIMIT */
   encoded_properties_message_limit = -1;
-
-  CHECK_CBOR(cbor_encoder_close_container(&encoder, &arrayEncoder));
 
   /* The append process has been successful, so we don't need to terty to send this properties set. Cleanup _has_been_appended_but_not_sended flag */
   iter = property_container.begin();
