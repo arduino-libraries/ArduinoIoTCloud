@@ -55,25 +55,23 @@ CborError CBOREncoder::encode(PropertyContainer & property_container, uint8_t * 
   PropertyContainer::iterator iter = property_container.begin();
   std::advance(iter, current_property_index);
 
-  std::for_each(iter,
-                property_container.end(),
-                [lightPayload, &arrayEncoder, &error, &num_encoded_properties, &num_checked_properties](Property * p)
-                {
-                  bool maximum_number_of_properties_reached = (num_encoded_properties >= encoded_properties_message_limit) && (encoded_properties_message_limit != CBOR_ENCODER_NO_PROPERTIES_LIMIT);
-                  bool cbor_encoder_error = (error != CborNoError);
-                  if((!cbor_encoder_error) && (!maximum_number_of_properties_reached))
-                  {
-                    if (p->shouldBeUpdated() && p->isReadableByCloud())
-                    {
-                      error = p->append(&arrayEncoder, lightPayload);
-                      if(error == CborNoError)
-                        num_encoded_properties++;
-                      else
-                        return;
-                    }
-                    num_checked_properties++;
-                  }
-                });
+  for(; iter != property_container.end(); iter++)
+  {
+    Property * p = * iter;
+    bool maximum_number_of_properties_reached = (num_encoded_properties >= encoded_properties_message_limit) && (encoded_properties_message_limit != -1);
+    bool cbor_encoder_error = (error != CborNoError);
+
+    if (maximum_number_of_properties_reached || cbor_encoder_error)
+      break;
+
+    if (p->shouldBeUpdated() && p->isReadableByCloud())
+    {
+      error = p->append(&arrayEncoder, lightPayload);
+      if(error == CborNoError)
+        num_encoded_properties++;
+    }
+    num_checked_properties++;
+  }
 
   if ((CborNoError != error) && (CborErrorOutOfMemory != error))
   {
@@ -97,16 +95,16 @@ CborError CBOREncoder::encode(PropertyContainer & property_container, uint8_t * 
   iter = property_container.begin();
   std::advance(iter, current_property_index);
   int num_appended_properties = 0;
-  std::for_each(iter,
-                property_container.end(),
-                [&num_appended_properties, &num_checked_properties](Property * p)
-                {
-                  if (num_appended_properties < num_checked_properties)
-                  {
-                    p->appendCompleted();
-                    num_appended_properties++;
-                  }
-                });
+
+  for(; iter != property_container.end(); iter++)
+  {
+    Property * p = * iter;
+    if (num_appended_properties >= num_checked_properties)
+      break;
+
+    p->appendCompleted();
+    num_appended_properties++;
+  }
 
   /* Advance property index for the nex message */
   current_property_index += num_checked_properties;
