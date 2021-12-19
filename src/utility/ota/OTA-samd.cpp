@@ -47,6 +47,7 @@ int samd_onOTARequest(char const * ota_url)
 
   watchdog_reset();
 
+  DEBUG_VERBOSE("ArduinoIoTCloudTCP::%s downloading to nina: %s", __FUNCTION__, ota_url);
   /* Trigger direct download to nina module. */
   uint8_t nina_ota_err_code = 0;
   if (!WiFiStorage.downloadOTA(ota_url, &nina_ota_err_code))
@@ -54,6 +55,9 @@ int samd_onOTARequest(char const * ota_url)
     DEBUG_ERROR("ArduinoIoTCloudTCP::%s error download to nina: %d", __FUNCTION__, nina_ota_err_code);
     return static_cast<int>(OTAError::DownloadFailed);
   }
+
+  DEBUG_VERBOSE("ArduinoIoTCloudTCP::%s download successful", __FUNCTION__);
+  DEBUG_VERBOSE("ArduinoIoTCloudTCP::%s performing reset to reboot", __FUNCTION__);
 
   /* Perform the reset to reboot to SxU. */
   NVIC_SystemReset();

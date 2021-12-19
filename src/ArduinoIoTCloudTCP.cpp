@@ -378,8 +378,10 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_SyncTime()
 
 ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_ConnectMqttBroker()
 {
+  DEBUG_VERBOSE("ArduinoIoTCloudTCP::%s connecting to %s:%d (attempt %d)", __FUNCTION__, _brokerAddress.c_str(), _brokerPort, _last_connection_attempt_cnt);
   if (_mqttClient.connect(_brokerAddress.c_str(), _brokerPort))
   {
+  DEBUG_VERBOSE("ArduinoIoTCloudTCP::%s connected to %s:%d", __FUNCTION__, _brokerAddress.c_str(), _brokerPort);
     _last_connection_attempt_cnt = 0;
     return State::SubscribeMqttTopics;
   }
@@ -404,6 +406,7 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_SubscribeMqttTopics()
     return State::ConnectPhy;
   }
 
+  DEBUG_VERBOSE("ArduinoIoTCloudTCP::%s subscribing to %s ...", __FUNCTION__, _dataTopicIn.c_str());
   if (!_mqttClient.subscribe(_dataTopicIn))
   {
     DEBUG_ERROR("ArduinoIoTCloudTCP::%s could not subscribe to %s", __FUNCTION__, _dataTopicIn.c_str());
@@ -412,9 +415,11 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_SubscribeMqttTopics()
 #endif
     return State::SubscribeMqttTopics;
   }
+  DEBUG_VERBOSE("ArduinoIoTCloudTCP::%s subscribed to %s", __FUNCTION__, _dataTopicIn.c_str());
 
   if (_shadowTopicIn != "")
   {
+    DEBUG_VERBOSE("ArduinoIoTCloudTCP::%s subscribing to %s ...", __FUNCTION__, _shadowTopicIn.c_str());
     if (!_mqttClient.subscribe(_shadowTopicIn))
     {
       DEBUG_ERROR("ArduinoIoTCloudTCP::%s could not subscribe to %s", __FUNCTION__, _shadowTopicIn.c_str());
@@ -424,6 +429,7 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_SubscribeMqttTopics()
       return State::SubscribeMqttTopics;
     }
   }
+  DEBUG_VERBOSE("ArduinoIoTCloudTCP::%s subscribed to %s", __FUNCTION__, _shadowTopicIn.c_str());
 
   DEBUG_INFO("Connected to Arduino IoT Cloud");
   execCloudEventCallback(ArduinoIoTCloudEvent::CONNECT);

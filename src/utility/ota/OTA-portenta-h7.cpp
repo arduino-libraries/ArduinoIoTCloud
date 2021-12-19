@@ -61,6 +61,7 @@ int portenta_h7_onOTARequest(char const * ota_url)
   watchdog_reset();
 
   /* Download the OTA file from the web storage location. */
+  DEBUG_VERBOSE("Arduino_Portenta_OTA_QSPI::download(%s) started", ota_url);
   int const ota_portenta_qspi_download_ret_code = ota_portenta_qspi.download(ota_url, true /* is_https */);
   DEBUG_VERBOSE("Arduino_Portenta_OTA_QSPI::download(%s) returns %d", ota_url, ota_portenta_qspi_download_ret_code);
 
@@ -82,6 +83,8 @@ int portenta_h7_onOTARequest(char const * ota_url)
     DEBUG_ERROR("Arduino_Portenta_OTA_QSPI::update() failed with %d", static_cast<int>(ota_portenta_err));
     return static_cast<int>(ota_portenta_err);
   }
+
+  DEBUG_VERBOSE("Arduino_Portenta_OTA_QSPI::reboot() performing reset to reboot");
 
   /* Perform the reset to reboot - then the bootloader performs the actual application update. */
   NVIC_SystemReset();

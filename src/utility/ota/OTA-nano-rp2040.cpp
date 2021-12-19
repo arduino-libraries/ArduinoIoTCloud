@@ -119,6 +119,8 @@ int rp2040_connect_onOTARequest(char const * ota_url)
 
   watchdog_reset();
 
+  DEBUG_VERBOSE("%s downloading: %s", __FUNCTION__, ota_url);
+  
   URI url(ota_url);
   Client * client = nullptr;
   int port = 0;
@@ -233,6 +235,7 @@ int rp2040_connect_onOTARequest(char const * ota_url)
 
   DEBUG_INFO("%s: %d bytes received", __FUNCTION__, ftell(file));
   fclose(file);
+  DEBUG_VERBOSE("%s download successful", __FUNCTION__);
 
   /* Unmount the filesystem. */
   if ((err = fs.unmount()) != 0)
@@ -240,6 +243,8 @@ int rp2040_connect_onOTARequest(char const * ota_url)
      DEBUG_ERROR("%s: fs.unmount() failed with %d", __FUNCTION__, err);
      return static_cast<int>(OTAError::RP2040_ErrorUnmount);
   }
+
+  DEBUG_VERBOSE("%s performing reset to reboot", __FUNCTION__);
 
   /* Perform the reset to reboot to SFU. */
   mbed_watchdog_trigger_reset();
