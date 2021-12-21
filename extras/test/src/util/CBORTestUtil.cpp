@@ -28,9 +28,9 @@ std::vector<uint8_t> encode(PropertyContainer & property_container, bool lightPa
 {
   int bytes_encoded = 0;
   unsigned int starting_property_index = 0;
-  uint8_t buf[200] = {0};
+  uint8_t buf[256] = {0};
 
-  if (CBOREncoder::encode(property_container, buf, 200, bytes_encoded, starting_property_index, lightPayload) == CborNoError)
+  if (CBOREncoder::encode(property_container, buf, 256, bytes_encoded, starting_property_index, lightPayload) == CborNoError)
     return std::vector<uint8_t>(buf, buf + bytes_encoded);
   else
     return std::vector<uint8_t>();
