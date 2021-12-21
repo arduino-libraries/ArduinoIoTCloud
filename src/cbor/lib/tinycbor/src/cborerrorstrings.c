@@ -163,6 +163,9 @@ const char *cbor_error_string(CborError error)
     case CborErrorTooFewItems:
         return _("too few items added to encoder");
 
+    case CborErrorSplitItems:
+        return _("splitted item added to encoder");
+
     case CborErrorDataTooLarge:
         return _("internal error: data too large");
 

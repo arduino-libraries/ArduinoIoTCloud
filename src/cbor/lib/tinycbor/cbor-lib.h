@@ -27,7 +27,7 @@
       CborError error = CborNoError;      \
       error = (expr);                     \
       if (CborErrorOutOfMemory == error)  \
-        return CborErrorTooManyItems;     \
+        return CborErrorSplitItems;     \
       if (CborNoError != error)           \
         return error;                     \
     } while(0);
