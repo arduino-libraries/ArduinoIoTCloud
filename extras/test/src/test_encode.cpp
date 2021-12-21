@@ -492,4 +492,28 @@ SCENARIO("Arduino Cloud Properties are encoded", "[ArduinoCloudThing::encode-1]"
     std::vector<uint8_t> const actual_2 = cbor::encode(property_container);
     REQUIRE(actual_2 == expected_2);
   }
+
+
+  /************************************************************************************/
+
+  WHEN("The size of a single encoded properties is exceeding the CBOR buffer size")
+  {
+    PropertyContainer property_container;
+
+    CloudString str_0; str_0 = "I am trying to create a single property in such a way it does not fit the CBOR encoder message buffer size (that is 256 bytes) in order to test what happens trying to encode it. It looks easy, but in reality 256 bytes are a lot of characters to fill. Done!";
+
+    addPropertyToContainer(property_container, str_0, "str_0", Permission::ReadWrite);
+
+    /* Due to the size if the encoded properties exceeding 256 bytes if encoded all at
+     * once they are encoded in subsequent calls to CBOREncoder::encode.
+     */
+
+    /* [{0: "str_0", 3: "I am trying to create a single property in such a way it does not fit the CBOR encoder message buffer size (that is 256 bytes) in order to test what happens trying to encode it. It looks easy, but in reality 256 bytes are a lot of characters to fill. Done!"}]
+     * = 9F A2 00 65 73 74 72 5F 30 03 78 FF 49 20 61 6D 20 74 72 79 69 6E 67 20 74 6F 20 63 72 65 61 74 65 20 61 20 73 69 6E 67 6C 65 20 70 72 6F 70 65 72 74 79 20 69 6E 20 73 75 63 68 20 61 20 77 61 79 20 69 74 20 64 6F 65 73 20 6E 6F 74 20 66 69 74 20 74 68 65 20 43 42 4F 52 20 65 6E 63 6F 64 65 72 20 6D 65 73 73 61 67 65 20 62 75 66 66 65 72 20 73 69 7A 65 20 28 74 68 61 74 20 69 73 20 32 35 36 20 62 79 74 65 73 29 20 69 6E 20 6F 72 64 65 72 20 74 6F 20 74 65 73 74 20 77 68 61 74 20 68 61 70 70 65 6E 73 20 74 72 79 69 6E 67 20 74 6F 20 65 6E 63 6F 64 65 20 69 74 2E 20 49 74 20 6C 6F 6F 6B 73 20 65 61 73 79 2C 20 62 75 74 20 69 6E 20 72 65 61 6C 69 74 79 20 32 35 36 20 62 79 74 65 73 20 61 72 65 20 61 20 6C 6F 74 20 6F 66 20 63 68 61 72 61 63 74 65 72 73 20 74 6F 20 66 69 6C 6C 2E 20 44 6F 6E 65 21 FF
+     */
+    std::vector<uint8_t> const expected_1 = {};
+    std::vector<uint8_t> const actual_1 = cbor::encode(property_container);
+    REQUIRE(actual_1 == expected_1);
+  }
+
 }
