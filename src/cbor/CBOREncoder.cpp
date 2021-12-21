@@ -34,85 +34,179 @@
 
 CborError CBOREncoder::encode(PropertyContainer & property_container, uint8_t * data, size_t const size, int & bytes_encoded, unsigned int & current_property_index, bool lightPayload)
 {
-  CborEncoder encoder, arrayEncoder;
+  EncoderState current_state = EncoderState::InitPropertyEncoder,
+               next_state = EncoderState::InitPropertyEncoder;
 
-  cbor_encoder_init(&encoder, data, size, 0);
+  PropertyContainerEncoder propertyEncoder(property_container, current_property_index);
 
-  CHECK_CBOR(cbor_encoder_create_array(&encoder, &arrayEncoder, CborIndefiniteLength));
+  while (current_state != EncoderState::SendMessage) {
 
-  /* Check if backing storage and cloud has diverged
-   * time interval may be elapsed or property may be changed
+    switch (current_state) {
+      case EncoderState::InitPropertyEncoder      : next_state = handle_InitPropertyEncoder(propertyEncoder); break;
+      case EncoderState::OpenCBORContainer        : next_state = handle_OpenCBORContainer(propertyEncoder, data, size); break;
+      case EncoderState::TryAppend                : next_state = handle_TryAppend(propertyEncoder, lightPayload); break;
+      case EncoderState::OutOfMemory              : next_state = handle_OutOfMemory(propertyEncoder); break;
+      case EncoderState::SkipProperty             : next_state = handle_SkipProperty(propertyEncoder); break;
+      case EncoderState::TrimAppend               : next_state = handle_TrimAppend(propertyEncoder); break;
+      case EncoderState::CloseCBORContainer       : next_state = handle_CloseCBORContainer(propertyEncoder); break;
+      case EncoderState::TrimClose                : next_state = handle_TrimClose(propertyEncoder); break;
+      case EncoderState::FinishAppend             : next_state = handle_FinishAppend(propertyEncoder); break;
+      case EncoderState::AdvancePropertyContainer : next_state = handle_AdvancePropertyContainer(propertyEncoder); break;
+      case EncoderState::SendMessage              : /* Nothing to do */ break;
+      case EncoderState::Error                    : return CborErrorInternalError; break;
+    }
+
+    current_state = next_state;
+  }
+
+  if (propertyEncoder.encoded_property_count > 0)
+    bytes_encoded = cbor_encoder_get_buffer_size(&propertyEncoder.encoder, data);
+  else
+    bytes_encoded = 0;
+
+  return CborNoError;
+}
+
+/******************************************************************************
+   PRIVATE MEMBER FUNCTIONS
+ ******************************************************************************/
+
+CBOREncoder::EncoderState CBOREncoder::handle_InitPropertyEncoder(PropertyContainerEncoder & propertyEncoder)
+{
+  propertyEncoder.encoded_property_count = 0;
+  propertyEncoder.checked_property_count = 0;
+  propertyEncoder.encoded_property_limit = 0;
+  propertyEncoder.property_limit_active  = false;
+  return EncoderState::OpenCBORContainer;
+}
+
+CBOREncoder::EncoderState CBOREncoder::handle_OpenCBORContainer(PropertyContainerEncoder & propertyEncoder, uint8_t * data, size_t const size)
+{
+  propertyEncoder.encoded_property_count = 0;
+  propertyEncoder.checked_property_count = 0;
+  cbor_encoder_init(&propertyEncoder.encoder, data, size, 0);
+  cbor_encoder_create_array(&propertyEncoder.encoder, &propertyEncoder.arrayEncoder, CborIndefiniteLength);
+  return EncoderState::TryAppend;
+}
+
+CBOREncoder::EncoderState CBOREncoder::handle_TryAppend(PropertyContainerEncoder & propertyEncoder, bool  & lightPayload)
+{
+  /* Check if backing storage and cloud has diverged. Time interval may be elapsed or property may be changed
    * and if that's the case encode the property into the CBOR.
    */
   CborError error = CborNoError;
-  int num_encoded_properties = 0;
-  int num_checked_properties = 0;
-  static int encoded_properties_message_limit = CBOR_ENCODER_NO_PROPERTIES_LIMIT;
+  PropertyContainer::iterator iter = propertyEncoder.property_container.begin();
+  std::advance(iter, propertyEncoder.current_property_index);
 
-  if(current_property_index >= property_container.size())
-    current_property_index = 0;
-
-  PropertyContainer::iterator iter = property_container.begin();
-  std::advance(iter, current_property_index);
-
-  for(; iter != property_container.end(); iter++)
+  for(; iter != propertyEncoder.property_container.end(); iter++)
   {
     Property * p = * iter;
-    bool maximum_number_of_properties_reached = (num_encoded_properties >= encoded_properties_message_limit) && (encoded_properties_message_limit != -1);
-    bool cbor_encoder_error = (error != CborNoError);
-
-    if (maximum_number_of_properties_reached || cbor_encoder_error)
-      break;
 
     if (p->shouldBeUpdated() && p->isReadableByCloud())
     {
-      error = p->append(&arrayEncoder, lightPayload);
+      error = p->append(&propertyEncoder.arrayEncoder, lightPayload);
       if(error == CborNoError)
-        num_encoded_properties++;
+        propertyEncoder.encoded_property_count++;
     }
-    num_checked_properties++;
+    if(error == CborNoError)
+      propertyEncoder.checked_property_count++;
+
+    bool const maximum_number_of_properties_reached = (propertyEncoder.encoded_property_count >= propertyEncoder.encoded_property_limit) && (propertyEncoder.property_limit_active == true);
+    bool const cbor_encoder_error = (error != CborNoError);
+
+    if (maximum_number_of_properties_reached || cbor_encoder_error)
+      break;
   }
 
-  if ((CborNoError != error) && (CborErrorOutOfMemory != error))
-  {
-    /* Trim the number of properties to be included in the next message to avoid multivalue property split */
-    encoded_properties_message_limit = num_encoded_properties;
-    return error;
-  }
+  if (CborErrorOutOfMemory == error)
+    return EncoderState::OutOfMemory;
+  else if (CborNoError == error)
+    return EncoderState::CloseCBORContainer;
+  else if (CborErrorSplitItems == error)
+    return EncoderState::TrimAppend;
+  else
+    return EncoderState::Error;
+}
 
-  error = cbor_encoder_close_container(&encoder, &arrayEncoder);
+CBOREncoder::EncoderState CBOREncoder::handle_OutOfMemory(PropertyContainerEncoder & propertyEncoder)
+{
+  if(propertyEncoder.encoded_property_count > 0)
+    return EncoderState::CloseCBORContainer;
+  else
+    return EncoderState::SkipProperty;
+}
+
+CBOREncoder::EncoderState CBOREncoder::handle_SkipProperty(PropertyContainerEncoder & propertyEncoder)
+{
+  /* Better to skip this property otherwise we will stay blocked here. This happens only with a message property 
+   * that not fits into the CBOR buffer
+   */
+  propertyEncoder.current_property_index++;
+  if(propertyEncoder.current_property_index >= propertyEncoder.property_container.size())
+    propertyEncoder.current_property_index = 0;
+  return EncoderState::Error;
+}
+
+CBOREncoder::EncoderState CBOREncoder::handle_TrimAppend(PropertyContainerEncoder & propertyEncoder)
+{
+  /* Trim the number of properties to be included in the next message to avoid multivalue property split */
+  propertyEncoder.encoded_property_limit = propertyEncoder.encoded_property_count;
+  propertyEncoder.property_limit_active = true;
+  if(propertyEncoder.encoded_property_limit > 0)
+    return EncoderState::OpenCBORContainer;
+  else
+    return EncoderState::Error;
+}
+
+CBOREncoder::EncoderState CBOREncoder::handle_CloseCBORContainer(PropertyContainerEncoder & propertyEncoder)
+{
+  CborError error = cbor_encoder_close_container(&propertyEncoder.encoder, &propertyEncoder.arrayEncoder);
   if (CborNoError != error)
-  {
-    /* Trim the number of properties to be included in the next message to avoid error closing container */
-    encoded_properties_message_limit = num_encoded_properties - 1;
-    return error;
-  }
+    return EncoderState::TrimClose;
+  else
+    return EncoderState::FinishAppend;
+}
 
+CBOREncoder::EncoderState CBOREncoder::handle_TrimClose(PropertyContainerEncoder & propertyEncoder)
+{
+  /* Trim the number of properties to be included in the next message to avoid error closing container */
+  propertyEncoder.encoded_property_limit = propertyEncoder.encoded_property_count - 1;
+  propertyEncoder.property_limit_active = true;
+  if(propertyEncoder.encoded_property_limit > 0)
+    return EncoderState::OpenCBORContainer;
+  else
+    return EncoderState::Error;
+}
+
+CBOREncoder::EncoderState CBOREncoder::handle_FinishAppend(PropertyContainerEncoder & propertyEncoder)
+{
   /* Restore property message limit to CBOR_ENCODER_NO_PROPERTIES_LIMIT */
-  encoded_properties_message_limit = CBOR_ENCODER_NO_PROPERTIES_LIMIT;
+  propertyEncoder.property_limit_active = false;
 
   /* The append process has been successful, so we don't need to terty to send this properties set. Cleanup _has_been_appended_but_not_sended flag */
-  iter = property_container.begin();
-  std::advance(iter, current_property_index);
+  PropertyContainer::iterator iter = propertyEncoder.property_container.begin();
+  std::advance(iter, propertyEncoder.current_property_index);
   int num_appended_properties = 0;
 
-  for(; iter != property_container.end(); iter++)
+  for(; iter != propertyEncoder.property_container.end(); iter++)
   {
     Property * p = * iter;
-    if (num_appended_properties >= num_checked_properties)
+    if (num_appended_properties >= propertyEncoder.checked_property_count)
       break;
 
     p->appendCompleted();
     num_appended_properties++;
   }
+  return EncoderState::AdvancePropertyContainer;
+}
 
+CBOREncoder::EncoderState CBOREncoder::handle_AdvancePropertyContainer(PropertyContainerEncoder & propertyEncoder)
+{
   /* Advance property index for the nex message */
-  current_property_index += num_checked_properties;
+  propertyEncoder.current_property_index += propertyEncoder.checked_property_count;
 
-  if (num_encoded_properties > 0)
-    bytes_encoded = cbor_encoder_get_buffer_size(&encoder, data);
-  else
-    bytes_encoded = 0;
+  if(propertyEncoder.current_property_index >= propertyEncoder.property_container.size())
+    propertyEncoder.current_property_index = 0;
 
-  return CborNoError;
+  return EncoderState::SendMessage;
 }
