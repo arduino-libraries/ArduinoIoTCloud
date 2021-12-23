@@ -328,7 +328,8 @@ void ArduinoIoTCloudTCP::update()
 
   if(getThingIdOutdatedFlag()) {
     DEBUG_VERBOSE("ArduinoIoTCloudTCP::%s Thing id outdated, reconfiguring...", __FUNCTION__);
-    _state =  State::CheckDeviceConfig;
+    if (_mqttClient.connected())
+      _state =  State::CheckDeviceConfig;
   }
 
   /* Run through the state machine. */
