@@ -131,7 +131,7 @@
   #define HAS_LORA
 #endif
 
-#if defined(ARDUINO_ESP8266_ESP12) || defined(ARDUINO_ARCH_ESP32) || defined(ESP8266)
+#if defined(ARDUINO_ESP8266_ESP12) || defined(ARDUINO_ARCH_ESP32) || defined(ESP8266) || defined(ESP32)
   #define BOARD_ESP
   #define HAS_TCP
 #endif
