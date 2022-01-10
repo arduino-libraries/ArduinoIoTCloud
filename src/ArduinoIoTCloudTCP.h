@@ -112,6 +112,7 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
       SubscribeThingTopics,
       RequestLastValues,
       Connected,
+      Disconnect,
     };
 
     State _state;
@@ -179,6 +180,7 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
     State handle_SubscribeThingTopics();
     State handle_RequestLastValues();
     State handle_Connected();
+    State handle_Disconnect();
 
     static void onMessage(int length);
     void handleMessage(int length);

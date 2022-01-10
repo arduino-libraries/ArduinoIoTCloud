@@ -326,12 +326,6 @@ void ArduinoIoTCloudTCP::update()
 #endif
 
 
-  if(getThingIdOutdatedFlag()) {
-    DEBUG_VERBOSE("ArduinoIoTCloudTCP::%s Thing id outdated, reconfiguring...", __FUNCTION__);
-    if (_mqttClient.connected())
-      _state =  State::CheckDeviceConfig;
-  }
-
   /* Run through the state machine. */
   State next_state = _state;
   switch (_state)
@@ -346,6 +340,7 @@ void ArduinoIoTCloudTCP::update()
   case State::SubscribeThingTopics: next_state = handle_SubscribeThingTopics(); break;
   case State::RequestLastValues:    next_state = handle_RequestLastValues();    break;
   case State::Connected:            next_state = handle_Connected();            break;
+  case State::Disconnect:           next_state = handle_Disconnect();           break;
   }
   _state = next_state;
 
@@ -420,10 +415,7 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_SendDeviceProperties()
 {
   if (!_mqttClient.connected())
   {
-    DEBUG_ERROR("ArduinoIoTCloudTCP::%s MQTT client connection lost", __FUNCTION__);
-    _mqttClient.stop();
-    execCloudEventCallback(ArduinoIoTCloudEvent::DISCONNECT);
-    return State::ConnectPhy;
+    return State::Disconnect;
   }
 
 #if OTA_ENABLED
@@ -436,10 +428,7 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_SubscribeDeviceTopic()
 {
   if (!_mqttClient.connected())
   {
-    DEBUG_ERROR("ArduinoIoTCloudTCP::%s MQTT client connection lost", __FUNCTION__);
-    _mqttClient.stop();
-    execCloudEventCallback(ArduinoIoTCloudEvent::DISCONNECT);
-    return State::ConnectPhy;
+    return State::Disconnect;
   }
 
   if (!_mqttClient.subscribe(_deviceTopicIn))
@@ -468,10 +457,12 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_WaitDeviceConfig()
 {
   if (!_mqttClient.connected())
   {
-    DEBUG_ERROR("ArduinoIoTCloudTCP::%s MQTT client connection lost", __FUNCTION__);
-    _mqttClient.stop();
-    execCloudEventCallback(ArduinoIoTCloudEvent::DISCONNECT);
-    return State::ConnectPhy;
+    return State::Disconnect;
+  }
+
+  if (getThingIdOutdatedFlag())
+  {
+    return State::CheckDeviceConfig;
   }
 
   if (millis() > _next_device_subscribe_attempt_tick)
@@ -489,10 +480,7 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_CheckDeviceConfig()
 {
   if (!_mqttClient.connected())
   {
-    DEBUG_ERROR("ArduinoIoTCloudTCP::%s MQTT client connection lost", __FUNCTION__);
-    _mqttClient.stop();
-    execCloudEventCallback(ArduinoIoTCloudEvent::DISCONNECT);
-    return State::ConnectPhy;
+    return State::Disconnect;
   }
 
   if(_deviceSubscribedToThing == true)
@@ -527,10 +515,12 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_SubscribeThingTopics()
 {
   if (!_mqttClient.connected())
   {
-    DEBUG_ERROR("ArduinoIoTCloudTCP::%s MQTT client connection lost", __FUNCTION__);
-    _mqttClient.stop();
-    execCloudEventCallback(ArduinoIoTCloudEvent::DISCONNECT);
-    return State::ConnectPhy;
+    return State::Disconnect;
+  }
+
+  if (getThingIdOutdatedFlag())
+  {
+    return State::CheckDeviceConfig;
   }
 
   unsigned long const now = millis();
@@ -583,10 +573,12 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_RequestLastValues()
 {
   if (!_mqttClient.connected())
   {
-    DEBUG_ERROR("ArduinoIoTCloudTCP::%s MQTT client connection lost", __FUNCTION__);
-    _mqttClient.stop();
-    execCloudEventCallback(ArduinoIoTCloudEvent::DISCONNECT);
-    return State::ConnectPhy;
+    return State::Disconnect;
+  }
+
+  if (getThingIdOutdatedFlag())
+  {
+    return State::CheckDeviceConfig;
   }
 
   /* Check whether or not we need to send a new request. */
@@ -620,22 +612,18 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_Connected()
 {
   if (!_mqttClient.connected())
   {
-    DEBUG_ERROR("ArduinoIoTCloudTCP::%s MQTT client connection lost", __FUNCTION__);
-
-    /* Forcefully disconnect MQTT client and trigger a reconnection. */
-    _mqttClient.stop();
-
     /* The last message was definitely lost, trigger a retransmit. */
     _mqtt_data_request_retransmit = true;
-
-    /* We are not connected anymore, trigger the callback for a disconnected event. */
-    execCloudEventCallback(ArduinoIoTCloudEvent::DISCONNECT);
-
-    return State::ConnectPhy;
+    return State::Disconnect;
   }
   /* We are connected so let's to our stuff here. */
   else
   {
+    if (getThingIdOutdatedFlag())
+    {
+      return State::CheckDeviceConfig;
+    }
+
     /* Check if a primitive property wrapper is locally changed.
     * This function requires an existing time service which in
     * turn requires an established connection. Not having that
@@ -687,6 +675,14 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_Connected()
       return State::RequestLastValues;
     }
   }
+}
+
+ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_Disconnect()
+{
+  DEBUG_ERROR("ArduinoIoTCloudTCP::%s MQTT client connection lost", __FUNCTION__);
+  _mqttClient.stop();
+  execCloudEventCallback(ArduinoIoTCloudEvent::DISCONNECT);
+  return State::ConnectPhy;
 }
 
 void ArduinoIoTCloudTCP::onMessage(int length)
