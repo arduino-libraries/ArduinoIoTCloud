@@ -506,15 +506,6 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_CheckDeviceConfig()
 
   updateThingTopics();
 
-  if (deviceNotConfigured())
-  {
-    /* maybe we have only missed the thing_id property...
-     * unsubsribe and resubscribe immediately to trigger a new configuration command
-     */
-    _mqttClient.unsubscribe(_deviceTopicIn);
-    return State::SubscribeDeviceTopic;
-  }
-
   if (deviceNotAttached())
   {
     /* start long timeout counter

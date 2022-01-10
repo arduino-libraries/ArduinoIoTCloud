@@ -100,8 +100,7 @@ class ArduinoIoTCloudClass
     inline void     clrThingIdOutdatedFlag()            { _thing_id_outdated = false ; }
     inline bool     getThingIdOutdatedFlag()            { return _thing_id_outdated; }
 
-    inline bool     deviceNotAttached()                 { return _thing_id == "null"; }
-    inline bool     deviceNotConfigured()               { return _thing_id == ""; }
+    inline bool     deviceNotAttached()                 { return _thing_id == ""; }
 
     inline ConnectionHandler * getConnection()          { return _connection; }
 
