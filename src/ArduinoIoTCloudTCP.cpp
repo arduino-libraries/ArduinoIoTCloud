@@ -468,7 +468,7 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_WaitDeviceConfig()
 
   if (millis() > _next_device_subscribe_attempt_tick)
   {
-    /* Configuration not received try to resubscribe */
+    /* Configuration not received or device not attached to a valid thing. Try to resubscribe */
     if (_mqttClient.unsubscribe(_deviceTopicIn))
     {
       return State::SubscribeDeviceTopic;
@@ -489,7 +489,6 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_CheckDeviceConfig()
     /* Unsubscribe from old things topics and go on with a new subsctiption */
     _mqttClient.unsubscribe(_shadowTopicIn);
     _mqttClient.unsubscribe(_dataTopicIn);
-
     _deviceSubscribedToThing = false;
   }
 
@@ -498,12 +497,15 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_CheckDeviceConfig()
   if (deviceNotAttached())
   {
     /* Configuration received but device not attached. Wait: 40s */
-    unsigned long subscribe_retry_delay = (1 << _last_device_subscribe_cnt) * AIOT_CONFIG_DEVICE_TOPIC_SUBSCRIBE_RETRY_DELAY_ms * 10;
-    subscribe_retry_delay = min(subscribe_retry_delay, static_cast<unsigned long>(AIOT_CONFIG_MAX_RECONNECTION_RETRY_DELAY_ms * 10));
-    _next_device_subscribe_attempt_tick = millis() + subscribe_retry_delay;
-    _last_device_subscribe_cnt++;
+    unsigned long attach_retry_delay = (1 << _last_device_attach_cnt) * AIOT_CONFIG_DEVICE_TOPIC_SUBSCRIBE_RETRY_DELAY_ms;
+    attach_retry_delay = min(attach_retry_delay, static_cast<unsigned long>(AIOT_CONFIG_MAX_DEVICE_TOPIC_ATTACH_RETRY_DELAY_ms));
+    _next_device_subscribe_attempt_tick = millis() + attach_retry_delay;
+    _last_device_attach_cnt++;
     return State::WaitDeviceConfig;
   }
+
+  DEBUG_VERBOSE("ArduinoIoTCloudTCP::%s Device attached to a new valid Thing %s", __FUNCTION__, getThingId().c_str());
+  _last_device_attach_cnt = 0;
 
   return State::SubscribeThingTopics;
 }
@@ -563,6 +565,7 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_SubscribeThingTopics()
   execCloudEventCallback(ArduinoIoTCloudEvent::CONNECT);
   _deviceSubscribedToThing = true;
 
+  /*Add retry wait time otherwise we are trying to reconnect every 250ms...*/
   return State::RequestLastValues;
 }
 
