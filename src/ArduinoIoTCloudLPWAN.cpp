@@ -120,7 +120,7 @@ ArduinoIoTCloudLPWAN::State ArduinoIoTCloudLPWAN::handle_Connected()
   }
 
   /* Check if a primitive property wrapper is locally changed. */
-  updateTimestampOnLocallyChangedProperties(_property_container);
+  updateTimestampOnLocallyChangedProperties(_thing_property_container);
 
   /* Decode available data. */
   if (_connection->available())
