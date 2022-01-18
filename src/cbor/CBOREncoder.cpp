@@ -51,7 +51,6 @@ CborError CBOREncoder::encode(PropertyContainer & property_container, uint8_t * 
       case EncoderState::CloseCBORContainer       : next_state = handle_CloseCBORContainer(propertyEncoder); break;
       case EncoderState::TrimClose                : next_state = handle_TrimClose(propertyEncoder); break;
       case EncoderState::FinishAppend             : next_state = handle_FinishAppend(propertyEncoder); break;
-      case EncoderState::AdvancePropertyContainer : next_state = handle_AdvancePropertyContainer(propertyEncoder); break;
       case EncoderState::SendMessage              : /* Nothing to do */ break;
       case EncoderState::Error                    : return CborErrorInternalError; break;
     }
@@ -197,11 +196,7 @@ CBOREncoder::EncoderState CBOREncoder::handle_FinishAppend(PropertyContainerEnco
     p->appendCompleted();
     num_appended_properties++;
   }
-  return EncoderState::AdvancePropertyContainer;
-}
 
-CBOREncoder::EncoderState CBOREncoder::handle_AdvancePropertyContainer(PropertyContainerEncoder & propertyEncoder)
-{
   /* Advance property index for the nex message */
   propertyEncoder.current_property_index += propertyEncoder.checked_property_count;
 

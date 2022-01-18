@@ -62,7 +62,6 @@ private:
     CloseCBORContainer,
     TrimClose,
     FinishAppend,
-    AdvancePropertyContainer,
     SendMessage,
     Error
   };
