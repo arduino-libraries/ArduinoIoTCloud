@@ -409,55 +409,55 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_SubscribeMqttTopics()
   unsigned long const now = millis();
   bool const is_subscribe_retry_delay_expired = (now - _last_subscribe_request_tick) > AIOT_CONFIG_SUBSCRIBE_RETRY_DELAY_ms;
   bool const is_first_subscribe_request = (_last_subscribe_request_cnt == 0);
-  if (is_first_subscribe_request || is_subscribe_retry_delay_expired)
+
+  if (!is_first_subscribe_request && !is_subscribe_retry_delay_expired)
   {
-    if (_last_subscribe_request_cnt > AIOT_CONFIG_SUBSCRIBE_MAX_RETRY_CNT)
-    {
-      _last_subscribe_request_cnt = 0;
-      _last_subscribe_request_tick = 0;
-      _mqttClient.stop();
-      execCloudEventCallback(ArduinoIoTCloudEvent::DISCONNECT);
-      return State::ConnectPhy;
-    }
+    return State::SubscribeMqttTopics;
+  }
 
-    _last_subscribe_request_tick = now;
-    _last_subscribe_request_cnt++;
+  if (_last_subscribe_request_cnt > AIOT_CONFIG_SUBSCRIBE_MAX_RETRY_CNT)
+  {
+    _last_subscribe_request_cnt = 0;
+    _last_subscribe_request_tick = 0;
+    _mqttClient.stop();
+    execCloudEventCallback(ArduinoIoTCloudEvent::DISCONNECT);
+    return State::ConnectPhy;
+  }
 
-    if (!_mqttClient.subscribe(_dataTopicIn))
+  _last_subscribe_request_tick = now;
+  _last_subscribe_request_cnt++;
+
+  if (!_mqttClient.subscribe(_dataTopicIn))
+  {
+    DEBUG_ERROR("ArduinoIoTCloudTCP::%s could not subscribe to %s", __FUNCTION__, _dataTopicIn.c_str());
+#if !defined(__AVR__)
+    DEBUG_ERROR("Check your thing configuration, and press the reset button on your board.");
+#endif
+    return State::SubscribeMqttTopics;
+  }
+
+  if (_shadowTopicIn != "")
+  {
+    if (!_mqttClient.subscribe(_shadowTopicIn))
     {
-      DEBUG_ERROR("ArduinoIoTCloudTCP::%s could not subscribe to %s", __FUNCTION__, _dataTopicIn.c_str());
+      DEBUG_ERROR("ArduinoIoTCloudTCP::%s could not subscribe to %s", __FUNCTION__, _shadowTopicIn.c_str());
 #if !defined(__AVR__)
       DEBUG_ERROR("Check your thing configuration, and press the reset button on your board.");
 #endif
       return State::SubscribeMqttTopics;
     }
-
-    if (_shadowTopicIn != "")
-    {
-      if (!_mqttClient.subscribe(_shadowTopicIn))
-      {
-        DEBUG_ERROR("ArduinoIoTCloudTCP::%s could not subscribe to %s", __FUNCTION__, _shadowTopicIn.c_str());
-#if !defined(__AVR__)
-        DEBUG_ERROR("Check your thing configuration, and press the reset button on your board.");
-#endif
-        return State::SubscribeMqttTopics;
-      }
-    }
-
-    _last_subscribe_request_cnt = 0;
-    _last_subscribe_request_tick = 0;
-
-    DEBUG_INFO("Connected to Arduino IoT Cloud");
-    execCloudEventCallback(ArduinoIoTCloudEvent::CONNECT);
-
-    if (_shadowTopicIn != "")
-      return State::RequestLastValues;
-    else
-      return State::Connected;
-
   }
 
-  return State::SubscribeMqttTopics;
+  DEBUG_INFO("Connected to Arduino IoT Cloud");
+  execCloudEventCallback(ArduinoIoTCloudEvent::CONNECT);
+  _last_subscribe_request_cnt = 0;
+  _last_subscribe_request_tick = 0;
+
+  if (_shadowTopicIn != "")
+    return State::RequestLastValues;
+  else
+    return State::Connected;
+
 }
 
 ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_RequestLastValues()
