@@ -596,8 +596,7 @@ void ArduinoIoTCloudTCP::sendPropertyContainerToCloud(PropertyContainer & proper
 
 void ArduinoIoTCloudTCP::sendPropertiesToCloud()
 {
-  static unsigned int last_checked_property_index = 0;
-  sendPropertyContainerToCloud(_property_container, last_checked_property_index);
+  sendPropertyContainerToCloud(_property_container, _last_checked_property_index);
 }
 
 #if OTA_ENABLED

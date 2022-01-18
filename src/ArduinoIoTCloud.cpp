@@ -27,6 +27,7 @@
 
 ArduinoIoTCloudClass::ArduinoIoTCloudClass()
 : _connection{nullptr}
+, _last_checked_property_index{0}
 , _time_service(ArduinoIoTCloudTimeService())
 , _tz_offset{0}
 , _tz_dst_until{0}
