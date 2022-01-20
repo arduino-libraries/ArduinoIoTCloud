@@ -39,6 +39,7 @@ Property::Property()
 , _update_policy{UpdatePolicy::OnChange}
 , _has_been_updated_once{false}
 , _has_been_modified_in_callback{false}
+, _has_been_appended_but_not_sended{false}
 , _last_updated_millis{0}
 , _update_interval_millis{0}
 , _last_local_change_timestamp{0}
@@ -48,6 +49,7 @@ Property::Property()
 , _lightPayload{false}
 , _update_requested{false}
 , _encode_timestamp{false}
+, _echo_requested{false}
 , _timestamp{0}
 {
 
@@ -106,8 +108,15 @@ bool Property::shouldBeUpdated() {
     return true;
   }
 
+  if (_has_been_appended_but_not_sended) {
+    return true;
+  }
+
   if (_has_been_modified_in_callback) {
-    _has_been_modified_in_callback = false;
+    return true;
+  }
+
+  if (_echo_requested) {
     return true;
   }
 
@@ -127,11 +136,23 @@ void Property::requestUpdate()
   _update_requested = true;
 }
 
+void Property::provideEcho()
+{
+  _echo_requested = true;
+}
+
+void Property::appendCompleted()
+{
+  if (_has_been_appended_but_not_sended) {
+    _has_been_appended_but_not_sended = false;
+  }
+}
+
 void Property::execCallbackOnChange() {
   if (_update_callback_func != nullptr) {
     _update_callback_func();
   }
-  if (!isDifferentFromCloud()) {
+  if (isDifferentFromCloud()) {
     _has_been_modified_in_callback = true;
   }
 }
@@ -148,7 +169,10 @@ CborError Property::append(CborEncoder *encoder, bool lightPayload) {
   CHECK_CBOR(appendAttributesToCloudReal(encoder));
   fromLocalToCloud();
   _has_been_updated_once = true;
+  _has_been_modified_in_callback = false;
   _update_requested = false;
+  _echo_requested = false;
+  _has_been_appended_but_not_sended = true;
   _last_updated_millis = millis();
   return CborNoError;
 }

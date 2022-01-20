@@ -174,6 +174,8 @@ class Property
     void setTimestamp(unsigned long const timestamp);
     bool shouldBeUpdated();
     void requestUpdate();
+    void appendCompleted();
+    void provideEcho();
     void execCallbackOnChange();
     void execCallbackOnSync();
     void setLastCloudChangeTimestamp(unsigned long cloudChangeTime);
@@ -229,7 +231,8 @@ class Property
 
     UpdatePolicy       _update_policy;
     bool               _has_been_updated_once,
-                       _has_been_modified_in_callback;
+                       _has_been_modified_in_callback,
+                       _has_been_appended_but_not_sended;
     /* Variables used for UpdatePolicy::TimeInterval */
     unsigned long      _last_updated_millis,
              _update_interval_millis;
@@ -246,6 +249,8 @@ class Property
     bool               _update_requested;
     /* Indicates whether the timestamp shall be encoded in the property or not */
     bool               _encode_timestamp;
+    /* Indicates if the property shall be echoed back to the cloud even if unchanged */
+    bool               _echo_requested;
     unsigned long      _timestamp;
 };
 

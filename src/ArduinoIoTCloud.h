@@ -148,6 +148,7 @@ class ArduinoIoTCloudClass
 
     ConnectionHandler * _connection;
     PropertyContainer _property_container;
+    unsigned int _last_checked_property_index;
     TimeService & _time_service;
     int _tz_offset;
     unsigned int _tz_dst_until;

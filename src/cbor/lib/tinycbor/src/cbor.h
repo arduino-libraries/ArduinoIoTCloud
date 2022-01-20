@@ -189,6 +189,7 @@ typedef enum CborError {
     /* encoder errors */
     CborErrorTooManyItems = 768,
     CborErrorTooFewItems,
+    CborErrorSplitItems,
 
     /* internal implementation errors */
     CborErrorDataTooLarge = 1024,
