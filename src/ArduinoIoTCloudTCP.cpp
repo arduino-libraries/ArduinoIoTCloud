@@ -255,8 +255,8 @@ int ArduinoIoTCloudTCP::begin(bool const enable_watchdog, String brokerAddress, 
   addPropertyReal(_ota_cap, _device_property_container, "OTA_CAP", Permission::Read);
   addPropertyReal(_ota_error, _device_property_container, "OTA_ERROR", Permission::Read);
   addPropertyReal(_ota_img_sha256, _device_property_container, "OTA_SHA256", Permission::Read);
-  addPropertyReal(_ota_url, _device_property_container, "OTA_URL", Permission::ReadWrite).onSync(CLOUD_WINS);
-  addPropertyReal(_ota_req, _device_property_container, "OTA_REQ", Permission::ReadWrite).onSync(CLOUD_WINS);
+  addPropertyReal(_ota_url, _device_property_container, "OTA_URL", Permission::ReadWrite);
+  addPropertyReal(_ota_req, _device_property_container, "OTA_REQ", Permission::ReadWrite);
 #endif /* OTA_ENABLED */
 
   addPropertyReal(_tz_offset, _thing_property_container, "tz_offset", Permission::ReadWrite).onSync(CLOUD_WINS).onUpdate(updateTimezoneInfo);
