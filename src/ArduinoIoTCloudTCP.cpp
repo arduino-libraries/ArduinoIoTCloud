@@ -261,7 +261,6 @@ int ArduinoIoTCloudTCP::begin(bool const enable_watchdog, String brokerAddress, 
 
   addPropertyReal(_tz_offset, _thing_property_container, "tz_offset", Permission::ReadWrite).onSync(CLOUD_WINS).onUpdate(updateTimezoneInfo);
   addPropertyReal(_tz_dst_until, _thing_property_container, "tz_dst_until", Permission::ReadWrite).onSync(CLOUD_WINS).onUpdate(updateTimezoneInfo);
-
   addPropertyReal(_thing_id, _device_property_container, "thing_id", Permission::ReadWrite).onUpdate(setThingIdOutdated);
 
 #if OTA_STORAGE_PORTENTA_QSPI
@@ -419,9 +418,7 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_SendDeviceProperties()
     return State::Disconnect;
   }
 
-#if OTA_ENABLED
-  sendOTAPropertiesToCloud();
-#endif
+  sendDevicePropertiesToCloud();
   return State::SubscribeDeviceTopic;
 }
 
@@ -656,18 +653,26 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_Connected()
         _ota_error = static_cast<int>(OTAError::None);
         /* Clear the request flag. */
         _ota_req = false;
-        /* Transmit the cleared error and request flags to the cloud. */
-        sendOTAPropertiesToCloud();
+        /* Transmit the cleared request flags to the cloud. */
+        sendClearedOTARequestToCloud();
         /* Call member function to handle OTA request. */
         onOTARequest();
+        /* If something fails send the OTA error to the cloud */
+        sendOTAErrorToCloud();
       }
     }
+
+    /* Check if we have received the OTA_URL property and provide
+    * echo to the cloud.
+    */
+    sendOTAUrlToCloud();
+
 #endif /* OTA_ENABLED */
 
     /* Check if any properties need encoding and send them to
     * the cloud if necessary.
     */
-    sendPropertiesToCloud();
+    sendThingPropertiesToCloud();
 
     unsigned long const internal_posix_time = _time_service.getTime();
     if(internal_posix_time < _tz_dst_until) {
@@ -718,7 +723,6 @@ void ArduinoIoTCloudTCP::handleMessage(int length)
   {
     DEBUG_VERBOSE("ArduinoIoTCloudTCP::%s [%d] last values received", __FUNCTION__, millis());
     CBORDecoder::decode(_thing_property_container, (uint8_t*)bytes, length, true);
-    sendPropertiesToCloud();
     _time_service.setTimeZoneData(_tz_offset, _tz_dst_until);
     execCloudEventCallback(ArduinoIoTCloudEvent::SYNC);
     _last_sync_request_cnt = 0;
@@ -745,20 +749,75 @@ void ArduinoIoTCloudTCP::sendPropertyContainerToCloud(String const topic, Proper
     }
 }
 
-void ArduinoIoTCloudTCP::sendPropertiesToCloud()
+void ArduinoIoTCloudTCP::sendThingPropertiesToCloud()
 {
   sendPropertyContainerToCloud(_dataTopicOut, _thing_property_container, _last_checked_property_index);
 }
 
+void ArduinoIoTCloudTCP::sendDevicePropertiesToCloud()
+{
+  PropertyContainer ro_device_property_container;
+  unsigned int last_device_property_index = 0;
+
+  std::list<String> ro_device_property_list {"LIB_VERSION", "OTA_CAP", "OTA_ERROR", "OTA_SHA256"};
+  std::for_each(ro_device_property_list.begin(),
+                ro_device_property_list.end(),
+                [this, &ro_device_property_container ] (String const & name)
+                {
+                  Property* p = getProperty(this->_device_property_container, name);
+                  if(p != nullptr)
+                    addPropertyToContainer(ro_device_property_container, *p, p->name(), p->isWriteableByCloud() ? Permission::ReadWrite : Permission::Read);
+                }
+                );
+
+  sendPropertyContainerToCloud(_deviceTopicOut, ro_device_property_container, last_device_property_index);
+}
+
 #if OTA_ENABLED
-void ArduinoIoTCloudTCP::sendOTAPropertiesToCloud(bool include_ota_req)
+void ArduinoIoTCloudTCP::sendClearedOTARequestToCloud()
 {
   PropertyContainer ota_property_container;
   unsigned int last_ota_property_index = 0;
 
-  std::list<String> ota_property_list {"LIB_VERSION", "OTA_CAP", "OTA_ERROR", "OTA_SHA256"};
-  if (include_ota_req)
-    ota_property_list.push_back("OTA_REQ");
+  std::list<String> ota_property_list {"OTA_REQ"};
+  std::for_each(ota_property_list.begin(),
+                ota_property_list.end(),
+                [this, &ota_property_container ] (String const & name)
+                {
+                  Property* p = getProperty(this->_device_property_container, name);
+                  if(p != nullptr)
+                    addPropertyToContainer(ota_property_container, *p, p->name(), p->isWriteableByCloud() ? Permission::ReadWrite : Permission::Read);
+                }
+                );
+
+  sendPropertyContainerToCloud(_deviceTopicOut, ota_property_container, last_ota_property_index);
+}
+
+void ArduinoIoTCloudTCP::sendOTAErrorToCloud()
+{
+  PropertyContainer ota_property_container;
+  unsigned int last_ota_property_index = 0;
+
+  std::list<String> ota_property_list {"OTA_ERROR"};
+  std::for_each(ota_property_list.begin(),
+                ota_property_list.end(),
+                [this, &ota_property_container ] (String const & name)
+                {
+                  Property* p = getProperty(this->_device_property_container, name);
+                  if(p != nullptr)
+                    addPropertyToContainer(ota_property_container, *p, p->name(), p->isWriteableByCloud() ? Permission::ReadWrite : Permission::Read);
+                }
+                );
+
+  sendPropertyContainerToCloud(_deviceTopicOut, ota_property_container, last_ota_property_index);
+}
+
+void ArduinoIoTCloudTCP::sendOTAUrlToCloud()
+{
+  PropertyContainer ota_property_container;
+  unsigned int last_ota_property_index = 0;
+
+  std::list<String> ota_property_list {"OTA_URL"};
   std::for_each(ota_property_list.begin(),
                 ota_property_list.end(),
                 [this, &ota_property_container ] (String const & name)
