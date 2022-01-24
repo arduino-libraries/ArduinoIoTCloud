@@ -193,9 +193,7 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
 
 #if OTA_ENABLED
     void onOTARequest();
-    void sendClearedOTARequestToCloud();
-    void sendOTAErrorToCloud();
-    void sendOTAUrlToCloud();
+    void sendDevicePropertyToCloud(String const name);
 #endif
 
     void updateThingTopics();
