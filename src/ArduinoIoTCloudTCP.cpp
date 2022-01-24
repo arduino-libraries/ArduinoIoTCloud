@@ -521,7 +521,7 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_SubscribeThingTopics()
   }
 
   unsigned long const now = millis();
-  bool const is_subscribe_retry_delay_expired = (now - _last_subscribe_request_tick) > AIOT_CONFIG_SUBSCRIBE_RETRY_DELAY_ms;
+  bool const is_subscribe_retry_delay_expired = (now - _last_subscribe_request_tick) > AIOT_CONFIG_THING_TOPICS_SUBSCRIBE_RETRY_DELAY_ms;
   bool const is_first_subscribe_request = (_last_subscribe_request_cnt == 0);
 
   if (!is_first_subscribe_request && !is_subscribe_retry_delay_expired)
@@ -529,7 +529,7 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_SubscribeThingTopics()
     return State::SubscribeThingTopics;
   }
 
-  if (_last_subscribe_request_cnt > AIOT_CONFIG_SUBSCRIBE_MAX_RETRY_CNT)
+  if (_last_subscribe_request_cnt > AIOT_CONFIG_THING_TOPICS_SUBSCRIBE_MAX_RETRY_CNT)
   {
     _last_subscribe_request_cnt = 0;
     _last_subscribe_request_tick = 0;
