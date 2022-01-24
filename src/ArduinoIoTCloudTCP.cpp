@@ -250,6 +250,7 @@ int ArduinoIoTCloudTCP::begin(bool const enable_watchdog, String brokerAddress, 
   _deviceTopicOut = getTopic_deviceout();
   _deviceTopicIn  = getTopic_devicein();
 
+  addPropertyReal(_lib_version, _device_property_container, "LIB_VERSION", Permission::Read);
 #if OTA_ENABLED
   addPropertyReal(_ota_cap, _device_property_container, "OTA_CAP", Permission::Read);
   addPropertyReal(_ota_error, _device_property_container, "OTA_ERROR", Permission::Read);
@@ -755,7 +756,7 @@ void ArduinoIoTCloudTCP::sendOTAPropertiesToCloud(bool include_ota_req)
   PropertyContainer ota_property_container;
   unsigned int last_ota_property_index = 0;
 
-  std::list<String> ota_property_list {"OTA_CAP", "OTA_ERROR", "OTA_SHA256"};
+  std::list<String> ota_property_list {"LIB_VERSION", "OTA_CAP", "OTA_ERROR", "OTA_SHA256"};
   if (include_ota_req)
     ota_property_list.push_back("OTA_REQ");
   std::for_each(ota_property_list.begin(),

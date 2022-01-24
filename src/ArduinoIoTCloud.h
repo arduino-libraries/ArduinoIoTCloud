@@ -174,6 +174,7 @@ class ArduinoIoTCloudClass
     int _tz_offset;
     unsigned int _tz_dst_until;
     String _thing_id;
+    String _lib_version;
 
     void execCloudEventCallback(ArduinoIoTCloudEvent const event);
 
