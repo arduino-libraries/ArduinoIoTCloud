@@ -108,11 +108,11 @@ unsigned long TimeService::getTime()
 void TimeService::setTimeZoneData(long offset, unsigned long dst_until)
 {
   if(_timezone_offset != offset)
-    DEBUG_DEBUG("ArduinoIoTCloudTCP::%s tz_offset: [%d]", __FUNCTION__, offset);
+    DEBUG_VERBOSE("ArduinoIoTCloudTCP::%s tz_offset: [%d]", __FUNCTION__, offset);
   _timezone_offset = offset;
 
   if(_timezone_dst_until != dst_until)
-    DEBUG_DEBUG("ArduinoIoTCloudTCP::%s tz_dst_unitl: [%ul]", __FUNCTION__, dst_until);
+    DEBUG_VERBOSE("ArduinoIoTCloudTCP::%s tz_dst_unitl: [%ul]", __FUNCTION__, dst_until);
   _timezone_dst_until = dst_until;
 
   _is_tz_configured = true;
