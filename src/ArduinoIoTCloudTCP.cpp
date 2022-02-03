@@ -487,6 +487,8 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_CheckDeviceConfig()
     _mqttClient.unsubscribe(_shadowTopicIn);
     _mqttClient.unsubscribe(_dataTopicIn);
     _deviceSubscribedToThing = false;
+    DEBUG_INFO("Disconnected from Arduino IoT Cloud");
+    execCloudEventCallback(ArduinoIoTCloudEvent::DISCONNECT);
   }
 
   updateThingTopics();
