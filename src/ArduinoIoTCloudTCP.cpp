@@ -243,15 +243,17 @@ int ArduinoIoTCloudTCP::begin(bool const enable_watchdog, String brokerAddress, 
   _dataTopicIn    = getTopic_datain();
 
 #if OTA_ENABLED
-  addPropertyReal(_ota_cap, "OTA_CAP", Permission::Read);
-  addPropertyReal(_ota_error, "OTA_ERROR", Permission::Read);
-  addPropertyReal(_ota_img_sha256, "OTA_SHA256", Permission::Read);
-  addPropertyReal(_ota_url, "OTA_URL", Permission::ReadWrite).onSync(CLOUD_WINS);
-  addPropertyReal(_ota_req, "OTA_REQ", Permission::ReadWrite).onSync(CLOUD_WINS);
+  addPropertyReal(_ota_cap, _device_property_container, "OTA_CAP", Permission::Read);
+  addPropertyReal(_ota_error, _device_property_container, "OTA_ERROR", Permission::Read);
+  addPropertyReal(_ota_img_sha256, _device_property_container, "OTA_SHA256", Permission::Read);
+  addPropertyReal(_ota_url, _device_property_container, "OTA_URL", Permission::ReadWrite).onSync(CLOUD_WINS);
+  addPropertyReal(_ota_req, _device_property_container, "OTA_REQ", Permission::ReadWrite).onSync(CLOUD_WINS);
 #endif /* OTA_ENABLED */
 
-  addPropertyReal(_tz_offset, "tz_offset", Permission::ReadWrite).onSync(CLOUD_WINS).onUpdate(updateTimezoneInfo);
-  addPropertyReal(_tz_dst_until, "tz_dst_until", Permission::ReadWrite).onSync(CLOUD_WINS).onUpdate(updateTimezoneInfo);
+  addPropertyReal(_tz_offset, _thing_property_container, "tz_offset", Permission::ReadWrite).onSync(CLOUD_WINS).onUpdate(updateTimezoneInfo);
+  addPropertyReal(_tz_dst_until, _thing_property_container, "tz_dst_until", Permission::ReadWrite).onSync(CLOUD_WINS).onUpdate(updateTimezoneInfo);
+
+  addPropertyReal(_thing_id, _device_property_container, "thing_id", Permission::ReadWrite);
 
 #if OTA_STORAGE_PORTENTA_QSPI
   #define BOOTLOADER_ADDR   (0x8000000)
@@ -524,7 +526,7 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_Connected()
     * the connection from being established due to a wrong data
     * in the reconstructed certificate.
     */
-    updateTimestampOnLocallyChangedProperties(_property_container);
+    updateTimestampOnLocallyChangedProperties(_thing_property_container);
 
     /* Retransmit data in case there was a lost transaction due
     * to phy layer or MQTT connectivity loss.
@@ -586,13 +588,13 @@ void ArduinoIoTCloudTCP::handleMessage(int length)
   }
 
   if (_dataTopicIn == topic) {
-    CBORDecoder::decode(_property_container, (uint8_t*)bytes, length);
+    CBORDecoder::decode(_thing_property_container, (uint8_t*)bytes, length);
   }
 
   if ((_shadowTopicIn == topic) && (_state == State::RequestLastValues))
   {
     DEBUG_VERBOSE("ArduinoIoTCloudTCP::%s [%d] last values received", __FUNCTION__, millis());
-    CBORDecoder::decode(_property_container, (uint8_t*)bytes, length, true);
+    CBORDecoder::decode(_thing_property_container, (uint8_t*)bytes, length, true);
     sendPropertiesToCloud();
     _time_service.setTimeZoneData(_tz_offset, _tz_dst_until);
     execCloudEventCallback(ArduinoIoTCloudEvent::SYNC);
@@ -602,7 +604,7 @@ void ArduinoIoTCloudTCP::handleMessage(int length)
   }
 }
 
-void ArduinoIoTCloudTCP::sendPropertyContainerToCloud(PropertyContainer & property_container, unsigned int & current_property_index)
+void ArduinoIoTCloudTCP::sendPropertyContainerToCloud(String const topic, PropertyContainer & property_container, unsigned int & current_property_index)
 {
   int bytes_encoded = 0;
   uint8_t data[MQTT_TRANSMIT_BUFFER_SIZE];
@@ -616,13 +618,13 @@ void ArduinoIoTCloudTCP::sendPropertyContainerToCloud(PropertyContainer & proper
       _mqtt_data_len = bytes_encoded;
       memcpy(_mqtt_data_buf, data, _mqtt_data_len);
       /* Transmit the properties to the MQTT broker */
-      write(_dataTopicOut, _mqtt_data_buf, _mqtt_data_len);
+      write(topic, _mqtt_data_buf, _mqtt_data_len);
     }
 }
 
 void ArduinoIoTCloudTCP::sendPropertiesToCloud()
 {
-  sendPropertyContainerToCloud(_property_container, _last_checked_property_index);
+  sendPropertyContainerToCloud(_dataTopicOut, _thing_property_container, _last_checked_property_index);
 }
 
 #if OTA_ENABLED
@@ -636,13 +638,13 @@ void ArduinoIoTCloudTCP::sendOTAPropertiesToCloud()
                 ota_property_list.cend(),
                 [this, &ota_property_container ] (String const & name)
                 {
-                  Property* p = getProperty(this->_property_container, name);
+                  Property* p = getProperty(this->_device_property_container, name);
                   if(p != nullptr)
                     addPropertyToContainer(ota_property_container, *p, p->name(), p->isWriteableByCloud() ? Permission::ReadWrite : Permission::Read);
                 }
                 );
 
-  sendPropertyContainerToCloud(ota_property_container, last_ota_property_index);
+  sendPropertyContainerToCloud(_dataTopicOut, ota_property_container, last_ota_property_index);
 }
 #endif
 
