@@ -559,6 +559,7 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_SubscribeThingTopics()
   }
 
   DEBUG_INFO("Connected to Arduino IoT Cloud");
+  DEBUG_INFO("Thing ID: %s", getThingId().c_str());
   execCloudEventCallback(ArduinoIoTCloudEvent::CONNECT);
   _deviceSubscribedToThing = true;
 
