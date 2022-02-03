@@ -37,7 +37,7 @@ static size_t const CBOR_LORA_MSG_MAX_SIZE = 255;
    LOCAL MODULE FUNCTIONS
  ******************************************************************************/
 
-extern "C" unsigned long getTime()
+unsigned long getTime()
 {
   return ArduinoCloud.getInternalTime();
 }

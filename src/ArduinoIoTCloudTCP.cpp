@@ -59,17 +59,17 @@ extern RTC_HandleTypeDef RTCHandle;
    LOCAL MODULE FUNCTIONS
  ******************************************************************************/
 
-extern "C" unsigned long getTime()
+unsigned long getTime()
 {
   return ArduinoCloud.getInternalTime();
 }
 
-extern "C" void updateTimezoneInfo()
+void updateTimezoneInfo()
 {
   ArduinoCloud.updateInternalTimezoneInfo();
 }
 
-extern "C" void setThingIdOutdated()
+void setThingIdOutdated()
 {
   ArduinoCloud.setThingIdOutdatedFlag();
 }
