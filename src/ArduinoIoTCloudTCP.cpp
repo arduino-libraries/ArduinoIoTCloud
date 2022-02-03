@@ -445,9 +445,10 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_SubscribeDeviceTopic()
     return State::ConnectPhy;
   }
 
-  unsigned long reconnection_retry_delay = (1 << _last_device_subscribe_cnt) * AIOT_CONFIG_RECONNECTION_RETRY_DELAY_ms;
-  reconnection_retry_delay = min(reconnection_retry_delay, static_cast<unsigned long>(AIOT_CONFIG_MAX_RECONNECTION_RETRY_DELAY_ms));
-  _next_device_subscribe_attempt_tick = millis() + reconnection_retry_delay;
+  /* No device configuration reply. Wait: 5s -> 10s -> 20s -> 30s */
+  unsigned long subscribe_retry_delay = (1 << _last_device_subscribe_cnt) * AIOT_CONFIG_DEVICE_TOPIC_SUBSCRIBE_RETRY_DELAY_ms;
+  subscribe_retry_delay = min(subscribe_retry_delay, static_cast<unsigned long>(AIOT_CONFIG_MAX_DEVICE_TOPIC_SUBSCRIBE_RETRY_DELAY_ms));
+  _next_device_subscribe_attempt_tick = millis() + subscribe_retry_delay;
   _last_device_subscribe_cnt++;
 
   return State::WaitDeviceConfig;
@@ -496,14 +497,10 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_CheckDeviceConfig()
 
   if (deviceNotAttached())
   {
-    /* start long timeout counter
-     * return return State::SubscribeThingTopics
-     * if long timeout expired unsubscribe and
-     * return State::SubscribeDeviceTopic
-     */
-    unsigned long reconnection_retry_delay = (1 << _last_device_subscribe_cnt) * AIOT_CONFIG_RECONNECTION_RETRY_DELAY_ms * 10000;
-    reconnection_retry_delay = min(reconnection_retry_delay, static_cast<unsigned long>(AIOT_CONFIG_MAX_RECONNECTION_RETRY_DELAY_ms));
-    _next_device_subscribe_attempt_tick = millis() + reconnection_retry_delay;
+    /* Configuration received but device not attached. Wait: 40s */
+    unsigned long subscribe_retry_delay = (1 << _last_device_subscribe_cnt) * AIOT_CONFIG_DEVICE_TOPIC_SUBSCRIBE_RETRY_DELAY_ms * 10;
+    subscribe_retry_delay = min(subscribe_retry_delay, static_cast<unsigned long>(AIOT_CONFIG_MAX_RECONNECTION_RETRY_DELAY_ms * 10));
+    _next_device_subscribe_attempt_tick = millis() + subscribe_retry_delay;
     _last_device_subscribe_cnt++;
     return State::WaitDeviceConfig;
   }
