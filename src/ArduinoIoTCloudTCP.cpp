@@ -366,7 +366,6 @@ void ArduinoIoTCloudTCP::printDebugInfo()
 {
   DEBUG_INFO("***** Arduino IoT Cloud - configuration info *****");
   DEBUG_INFO("Device ID: %s", getDeviceId().c_str());
-  DEBUG_INFO("Thing ID: %s", getThingId().c_str());
   DEBUG_INFO("MQTT Broker: %s:%d", _brokerAddress.c_str(), _brokerPort);
 }
 
