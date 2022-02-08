@@ -96,6 +96,12 @@ class ArduinoIoTCloudClass
     inline void     setDeviceId(String const device_id) { _device_id = device_id; };
     inline String & getDeviceId()                       { return _device_id; };
 
+    inline void     setThingIdOutdatedFlag()            { _thing_id_outdated = true ; }
+    inline void     clrThingIdOutdatedFlag()            { _thing_id_outdated = false ; }
+    inline bool     getThingIdOutdatedFlag()            { return _thing_id_outdated; }
+
+    inline bool     deviceNotAttached()                 { return _thing_id == ""; }
+
     inline ConnectionHandler * getConnection()          { return _connection; }
 
     inline unsigned long getInternalTime()              { return _time_service.getTime(); }
@@ -124,6 +130,20 @@ class ArduinoIoTCloudClass
     Property& addPropertyReal(unsigned int& property, String name, Permission const permission);
     Property& addPropertyReal(String& property, String name, Permission const permission);
 
+    Property& addPropertyReal(Property& property, PropertyContainer &prop_cont, String name, int tag, Permission const permission);
+    Property& addPropertyReal(bool& property, PropertyContainer &prop_cont, String name, int tag, Permission const permission);
+    Property& addPropertyReal(float& property, PropertyContainer &prop_cont, String name, int tag, Permission const permission);
+    Property& addPropertyReal(int& property, PropertyContainer &prop_cont, String name, int tag, Permission const permission);
+    Property& addPropertyReal(unsigned int& property, PropertyContainer &prop_cont, String name, int tag, Permission const permission);
+    Property& addPropertyReal(String& property, PropertyContainer &prop_cont, String name, int tag, Permission const permission);
+
+    Property& addPropertyReal(Property& property, PropertyContainer &prop_cont, String name, Permission const permission);
+    Property& addPropertyReal(bool& property, PropertyContainer &prop_cont, String name, Permission const permission);
+    Property& addPropertyReal(float& property, PropertyContainer &prop_cont, String name, Permission const permission);
+    Property& addPropertyReal(int& property, PropertyContainer &prop_cont, String name, Permission const permission);
+    Property& addPropertyReal(unsigned int& property, PropertyContainer &prop_cont, String name, Permission const permission);
+    Property& addPropertyReal(String& property, PropertyContainer &prop_cont, String name, Permission const permission);
+
     /* The following methods are for MKR WAN 1300/1310 LoRa boards since
      * they use a number to identify a given property within a CBOR message.
      * This approach reduces the required amount of data which is of great
@@ -147,19 +167,22 @@ class ArduinoIoTCloudClass
   protected:
 
     ConnectionHandler * _connection;
-    PropertyContainer _property_container;
+    PropertyContainer _device_property_container;
+    PropertyContainer _thing_property_container;
     unsigned int _last_checked_property_index;
     TimeService & _time_service;
     int _tz_offset;
     unsigned int _tz_dst_until;
+    String _thing_id;
+    String _lib_version;
 
     void execCloudEventCallback(ArduinoIoTCloudEvent const event);
 
   private:
 
-    String _thing_id;
     String _device_id;
     OnCloudEventCallback _cloud_event_callback[3];
+    bool _thing_id_outdated;
 };
 
 #ifdef HAS_TCP
