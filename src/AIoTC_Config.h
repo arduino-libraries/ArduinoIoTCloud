@@ -121,6 +121,11 @@
   #define HAS_TCP
 #endif
 
+#if defined(ARDUINO_NICLA_VISION)
+  #define BOARD_HAS_SE050
+  #define HAS_TCP
+#endif
+
 #if defined(ARDUINO_AVR_UNO_WIFI_REV2) || \
   defined(ARDUINO_SAMD_MKRWIFI1010) || defined(ARDUINO_SAMD_NANO_33_IOT)
   #define BOARD_HAS_OFFLOADED_ECCX08
