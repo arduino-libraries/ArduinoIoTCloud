@@ -24,17 +24,15 @@
 
 #include <AIoTC_Config.h>
 
-#if defined(BOARD_HAS_ECCX08) || defined (BOARD_HAS_OFFLOADED_ECCX08)
-
+#if defined(BOARD_HAS_ECCX08) || defined(BOARD_HAS_OFFLOADED_ECCX08)
 #include <Arduino.h>
+#include "Cert.h"
 #include <ArduinoECCX08.h>
-#include "ECCX08Cert.h"
 
 /******************************************************************************
    TYPEDEF
  ******************************************************************************/
-
-enum class ECCX08Slot : int
+enum class CryptoSlot : int
 {
   Key                                   = 0,
   CompressedCertificate                 = 10,
@@ -50,17 +48,26 @@ class CryptoUtil
 {
 public:
 
-  static bool readDeviceId(ECCX08Class & eccx08, String & device_id, ECCX08Slot const device_id_slot);
-  static bool reconstructCertificate(ECCX08CertClass & cert, String const & device_id, ECCX08Slot const key, ECCX08Slot const compressed_certificate, ECCX08Slot const serial_number_and_authority_key);
+  CryptoUtil();
 
+  inline int begin() { return _crypto.begin(); }
+  inline int locked() { return _crypto.locked(); }
+  inline int writeConfiguration(const byte config[]) { return _crypto.writeConfiguration(config); }
+  inline int lock() { return _crypto.lock(); }
+
+  int buildCSR(ArduinoIoTCloudCertClass & cert, const CryptoSlot keySlot, bool newPrivateKey);
+  int buildCert(ArduinoIoTCloudCertClass & cert, const CryptoSlot keySlot);
+
+  int readDeviceId(String & device_id, const CryptoSlot device_id_slot);
+  int writeDeviceId(String & device_id, const CryptoSlot device_id_slot);
+  int writeCert(ArduinoIoTCloudCertClass & cert, const CryptoSlot certSlot);
+  int readCert(ArduinoIoTCloudCertClass & cert, const CryptoSlot certSlot);
 
 private:
-
-  CryptoUtil() { }
-  CryptoUtil(CryptoUtil const & other) { }
+  ECCX08Class & _crypto;
 
 };
 
-#endif /* BOARD_HAS_ECCX08 */
+#endif /* BOARD_HAS_ECCX08 || BOARD_HAS_OFFLOADED_ECCX08 */
 
 #endif /* ARDUINO_IOT_CLOUD_UTILITY_CRYPTO_CRYPTO_UTIL_H_ */

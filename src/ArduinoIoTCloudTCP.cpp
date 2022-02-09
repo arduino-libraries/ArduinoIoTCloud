@@ -204,36 +204,36 @@ int ArduinoIoTCloudTCP::begin(bool const enable_watchdog, String brokerAddress, 
 #endif /* OTA_ENABLED */
 
   #ifdef BOARD_HAS_OFFLOADED_ECCX08
-  if (!ECCX08.begin())
+  if (!_crypto.begin())
   {
-    DEBUG_ERROR("ECCX08.begin() failed.");
+    DEBUG_ERROR("_crypto.begin() failed.");
     return 0;
   }
-  if (!CryptoUtil::readDeviceId(ECCX08, getDeviceId(), ECCX08Slot::DeviceId))
+  if (!_crypto.readDeviceId(getDeviceId(), CryptoSlot::DeviceId))
   {
-    DEBUG_ERROR("CryptoUtil::readDeviceId(...) failed.");
+    DEBUG_ERROR("_crypto.readDeviceId(...) failed.");
     return 0;
   }
   #endif
 
   #ifdef BOARD_HAS_ECCX08
-  if (!ECCX08.begin())
+  if (!_crypto.begin())
   {
     DEBUG_ERROR("Cryptography processor failure. Make sure you have a compatible board.");
     return 0;
   }
-  if (!CryptoUtil::readDeviceId(ECCX08, getDeviceId(), ECCX08Slot::DeviceId))
+  if (!_crypto.readDeviceId(getDeviceId(), CryptoSlot::DeviceId))
   {
     DEBUG_ERROR("Cryptography processor read failure.");
     return 0;
   }
-  if (!CryptoUtil::reconstructCertificate(_eccx08_cert, getDeviceId(), ECCX08Slot::Key, ECCX08Slot::CompressedCertificate, ECCX08Slot::SerialNumberAndAuthorityKeyIdentifier))
+  if (!_crypto.readCert(_cert, CryptoSlot::CompressedCertificate))
   {
     DEBUG_ERROR("Cryptography certificate reconstruction failure.");
     return 0;
   }
   _sslClient.setClient(_connection->getClient());
-  _sslClient.setEccSlot(static_cast<int>(ECCX08Slot::Key), _eccx08_cert.bytes(), _eccx08_cert.length());
+  _sslClient.setEccSlot(static_cast<int>(CryptoSlot::Key), _cert.bytes(), _cert.length());
   #elif defined(BOARD_ESP)
   _sslClient.setInsecure();
   #endif

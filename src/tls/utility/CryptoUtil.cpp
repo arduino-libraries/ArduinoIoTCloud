@@ -19,43 +19,171 @@
  * INCLUDE
  ******************************************************************************/
 
-#include "CryptoUtil.h"
+#include <AIoTC_Config.h>
 
-#if defined(BOARD_HAS_ECCX08) || defined (BOARD_HAS_OFFLOADED_ECCX08)
+#if defined(BOARD_HAS_ECCX08) || defined(BOARD_HAS_OFFLOADED_ECCX08)
+
+#include "CryptoUtil.h"
+#include "SHA256.h"
+
+/******************************************************************************
+ * DEFINE
+ ******************************************************************************/
+#define CRYPTO_SHA256_BUFFER_LENGTH  32
+#define CRYPTO_CERT_BUFFER_LENGTH  1024
+
+/**************************************************************************************
+ * CTOR/DTOR
+ **************************************************************************************/
+CryptoUtil::CryptoUtil()
+: _crypto {ECCX08}
+{
+
+}
 
 /******************************************************************************
  * PUBLIC MEMBER FUNCTIONS
  ******************************************************************************/
 
-bool CryptoUtil::readDeviceId(ECCX08Class & eccx08, String & device_id, ECCX08Slot const device_id_slot)
+int CryptoUtil::buildCSR(ArduinoIoTCloudCertClass & cert, const CryptoSlot keySlot, bool newPrivateKey)
 {
-  byte device_id_bytes[72] = {0};
+  byte publicKey[CERT_PUBLIC_KEY_LENGTH];
+  byte signature[CERT_SIGNATURE_LENGTH];
+
+  if (newPrivateKey) {
+    if (!_crypto.generatePrivateKey(static_cast<int>(keySlot), publicKey)) {
+      return 0;
+    }
+  } else {
+    if (!_crypto.generatePublicKey(static_cast<int>(keySlot), publicKey)) {
+      return 0;
+    }
+  }
+
+  /* Store public key in csr */
+  if (!cert.setPublicKey(publicKey, CERT_PUBLIC_KEY_LENGTH)) {
+    return 0;
+  }
   
-  if (eccx08.readSlot(static_cast<int>(device_id_slot), device_id_bytes, sizeof(device_id_bytes))) {
-   device_id = String(reinterpret_cast<char *>(device_id_bytes));
-   return true;
+  /* Build CSR */
+  if (!cert.buildCSR()) {
+    return 0;
   }
-  else
-  {
-   return false;
+
+  /* compute CSR SHA256 */
+  SHA256 sha256;
+  byte sha256buf[CRYPTO_SHA256_BUFFER_LENGTH];
+  sha256.begin();
+  sha256.update(cert.bytes(), cert.length());
+  sha256.finalize(sha256buf);
+
+  if (!_crypto.ecSign(static_cast<int>(keySlot), sha256buf, signature)) {
+    return 0;
   }
+
+  /* sign CSR */
+  return cert.signCSR(signature);
 }
 
-bool CryptoUtil::reconstructCertificate(ECCX08CertClass & cert, String const & device_id, ECCX08Slot const key, ECCX08Slot const compressed_certificate, ECCX08Slot const serial_number_and_authority_key)
+int CryptoUtil::buildCert(ArduinoIoTCloudCertClass & cert, const CryptoSlot keySlot)
 {
-  if (cert.beginReconstruction(static_cast<int>(key), static_cast<int>(compressed_certificate), static_cast<int>(serial_number_and_authority_key)))
-  {
-    cert.setSubjectCommonName(device_id);
-    cert.setIssuerCountryName("US");
-    cert.setIssuerOrganizationName("Arduino LLC US");
-    cert.setIssuerOrganizationalUnitName("IT");
-    cert.setIssuerCommonName("Arduino");
-    return cert.endReconstruction();
+  byte publicKey[CERT_PUBLIC_KEY_LENGTH];
+
+  if (!_crypto.generatePublicKey(static_cast<int>(keySlot), publicKey)) {
+    return 0;
   }
-  else
-  {
-   return false;
+
+  /* Store public key in csr */
+  if (!cert.setPublicKey(publicKey, CERT_PUBLIC_KEY_LENGTH)) {
+    return 0;
   }
+
+  /* Build CSR */
+  if (!cert.buildCert()) {
+    return 0;
+  }
+
+  /* sign CSR */
+  return cert.signCert();
 }
 
-#endif /* BOARD_HAS_ECCX08 */
+int CryptoUtil::readDeviceId(String & device_id, const CryptoSlot device_id_slot)
+{
+  byte device_id_bytes[CERT_COMPRESSED_CERT_SLOT_LENGTH] = {0};
+
+  if (!_crypto.readSlot(static_cast<int>(device_id_slot), device_id_bytes, sizeof(device_id_bytes))) {
+    return 0;
+  }
+
+  device_id = String(reinterpret_cast<char *>(device_id_bytes));
+  return 1;
+}
+
+int CryptoUtil::writeDeviceId(String & device_id, const CryptoSlot device_id_slot)
+{
+  byte device_id_bytes[CERT_COMPRESSED_CERT_SLOT_LENGTH] = {0};
+
+  device_id.getBytes(device_id_bytes, sizeof(device_id_bytes));
+  
+  if (!_crypto.writeSlot(static_cast<int>(device_id_slot), device_id_bytes, sizeof(device_id_bytes))) {
+    return 0;
+  }
+  return 1;
+}
+
+int CryptoUtil::writeCert(ArduinoIoTCloudCertClass & cert, const CryptoSlot certSlot)
+{
+  if (!_crypto.writeSlot(static_cast<int>(certSlot), cert.compressedCertSignatureAndDatesBytes(), cert.compressedCertSignatureAndDatesLength())) {
+    return 0;
+  }
+
+  if (!_crypto.writeSlot(static_cast<int>(certSlot) + 1, cert.compressedCertSerialAndAuthorityKeyIdBytes(), cert.compressedCertSerialAndAuthorityKeyIdLenght())) {
+    return 0;
+  }
+  return 1;
+}
+
+int CryptoUtil::readCert(ArduinoIoTCloudCertClass & cert, const CryptoSlot certSlot)
+{
+  String deviceId;
+  byte publicKey[CERT_PUBLIC_KEY_LENGTH];
+
+  cert.begin();
+
+  if (!readDeviceId(deviceId, CryptoSlot::DeviceId)) {
+    return 0;
+  }
+
+  if (!_crypto.readSlot(static_cast<int>(certSlot), cert.compressedCertSignatureAndDatesBytes(), cert.compressedCertSignatureAndDatesLength())) {
+    return 0;
+  }
+
+  if (!_crypto.readSlot(static_cast<int>(certSlot) + 1, cert.compressedCertSerialAndAuthorityKeyIdBytes(), cert.compressedCertSerialAndAuthorityKeyIdLenght())) {
+    return 0;
+  }
+
+  if (!_crypto.generatePublicKey(static_cast<int>(CryptoSlot::Key), publicKey)) {
+    return 0;
+  }
+
+  cert.setSubjectCommonName(deviceId);
+  cert.setIssuerCountryName("US");
+  cert.setIssuerOrganizationName("Arduino LLC US");
+  cert.setIssuerOrganizationalUnitName("IT");
+  cert.setIssuerCommonName("Arduino");
+
+  if (!cert.setPublicKey(publicKey, CERT_PUBLIC_KEY_LENGTH)) {
+    return 0;
+  }
+
+  if (!cert.buildCert()) {
+    return 0;
+  }
+
+  if (!cert.signCert()) {
+    return 0;
+  }
+  return 1;
+}
+
+#endif /* (BOARD_HAS_ECCX08) || defined(BOARD_HAS_OFFLOADED_ECCX08) */
