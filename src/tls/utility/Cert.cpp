@@ -96,8 +96,9 @@ static String base64Encode(const byte in[], unsigned int length, const char* pre
  ******************************************************************************/
 
 ArduinoIoTCloudCertClass::ArduinoIoTCloudCertClass()
-: _certBuffer(NULL)
+: _certBuffer(nullptr)
 , _certBufferLen(0)
+, _publicKey(nullptr)
 {
 
 }
@@ -106,7 +107,7 @@ ArduinoIoTCloudCertClass::~ArduinoIoTCloudCertClass()
 {
   if (_certBuffer) {
     free(_certBuffer);
-    _certBuffer = NULL;
+    _certBuffer = nullptr;
   }
 }
 
@@ -117,7 +118,6 @@ ArduinoIoTCloudCertClass::~ArduinoIoTCloudCertClass()
 int ArduinoIoTCloudCertClass::begin()
 {
   memset(_compressedCert.data, 0x00, CERT_COMPRESSED_CERT_LENGTH);
-  memset(_publicKey, 0x00, CERT_PUBLIC_KEY_LENGTH);
   return 1;
 }
 
@@ -146,6 +146,9 @@ int ArduinoIoTCloudCertClass::buildCSR()
   out += appendIssuerOrSubject(_subjectData, out);
 
   // public key
+  if (_publicKey == nullptr) {
+    return 0;
+  }
   out += appendPublicKey(_publicKey, out);
   
   // terminator
@@ -243,6 +246,9 @@ int ArduinoIoTCloudCertClass::buildCert()
   out += appendIssuerOrSubject(_subjectData, out);
 
   // public key
+  if (_publicKey == nullptr) {
+    return 0;
+  }
   out += appendPublicKey(_publicKey, out);
 
   int authorityKeyIdLen = authorityKeyIdLength(_compressedCert.slot.two.values.authorityKeyId, CERT_AUTHORITY_KEY_ID_LENGTH);
@@ -377,7 +383,7 @@ int ArduinoIoTCloudCertClass::setAuthorityKeyId(const uint8_t authorityKeyId[], 
 
 int ArduinoIoTCloudCertClass::setPublicKey(const byte* publicKey, int publicKeyLen) {
   if (publicKeyLen == CERT_PUBLIC_KEY_LENGTH) {
-    memcpy(_publicKey, publicKey, CERT_PUBLIC_KEY_LENGTH);
+    _publicKey = publicKey;
     return 1;
   }
   return 0;

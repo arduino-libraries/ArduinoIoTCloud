@@ -35,8 +35,8 @@
 #define CERT_PUBLIC_KEY_LENGTH               64
 #define CERT_SIGNATURE_LENGTH                64
 #define CERT_DATES_LENGTH                     3
-#define CERT_COMPRESSED_CERT_LENGTH         144
 #define CERT_COMPRESSED_CERT_SLOT_LENGTH     72
+#define CERT_COMPRESSED_CERT_LENGTH         CERT_COMPRESSED_CERT_SLOT_LENGTH + CERT_SERIAL_NUMBER_LENGTH + CERT_AUTHORITY_KEY_ID_LENGTH
 
 #include <Arduino.h>
 
@@ -86,7 +86,7 @@ public:
   inline byte* compressedCertSignatureAndDatesBytes() { return _compressedCert.slot.one.data; }
   inline int compressedCertSignatureAndDatesLength() {return CERT_COMPRESSED_CERT_SLOT_LENGTH; }
   inline byte* compressedCertSerialAndAuthorityKeyIdBytes() { return _compressedCert.slot.two.data; }
-  inline int compressedCertSerialAndAuthorityKeyIdLenght() {return CERT_COMPRESSED_CERT_SLOT_LENGTH; }
+  inline int compressedCertSerialAndAuthorityKeyIdLenght() {return CERT_SERIAL_NUMBER_LENGTH + CERT_AUTHORITY_KEY_ID_LENGTH; }
 #endif
 
   /* Build CSR */
@@ -135,9 +135,8 @@ private:
     struct __attribute__((__packed__)) SerialNumberAndAuthorityKeyIdType {
       byte serialNumber[CERT_SERIAL_NUMBER_LENGTH];
       byte authorityKeyId[CERT_AUTHORITY_KEY_ID_LENGTH];
-      byte unused[36];
     } values;
-    byte data[CERT_COMPRESSED_CERT_SLOT_LENGTH];
+    byte data[CERT_SERIAL_NUMBER_LENGTH + CERT_AUTHORITY_KEY_ID_LENGTH];
   };
 
   union CompressedCertDataUType {
@@ -145,12 +144,11 @@ private:
       SignatureAndDateUType one;
       SerialNumberAndAuthorityKeyIdUType two;
     }slot;
-    byte data[CERT_COMPRESSED_CERT_LENGTH];
+    byte data[CERT_COMPRESSED_CERT_SLOT_LENGTH + CERT_SERIAL_NUMBER_LENGTH + CERT_AUTHORITY_KEY_ID_LENGTH];
   } _compressedCert;
 
   /* only raw EC X Y values 64 byte */
-  byte  _publicKey[CERT_PUBLIC_KEY_LENGTH];
-  int   _publicKeyLen;
+  const byte * _publicKey;
 
   byte * _certBuffer;
   int    _certBufferLen;
