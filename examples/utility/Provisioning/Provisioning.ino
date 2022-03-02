@@ -1,27 +1,22 @@
 #include <ArduinoIoTCloud.h>
 #include "ECCX08TLSConfig.h"
 
-#include <ArduinoECCX08.h>
-
 const bool DEBUG = true;
-const int keySlot                                   = 0;
-const int compressedCertSlot                        = 10;
-const int serialNumberAndAuthorityKeyIdentifierSlot = 11;
-const int deviceIdSlot                              = 12;
 
-ECCX08CertClass ECCX08Cert;
+ArduinoIoTCloudCertClass Certificate;
+CryptoUtil Crypto;
 
 void setup() {
   Serial.begin(9600);
   while (!Serial);
 
-  if (!ECCX08.begin()) {
-    Serial.println("No ECCX08 present!");
+  if (!Crypto.begin()) {
+    Serial.println("No crypto present!");
     while (1);
   }
 
-  if (!ECCX08.locked()) {
-    String lockConfirm = promptAndReadLine("Your ECCX08 is unlocked, would you like to lock it (y/N): ");
+  if (!Crypto.locked()) {
+    String lockConfirm = promptAndReadLine("Your crypto is unlocked, would you like to lock it (y/N): ");
     lockConfirm.toLowerCase();
 
     if (lockConfirm != "y") {
@@ -29,17 +24,17 @@ void setup() {
       while (1);
     }
 
-    if (!ECCX08.writeConfiguration(DEFAULT_ECCX08_TLS_CONFIG)) {
-      Serial.println("Writing ECCX08 configuration failed!");
+    if (!Crypto.writeConfiguration(DEFAULT_ECCX08_TLS_CONFIG)) {
+      Serial.println("Writing crypto configuration failed!");
       while (1);
     }
 
-    if (!ECCX08.lock()) {
-      Serial.println("Locking ECCX08 configuration failed!");
+    if (!Crypto.lock()) {
+      Serial.println("Locking crypto configuration failed!");
       while (1);
     }
 
-    Serial.println("ECCX08 locked successfully");
+    Serial.println("crypto locked successfully");
     Serial.println();
   }
 
@@ -51,15 +46,20 @@ void setup() {
     while (1);
   }
 
-  if (!ECCX08Cert.beginCSR(keySlot, true)) {
+  if (!Certificate.begin()) {
     Serial.println("Error starting CSR generation!");
     while (1);
   }
 
   String deviceId = promptAndReadLine("Please enter the device id: ");
-  ECCX08Cert.setSubjectCommonName(deviceId);
+  Certificate.setSubjectCommonName(deviceId);
 
-  String csr = ECCX08Cert.endCSR();
+  if (!Crypto.buildCSR(Certificate, CryptoSlot::Key, true)) {
+    Serial.println("Error generating CSR!");
+    while (1);
+  }
+
+  String csr = Certificate.getCSRPEM();
 
   if (!csr) {
     Serial.println("Error generating CSR!");
@@ -79,52 +79,45 @@ void setup() {
   String authorityKeyIdentifier = promptAndReadLine("Please enter the certificates authority key identifier: ");
   String signature              = promptAndReadLine("Please enter the certificates signature: ");
 
-  byte deviceIdBytes[72];
-  byte serialNumberBytes[16];
-  byte authorityKeyIdentifierBytes[20];
-  byte signatureBytes[64];
+  byte serialNumberBytes[CERT_SERIAL_NUMBER_LENGTH];
+  byte authorityKeyIdentifierBytes[CERT_AUTHORITY_KEY_ID_LENGTH];
+  byte signatureBytes[CERT_SIGNATURE_LENGTH];
 
-  deviceId.getBytes(deviceIdBytes, sizeof(deviceIdBytes));
   hexStringToBytes(serialNumber, serialNumberBytes, sizeof(serialNumberBytes));
   hexStringToBytes(authorityKeyIdentifier, authorityKeyIdentifierBytes, sizeof(authorityKeyIdentifierBytes));
   hexStringToBytes(signature, signatureBytes, sizeof(signatureBytes));
 
-  if (!ECCX08.writeSlot(deviceIdSlot, deviceIdBytes, sizeof(deviceIdBytes))) {
+  if (!Crypto.writeDeviceId(deviceId, CryptoSlot::DeviceId)) {
     Serial.println("Error storing device id!");
     while (1);
   }
 
-  if (!ECCX08Cert.beginStorage(compressedCertSlot, serialNumberAndAuthorityKeyIdentifierSlot)) {
-    Serial.println("Error starting ECCX08 storage!");
+  if (!Certificate.begin()) {
+    Serial.println("Error starting crypto storage!");
     while (1);
   }
 
-  ECCX08Cert.setSignature(signatureBytes);
-  ECCX08Cert.setAuthorityKeyIdentifier(authorityKeyIdentifierBytes);
-  ECCX08Cert.setSerialNumber(serialNumberBytes);
-  ECCX08Cert.setIssueYear(issueYear.toInt());
-  ECCX08Cert.setIssueMonth(issueMonth.toInt());
-  ECCX08Cert.setIssueDay(issueDay.toInt());
-  ECCX08Cert.setIssueHour(issueHour.toInt());
-  ECCX08Cert.setExpireYears(expireYears.toInt());
+  Certificate.setSubjectCommonName(deviceId);
+  Certificate.setIssuerCountryName("US");
+  Certificate.setIssuerOrganizationName("Arduino LLC US");
+  Certificate.setIssuerOrganizationalUnitName("IT");
+  Certificate.setIssuerCommonName("Arduino");
+  Certificate.setSignature(signatureBytes, sizeof(signatureBytes));
+  Certificate.setAuthorityKeyId(authorityKeyIdentifierBytes, sizeof(authorityKeyIdentifierBytes));
+  Certificate.setSerialNumber(serialNumberBytes, sizeof(serialNumberBytes));
+  Certificate.setIssueYear(issueYear.toInt());
+  Certificate.setIssueMonth(issueMonth.toInt());
+  Certificate.setIssueDay(issueDay.toInt());
+  Certificate.setIssueHour(issueHour.toInt());
+  Certificate.setExpireYears(expireYears.toInt());
 
-  if (!ECCX08Cert.endStorage()) {
-    Serial.println("Error storing ECCX08 compressed cert!");
+  if (!Crypto.buildCert(Certificate, CryptoSlot::Key)) {
+    Serial.println("Error building cert!");
     while (1);
   }
-
-  if (!ECCX08Cert.beginReconstruction(keySlot, compressedCertSlot, serialNumberAndAuthorityKeyIdentifierSlot)) {
-    Serial.println("Error starting ECCX08 cert reconstruction!");
-    while (1);
-  }
-
-  ECCX08Cert.setIssuerCountryName("US");
-  ECCX08Cert.setIssuerOrganizationName("Arduino LLC US");
-  ECCX08Cert.setIssuerOrganizationalUnitName("IT");
-  ECCX08Cert.setIssuerCommonName("Arduino");
-
-  if (!ECCX08Cert.endReconstruction()) {
-    Serial.println("Error reconstructing ECCX08 compressed cert!");
+  
+  if (!Crypto.writeCert(Certificate, CryptoSlot::CompressedCertificate)) {
+    Serial.println("Error storing cert!");
     while (1);
   }
 
@@ -134,8 +127,8 @@ void setup() {
 
   Serial.println("Compressed cert = ");
 
-  const byte* certData = ECCX08Cert.bytes();
-  int certLength = ECCX08Cert.length();
+  const byte* certData = Certificate.bytes();
+  int certLength = Certificate.length();
 
   for (int i = 0; i < certLength; i++) {
     byte b = certData[i];
