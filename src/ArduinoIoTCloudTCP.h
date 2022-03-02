@@ -31,6 +31,8 @@
   #include "tls/utility/CryptoUtil.h"
 #elif defined(BOARD_ESP)
   #include <WiFiClientSecure.h>
+#elif defined(BOARD_HAS_SE050)
+  #include "tls/utility/CryptoUtil.h"
 #endif
 
 #ifdef BOARD_HAS_OFFLOADED_ECCX08
@@ -143,6 +145,10 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
     #elif defined(BOARD_ESP)
     WiFiClientSecure _sslClient;
     String _password;
+    #elif defined(BOARD_HAS_SE050)
+    ArduinoIoTCloudCertClass _cert;
+    WiFiSSLSE050Client _sslClient;
+    CryptoUtil _crypto;
     #endif
 
     MqttClient _mqttClient;

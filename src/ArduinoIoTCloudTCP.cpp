@@ -28,6 +28,11 @@
   #include "tls/utility/CryptoUtil.h"
 #endif
 
+#ifdef BOARD_HAS_SE050
+  #include "tls/AIoTCSSCert.h"
+  #include "tls/utility/CryptoUtil.h"
+#endif
+
 #ifdef BOARD_HAS_OFFLOADED_ECCX08
 #include <ArduinoECCX08.h>
 #include "tls/utility/CryptoUtil.h"
@@ -216,7 +221,7 @@ int ArduinoIoTCloudTCP::begin(bool const enable_watchdog, String brokerAddress, 
   }
   #endif
 
-  #ifdef BOARD_HAS_ECCX08
+  #if defined(BOARD_HAS_ECCX08) || defined(BOARD_HAS_SE050)
   if (!_crypto.begin())
   {
     DEBUG_ERROR("Cryptography processor failure. Make sure you have a compatible board.");
@@ -232,7 +237,11 @@ int ArduinoIoTCloudTCP::begin(bool const enable_watchdog, String brokerAddress, 
     DEBUG_ERROR("Cryptography certificate reconstruction failure.");
     return 0;
   }
+  #ifndef BOARD_HAS_SE050
   _sslClient.setClient(_connection->getClient());
+  #else
+  _sslClient.appendCustomCACert(AIoTSSCert);
+  #endif
   _sslClient.setEccSlot(static_cast<int>(CryptoSlot::Key), _cert.bytes(), _cert.length());
   #elif defined(BOARD_ESP)
   _sslClient.setInsecure();
