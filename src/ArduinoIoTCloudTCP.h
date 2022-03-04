@@ -33,6 +33,7 @@
   #include <WiFiClientSecure.h>
 #elif defined(BOARD_HAS_SE050)
   #include "tls/utility/CryptoUtil.h"
+  #include <WiFiSSLSE050Client.h>
 #endif
 
 #ifdef BOARD_HAS_OFFLOADED_ECCX08
