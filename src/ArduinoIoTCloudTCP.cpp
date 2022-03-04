@@ -151,7 +151,7 @@ int ArduinoIoTCloudTCP::begin(bool const enable_watchdog, String brokerAddress, 
 #endif /* AVR */
 
 #if OTA_ENABLED && !defined(__AVR__)
-#if defined(ARDUINO_PORTENTA_H7_M7)
+#if defined(ARDUINO_PORTENTA_H7_M7) || defined(ARDUINO_NICLA_VISION)
   /* The length of the application can be retrieved the same way it was
    * communicated to the bootloader, that is by writing to the non-volatile
    * storage registers of the RTC.
@@ -288,7 +288,7 @@ int ArduinoIoTCloudTCP::begin(bool const enable_watchdog, String brokerAddress, 
   }
 #endif /* OTA_STORAGE_SNU */
 
-#if defined(ARDUINO_NANO_RP2040_CONNECT)
+#if defined(ARDUINO_NANO_RP2040_CONNECT) || defined(ARDUINO_NICLA_VISION)
   _ota_cap = true;
 #endif
 
@@ -826,7 +826,7 @@ void ArduinoIoTCloudTCP::onOTARequest()
   _ota_error = rp2040_connect_onOTARequest(_ota_url.c_str());
 #endif
 
-#if defined(ARDUINO_PORTENTA_H7_M7) || defined(ARDUINO_PORTENTA_H7_M4)
+#if defined(ARDUINO_PORTENTA_H7_M7) || defined(ARDUINO_PORTENTA_H7_M4) || defined(ARDUINO_NICLA_VISION)
   _ota_error = portenta_h7_onOTARequest(_ota_url.c_str());
 #endif
 }
