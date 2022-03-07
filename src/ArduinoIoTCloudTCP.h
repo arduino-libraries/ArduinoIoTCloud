@@ -28,13 +28,13 @@
 
 #ifdef BOARD_HAS_ECCX08
   #include "tls/BearSSLClient.h"
-  #include "tls/utility/ECCX08Cert.h"
+  #include "tls/utility/CryptoUtil.h"
 #elif defined(BOARD_ESP)
   #include <WiFiClientSecure.h>
 #endif
 
 #ifdef BOARD_HAS_OFFLOADED_ECCX08
-#include "tls/utility/ECCX08Cert.h"
+#include "tls/utility/CryptoUtil.h"
 #include <WiFiSSLClient.h>
 #endif
 
@@ -133,11 +133,13 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
     bool _mqtt_data_request_retransmit;
 
     #if defined(BOARD_HAS_ECCX08)
-    ECCX08CertClass _eccx08_cert;
+    ArduinoIoTCloudCertClass _cert;
     BearSSLClient _sslClient;
+    CryptoUtil _crypto;
     #elif defined(BOARD_HAS_OFFLOADED_ECCX08)
-    ECCX08CertClass _eccx08_cert;
+    ArduinoIoTCloudCertClass _cert;
     WiFiBearSSLClient _sslClient;
+    CryptoUtil _crypto;
     #elif defined(BOARD_ESP)
     WiFiClientSecure _sslClient;
     String _password;
