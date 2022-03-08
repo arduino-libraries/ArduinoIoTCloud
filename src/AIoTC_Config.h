@@ -102,7 +102,7 @@
   #define OTA_STORAGE_SSU         (0)
 #endif
 
-#if defined(ARDUINO_PORTENTA_H7_M7)
+#if defined(ARDUINO_PORTENTA_H7_M7) || defined(ARDUINO_NICLA_VISION)
   #define OTA_STORAGE_PORTENTA_QSPI   (1)
 #else
   #define OTA_STORAGE_PORTENTA_QSPI   (0)
@@ -118,6 +118,11 @@
   defined(ARDUINO_SAMD_MKRNB1500) || defined(ARDUINO_PORTENTA_H7_M7)      ||   \
   defined(ARDUINO_PORTENTA_H7_M4) || defined (ARDUINO_NANO_RP2040_CONNECT)
   #define BOARD_HAS_ECCX08
+  #define HAS_TCP
+#endif
+
+#if defined(ARDUINO_NICLA_VISION)
+  #define BOARD_HAS_SE050
   #define HAS_TCP
 #endif
 

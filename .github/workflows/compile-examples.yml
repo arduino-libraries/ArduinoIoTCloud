@@ -60,6 +60,8 @@ jobs:
             type: esp32
           - fqbn: arduino:mbed_nano:nanorp2040connect
             type: nina
+          - fqbn: arduino:mbed_nicla:nicla_vision
+            type: mbed_nicla
 
         # make board type-specific customizations to the matrix jobs
         include:
@@ -138,6 +140,15 @@ jobs:
                 name: arduino:mbed
             libraries: |
               - name: ArduinoECCX08
+              - name: Arduino_Portenta_OTA
+            sketch-paths: |
+              - examples/utility/Provisioning
+          - board:
+              type: mbed_nicla
+            platforms: |
+              # Install Arduino mbed-Enabled Boards via Boards Manager for the toolchain
+              - name: arduino:mbed_nicla
+            libraries: |
               - name: Arduino_Portenta_OTA
             sketch-paths: |
               - examples/utility/Provisioning
