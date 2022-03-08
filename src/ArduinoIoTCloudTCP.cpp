@@ -28,6 +28,11 @@
   #include "tls/utility/CryptoUtil.h"
 #endif
 
+#ifdef BOARD_HAS_SE050
+  #include "tls/AIoTCSSCert.h"
+  #include "tls/utility/CryptoUtil.h"
+#endif
+
 #ifdef BOARD_HAS_OFFLOADED_ECCX08
 #include <ArduinoECCX08.h>
 #include "tls/utility/CryptoUtil.h"
@@ -203,7 +208,7 @@ int ArduinoIoTCloudTCP::begin(bool const enable_watchdog, String brokerAddress, 
   _ota_img_sha256 = sha256_str;
 #endif /* OTA_ENABLED */
 
-  #ifdef BOARD_HAS_OFFLOADED_ECCX08
+#if defined(BOARD_HAS_ECCX08) || defined(BOARD_HAS_OFFLOADED_ECCX08) || defined(BOARD_HAS_SE050)
   if (!_crypto.begin())
   {
     DEBUG_ERROR("_crypto.begin() failed.");
@@ -214,34 +219,29 @@ int ArduinoIoTCloudTCP::begin(bool const enable_watchdog, String brokerAddress, 
     DEBUG_ERROR("_crypto.readDeviceId(...) failed.");
     return 0;
   }
-  #endif
+#endif
 
-  #ifdef BOARD_HAS_ECCX08
-  if (!_crypto.begin())
-  {
-    DEBUG_ERROR("Cryptography processor failure. Make sure you have a compatible board.");
-    return 0;
-  }
-  if (!_crypto.readDeviceId(getDeviceId(), CryptoSlot::DeviceId))
-  {
-    DEBUG_ERROR("Cryptography processor read failure.");
-    return 0;
-  }
+#if defined(BOARD_HAS_ECCX08) || defined(BOARD_HAS_SE050)
   if (!_crypto.readCert(_cert, CryptoSlot::CompressedCertificate))
   {
     DEBUG_ERROR("Cryptography certificate reconstruction failure.");
     return 0;
   }
-  _sslClient.setClient(_connection->getClient());
   _sslClient.setEccSlot(static_cast<int>(CryptoSlot::Key), _cert.bytes(), _cert.length());
-  #elif defined(BOARD_ESP)
+#endif
+
+#if defined(BOARD_HAS_ECCX08)
+  _sslClient.setClient(_connection->getClient());
+#elif defined(BOARD_HAS_SE050)
+  _sslClient.appendCustomCACert(AIoTSSCert);
+#elif defined(BOARD_ESP)
   _sslClient.setInsecure();
-  #endif
+#endif
 
   _mqttClient.setClient(_sslClient);
-  #ifdef BOARD_ESP
+#ifdef BOARD_ESP
   _mqttClient.setUsernamePassword(getDeviceId(), _password);
-  #endif
+#endif
   _mqttClient.onMessage(ArduinoIoTCloudTCP::onMessage);
   _mqttClient.setKeepAliveInterval(30 * 1000);
   _mqttClient.setConnectionTimeout(1500);

@@ -21,7 +21,7 @@
 
 #include <AIoTC_Config.h>
 
-#if defined(BOARD_HAS_ECCX08) || defined(BOARD_HAS_OFFLOADED_ECCX08)
+#if defined(BOARD_HAS_ECCX08) || defined(BOARD_HAS_OFFLOADED_ECCX08) || defined(BOARD_HAS_SE050)
 
 #include "CryptoUtil.h"
 #include "SHA256.h"
@@ -36,7 +36,11 @@
  * CTOR/DTOR
  **************************************************************************************/
 CryptoUtil::CryptoUtil()
+#if defined(BOARD_HAS_SE050)
+: _crypto {SE05X}
+#else
 : _crypto {ECCX08}
+#endif
 {
 
 }
@@ -133,6 +137,11 @@ int CryptoUtil::writeDeviceId(String & device_id, const CryptoSlot device_id_slo
 
 int CryptoUtil::writeCert(ArduinoIoTCloudCertClass & cert, const CryptoSlot certSlot)
 {
+#if defined(BOARD_HAS_SE050)
+  if (!_crypto.writeSlot(static_cast<int>(certSlot), cert.bytes(), cert.length())) {
+    return 0;
+  }
+#else
   if (!_crypto.writeSlot(static_cast<int>(certSlot), cert.compressedCertSignatureAndDatesBytes(), cert.compressedCertSignatureAndDatesLength())) {
     return 0;
   }
@@ -140,11 +149,23 @@ int CryptoUtil::writeCert(ArduinoIoTCloudCertClass & cert, const CryptoSlot cert
   if (!_crypto.writeSlot(static_cast<int>(certSlot) + 1, cert.compressedCertSerialAndAuthorityKeyIdBytes(), cert.compressedCertSerialAndAuthorityKeyIdLenght())) {
     return 0;
   }
+#endif
   return 1;
 }
 
 int CryptoUtil::readCert(ArduinoIoTCloudCertClass & cert, const CryptoSlot certSlot)
 {
+#if defined(BOARD_HAS_SE050)
+  byte derBuffer[CRYPTO_CERT_BUFFER_LENGTH];
+  size_t derLen;
+  if (!_crypto.readBinaryObject(static_cast<int>(certSlot), derBuffer, sizeof(derBuffer), &derLen)) {
+    return 0;
+  }
+
+  if (!cert.importCert(derBuffer, derLen)) {
+    return 0;
+  }
+#else
   String deviceId;
   byte publicKey[CERT_PUBLIC_KEY_LENGTH];
 
@@ -183,7 +204,8 @@ int CryptoUtil::readCert(ArduinoIoTCloudCertClass & cert, const CryptoSlot certS
   if (!cert.signCert()) {
     return 0;
   }
+#endif
   return 1;
 }
 
-#endif /* (BOARD_HAS_ECCX08) || defined(BOARD_HAS_OFFLOADED_ECCX08) */
+#endif /* (BOARD_HAS_ECCX08) || defined(BOARD_HAS_OFFLOADED_ECCX08) || defined(BOARD_HAS_SE050) */

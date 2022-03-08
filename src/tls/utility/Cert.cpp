@@ -23,7 +23,7 @@
 
 #include <AIoTC_Config.h>
 
-#if defined(BOARD_HAS_ECCX08) || defined(BOARD_HAS_OFFLOADED_ECCX08)
+#if defined(BOARD_HAS_ECCX08) || defined(BOARD_HAS_OFFLOADED_ECCX08) || defined(BOARD_HAS_SE050)
 
 #include "Cert.h"
 
@@ -915,4 +915,4 @@ int ArduinoIoTCloudCertClass::appendAuthorityKeyId(const byte authorityKeyId[], 
   return length + 17;
 }
 
-#endif /* (BOARD_HAS_ECCX08) || defined(BOARD_HAS_OFFLOADED_ECCX08) */
+#endif /* (BOARD_HAS_ECCX08) || defined(BOARD_HAS_OFFLOADED_ECCX08) || defined(BOARD_HAS_SE050) */

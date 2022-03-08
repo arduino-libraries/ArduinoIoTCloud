@@ -24,7 +24,7 @@
 
 #include <AIoTC_Config.h>
 
-#if defined(BOARD_HAS_ECCX08) || defined(BOARD_HAS_OFFLOADED_ECCX08)
+#if defined(BOARD_HAS_ECCX08) || defined(BOARD_HAS_OFFLOADED_ECCX08) || defined(BOARD_HAS_SE050)
 
 /******************************************************************************
  * DEFINE
@@ -182,6 +182,6 @@ private:
 
 };
 
-#endif /* BOARD_HAS_ECCX08 || BOARD_HAS_OFFLOADED_ECCX08 */
+#endif /* BOARD_HAS_ECCX08 || BOARD_HAS_OFFLOADED_ECCX08 || BOARD_HAS_SE050*/
 
 #endif /* ARDUINO_IOT_CLOUD_CERT_H */
