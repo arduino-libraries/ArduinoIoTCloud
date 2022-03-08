@@ -15,7 +15,7 @@
    a commercial license, send an email to license@arduino.cc.
 */
 
-#if defined(ARDUINO_PORTENTA_H7_M7) || defined(ARDUINO_PORTENTA_H7_M4) || defined(ARDUINO_NICLA_VISION)
+#if defined(ARDUINO_PORTENTA_H7_M7) || defined(ARDUINO_NICLA_VISION)
 
 /******************************************************************************
  * INCLUDE
@@ -87,4 +87,4 @@ int portenta_h7_onOTARequest(char const * ota_url)
   NVIC_SystemReset();
 }
 
-#endif /* defined(ARDUINO_PORTENTA_H7_M7) || defined(ARDUINO_PORTENTA_H7_M4) || defined(ARDUINO_NICLA_VISION) */
+#endif /* defined(ARDUINO_PORTENTA_H7_M7) || defined(ARDUINO_NICLA_VISION) */
