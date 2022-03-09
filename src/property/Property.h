@@ -32,13 +32,7 @@
 #undef max
 #undef min
 
-#ifdef __AVR__
-# include <Arduino_AVRSTL.h>
-# include <nonstd/nonstd.h>
-#else
 # include <functional>
-#endif
-
 #include <list>
 
 #include "../cbor/lib/tinycbor/cbor-lib.h"
@@ -140,10 +134,6 @@ typedef void(*OnSyncCallbackFunc)(Property &);
    CLASS DECLARATION
  ******************************************************************************/
 
-#ifdef __AVR__
-#include "nonstd/nonstd.h"
-#endif
-
 class Property
 {
   public:
@@ -191,13 +181,8 @@ class Property
     CborError appendAttribute(unsigned int value, String attributeName = "", CborEncoder *encoder = nullptr);
     CborError appendAttribute(float value, String attributeName = "", CborEncoder *encoder = nullptr);
     CborError appendAttribute(String value, String attributeName = "", CborEncoder *encoder = nullptr);
-#ifndef __AVR__
     CborError appendAttributeName(String attributeName, std::function<CborError (CborEncoder& mapEncoder)>f, CborEncoder *encoder);
     void setAttribute(String attributeName, std::function<void (CborMapData & md)>setValue);
-#else
-    CborError appendAttributeName(String attributeName, nonstd::function<CborError (CborEncoder& mapEncoder)>f, CborEncoder *encoder);
-    void setAttribute(String attributeName, nonstd::function<void (CborMapData & md)>setValue);
-#endif
     void setAttributesFromCloud(std::list<CborMapData> * map_data_list);
     void setAttribute(bool& value, String attributeName = "");
     void setAttribute(int& value, String attributeName = "");

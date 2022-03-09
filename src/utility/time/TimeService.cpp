@@ -294,7 +294,6 @@ bool TimeServiceClass::connected()
 unsigned long TimeServiceClass::getRemoteTime()
 {
   if(connected()) {
-#ifndef __AVR__
     /* At first try to obtain a valid time via NTP.
      * This is the most reliable time source and it will
      * ensure a correct behaviour of the library.
@@ -303,7 +302,6 @@ unsigned long TimeServiceClass::getRemoteTime()
     if(isTimeValid(ntp_time)) {
       return ntp_time;
     }
-#endif
 
     /* As fallback if NTP request fails try to obtain the
      * network time using the connection handler.

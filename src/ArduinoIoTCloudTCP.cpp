@@ -132,16 +132,7 @@ int ArduinoIoTCloudTCP::begin(bool const enable_watchdog, String brokerAddress, 
   _brokerAddress = brokerAddress;
   _brokerPort = brokerPort;
 
-#if defined(__AVR__)
-  String const nina_fw_version = WiFi.firmwareVersion();
-  if (nina_fw_version < "1.4.2")
-  {
-    DEBUG_ERROR("ArduinoIoTCloudTCP::%s NINA firmware needs to be >= 1.4.2 to support cloud on Uno WiFi Rev. 2, current %s", __FUNCTION__, nina_fw_version.c_str());
-    return 0;
-  }
-#endif /* AVR */
-
-#if OTA_ENABLED && !defined(__AVR__)
+#if OTA_ENABLED
   _ota_img_sha256 = OTA::getImageSHA256();
   DEBUG_VERBOSE("SHA256: HASH(%d) = %s", strlen(_ota_img_sha256.c_str()), _ota_img_sha256.c_str());
 #endif /* OTA_ENABLED */
@@ -483,18 +474,14 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_SubscribeThingTopics()
   if (!_mqttClient.subscribe(_dataTopicIn))
   {
     DEBUG_ERROR("ArduinoIoTCloudTCP::%s could not subscribe to %s", __FUNCTION__, _dataTopicIn.c_str());
-#if !defined(__AVR__)
     DEBUG_ERROR("Check your thing configuration, and press the reset button on your board.");
-#endif
     return State::SubscribeThingTopics;
   }
 
   if (!_mqttClient.subscribe(_shadowTopicIn))
   {
     DEBUG_ERROR("ArduinoIoTCloudTCP::%s could not subscribe to %s", __FUNCTION__, _shadowTopicIn.c_str());
-#if !defined(__AVR__)
     DEBUG_ERROR("Check your thing configuration, and press the reset button on your board.");
-#endif
     return State::SubscribeThingTopics;
   }
 
