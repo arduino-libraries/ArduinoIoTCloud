@@ -50,8 +50,6 @@ jobs:
             type: gsm
           - fqbn: arduino:samd:mkrnb1500
             type: nb
-          - fqbn: arduino:mbed:envie_m4
-            type: mbed
           - fqbn: arduino:mbed:envie_m7
             type: mbed
           - fqbn: esp8266:esp8266:huzzah
