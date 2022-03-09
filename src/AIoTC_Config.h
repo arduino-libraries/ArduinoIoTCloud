@@ -116,7 +116,7 @@
 
 #if defined(ARDUINO_SAMD_MKRGSM1400) || defined(ARDUINO_SAMD_MKR1000) ||   \
   defined(ARDUINO_SAMD_MKRNB1500) || defined(ARDUINO_PORTENTA_H7_M7)      ||   \
-  defined(ARDUINO_PORTENTA_H7_M4) || defined (ARDUINO_NANO_RP2040_CONNECT)
+  defined (ARDUINO_NANO_RP2040_CONNECT)
   #define BOARD_HAS_ECCX08
   #define HAS_TCP
 #endif

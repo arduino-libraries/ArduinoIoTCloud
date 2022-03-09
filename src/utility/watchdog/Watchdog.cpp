@@ -90,7 +90,7 @@ void mkr_nb_feed_watchdog()
 static void mbed_watchdog_enable()
 {
   watchdog_config_t cfg;
-#if defined(ARDUINO_PORTENTA_H7_M7) || defined(ARDUINO_PORTENTA_H7_M4) || defined(ARDUINO_NICLA_VISION)
+#if defined(ARDUINO_PORTENTA_H7_M7) || defined(ARDUINO_NICLA_VISION)
   cfg.timeout_ms = PORTENTA_H7_WATCHDOG_MAX_TIMEOUT_ms;
 #elif defined(ARDUINO_NANO_RP2040_CONNECT)
   cfg.timeout_ms = NANO_RP2040_WATCHDOG_MAX_TIMEOUT_ms;
@@ -116,7 +116,7 @@ static void mbed_watchdog_reset()
 void mbed_watchdog_trigger_reset()
 {
   watchdog_config_t cfg;
-#if defined(ARDUINO_PORTENTA_H7_M7) || defined(ARDUINO_PORTENTA_H7_M4) || defined(ARDUINO_NICLA_VISION)
+#if defined(ARDUINO_PORTENTA_H7_M7) || defined(ARDUINO_NICLA_VISION)
   cfg.timeout_ms = 1;
 #elif defined(ARDUINO_NANO_RP2040_CONNECT)
   cfg.timeout_ms = 1;
