@@ -53,7 +53,7 @@ int samd_onOTARequest(char const * ota_url)
   if (!WiFiStorage.downloadOTA(ota_url, &nina_ota_err_code))
   {
     DEBUG_ERROR("ArduinoIoTCloudTCP::%s error download to nina: %d", __FUNCTION__, nina_ota_err_code);
-    return static_cast<int>(OTAError::DownloadFailed);
+    return (NINAFW_OTA_ERROR_BASE - nina_ota_err_code);
   }
 
   /* Perform the reset to reboot to SxU. */
