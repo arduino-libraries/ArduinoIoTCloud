@@ -38,7 +38,7 @@
 #include "tls/utility/CryptoUtil.h"
 #endif
 
-#if defined(ARDUINO_PORTENTA_H7_M7) || defined(ARDUINO_PORTENTA_H7_M4) || defined(ARDUINO_NICLA_VISION)
+#if defined(ARDUINO_PORTENTA_H7_M7) || defined(ARDUINO_NICLA_VISION)
 #  include "tls/utility/SHA256.h"
 #  include <stm32h7xx_hal_rtc_ex.h>
 #  include <WiFi.h>
@@ -826,7 +826,7 @@ void ArduinoIoTCloudTCP::onOTARequest()
   _ota_error = rp2040_connect_onOTARequest(_ota_url.c_str());
 #endif
 
-#if defined(ARDUINO_PORTENTA_H7_M7) || defined(ARDUINO_PORTENTA_H7_M4) || defined(ARDUINO_NICLA_VISION)
+#if defined(ARDUINO_PORTENTA_H7_M7) || defined(ARDUINO_NICLA_VISION)
   _ota_error = portenta_h7_onOTARequest(_ota_url.c_str());
 #endif
 }

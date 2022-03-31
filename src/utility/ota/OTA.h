@@ -62,7 +62,7 @@ int samd_onOTARequest(char const * ota_url);
 int rp2040_connect_onOTARequest(char const * ota_url);
 #endif
 
-#if defined(ARDUINO_PORTENTA_H7_M7) || defined(ARDUINO_PORTENTA_H7_M4) || defined(ARDUINO_NICLA_VISION)
+#if defined(ARDUINO_PORTENTA_H7_M7) || defined(ARDUINO_NICLA_VISION)
 int portenta_h7_onOTARequest(char const * ota_url);
 #endif
 
