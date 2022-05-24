@@ -203,7 +203,6 @@ bool TimeService::connected()
 
 unsigned long TimeService::getRemoteTime()
 {
-#include "../../AIoTC_Config.h"
 #ifndef HAS_LORA
 
   if(connected()) {

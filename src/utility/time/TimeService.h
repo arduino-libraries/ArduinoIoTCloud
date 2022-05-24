@@ -24,6 +24,9 @@
 
 #include <Arduino_ConnectionHandler.h>
 
+#include "../../AIoTC_Config.h"
+
+#ifdef HAS_RTC
 #ifdef ARDUINO_ARCH_SAMD
   #include <RTCZero.h>
 #endif
@@ -31,6 +34,7 @@
 #ifdef ARDUINO_ARCH_MBED
   #include <mbed_rtc_time.h>
 #endif
+#endif /* HAS_RTC */
 
 /**************************************************************************************
  * CLASS DECLARATION
