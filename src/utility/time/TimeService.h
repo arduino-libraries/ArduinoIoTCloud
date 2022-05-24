@@ -60,7 +60,7 @@ public:
 private:
 
   ConnectionHandler * _con_hdl;
-#if defined (ARDUINO_ARCH_SAMD) || defined (ARDUINO_ARCH_MBED)
+#ifdef HAS_RTC
   bool _is_rtc_configured;
 #endif
   bool _is_tz_configured;

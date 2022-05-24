@@ -57,7 +57,7 @@ static time_t const EPOCH = 0;
 
 TimeService::TimeService()
 : _con_hdl(nullptr)
-#if defined (ARDUINO_ARCH_SAMD) || defined (ARDUINO_ARCH_MBED)
+#ifdef HAS_RTC
 , _is_rtc_configured(false)
 #endif
 , _is_tz_configured(false)
