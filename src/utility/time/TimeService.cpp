@@ -74,8 +74,8 @@ TimeService::TimeService()
 void TimeService::begin(ConnectionHandler * con_hdl)
 {
   _con_hdl = con_hdl;
-#ifdef ARDUINO_ARCH_SAMD
-  rtc.begin();
+#ifdef HAS_RTC
+  rtc_begin();
 #endif
 }
 
