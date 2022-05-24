@@ -69,6 +69,10 @@ private:
 
   unsigned long getRemoteTime();
   bool connected();
+#ifdef HAS_RTC
+  void configureRTC();
+  unsigned long getRTC();
+#endif
   static bool isTimeValid(unsigned long const time);
 
 };

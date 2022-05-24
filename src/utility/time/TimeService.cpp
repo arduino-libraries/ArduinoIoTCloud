@@ -241,6 +241,28 @@ unsigned long TimeService::getRemoteTime()
   return EPOCH_AT_COMPILE_TIME;
 }
 
+#ifdef HAS_RTC
+unsigned long TimeService::getRTC() {
+  if(!_is_rtc_configured) {
+    configureRTC();
+  }
+  return rtc_get();
+}
+
+void TimeService::configureRTC() {
+#ifdef HAS_LORA
+  rtc_set(EPOCH_AT_COMPILE_TIME);
+  _is_rtc_configured = true;
+#else
+  unsigned long remote_time = getRemoteTime();
+  if(isTimeValid(remote_time)) {
+    rtc_set(remote_time);
+    _is_rtc_configured = true;
+  }
+#endif
+}
+#endif /* HAS_RTC */
+
 bool TimeService::isTimeValid(unsigned long const time)
 {
   return (time >= EPOCH_AT_COMPILE_TIME);
