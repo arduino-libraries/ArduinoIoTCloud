@@ -38,6 +38,11 @@ RTCZero rtc;
  **************************************************************************************/
 
 time_t cvt_time(char const * time);
+#ifdef HAS_RTC
+void rtc_begin();
+void rtc_set(unsigned long time);
+unsigned long rtc_get();
+#endif
 
 /**************************************************************************************
  * CONSTANTS
@@ -274,6 +279,38 @@ time_t cvt_time(char const * time)
 
   return mktime(&t);
 }
+
+#ifdef HAS_RTC
+void rtc_begin() {
+#ifdef ARDUINO_ARCH_SAMD
+  rtc.begin();
+#elif ARDUINO_ARCH_MBED
+
+#else
+
+#endif
+}
+
+void rtc_set(unsigned long time) {
+#ifdef ARDUINO_ARCH_SAMD
+  rtc.setEpoch(time);
+#elif ARDUINO_ARCH_MBED
+  set_time(time);
+#else
+
+#endif
+}
+
+unsigned long rtc_get() {
+#ifdef ARDUINO_ARCH_SAMD
+  return rtc.getEpoch();
+#elif ARDUINO_ARCH_MBED
+  return time(NULL);
+#else
+  return EPOCH;
+#endif
+}
+#endif /* HAS_RTC */
 
 TimeService & ArduinoIoTCloudTimeService() {
   static TimeService _timeService_instance;
