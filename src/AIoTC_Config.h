@@ -119,21 +119,25 @@
   defined (ARDUINO_NANO_RP2040_CONNECT)
   #define BOARD_HAS_ECCX08
   #define HAS_TCP
+  #define HAS_RTC
 #endif
 
 #if defined(ARDUINO_NICLA_VISION)
   #define BOARD_HAS_SE050
   #define HAS_TCP
+  #define HAS_RTC
 #endif
 
 #if defined(ARDUINO_AVR_UNO_WIFI_REV2) || \
   defined(ARDUINO_SAMD_MKRWIFI1010) || defined(ARDUINO_SAMD_NANO_33_IOT)
   #define BOARD_HAS_OFFLOADED_ECCX08
   #define HAS_TCP
+  #define HAS_RTC
 #endif
 
 #if defined(ARDUINO_SAMD_MKRWAN1300) || defined(ARDUINO_SAMD_MKRWAN1310)
   #define HAS_LORA
+  #define HAS_RTC
 #endif
 
 #if defined(ARDUINO_ESP8266_ESP12) || defined(ARDUINO_ARCH_ESP32) || defined(ESP8266) || defined(ESP32)
