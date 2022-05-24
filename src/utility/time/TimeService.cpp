@@ -192,6 +192,15 @@ unsigned long TimeService::getTimeFromString(const String& input)
  * PRIVATE MEMBER FUNCTIONS
  **************************************************************************************/
 
+bool TimeService::connected()
+{
+  if(_con_hdl == nullptr) {
+    return false;
+  } else {
+    return _con_hdl->getStatus() == NetworkConnectionState::CONNECTED;
+  }
+}
+
 unsigned long TimeService::getRemoteTime()
 {
 #include "../../AIoTC_Config.h"

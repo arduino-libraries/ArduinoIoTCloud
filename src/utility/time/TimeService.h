@@ -64,6 +64,7 @@ private:
   unsigned long _timezone_dst_until;
 
   unsigned long getRemoteTime();
+  bool connected();
   static bool isTimeValid(unsigned long const time);
 
 };
