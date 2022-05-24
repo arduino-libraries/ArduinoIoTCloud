@@ -67,12 +67,16 @@ private:
   long _timezone_offset;
   unsigned long _timezone_dst_until;
 
+#ifdef HAS_TCP
   unsigned long getRemoteTime();
   bool connected();
+#endif
+
 #ifdef HAS_RTC
   void configureRTC();
   unsigned long getRTC();
 #endif
+
   static bool isTimeValid(unsigned long const time);
 
 };

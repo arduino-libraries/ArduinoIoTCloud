@@ -183,6 +183,7 @@ unsigned long TimeService::getTimeFromString(const String& input)
  * PRIVATE MEMBER FUNCTIONS
  **************************************************************************************/
 
+#ifdef HAS_TCP
 bool TimeService::connected()
 {
   if(_con_hdl == nullptr) {
@@ -194,8 +195,6 @@ bool TimeService::connected()
 
 unsigned long TimeService::getRemoteTime()
 {
-#ifndef HAS_LORA
-
   if(connected()) {
     /* At first try to see if a valid time can be obtained
      * using the network time available via the connection
@@ -217,8 +216,6 @@ unsigned long TimeService::getRemoteTime()
 #endif
   }
 
-#endif /* ifndef HAS_LORA */
-
   /* Return the epoch timestamp at compile time as a last
    * line of defense. Otherwise the certificate expiration
    * date is wrong and we'll be unable to establish a connection
@@ -226,6 +223,7 @@ unsigned long TimeService::getRemoteTime()
    */
   return EPOCH_AT_COMPILE_TIME;
 }
+#endif /* HAS_TCP */
 
 #ifdef HAS_RTC
 unsigned long TimeService::getRTC() {
