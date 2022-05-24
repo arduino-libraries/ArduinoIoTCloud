@@ -81,33 +81,19 @@ void TimeService::begin(ConnectionHandler * con_hdl)
 
 unsigned long TimeService::getTime()
 {
-#ifdef ARDUINO_ARCH_SAMD
-  if(!_is_rtc_configured)
-  {
-    unsigned long utc = getRemoteTime();
-    if(EPOCH_AT_COMPILE_TIME != utc)
-    {
-      rtc.setEpoch(utc);
-      _is_rtc_configured = true;
-    }
-    return utc;
+#ifdef HAS_RTC
+  unsigned long rtc_time = getRTC();
+  if(isTimeValid(rtc_time)) {
+    return rtc_time;
   }
-  return rtc.getEpoch();
-#elif ARDUINO_ARCH_MBED
-  if(!_is_rtc_configured)
-  {
-    unsigned long utc = getRemoteTime();
-    if(EPOCH_AT_COMPILE_TIME != utc)
-    {
-      set_time(utc);
-      _is_rtc_configured = true;
-    }
-    return utc;
-  }
-  return time(NULL);
 #else
-  return getRemoteTime();
+  unsigned long remote_time = getRemoteTime();
+  if(isTimeValid(remote_time)) {
+    return remote_time;
+  }
 #endif
+
+  return EPOCH_AT_COMPILE_TIME;
 }
 
 void TimeService::setTimeZoneData(long offset, unsigned long dst_until)
