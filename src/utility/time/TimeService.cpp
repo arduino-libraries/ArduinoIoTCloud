@@ -55,7 +55,7 @@ static time_t const EPOCH = 0;
  * CTOR/DTOR
  **************************************************************************************/
 
-TimeService::TimeService()
+TimeServiceClass::TimeServiceClass()
 : _con_hdl(nullptr)
 #ifdef HAS_RTC
 , _is_rtc_configured(false)
@@ -73,7 +73,7 @@ TimeService::TimeService()
  * PUBLIC MEMBER FUNCTIONS
  **************************************************************************************/
 
-void TimeService::begin(ConnectionHandler * con_hdl)
+void TimeServiceClass::begin(ConnectionHandler * con_hdl)
 {
   _con_hdl = con_hdl;
 #ifdef HAS_RTC
@@ -81,7 +81,7 @@ void TimeService::begin(ConnectionHandler * con_hdl)
 #endif
 }
 
-unsigned long TimeService::getTime()
+unsigned long TimeServiceClass::getTime()
 {
   /* If RTC is available try to get current time from
    * there as first choice. RTC configuration is managed
@@ -111,7 +111,7 @@ unsigned long TimeService::getTime()
   return EPOCH_AT_COMPILE_TIME;
 }
 
-void TimeService::setTimeZoneData(long offset, unsigned long dst_until)
+void TimeServiceClass::setTimeZoneData(long offset, unsigned long dst_until)
 {
 #ifdef HAS_TCP
   if(_timezone_offset != offset || _timezone_dst_until != dst_until) {
@@ -125,7 +125,7 @@ void TimeService::setTimeZoneData(long offset, unsigned long dst_until)
 #endif
 }
 
-unsigned long TimeService::getLocalTime()
+unsigned long TimeServiceClass::getLocalTime()
 {
 #ifdef HAS_TCP
   unsigned long utc = getTime();
@@ -140,7 +140,7 @@ unsigned long TimeService::getLocalTime()
 #endif
 }
 
-unsigned long TimeService::getTimeFromString(const String& input)
+unsigned long TimeServiceClass::getTimeFromString(const String& input)
 {
   struct tm t =
   {
@@ -203,7 +203,7 @@ unsigned long TimeService::getTimeFromString(const String& input)
  **************************************************************************************/
 
 #ifdef HAS_TCP
-bool TimeService::connected()
+bool TimeServiceClass::connected()
 {
   if(_con_hdl == nullptr) {
     return false;
@@ -212,7 +212,7 @@ bool TimeService::connected()
   }
 }
 
-unsigned long TimeService::getRemoteTime()
+unsigned long TimeServiceClass::getRemoteTime()
 {
   if(connected()) {
     /* At first try to see if a valid time can be obtained
@@ -245,7 +245,7 @@ unsigned long TimeService::getRemoteTime()
 #endif /* HAS_TCP */
 
 #ifdef HAS_RTC
-unsigned long TimeService::getRTC()
+unsigned long TimeServiceClass::getRTC()
 {
   if(!_is_rtc_configured) {
     /* If RTC is not yet configured try to get a valid time value
@@ -256,7 +256,7 @@ unsigned long TimeService::getRTC()
   return rtc_get();
 }
 
-void TimeService::configureRTC()
+void TimeServiceClass::configureRTC()
 {
 #ifdef HAS_TCP
   /* For devices with a TCP connection we can try to get a valid
@@ -278,7 +278,7 @@ void TimeService::configureRTC()
 }
 #endif /* HAS_RTC */
 
-bool TimeService::isTimeValid(unsigned long const time)
+bool TimeServiceClass::isTimeValid(unsigned long const time)
 {
   return (time > EPOCH_AT_COMPILE_TIME);
 }
@@ -349,7 +349,8 @@ unsigned long rtc_get() {
 }
 #endif /* HAS_RTC */
 
-TimeService & ArduinoIoTCloudTimeService() {
-  static TimeService _timeService_instance;
-  return _timeService_instance;
-}
+/******************************************************************************
+ * EXTERN DEFINITION
+ ******************************************************************************/
+
+TimeServiceClass TimeService;
