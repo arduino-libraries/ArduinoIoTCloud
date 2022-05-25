@@ -60,9 +60,11 @@ TimeService::TimeService()
 #ifdef HAS_RTC
 , _is_rtc_configured(false)
 #endif
+#ifdef HAS_TCP
 , _is_tz_configured(false)
 , _timezone_offset(0)
 , _timezone_dst_until(0)
+#endif
 {
 
 }
@@ -98,22 +100,31 @@ unsigned long TimeService::getTime()
 
 void TimeService::setTimeZoneData(long offset, unsigned long dst_until)
 {
+#ifdef HAS_TCP
   if(_timezone_offset != offset || _timezone_dst_until != dst_until) {
     DEBUG_VERBOSE("TimeService::%s offset: %d dst_unitl %ul", __FUNCTION__, offset, dst_until);
     _timezone_offset = offset;
     _timezone_dst_until = dst_until;
     _is_tz_configured = true;
   }
+#else
+  DEBUG_WARNING("TimeService::%s Timezone support not available without TCP connection");
+#endif
 }
 
 unsigned long TimeService::getLocalTime()
 {
+#ifdef HAS_TCP
   unsigned long utc = getTime();
   if(_is_tz_configured) {
     return utc + _timezone_offset;
   } else {
     return EPOCH;
   }
+#else
+  DEBUG_WARNING("TimeService::%s Timezone support not available without TCP connection");
+  return EPOCH;
+#endif
 }
 
 unsigned long TimeService::getTimeFromString(const String& input)

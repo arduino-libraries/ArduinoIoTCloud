@@ -63,11 +63,12 @@ private:
 #ifdef HAS_RTC
   bool _is_rtc_configured;
 #endif
+
+#ifdef HAS_TCP
   bool _is_tz_configured;
   long _timezone_offset;
   unsigned long _timezone_dst_until;
 
-#ifdef HAS_TCP
   unsigned long getRemoteTime();
   bool connected();
 #endif
