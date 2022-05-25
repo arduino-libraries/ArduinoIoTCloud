@@ -83,18 +83,31 @@ void TimeService::begin(ConnectionHandler * con_hdl)
 
 unsigned long TimeService::getTime()
 {
+  /* If RTC is available try to get current time from
+   * there as first choice. RTC configuration is managed
+   * runtime by checking _is_rtc_configured flag.
+   */
 #ifdef HAS_RTC
   unsigned long rtc_time = getRTC();
   if(isTimeValid(rtc_time)) {
     return rtc_time;
   }
-#else
+#endif
+
+  /* Without RTC support, but with TCP connection available
+   * try to get time from connection handler or NTP server.
+   */
+#ifdef HAS_TCP
   unsigned long remote_time = getRemoteTime();
   if(isTimeValid(remote_time)) {
     return remote_time;
   }
 #endif
 
+  /* If none of the previous methods is supported or returns
+   * a valid time return the epoch at compile time as we do
+   * in TimeService::getRemoteTime().
+   */
   return EPOCH_AT_COMPILE_TIME;
 }
 
@@ -235,6 +248,9 @@ unsigned long TimeService::getRemoteTime()
 unsigned long TimeService::getRTC()
 {
   if(!_is_rtc_configured) {
+    /* If RTC is not yet configured try to get a valid time value
+     * from the network.
+     */
     configureRTC();
   }
   return rtc_get();
@@ -242,15 +258,22 @@ unsigned long TimeService::getRTC()
 
 void TimeService::configureRTC()
 {
-#ifdef HAS_LORA
-  rtc_set(EPOCH_AT_COMPILE_TIME);
-  _is_rtc_configured = true;
-#else
+#ifdef HAS_TCP
+  /* For devices with a TCP connection we can try to get a valid
+   * time value from connection handler or from NTP server.
+   */
   unsigned long remote_time = getRemoteTime();
   if(isTimeValid(remote_time)) {
     rtc_set(remote_time);
     _is_rtc_configured = true;
   }
+#else
+  /* For devices without a TCP connection (LoRa) we cannot
+   * retrieve current time, so we store the epoch at compile time
+   * inside the RTC.
+   */
+  rtc_set(EPOCH_AT_COMPILE_TIME);
+  _is_rtc_configured = true;
 #endif
 }
 #endif /* HAS_RTC */
