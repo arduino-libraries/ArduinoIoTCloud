@@ -99,7 +99,7 @@ unsigned long TimeService::getTime()
 void TimeService::setTimeZoneData(long offset, unsigned long dst_until)
 {
   if(_timezone_offset != offset || _timezone_dst_until != dst_until) {
-    DEBUG_VERBOSE("ArduinoIoTCloudTCP::%s offset: %d dst_unitl %ul", __FUNCTION__, offset, dst_until);
+    DEBUG_VERBOSE("TimeService::%s offset: %d dst_unitl %ul", __FUNCTION__, offset, dst_until);
     _timezone_offset = offset;
     _timezone_dst_until = dst_until;
     _is_tz_configured = true;
@@ -138,21 +138,21 @@ unsigned long TimeService::getTimeFromString(const String& input)
   static const int expected_parameters = 6;
 
   if(input == nullptr || input.length() != expected_length) {
-    DEBUG_ERROR("ArduinoIoTCloudTCP::%s invalid input length", __FUNCTION__);
+    DEBUG_ERROR("TimeService::%s invalid input length", __FUNCTION__);
     return 0;
   }
 
   int scanned_parameters = sscanf(input.c_str(), "%d %s %d %d:%d:%d", &year, s_month, &day, &hour, &min, &sec);
 
   if(scanned_parameters != expected_parameters) {
-    DEBUG_ERROR("ArduinoIoTCloudTCP::%s invalid input parameters number", __FUNCTION__);
+    DEBUG_ERROR("TimeService::%s invalid input parameters number", __FUNCTION__);
     return 0;
   }
 
   char * s_month_position = strstr(month_names, s_month);
 
   if(s_month_position == nullptr || strlen(s_month) != 3) {
-    DEBUG_ERROR("ArduinoIoTCloudTCP::%s invalid month name, use %s", __FUNCTION__, month_names);
+    DEBUG_ERROR("TimeService::%s invalid month name, use %s", __FUNCTION__, month_names);
     return 0;
   }
 
@@ -160,7 +160,7 @@ unsigned long TimeService::getTimeFromString(const String& input)
 
   if(month <  0 || month > 11 || day <  1 || day > 31 || year < 1900 || hour < 0 ||
      hour  > 24 || min   <  0 || min > 60 || sec <  0 || sec  >  60) {
-    DEBUG_ERROR("ArduinoIoTCloudTCP::%s invalid date values", __FUNCTION__);
+    DEBUG_ERROR("TimeService::%s invalid date values", __FUNCTION__);
     return 0;
   }
 
