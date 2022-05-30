@@ -192,32 +192,40 @@ unsigned long TimeService::getTimeFromString(const String& input)
  * PRIVATE MEMBER FUNCTIONS
  **************************************************************************************/
 
+bool TimeService::connected()
+{
+  if(_con_hdl == nullptr) {
+    return false;
+  } else {
+    return _con_hdl->getStatus() == NetworkConnectionState::CONNECTED;
+  }
+}
+
 unsigned long TimeService::getRemoteTime()
 {
 #include "../../AIoTC_Config.h"
 #ifndef HAS_LORA
 
-  if(_con_hdl == nullptr)
-    return EPOCH_AT_COMPILE_TIME;
-
-  /* At first try to see if a valid time can be obtained
-   * using the network time available via the connection
-   * handler.
-   */
-  unsigned long const connection_time = _con_hdl->getTime();
-  if(isTimeValid(connection_time)) {
-    return connection_time;
-  }
+  if(connected()) {
+    /* At first try to see if a valid time can be obtained
+     * using the network time available via the connection
+     * handler.
+     */
+    unsigned long const connection_time = _con_hdl->getTime();
+    if(isTimeValid(connection_time)) {
+      return connection_time;
+    }
 
 #ifndef __AVR__
-  /* If no valid network time is available try to obtain the
-   * time via NTP next.
-   */
-  unsigned long const ntp_time = NTPUtils::getTime(_con_hdl->getUDP());
-  if(isTimeValid(ntp_time)) {
-    return ntp_time;
-  }
+    /* If no valid network time is available try to obtain the
+     * time via NTP next.
+     */
+    unsigned long const ntp_time = NTPUtils::getTime(_con_hdl->getUDP());
+    if(isTimeValid(ntp_time)) {
+      return ntp_time;
+    }
 #endif
+  }
 
 #endif /* ifndef HAS_LORA */
 
