@@ -279,24 +279,24 @@ bool TimeServiceClass::connected()
 unsigned long TimeServiceClass::getRemoteTime()
 {
   if(connected()) {
-    /* At first try to see if a valid time can be obtained
-     * using the network time available via the connection
-     * handler.
-     */
-    unsigned long const connection_time = _con_hdl->getTime();
-    if(isTimeValid(connection_time)) {
-      return connection_time;
-    }
-
 #ifndef __AVR__
-    /* If no valid network time is available try to obtain the
-     * time via NTP next.
+    /* At first try to obtain a valid time via NTP.
+     * This is the most reliable time source and it will
+     * ensure a correct behaviour of the library.
      */
     unsigned long const ntp_time = NTPUtils::getTime(_con_hdl->getUDP());
     if(isTimeValid(ntp_time)) {
       return ntp_time;
     }
 #endif
+
+    /* As fallback if NTP request fails try to obtain the
+     * network time using the connection handler.
+     */
+    unsigned long const connection_time = _con_hdl->getTime();
+    if(isTimeValid(connection_time)) {
+      return connection_time;
+    }
   }
 
   /* Return the epoch timestamp at compile time as a last
