@@ -79,3 +79,10 @@ ArduinoCloud.begin(ArduinoIoTPreferredConnection, false).
 ArduinoIoTCloudTCP::handle_SubscribeMqttTopics could not subscribe to /a/t/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/e/i
 ```
 In this case either the device has not been associated with the thing within the Arduino IoT Cloud GUI configuration or there's a typo in the thing id.
+
+#### ESP Boards
+Support for ESP boards is obtained through third-party core with some differences and limitations compared to Arduino boards.
+
+- **Authentication scheme**: Board authentication is done through `DEVICE_LOGIN_NAME` and `DEVICE_KEY`, both values are included in the `thingProperties.h` file.
+- **RTC**: RTC support is not included thus each `ArduinoCould.update()` call will lead to an NTP request introducing delay in your `loop()` function. The scheduler widget will not work correctly if connection is lost after configuration.
+- **Watchdog**: Watchdog support is not included.
