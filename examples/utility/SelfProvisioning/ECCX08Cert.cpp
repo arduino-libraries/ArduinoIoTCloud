@@ -19,12 +19,10 @@
  * INCLUDE
  ******************************************************************************/
 
-#include <ArduinoBearSSL.h>
-
-#include "bearssl/bearssl_hash.h"
+#include <ArduinoIoTCloud.h>
 #include <ArduinoECCX08.h>
-
 #include "ECCX08Cert.h"
+#include "tls/utility/SHA256.h"
 
 /******************************************************************************
  * DEFINE
@@ -190,13 +188,13 @@ String ECCX08CertClass::endCSR() {
   *out++ = 0xa0;
   *out++ = 0x00;
 
-  br_sha256_context sha256Context;
+  SHA256 sha256;
   byte csrInfoSha256[64];
   byte signature[64];
 
-  br_sha256_init(&sha256Context);
-  br_sha256_update(&sha256Context, csrInfo, csrInfoHeaderLen + csrInfoLen);
-  br_sha256_out(&sha256Context, csrInfoSha256);
+  sha256.begin();
+  sha256.update(csrInfo, csrInfoHeaderLen + csrInfoLen);
+  sha256.finalize(csrInfoSha256);
 
   if (!ECCX08.ecSign(_keySlot, csrInfoSha256, signature)) {
     return "";
