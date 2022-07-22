@@ -830,7 +830,8 @@ void ArduinoIoTCloudTCP::onOTARequest()
 #endif
 
 #ifdef BOARD_STM32H7
-  _ota_error = portenta_h7_onOTARequest(_ota_url.c_str());
+  bool const use_ethernet = _connection->getInterface() == NetworkAdapter::ETHERNET ? true : false;
+  _ota_error = portenta_h7_onOTARequest(_ota_url.c_str(), use_ethernet);
 #endif
 }
 #endif
