@@ -29,11 +29,14 @@
 
 #ifdef ARDUINO_ARCH_SAMD
 #  include <Adafruit_SleepyDog.h>
+#  include <WiFi.h>
 #  define SAMD_WATCHDOG_MAX_TIME_ms (16 * 1000)
 #endif /* ARDUINO_ARCH_SAMD */
 
 #ifdef ARDUINO_ARCH_MBED
 #  include <watchdog_api.h>
+#  include <WiFi.h>
+#  include <Ethernet.h>
 #  define PORTENTA_H7_WATCHDOG_MAX_TIMEOUT_ms (32760)
 #  define NANO_RP2040_WATCHDOG_MAX_TIMEOUT_ms (8389)
 #endif /* ARDUINO_ARCH_MBED */
@@ -62,6 +65,13 @@ static void samd_watchdog_reset()
     Watchdog.reset();
   }
 }
+
+#if defined (WIFI_HAS_FEED_WATCHDOG_FUNC)
+static void samd_watchdog_enable_network_feed()
+{
+  WiFi.setFeedWatchdogFunc(watchdog_reset);
+}
+#endif
 
 /* This function is called within the WiFiNINA library when invoking
  * the method 'connectBearSSL' in order to prevent a premature bite
@@ -114,6 +124,19 @@ static void mbed_watchdog_reset()
   }
 }
 
+#if defined (ARDUINO_PORTENTA_H7_WIFI_HAS_FEED_WATCHDOG_FUNC)
+static void mbed_watchdog_enable_network_feed(const bool use_ethernet)
+{
+  if(use_ethernet) {
+#if defined(ARDUINO_PORTENTA_H7_M7)
+    Ethernet.setFeedWatchdogFunc(watchdog_reset);
+#endif
+  } else {
+    WiFi.setFeedWatchdogFunc(watchdog_reset);
+  }
+}
+#endif
+
 void mbed_watchdog_trigger_reset()
 {
   watchdog_config_t cfg;
@@ -154,4 +177,15 @@ void watchdog_reset()
   mbed_watchdog_reset();
 #endif
 }
+
+#if defined (WIFI_HAS_FEED_WATCHDOG_FUNC) || defined (ARDUINO_PORTENTA_H7_WIFI_HAS_FEED_WATCHDOG_FUNC)
+void watchdog_enable_network_feed(const bool use_ethernet)
+{
+#ifdef ARDUINO_ARCH_SAMD
+  samd_watchdog_enable_network_feed();
+#else
+  mbed_watchdog_enable_network_feed(use_ethernet);
+#endif
+}
+#endif
 #endif /* (ARDUINO_ARCH_SAMD) || (ARDUINO_ARCH_MBED) */
