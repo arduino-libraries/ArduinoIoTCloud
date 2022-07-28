@@ -37,7 +37,7 @@
  * FUNCTION DEFINITION
  ******************************************************************************/
 
-int portenta_h7_onOTARequest(char const * ota_url, bool use_ethernet)
+int portenta_h7_onOTARequest(char const * ota_url, const bool use_ethernet)
 {
   watchdog_reset();
 
