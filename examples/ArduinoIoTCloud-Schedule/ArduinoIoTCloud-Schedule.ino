@@ -2,12 +2,7 @@
   This sketch demonstrates how to use the cloud schedule variable type.
 
   This sketch is compatible with the following boards:
-   - MKR 1000
-   - MKR WiFi 1010
-   - MKR GSM 1400
-   - MKR NB 1500
-   - Nano 33 IoT
-   - ESP8266
+   - https://github.com/arduino-libraries/ArduinoIoTCloud#what
 */
 
 #include "arduino_secrets.h"
