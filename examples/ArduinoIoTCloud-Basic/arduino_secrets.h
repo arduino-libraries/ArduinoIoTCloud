@@ -7,7 +7,7 @@
 #endif
 
 /* ESP8266 */
-#if defined(BOARD_ESP8266)
+#if defined(BOARD_ESP)
   #define SECRET_DEVICE_KEY "my-device-password"
 #endif
 

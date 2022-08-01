@@ -1,3 +1,4 @@
+#include <ArduinoIoTCloud.h>
 #include <Arduino_ConnectionHandler.h>
 
 /* MKR1000, MKR WiFi 1010 */
@@ -6,8 +7,8 @@
   #define SECRET_PASS "YOUR_WIFI_PASSWORD"
 #endif
 
-/* ESP8266 */
-#if defined(BOARD_ESP8266)
+/* ESP8266 ESP32*/
+#if defined(BOARD_ESP)
   #define SECRET_DEVICE_KEY "my-device-password"
 #endif
 

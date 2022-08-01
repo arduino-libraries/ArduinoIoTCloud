@@ -13,7 +13,7 @@
 #define BOARD_ID "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
 
 void initProperties() {
-#if defined(BOARD_ESP8266)
+#if defined(BOARD_ESP)
   ArduinoCloud.setBoardId(BOARD_ID);
   ArduinoCloud.setSecretDeviceKey(SECRET_DEVICE_KEY);
 #endif

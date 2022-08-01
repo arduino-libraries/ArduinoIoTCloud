@@ -11,7 +11,7 @@ CloudLocation location;
 CloudColor color;
 
 void initProperties() {
-#if defined(BOARD_ESP8266)
+#if defined(BOARD_ESP)
   ArduinoCloud.setBoardId(BOARD_ID);
   ArduinoCloud.setSecretDeviceKey(SECRET_DEVICE_KEY);
 #endif
