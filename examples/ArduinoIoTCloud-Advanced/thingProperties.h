@@ -1,6 +1,14 @@
 #include <ArduinoIoTCloud.h>
 #include <Arduino_ConnectionHandler.h>
 
+#if defined(BOARD_HAS_WIFI)
+#elif defined(BOARD_HAS_GSM)
+#elif defined(BOARD_HAS_LORA)
+#elif defined(BOARD_HAS_NB)
+#else
+  #error "Please check Arduino IoT Cloud supported boards list: https://github.com/arduino-libraries/ArduinoIoTCloud/#what"
+#endif
+
 #define BOARD_ID "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
 
 void onSwitchButtonChange();

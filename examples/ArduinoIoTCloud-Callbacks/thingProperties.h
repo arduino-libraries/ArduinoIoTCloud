@@ -6,7 +6,7 @@
 #elif defined(BOARD_HAS_LORA)
 #elif defined(BOARD_HAS_NB)
 #else
-  #error "Arduino IoT Cloud currently only supports MKR1000, MKR WiFi 1010, MKR WAN 1300/1310, MKR NB 1500 and MKR GSM 1400"
+  #error "Please check Arduino IoT Cloud supported boards list: https://github.com/arduino-libraries/ArduinoIoTCloud/#what"
 #endif
 
 /* BOARD_ID is only required if you are using an ESP8266 */
