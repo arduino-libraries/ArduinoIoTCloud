@@ -46,6 +46,9 @@ class CloudString : public Property {
     operator String() const {
       return _value;
     }
+    void clear() {
+      _value = PropertyActions::CLEAR;
+    }
     virtual bool isDifferentFromCloud() {
       return _value != _cloud_value;
     }

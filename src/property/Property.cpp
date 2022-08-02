@@ -56,6 +56,14 @@ Property::Property()
 }
 
 /******************************************************************************
+   CONST
+ ******************************************************************************/
+namespace PropertyActions
+{
+  const String CLEAR = "\x1b";
+}
+
+/******************************************************************************
    PUBLIC MEMBER FUNCTIONS
  ******************************************************************************/
 void Property::init(String const name, Permission const permission, GetTimeCallbackFunc func) {
