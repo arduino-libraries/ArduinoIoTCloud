@@ -80,9 +80,14 @@ ArduinoIoTCloudTCP::handle_SubscribeMqttTopics could not subscribe to /a/t/xxxxx
 ```
 In this case either the device has not been associated with the thing within the Arduino IoT Cloud GUI configuration or there's a typo in the thing id.
 
+#### OTA
+OTA is supported by the following boards:
+[`MKR WiFi 1010`](https://store.arduino.cc/arduino-mkr-wifi-1010), [`Nano 33 IoT`](https://store.arduino.cc/arduino-nano-33-iot), [`Portenta H7`](https://store.arduino.cc/portenta-h7), [`Nano RP2040 Connect`](https://store.arduino.cc/products/arduino-nano-rp2040-connect), [`Nicla Vision`](https://store.arduino.cc/products/nicla-vision)
+
 #### ESP Boards
 Support for ESP boards is obtained through third-party core with some differences and limitations compared to Arduino boards.
 
 - **Authentication scheme**: Board authentication is done through `DEVICE_LOGIN_NAME` and `DEVICE_KEY`, both values are included in the `thingProperties.h` file.
 - **RTC**: RTC support is not included thus each `ArduinoCould.update()` call will lead to an NTP request introducing delay in your `loop()` function. The scheduler widget will not work correctly if connection is lost after configuration.
 - **Watchdog**: Watchdog support is not included.
+- **OTA**: OTA support is not included
