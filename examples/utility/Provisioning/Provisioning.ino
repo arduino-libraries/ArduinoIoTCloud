@@ -51,7 +51,7 @@ void setup() {
     while (1);
   }
 
-  String deviceId = promptAndReadLine("Please enter the device id: ");
+  String deviceId = promptAndReadLine("Please enter the device ID: ");
   Certificate.setSubjectCommonName(deviceId);
 
   if (!Crypto.buildCSR(Certificate, CryptoSlot::Key, true)) {
@@ -88,7 +88,7 @@ void setup() {
   hexStringToBytes(signature, signatureBytes, sizeof(signatureBytes));
 
   if (!Crypto.writeDeviceId(deviceId, CryptoSlot::DeviceId)) {
-    Serial.println("Error storing device id!");
+    Serial.println("Error storing device ID!");
     while (1);
   }
 

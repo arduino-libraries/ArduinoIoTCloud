@@ -47,7 +47,7 @@ int samd_onOTARequest(char const * ota_url)
 
   watchdog_reset();
 
-  /* Trigger direct download to nina module. */
+  /* Trigger direct download to NINA module. */
   uint8_t nina_ota_err_code = 0;
   if (!WiFiStorage.downloadOTA(ota_url, &nina_ota_err_code))
   {

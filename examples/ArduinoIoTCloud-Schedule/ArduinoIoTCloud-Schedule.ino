@@ -3,11 +3,11 @@
 
   This sketch is compatible with the following boards:
    - MKR 1000
-   - MKR WIFI 1010
+   - MKR WiFi 1010
    - MKR GSM 1400
    - MKR NB 1500
    - Nano 33 IoT
-   - ESP 8266
+   - ESP8266
 */
 
 #include "arduino_secrets.h"

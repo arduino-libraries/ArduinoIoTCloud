@@ -10,7 +10,7 @@
   * ask_user_via_serial callback will read user input from serial to apply or postpone OTA update
 
   This sketch is compatible with:
-   - MKR WIFI 1010
+   - MKR WiFi 1010
    - Nano 33 IoT
    - Portenta
    - Nano RP2040
