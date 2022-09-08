@@ -27,7 +27,7 @@ jobs:
 
       - uses: arduino/cpp-test-action@main
         with:
-          runtime-path: extras/test/build/bin/testArduinoIoTCloud
+          runtime-paths: extras/test/build/bin/testArduinoIoTCloud
           coverage-exclude-paths: |
             - '*/extras/test/*'
             - '/usr/*'
