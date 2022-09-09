@@ -17,7 +17,7 @@
    TEST CODE
  **************************************************************************************/
 
-SCENARIO("A Arduino cloud property is marked 'write only'", "[ArduinoCloudThing::encode]")
+SCENARIO("An Arduino cloud property is marked 'write only'", "[ArduinoCloudThing::encode]")
 {
   PropertyContainer property_container;
   

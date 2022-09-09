@@ -344,8 +344,8 @@ void ArduinoIoTCloudTCP::update()
   }
   _state = next_state;
 
-  /* This watchdog feed is actually needed only by the RP2040 CONNECT cause its
-   * maximum watchdog window is 8389ms; despite this we feed it for all 
+  /* This watchdog feed is actually needed only by the RP2040 Connect because its
+   * maximum watchdog window is 8389 ms; despite this we feed it for all 
    * supported ARCH to keep code aligned.
    */
 #if defined (ARDUINO_ARCH_SAMD) || defined (ARDUINO_ARCH_MBED)
@@ -488,7 +488,7 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_CheckDeviceConfig()
 
   if(_deviceSubscribedToThing == true)
   {
-    /* Unsubscribe from old things topics and go on with a new subsctiption */
+    /* Unsubscribe from old things topics and go on with a new subscription */
     _mqttClient.unsubscribe(_shadowTopicIn);
     _mqttClient.unsubscribe(_dataTopicIn);
     _deviceSubscribedToThing = false;
@@ -570,7 +570,7 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_SubscribeThingTopics()
   execCloudEventCallback(ArduinoIoTCloudEvent::CONNECT);
   _deviceSubscribedToThing = true;
 
-  /*Add retry wait time otherwise we are trying to reconnect every 250ms...*/
+  /*Add retry wait time otherwise we are trying to reconnect every 250 ms...*/
   return State::RequestLastValues;
 }
 

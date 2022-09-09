@@ -28,7 +28,7 @@ unsigned long TimeService::getLocalTime() {return time_now;}
   TEST CODE
  **************************************************************************************/
 
-SCENARIO("Tesing cloud type 'Schedule' Ctor", "[Schedule::Schedule]")
+SCENARIO("Testing cloud type 'Schedule' Ctor", "[Schedule::Schedule]")
 {
   WHEN("A Schedule(0,0,0,0) is being instantiated")
   {

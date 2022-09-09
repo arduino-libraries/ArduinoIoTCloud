@@ -7,17 +7,17 @@
 
   IMPORTANT:
   This sketch works with WiFi, GSM, NB and Lora enabled boards supported by Arduino IoT Cloud.
-  On a LoRa board, if it is configuered as a class A device (default and preferred option), values from Cloud dashboard are received
+  On a LoRa board, if it is configured as a class A device (default and preferred option), values from Cloud dashboard are received
   only after a value is sent to Cloud.
 
   This sketch is compatible with:
    - MKR 1000
-   - MKR WIFI 1010
+   - MKR WiFi 1010
    - MKR GSM 1400
    - MKR NB 1500
    - MKR WAN 1300/1310
    - Nano 33 IoT
-   - ESP 8266
+   - ESP8266
 */
 
 #include "arduino_secrets.h"

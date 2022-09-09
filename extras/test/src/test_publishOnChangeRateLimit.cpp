@@ -14,7 +14,7 @@
    TEST CODE
  **************************************************************************************/
 
-SCENARIO("A Arduino cloud property is published on value change but the update rate is limited", "[ArduinoCloudThing::publishOnChange]")
+SCENARIO("An Arduino cloud property is published on value change but the update rate is limited", "[ArduinoCloudThing::publishOnChange]")
 {
   PropertyContainer property_container;
     

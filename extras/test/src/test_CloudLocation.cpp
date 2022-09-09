@@ -14,7 +14,7 @@
   TEST CODE
  **************************************************************************************/
 
-SCENARIO("Tesing cloud type 'Location' Ctor", "[Location::Location]")
+SCENARIO("Testing cloud type 'Location' Ctor", "[Location::Location]")
 {
   WHEN("A Location(1.0f, 2.0f) is being instantiated")
   {
@@ -30,7 +30,7 @@ SCENARIO("Tesing cloud type 'Location' Ctor", "[Location::Location]")
 
 /**************************************************************************************/
 
-SCENARIO("Tesing cloud type 'Location' assignment operator", "[Location::operator =]")
+SCENARIO("Testing cloud type 'Location' assignment operator", "[Location::operator =]")
 {
   Location loc1(1.0f, 2.0f),
            loc2(3.0f, 4.0f);
@@ -47,7 +47,7 @@ SCENARIO("Tesing cloud type 'Location' assignment operator", "[Location::operato
 
 /**************************************************************************************/
 
-SCENARIO("Tesing cloud type 'Location' operator -", "[Location::operator -]")
+SCENARIO("Testing cloud type 'Location' operator -", "[Location::operator -]")
 {
   Location loc1(1.0f, 2.0f),
            loc2(3.0f, 4.0f);
@@ -64,7 +64,7 @@ SCENARIO("Tesing cloud type 'Location' operator -", "[Location::operator -]")
 
 /**************************************************************************************/
 
-SCENARIO("Tesing cloud type 'Location' comparison operator ==", "[Location::operator ==]")
+SCENARIO("Testing cloud type 'Location' comparison operator ==", "[Location::operator ==]")
 {
   Location loc1(1.0f, 2.0f),
            loc2(3.0f, 4.0f),
@@ -87,7 +87,7 @@ SCENARIO("Tesing cloud type 'Location' comparison operator ==", "[Location::oper
 
 /**************************************************************************************/
 
-SCENARIO("Tesing cloud type 'Location' comparison operator !=", "[Location::operator !=]")
+SCENARIO("Testing cloud type 'Location' comparison operator !=", "[Location::operator !=]")
 {
   Location loc1(1.0f, 2.0f),
            loc2(3.0f, 4.0f),
@@ -110,7 +110,7 @@ SCENARIO("Tesing cloud type 'Location' comparison operator !=", "[Location::oper
 
 /**************************************************************************************/
 
-SCENARIO("Tesing cloud type 'Location' function distance for calculating euclidean 2d distance between two points", "[Location::distance]")
+SCENARIO("Testing cloud type 'Location' function distance for calculating Euclidean 2d distance between two points", "[Location::distance]")
 {
   Location loc1(0.0f, 0.0f),
            loc2(1.0f, 1.0f);

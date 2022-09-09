@@ -17,7 +17,7 @@
    TEST CODE
  **************************************************************************************/
 
-SCENARIO("A Arduino cloud property is marked 'read only'", "[ArduinoCloudThing::decode]")
+SCENARIO("An Arduino cloud property is marked 'read only'", "[ArduinoCloudThing::decode]")
 {
   PropertyContainer property_container;
     

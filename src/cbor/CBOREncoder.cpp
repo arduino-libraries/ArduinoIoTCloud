@@ -138,7 +138,7 @@ CBOREncoder::EncoderState CBOREncoder::handle_OutOfMemory(PropertyContainerEncod
 CBOREncoder::EncoderState CBOREncoder::handle_SkipProperty(PropertyContainerEncoder & propertyEncoder)
 {
   /* Better to skip this property otherwise we will stay blocked here. This happens only with a message property 
-   * that not fits into the CBOR buffer
+   * that doesn't fit into the CBOR buffer
    */
   propertyEncoder.current_property_index++;
   if(propertyEncoder.current_property_index >= propertyEncoder.property_container.size())
@@ -182,7 +182,7 @@ CBOREncoder::EncoderState CBOREncoder::handle_FinishAppend(PropertyContainerEnco
   /* Restore property message limit to CBOR_ENCODER_NO_PROPERTIES_LIMIT */
   propertyEncoder.property_limit_active = false;
 
-  /* The append process has been successful, so we don't need to terty to send this properties set. Cleanup _has_been_appended_but_not_sended flag */
+  /* The append process has been successful, so we don't need to try to send this properties set. Cleanup _has_been_appended_but_not_sended flag */
   PropertyContainer::iterator iter = propertyEncoder.property_container.begin();
   std::advance(iter, propertyEncoder.current_property_index);
   int num_appended_properties = 0;
@@ -197,7 +197,7 @@ CBOREncoder::EncoderState CBOREncoder::handle_FinishAppend(PropertyContainerEnco
     num_appended_properties++;
   }
 
-  /* Advance property index for the nex message */
+  /* Advance property index for the next message */
   propertyEncoder.current_property_index += propertyEncoder.checked_property_count;
 
   if(propertyEncoder.current_property_index >= propertyEncoder.property_container.size())
