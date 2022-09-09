@@ -65,7 +65,7 @@ jobs:
           - board:
               type: mkr1000
             platforms: |
-              # Install Arduino SAMD Boards via Boards Manager for the toolchain
+              # Install samd platform via Boards Manager
               - name: arduino:samd
             libraries: |
               - name: ArduinoECCX08
@@ -78,7 +78,7 @@ jobs:
           - board:
               type: nina
             platforms: |
-              # Install Arduino SAMD Boards via Boards Manager for the toolchain
+              # Install samd and mbed_nano platform via Boards Manager
               - name: arduino:samd
               - name: arduino:mbed_nano
             libraries: |
@@ -93,6 +93,7 @@ jobs:
           - board:
               type: wan
             platforms: |
+              # Install samd platform via Boards Manager
               - name: arduino:samd
             libraries: |
               - name: ArduinoECCX08
@@ -104,6 +105,7 @@ jobs:
           - board:
               type: gsm
             platforms: |
+              # Install samd platform via Boards Manager
               - name: arduino:samd
             libraries: |
               - name: ArduinoECCX08
@@ -116,6 +118,7 @@ jobs:
           - board:
               type: nb
             platforms: |
+              # Install samd platform via Boards Manager
               - name: arduino:samd
             libraries: |
               - name: ArduinoECCX08
@@ -128,7 +131,7 @@ jobs:
           - board:
               type: mbed_portenta
             platforms: |
-              # Install Arduino mbed-Enabled Boards via Boards Manager for the toolchain
+              # Install mbed_portenta platform via Boards Manager
               - name: arduino:mbed_portenta
             libraries: |
               - name: ArduinoECCX08
@@ -139,7 +142,7 @@ jobs:
           - board:
               type: mbed_nicla
             platforms: |
-              # Install Arduino mbed-Enabled Boards via Boards Manager for the toolchain
+              # Install mbed_nicla platform via Boards Manager
               - name: arduino:mbed_nicla
             libraries: |
               - name: Arduino_Portenta_OTA
