@@ -29,8 +29,6 @@ jobs:
         - examples/ArduinoIoTCloud-Advanced
         - examples/ArduinoIoTCloud-Basic
         - examples/utility/ArduinoIoTCloud_Travis_CI
-      ARDUINOCORE_MBED_STAGING_PATH: extras/ArduinoCore-mbed
-      ARDUINOCORE_API_STAGING_PATH: extras/ArduinoCore-API
       SKETCHES_REPORTS_PATH: sketches-reports
 
     strategy:
@@ -50,8 +48,8 @@ jobs:
             type: gsm
           - fqbn: arduino:samd:mkrnb1500
             type: nb
-          - fqbn: arduino:mbed:envie_m7
-            type: mbed
+          - fqbn: arduino:mbed_portenta:envie_m7
+            type: mbed_portenta
           - fqbn: esp8266:esp8266:huzzah
             type: esp8266
           - fqbn: esp32:esp32:esp32
@@ -67,7 +65,7 @@ jobs:
           - board:
               type: mkr1000
             platforms: |
-              # Install Arduino SAMD Boards via Boards Manager for the toolchain
+              # Install samd platform via Boards Manager
               - name: arduino:samd
             libraries: |
               - name: ArduinoECCX08
@@ -80,7 +78,7 @@ jobs:
           - board:
               type: nina
             platforms: |
-              # Install Arduino SAMD Boards via Boards Manager for the toolchain
+              # Install samd and mbed_nano platform via Boards Manager
               - name: arduino:samd
               - name: arduino:mbed_nano
             libraries: |
@@ -95,6 +93,7 @@ jobs:
           - board:
               type: wan
             platforms: |
+              # Install samd platform via Boards Manager
               - name: arduino:samd
             libraries: |
               - name: ArduinoECCX08
@@ -106,6 +105,7 @@ jobs:
           - board:
               type: gsm
             platforms: |
+              # Install samd platform via Boards Manager
               - name: arduino:samd
             libraries: |
               - name: ArduinoECCX08
@@ -118,6 +118,7 @@ jobs:
           - board:
               type: nb
             platforms: |
+              # Install samd platform via Boards Manager
               - name: arduino:samd
             libraries: |
               - name: ArduinoECCX08
@@ -128,22 +129,20 @@ jobs:
               - examples/utility/Provisioning
           # Portenta
           - board:
-              type: mbed
+              type: mbed_portenta
             platforms: |
-              # Install Arduino mbed-Enabled Boards via Boards Manager for the toolchain
-              - name: arduino:mbed
-              # Overwrite the Arduino mbed-Enabled Boards release version with version from the tip of the master branch (located in local path because of the need to first install ArduinoCore-API)
-              - source-path: extras/ArduinoCore-mbed
-                name: arduino:mbed
+              # Install mbed_portenta platform via Boards Manager
+              - name: arduino:mbed_portenta
             libraries: |
               - name: ArduinoECCX08
               - name: Arduino_Portenta_OTA
             sketch-paths: |
               - examples/utility/Provisioning
+          # Nicla Vision
           - board:
               type: mbed_nicla
             platforms: |
-              # Install Arduino mbed-Enabled Boards via Boards Manager for the toolchain
+              # Install mbed_nicla platform via Boards Manager
               - name: arduino:mbed_nicla
             libraries: |
               - name: Arduino_Portenta_OTA
@@ -173,30 +172,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-
-      # it's necessary to checkout the platform before installing it so that the ArduinoCore-API dependency can be added
-      - name: Checkout ArduinoCore-mbed
-        # this step only needed when the Arduino mbed-Enabled Boards platform sourced from the repository is being used
-        if: matrix.board.type == 'mbed'
-        uses: actions/checkout@v2
-        with:
-          repository: arduino/ArduinoCore-mbed
-          # the arduino/compile-sketches action will install the platform from this path
-          path: ${{ env.ARDUINOCORE_MBED_STAGING_PATH }}
-
-      - name: Checkout ArduinoCore-API
-        # this step only needed when the Arduino mbed-Enabled Boards platform sourced from the repository is being used
-        if: matrix.board.type == 'mbed'
-        uses: actions/checkout@v2
-        with:
-          repository: arduino/ArduinoCore-API
-          path: ${{ env.ARDUINOCORE_API_STAGING_PATH }}
-
-      - name: Install ArduinoCore-API
-        # this step only needed when the Arduino mbed-Enabled Boards platform sourced from the repository is being used
-        if: matrix.board.type == 'mbed'
-        run: |
-          mv "${{ env.ARDUINOCORE_API_STAGING_PATH }}/api" "${{ env.ARDUINOCORE_MBED_STAGING_PATH }}/cores/arduino"
 
       - name: Install ESP32 platform dependencies
         if: matrix.board.type == 'esp32'
