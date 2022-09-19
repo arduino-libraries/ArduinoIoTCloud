@@ -29,17 +29,16 @@
 
 #ifdef ARDUINO_ARCH_SAMD
 #  include <Adafruit_SleepyDog.h>
-#  include <WiFi.h>
 #  define SAMD_WATCHDOG_MAX_TIME_ms (16 * 1000)
 #endif /* ARDUINO_ARCH_SAMD */
 
 #ifdef ARDUINO_ARCH_MBED
 #  include <watchdog_api.h>
-#  include <WiFi.h>
-#  include <Ethernet.h>
 #  define PORTENTA_H7_WATCHDOG_MAX_TIMEOUT_ms (32760)
 #  define NANO_RP2040_WATCHDOG_MAX_TIMEOUT_ms (8389)
 #endif /* ARDUINO_ARCH_MBED */
+
+#include <Arduino_ConnectionHandler.h>
 
 /******************************************************************************
  * GLOBAL VARIABLES
@@ -127,13 +126,13 @@ static void mbed_watchdog_reset()
 #if defined (ARDUINO_PORTENTA_H7_WIFI_HAS_FEED_WATCHDOG_FUNC)
 static void mbed_watchdog_enable_network_feed(const bool use_ethernet)
 {
+#if defined(BOARD_HAS_ETHERNET)
   if(use_ethernet) {
-#if defined(ARDUINO_PORTENTA_H7_M7)
     Ethernet.setFeedWatchdogFunc(watchdog_reset);
+  } else
 #endif
-  } else {
     WiFi.setFeedWatchdogFunc(watchdog_reset);
-  }
+
 }
 #endif
 
