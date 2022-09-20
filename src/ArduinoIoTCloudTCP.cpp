@@ -307,10 +307,8 @@ int ArduinoIoTCloudTCP::begin(bool const enable_watchdog, String brokerAddress, 
 #if defined (ARDUINO_ARCH_SAMD) || defined (ARDUINO_ARCH_MBED)
   if (enable_watchdog) {
     watchdog_enable();
-#if defined (WIFI_HAS_FEED_WATCHDOG_FUNC) || defined (ARDUINO_PORTENTA_H7_WIFI_HAS_FEED_WATCHDOG_FUNC)
     bool const use_ethernet = _connection->getInterface() == NetworkAdapter::ETHERNET ? true : false;
     watchdog_enable_network_feed(use_ethernet);
-#endif
   }
 #endif
 

@@ -65,13 +65,6 @@ static void samd_watchdog_reset()
   }
 }
 
-#if defined (WIFI_HAS_FEED_WATCHDOG_FUNC)
-static void samd_watchdog_enable_network_feed()
-{
-  WiFi.setFeedWatchdogFunc(watchdog_reset);
-}
-#endif
-
 /* This function is called within the WiFiNINA library when invoking
  * the method 'connectBearSSL' in order to prevent a premature bite
  * of the watchdog (max timeout on SAMD is 16 s). wifi_nina_feed...
@@ -177,14 +170,14 @@ void watchdog_reset()
 #endif
 }
 
-#if defined (WIFI_HAS_FEED_WATCHDOG_FUNC) || defined (ARDUINO_PORTENTA_H7_WIFI_HAS_FEED_WATCHDOG_FUNC)
 void watchdog_enable_network_feed(const bool use_ethernet)
 {
-#ifdef ARDUINO_ARCH_SAMD
-  samd_watchdog_enable_network_feed();
-#else
+#ifdef WIFI_HAS_FEED_WATCHDOG_FUNC
+  WiFi.setFeedWatchdogFunc(watchdog_reset);
+#endif
+
+#ifdef ARDUINO_PORTENTA_H7_WIFI_HAS_FEED_WATCHDOG_FUNC
   mbed_watchdog_enable_network_feed(use_ethernet);
 #endif
 }
-#endif
 #endif /* (ARDUINO_ARCH_SAMD) || (ARDUINO_ARCH_MBED) */
