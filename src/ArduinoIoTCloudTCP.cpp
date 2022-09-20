@@ -38,7 +38,7 @@
 #include "tls/utility/CryptoUtil.h"
 #endif
 
-#if defined(ARDUINO_PORTENTA_H7_M7) || defined(ARDUINO_NICLA_VISION)
+#ifdef BOARD_STM32H7
 #  include "tls/utility/SHA256.h"
 #  include <stm32h7xx_hal_rtc_ex.h>
 #  include <WiFi.h>
@@ -56,7 +56,7 @@
  * EXTERN
  ******************************************************************************/
 
-#if defined(ARDUINO_PORTENTA_H7_M7) || defined(ARDUINO_NICLA_VISION)
+#ifdef BOARD_STM32H7
 extern RTC_HandleTypeDef RTCHandle;
 #endif
 
@@ -151,7 +151,7 @@ int ArduinoIoTCloudTCP::begin(bool const enable_watchdog, String brokerAddress, 
 #endif /* AVR */
 
 #if OTA_ENABLED && !defined(__AVR__)
-#if defined(ARDUINO_PORTENTA_H7_M7) || defined(ARDUINO_NICLA_VISION)
+#if defined(BOARD_STM32H7)
   /* The length of the application can be retrieved the same way it was
    * communicated to the bootloader, that is by writing to the non-volatile
    * storage registers of the RTC.
@@ -829,7 +829,7 @@ void ArduinoIoTCloudTCP::onOTARequest()
   _ota_error = rp2040_connect_onOTARequest(_ota_url.c_str());
 #endif
 
-#if defined(ARDUINO_PORTENTA_H7_M7) || defined(ARDUINO_NICLA_VISION)
+#ifdef BOARD_STM32H7
   _ota_error = portenta_h7_onOTARequest(_ota_url.c_str());
 #endif
 }

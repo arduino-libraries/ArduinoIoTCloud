@@ -141,6 +141,10 @@
   #define HAS_TCP
 #endif
 
+#if defined(ARDUINO_PORTENTA_H7_M7) || defined(ARDUINO_NICLA_VISION)
+  #define BOARD_STM32H7
+#endif
+
 /******************************************************************************
  * CONSTANTS
  ******************************************************************************/
