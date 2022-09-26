@@ -94,7 +94,7 @@ size_t BearSSLClient::write(const uint8_t *buf, size_t size)
   size_t written = 0;
 
   while (written < size) {
-    int result = br_sslio_write(&_ioc, buf, size);
+    int result = br_sslio_write(&_ioc, buf, size - written);
 
     if (result < 0) {
       break;
