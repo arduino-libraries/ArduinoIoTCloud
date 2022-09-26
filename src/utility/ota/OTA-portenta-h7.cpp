@@ -15,11 +15,13 @@
    a commercial license, send an email to license@arduino.cc.
 */
 
-#if defined(ARDUINO_PORTENTA_H7_M7) || defined(ARDUINO_NICLA_VISION)
-
 /******************************************************************************
  * INCLUDE
  ******************************************************************************/
+
+#include <AIoTC_Config.h>
+
+#ifdef BOARD_STM32H7
 
 #include "OTA.h"
 
@@ -87,4 +89,4 @@ int portenta_h7_onOTARequest(char const * ota_url)
   NVIC_SystemReset();
 }
 
-#endif /* defined(ARDUINO_PORTENTA_H7_M7) || defined(ARDUINO_NICLA_VISION) */
+#endif /* BOARD_STM32H7 */
