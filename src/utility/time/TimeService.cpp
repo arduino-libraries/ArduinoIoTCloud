@@ -52,9 +52,7 @@ static time_t const EPOCH = 0;
 
 TimeService::TimeService()
 : _con_hdl(nullptr)
-#if defined (ARDUINO_ARCH_SAMD) || defined (ARDUINO_ARCH_MBED)
 , _is_rtc_configured(false)
-#endif
 , _is_tz_configured(false)
 , _timezone_offset(0)
 , _timezone_dst_until(0)
@@ -98,6 +96,13 @@ unsigned long TimeService::getTime()
       _is_rtc_configured = true;
     }
     return utc;
+  }
+  return time(NULL);
+#elif ARDUINO_ARCH_ESP32 || ARDUINO_ARCH_ESP8266
+  if(!_is_rtc_configured)
+  {
+    configTime(0, 0, "time.arduino.cc", "pool.ntp.org", "time.nist.gov");
+    _is_rtc_configured = true;
   }
   return time(NULL);
 #else
