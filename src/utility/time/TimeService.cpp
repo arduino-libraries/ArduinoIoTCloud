@@ -56,6 +56,10 @@ TimeService::TimeService()
 , _is_tz_configured(false)
 , _timezone_offset(0)
 , _timezone_dst_until(0)
+#ifdef ARDUINO_ARCH_ESP8266
+, _soft_rtc_value(0)
+, _soft_rtc_offset(0)
+#endif
 {
 
 }
@@ -98,13 +102,27 @@ unsigned long TimeService::getTime()
     return utc;
   }
   return time(NULL);
-#elif ARDUINO_ARCH_ESP32 || ARDUINO_ARCH_ESP8266
+#elif ARDUINO_ARCH_ESP32
   if(!_is_rtc_configured)
   {
     configTime(0, 0, "time.arduino.cc", "pool.ntp.org", "time.nist.gov");
     _is_rtc_configured = true;
   }
   return time(NULL);
+#elif ARDUINO_ARCH_ESP8266
+  if(!_is_rtc_configured || millis() < _soft_rtc_offset)
+  {
+    _is_rtc_configured = false;
+    unsigned long utc = getRemoteTime();
+    if(EPOCH_AT_COMPILE_TIME != utc)
+    {
+      _soft_rtc_value = utc;
+      _soft_rtc_offset = millis();
+      _is_rtc_configured = true;
+    }
+    return utc;
+  }
+  return _soft_rtc_value + ((millis() - _soft_rtc_offset) / 1000);
 #else
   return getRemoteTime();
 #endif

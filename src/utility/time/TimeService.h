@@ -60,6 +60,10 @@ private:
   bool _is_tz_configured;
   long _timezone_offset;
   unsigned long _timezone_dst_until;
+#ifdef ARDUINO_ARCH_ESP8266
+  unsigned long _soft_rtc_value;
+  unsigned long _soft_rtc_offset;
+#endif
 
   unsigned long getRemoteTime();
   bool connected();
