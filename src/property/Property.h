@@ -48,8 +48,6 @@
  ******************************************************************************/
 
 #define appendAttributesToCloud() appendAttributesToCloudReal(CborEncoder *encoder)
-#define appendAttribute(x) appendAttributeReal(x, getAttributeName(#x, '.'), encoder)
-#define setAttribute(x) setAttributeReal(x, getAttributeName(#x, '.'))
 
 /******************************************************************************
    CONST
