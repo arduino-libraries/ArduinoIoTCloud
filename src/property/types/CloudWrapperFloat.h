@@ -48,10 +48,10 @@ class CloudWrapperFloat : public CloudWrapperBase {
       _cloud_value = _primitive_value;
     }
     virtual CborError appendAttributesToCloud() {
-      return appendAttribute(_primitive_value);
+      return appendAttributeReal(_primitive_value, "", encoder);
     }
     virtual void setAttributesFromCloud() {
-      setAttribute(_cloud_value);
+      setAttributeReal(_cloud_value, "");
     }
     virtual bool isPrimitive() {
       return true;

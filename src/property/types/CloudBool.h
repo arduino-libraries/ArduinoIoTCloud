@@ -53,10 +53,10 @@ class CloudBool : public Property {
       _cloud_value = _value;
     }
     virtual CborError appendAttributesToCloud() {
-      return appendAttribute(_value);
+      return appendAttributeReal(_value, "", encoder);
     }
     virtual void setAttributesFromCloud() {
-      setAttribute(_cloud_value);
+      setAttributeReal(_cloud_value, "");
     }
     //modifiers
     CloudBool& operator=(bool v) {

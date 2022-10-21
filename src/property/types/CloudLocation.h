@@ -90,13 +90,13 @@ class CloudLocation : public Property {
       _cloud_value = _value;
     }
     virtual CborError appendAttributesToCloud() {
-      CHECK_CBOR_MULTI(appendAttribute(_value.lat));
-      CHECK_CBOR_MULTI(appendAttribute(_value.lon));
+      CHECK_CBOR_MULTI(appendAttributeReal(_value.lat, "lat", encoder));
+      CHECK_CBOR_MULTI(appendAttributeReal(_value.lon, "lon", encoder));
       return CborNoError;
     }
     virtual void setAttributesFromCloud() {
-      setAttribute(_cloud_value.lat);
-      setAttribute(_cloud_value.lon);
+      setAttributeReal(_cloud_value.lat, "lat");
+      setAttributeReal(_cloud_value.lon, "lon");
     }
 };
 
