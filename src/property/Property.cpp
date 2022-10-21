@@ -354,13 +354,6 @@ void Property::setAttributeReal(String attributeName, std::function<void (CborMa
                 });
 }
 
-String Property::getAttributeName(String propertyName, char separator) {
-  int colonPos;
-  String attributeName = "";
-  (colonPos = propertyName.indexOf(separator)) != -1 ? attributeName = propertyName.substring(colonPos + 1) : "";
-  return attributeName;
-}
-
 void Property::updateLocalTimestamp() {
   if (isReadableByCloud()) {
     if (_get_time_func) {

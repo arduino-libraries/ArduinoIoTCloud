@@ -104,8 +104,8 @@ class CloudDimmedLight : public Property {
       // Start
       float hue = 0;
       float sat = 0;
-      CHECK_CBOR_MULTI(appendAttributeReal(hue, getAttributeName(".hue", '.'), encoder));
-      CHECK_CBOR_MULTI(appendAttributeReal(sat, getAttributeName(".sat", '.'), encoder));
+      CHECK_CBOR_MULTI(appendAttributeReal(hue, "hue", encoder));
+      CHECK_CBOR_MULTI(appendAttributeReal(sat, "sat", encoder));
       CHECK_CBOR_MULTI(appendAttributeReal(_value.bri, "bri", encoder));
       // should be only:
       // appendAttribute(_value.bri);

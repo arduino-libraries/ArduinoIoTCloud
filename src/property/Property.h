@@ -204,7 +204,6 @@ class Property
     void setAttributeReal(unsigned int& value, String attributeName = "");
     void setAttributeReal(float& value, String attributeName = "");
     void setAttributeReal(String& value, String attributeName = "");
-    String getAttributeName(String propertyName, char separator);
 
     virtual bool isDifferentFromCloud() = 0;
     virtual void fromCloudToLocal() = 0;
