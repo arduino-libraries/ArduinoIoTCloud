@@ -170,7 +170,7 @@ void Property::execCallbackOnSync() {
 CborError Property::append(CborEncoder *encoder, bool lightPayload) {
   _lightPayload = lightPayload;
   _attributeIdentifier = 0;
-  CHECK_CBOR(appendAttributesToCloudReal(encoder));
+  CHECK_CBOR(appendAttributesToCloud(encoder));
   fromLocalToCloud();
   _has_been_updated_once = true;
   _has_been_modified_in_callback = false;

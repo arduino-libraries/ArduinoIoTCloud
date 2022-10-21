@@ -49,7 +49,7 @@ class CloudWrapperString : public CloudWrapperBase {
     virtual void fromLocalToCloud() {
       _cloud_value = _primitive_value;
     }
-    virtual CborError appendAttributesToCloudReal(CborEncoder *encoder) {
+    virtual CborError appendAttributesToCloud(CborEncoder *encoder) {
       return appendAttributeReal(_primitive_value, "", encoder);
     }
     virtual void setAttributesFromCloud() {

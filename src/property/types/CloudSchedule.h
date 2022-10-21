@@ -417,7 +417,7 @@ class CloudSchedule : public Property {
     virtual void fromLocalToCloud() {
       _cloud_value = _value;
     }
-    virtual CborError appendAttributesToCloudReal(CborEncoder *encoder) {
+    virtual CborError appendAttributesToCloud(CborEncoder *encoder) {
       CHECK_CBOR_MULTI(appendAttributeReal(_value.frm, "frm", encoder));
       CHECK_CBOR_MULTI(appendAttributeReal(_value.to, "to", encoder));
       CHECK_CBOR_MULTI(appendAttributeReal(_value.len, "len", encoder));

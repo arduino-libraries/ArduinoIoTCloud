@@ -52,7 +52,7 @@ class CloudBool : public Property {
     virtual void fromLocalToCloud() {
       _cloud_value = _value;
     }
-    virtual CborError appendAttributesToCloudReal(CborEncoder *encoder) {
+    virtual CborError appendAttributesToCloud(CborEncoder *encoder) {
       return appendAttributeReal(_value, "", encoder);
     }
     virtual void setAttributesFromCloud() {

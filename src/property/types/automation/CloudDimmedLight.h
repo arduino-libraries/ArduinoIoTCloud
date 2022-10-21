@@ -98,7 +98,7 @@ class CloudDimmedLight : public Property {
       _cloud_value = _value;
     }
 
-    virtual CborError appendAttributesToCloudReal(CborEncoder *encoder) {
+    virtual CborError appendAttributesToCloud(CborEncoder *encoder) {
       CHECK_CBOR_MULTI(appendAttributeReal(_value.swi, "swi", encoder));
       // To allow visualization through color widget
       // Start

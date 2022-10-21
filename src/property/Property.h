@@ -208,7 +208,7 @@ class Property
     virtual bool isDifferentFromCloud() = 0;
     virtual void fromCloudToLocal() = 0;
     virtual void fromLocalToCloud() = 0;
-    virtual CborError appendAttributesToCloudReal(CborEncoder *encoder) = 0;
+    virtual CborError appendAttributesToCloud(CborEncoder *encoder) = 0;
     virtual void setAttributesFromCloud() = 0;
     virtual bool isPrimitive() {
       return false;
