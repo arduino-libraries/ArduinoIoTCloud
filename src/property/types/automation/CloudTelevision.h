@@ -213,7 +213,7 @@ class CloudTelevision : public Property {
     virtual void fromLocalToCloud() {
       _cloud_value = _value;
     }
-    virtual CborError appendAttributesToCloud() {
+    virtual CborError appendAttributesToCloudReal(CborEncoder *encoder) {
       CHECK_CBOR_MULTI(appendAttributeReal(_value.swi, "swi", encoder));
       CHECK_CBOR_MULTI(appendAttributeReal(_value.vol, "vol", encoder));
       CHECK_CBOR_MULTI(appendAttributeReal(_value.mut, "mut", encoder));

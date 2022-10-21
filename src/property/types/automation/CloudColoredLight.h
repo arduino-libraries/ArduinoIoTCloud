@@ -118,7 +118,7 @@ class CloudColoredLight : public CloudColor {
     virtual void fromLocalToCloud() {
       _cloud_value = _value;
     }
-    virtual CborError appendAttributesToCloud() {
+    virtual CborError appendAttributesToCloudReal(CborEncoder *encoder) {
       CHECK_CBOR_MULTI(appendAttributeReal(_value.swi, "swi", encoder));
       CHECK_CBOR_MULTI(appendAttributeReal(_value.hue, "hue", encoder));
       CHECK_CBOR_MULTI(appendAttributeReal(_value.sat, "sat", encoder));

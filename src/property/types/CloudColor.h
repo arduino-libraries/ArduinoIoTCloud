@@ -188,7 +188,7 @@ class CloudColor : public Property {
     virtual void fromLocalToCloud() {
       _cloud_value = _value;
     }
-    virtual CborError appendAttributesToCloud() {
+    virtual CborError appendAttributesToCloudReal(CborEncoder *encoder) {
       CHECK_CBOR_MULTI(appendAttributeReal(_value.hue, "hue", encoder));
       CHECK_CBOR_MULTI(appendAttributeReal(_value.sat, "sat", encoder));
       CHECK_CBOR_MULTI(appendAttributeReal(_value.bri, "bri", encoder));

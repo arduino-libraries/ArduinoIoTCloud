@@ -54,7 +54,7 @@ class CloudFloat : public Property {
     virtual void fromLocalToCloud() {
       _cloud_value = _value;
     }
-    virtual CborError appendAttributesToCloud() {
+    virtual CborError appendAttributesToCloudReal(CborEncoder *encoder) {
       return appendAttributeReal(_value, "", encoder);
     }
     virtual void setAttributesFromCloud() {
