@@ -195,9 +195,9 @@ class CloudColor : public Property {
       return CborNoError;
     }
     virtual void setAttributesFromCloud() {
-      setAttributeReal(_cloud_value.hue, "hue");
-      setAttributeReal(_cloud_value.sat, "sat");
-      setAttributeReal(_cloud_value.bri, "bri");
+      setAttribute(_cloud_value.hue, "hue");
+      setAttribute(_cloud_value.sat, "sat");
+      setAttribute(_cloud_value.bri, "bri");
     }
 };
 

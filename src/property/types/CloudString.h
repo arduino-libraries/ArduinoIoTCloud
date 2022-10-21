@@ -62,7 +62,7 @@ class CloudString : public Property {
       return appendAttribute(_value, "", encoder);
     }
     virtual void setAttributesFromCloud() {
-      setAttributeReal(_cloud_value, "");
+      setAttribute(_cloud_value, "");
     }
     //modifiers
     CloudString& operator=(String v) {

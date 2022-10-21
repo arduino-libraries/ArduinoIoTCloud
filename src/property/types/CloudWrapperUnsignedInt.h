@@ -49,7 +49,7 @@ class CloudWrapperUnsignedInt : public CloudWrapperBase {
       return appendAttribute(_primitive_value, "", encoder);
     }
     virtual void setAttributesFromCloud() {
-      setAttributeReal(_cloud_value, "");
+      setAttribute(_cloud_value, "");
     }
     virtual bool isPrimitive() {
       return true;

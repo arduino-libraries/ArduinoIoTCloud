@@ -278,8 +278,8 @@ void Property::setAttributesFromCloud(std::list<CborMapData> * map_data_list) {
   setAttributesFromCloud();
 }
 
-void Property::setAttributeReal(bool& value, String attributeName) {
-  setAttributeReal(attributeName, [&value](CborMapData & md) {
+void Property::setAttribute(bool& value, String attributeName) {
+  setAttribute(attributeName, [&value](CborMapData & md) {
     // Manage the case to have boolean values received as integers 0/1
     if (md.bool_val.isSet()) {
       value = md.bool_val.get();
@@ -295,34 +295,34 @@ void Property::setAttributeReal(bool& value, String attributeName) {
   });
 }
 
-void Property::setAttributeReal(int& value, String attributeName) {
-  setAttributeReal(attributeName, [&value](CborMapData & md) {
+void Property::setAttribute(int& value, String attributeName) {
+  setAttribute(attributeName, [&value](CborMapData & md) {
     value = md.val.get();
   });
 }
 
-void Property::setAttributeReal(unsigned int& value, String attributeName) {
-  setAttributeReal(attributeName, [&value](CborMapData & md) {
+void Property::setAttribute(unsigned int& value, String attributeName) {
+  setAttribute(attributeName, [&value](CborMapData & md) {
     value = md.val.get();
   });
 }
 
-void Property::setAttributeReal(float& value, String attributeName) {
-  setAttributeReal(attributeName, [&value](CborMapData & md) {
+void Property::setAttribute(float& value, String attributeName) {
+  setAttribute(attributeName, [&value](CborMapData & md) {
     value = md.val.get();
   });
 }
 
-void Property::setAttributeReal(String& value, String attributeName) {
-  setAttributeReal(attributeName, [&value](CborMapData & md) {
+void Property::setAttribute(String& value, String attributeName) {
+  setAttribute(attributeName, [&value](CborMapData & md) {
     value = md.str_val.get();
   });
 }
 
 #ifdef __AVR__
-void Property::setAttributeReal(String attributeName, nonstd::function<void (CborMapData & md)>setValue)
+void Property::setAttribute(String attributeName, nonstd::function<void (CborMapData & md)>setValue)
 #else
-void Property::setAttributeReal(String attributeName, std::function<void (CborMapData & md)>setValue)
+void Property::setAttribute(String attributeName, std::function<void (CborMapData & md)>setValue)
 #endif
 {
   if (attributeName != "") {

@@ -193,17 +193,17 @@ class Property
     CborError appendAttribute(String value, String attributeName = "", CborEncoder *encoder = nullptr);
 #ifndef __AVR__
     CborError appendAttributeName(String attributeName, std::function<CborError (CborEncoder& mapEncoder)>f, CborEncoder *encoder);
-    void setAttributeReal(String attributeName, std::function<void (CborMapData & md)>setValue);
+    void setAttribute(String attributeName, std::function<void (CborMapData & md)>setValue);
 #else
     CborError appendAttributeName(String attributeName, nonstd::function<CborError (CborEncoder& mapEncoder)>f, CborEncoder *encoder);
-    void setAttributeReal(String attributeName, nonstd::function<void (CborMapData & md)>setValue);
+    void setAttribute(String attributeName, nonstd::function<void (CborMapData & md)>setValue);
 #endif
     void setAttributesFromCloud(std::list<CborMapData> * map_data_list);
-    void setAttributeReal(bool& value, String attributeName = "");
-    void setAttributeReal(int& value, String attributeName = "");
-    void setAttributeReal(unsigned int& value, String attributeName = "");
-    void setAttributeReal(float& value, String attributeName = "");
-    void setAttributeReal(String& value, String attributeName = "");
+    void setAttribute(bool& value, String attributeName = "");
+    void setAttribute(int& value, String attributeName = "");
+    void setAttribute(unsigned int& value, String attributeName = "");
+    void setAttribute(float& value, String attributeName = "");
+    void setAttribute(String& value, String attributeName = "");
 
     virtual bool isDifferentFromCloud() = 0;
     virtual void fromCloudToLocal() = 0;

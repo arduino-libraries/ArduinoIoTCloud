@@ -223,12 +223,12 @@ class CloudTelevision : public Property {
       return CborNoError;
     }
     virtual void setAttributesFromCloud() {
-      setAttributeReal(_cloud_value.swi, "swi");
-      setAttributeReal(_cloud_value.vol, "vol");
-      setAttributeReal(_cloud_value.mut, "mut");
-      setAttributeReal((int&)_cloud_value.pbc, "pbc");
-      setAttributeReal((int&)_cloud_value.inp, "inp");
-      setAttributeReal(_cloud_value.cha, "cha");
+      setAttribute(_cloud_value.swi, "swi");
+      setAttribute(_cloud_value.vol, "vol");
+      setAttribute(_cloud_value.mut, "mut");
+      setAttribute((int&)_cloud_value.pbc, "pbc");
+      setAttribute((int&)_cloud_value.inp, "inp");
+      setAttribute(_cloud_value.cha, "cha");
     }
 };
 

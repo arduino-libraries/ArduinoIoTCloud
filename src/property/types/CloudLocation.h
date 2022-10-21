@@ -95,8 +95,8 @@ class CloudLocation : public Property {
       return CborNoError;
     }
     virtual void setAttributesFromCloud() {
-      setAttributeReal(_cloud_value.lat, "lat");
-      setAttributeReal(_cloud_value.lon, "lon");
+      setAttribute(_cloud_value.lat, "lat");
+      setAttribute(_cloud_value.lon, "lon");
     }
 };
 

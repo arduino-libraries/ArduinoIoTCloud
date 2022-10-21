@@ -114,8 +114,8 @@ class CloudDimmedLight : public Property {
     }
 
     virtual void setAttributesFromCloud() {
-      setAttributeReal(_cloud_value.swi, "swi");
-      setAttributeReal(_cloud_value.bri, "bri");
+      setAttribute(_cloud_value.swi, "swi");
+      setAttribute(_cloud_value.bri, "bri");
     }
 };
 

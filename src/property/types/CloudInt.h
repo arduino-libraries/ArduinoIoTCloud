@@ -56,7 +56,7 @@ class CloudInt : public Property {
       return appendAttribute(_value, "", encoder);
     }
     virtual void setAttributesFromCloud() {
-      setAttributeReal(_cloud_value, "");
+      setAttribute(_cloud_value, "");
     }
     //modifiers
     CloudInt& operator=(int v) {

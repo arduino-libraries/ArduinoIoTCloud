@@ -425,10 +425,10 @@ class CloudSchedule : public Property {
       return CborNoError;
     }
     virtual void setAttributesFromCloud() {
-      setAttributeReal(_cloud_value.frm, "frm");
-      setAttributeReal(_cloud_value.to, "to");
-      setAttributeReal(_cloud_value.len, "len");
-      setAttributeReal(_cloud_value.msk, "msk");
+      setAttribute(_cloud_value.frm, "frm");
+      setAttribute(_cloud_value.to, "to");
+      setAttribute(_cloud_value.len, "len");
+      setAttribute(_cloud_value.msk, "msk");
     }
 };
 
