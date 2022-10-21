@@ -181,7 +181,7 @@ CborError Property::append(CborEncoder *encoder, bool lightPayload) {
   return CborNoError;
 }
 
-CborError Property::appendAttributeReal(bool value, String attributeName, CborEncoder *encoder) {
+CborError Property::appendAttribute(bool value, String attributeName, CborEncoder *encoder) {
   return appendAttributeName(attributeName, [value](CborEncoder & mapEncoder)
   {
     CHECK_CBOR(cbor_encode_int(&mapEncoder, static_cast<int>(CborIntegerMapKey::BooleanValue)));
@@ -190,7 +190,7 @@ CborError Property::appendAttributeReal(bool value, String attributeName, CborEn
   }, encoder);
 }
 
-CborError Property::appendAttributeReal(int value, String attributeName, CborEncoder *encoder) {
+CborError Property::appendAttribute(int value, String attributeName, CborEncoder *encoder) {
   return appendAttributeName(attributeName, [value](CborEncoder & mapEncoder)
   {
     CHECK_CBOR(cbor_encode_int(&mapEncoder, static_cast<int>(CborIntegerMapKey::Value)));
@@ -199,7 +199,7 @@ CborError Property::appendAttributeReal(int value, String attributeName, CborEnc
   }, encoder);
 }
 
-CborError Property::appendAttributeReal(unsigned int value, String attributeName, CborEncoder *encoder) {
+CborError Property::appendAttribute(unsigned int value, String attributeName, CborEncoder *encoder) {
   return appendAttributeName(attributeName, [value](CborEncoder & mapEncoder)
   {
     CHECK_CBOR(cbor_encode_int(&mapEncoder, static_cast<int>(CborIntegerMapKey::Value)));
@@ -208,7 +208,7 @@ CborError Property::appendAttributeReal(unsigned int value, String attributeName
   }, encoder);
 }
 
-CborError Property::appendAttributeReal(float value, String attributeName, CborEncoder *encoder) {
+CborError Property::appendAttribute(float value, String attributeName, CborEncoder *encoder) {
   return appendAttributeName(attributeName, [value](CborEncoder & mapEncoder)
   {
     CHECK_CBOR(cbor_encode_int(&mapEncoder, static_cast<int>(CborIntegerMapKey::Value)));
@@ -217,7 +217,7 @@ CborError Property::appendAttributeReal(float value, String attributeName, CborE
   }, encoder);
 }
 
-CborError Property::appendAttributeReal(String value, String attributeName, CborEncoder *encoder) {
+CborError Property::appendAttribute(String value, String attributeName, CborEncoder *encoder) {
   return appendAttributeName(attributeName, [value](CborEncoder & mapEncoder)
   {
     CHECK_CBOR(cbor_encode_int(&mapEncoder, static_cast<int>(CborIntegerMapKey::StringValue)));

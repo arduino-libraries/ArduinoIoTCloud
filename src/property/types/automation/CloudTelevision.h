@@ -214,12 +214,12 @@ class CloudTelevision : public Property {
       _cloud_value = _value;
     }
     virtual CborError appendAttributesToCloud(CborEncoder *encoder) {
-      CHECK_CBOR_MULTI(appendAttributeReal(_value.swi, "swi", encoder));
-      CHECK_CBOR_MULTI(appendAttributeReal(_value.vol, "vol", encoder));
-      CHECK_CBOR_MULTI(appendAttributeReal(_value.mut, "mut", encoder));
-      CHECK_CBOR_MULTI(appendAttributeReal((int)_value.pbc, "pbc", encoder));
-      CHECK_CBOR_MULTI(appendAttributeReal((int)_value.inp, "inp", encoder));
-      CHECK_CBOR_MULTI(appendAttributeReal(_value.cha, "cha", encoder));
+      CHECK_CBOR_MULTI(appendAttribute(_value.swi, "swi", encoder));
+      CHECK_CBOR_MULTI(appendAttribute(_value.vol, "vol", encoder));
+      CHECK_CBOR_MULTI(appendAttribute(_value.mut, "mut", encoder));
+      CHECK_CBOR_MULTI(appendAttribute((int)_value.pbc, "pbc", encoder));
+      CHECK_CBOR_MULTI(appendAttribute((int)_value.inp, "inp", encoder));
+      CHECK_CBOR_MULTI(appendAttribute(_value.cha, "cha", encoder));
       return CborNoError;
     }
     virtual void setAttributesFromCloud() {

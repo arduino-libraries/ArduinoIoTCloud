@@ -119,10 +119,10 @@ class CloudColoredLight : public CloudColor {
       _cloud_value = _value;
     }
     virtual CborError appendAttributesToCloud(CborEncoder *encoder) {
-      CHECK_CBOR_MULTI(appendAttributeReal(_value.swi, "swi", encoder));
-      CHECK_CBOR_MULTI(appendAttributeReal(_value.hue, "hue", encoder));
-      CHECK_CBOR_MULTI(appendAttributeReal(_value.sat, "sat", encoder));
-      CHECK_CBOR_MULTI(appendAttributeReal(_value.bri, "bri", encoder));
+      CHECK_CBOR_MULTI(appendAttribute(_value.swi, "swi", encoder));
+      CHECK_CBOR_MULTI(appendAttribute(_value.hue, "hue", encoder));
+      CHECK_CBOR_MULTI(appendAttribute(_value.sat, "sat", encoder));
+      CHECK_CBOR_MULTI(appendAttribute(_value.bri, "bri", encoder));
       return CborNoError;
     }
     virtual void setAttributesFromCloud() {

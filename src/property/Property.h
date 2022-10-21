@@ -186,11 +186,11 @@ class Property
 
     void updateLocalTimestamp();
     CborError append(CborEncoder * encoder, bool lightPayload);
-    CborError appendAttributeReal(bool value, String attributeName = "", CborEncoder *encoder = nullptr);
-    CborError appendAttributeReal(int value, String attributeName = "", CborEncoder *encoder = nullptr);
-    CborError appendAttributeReal(unsigned int value, String attributeName = "", CborEncoder *encoder = nullptr);
-    CborError appendAttributeReal(float value, String attributeName = "", CborEncoder *encoder = nullptr);
-    CborError appendAttributeReal(String value, String attributeName = "", CborEncoder *encoder = nullptr);
+    CborError appendAttribute(bool value, String attributeName = "", CborEncoder *encoder = nullptr);
+    CborError appendAttribute(int value, String attributeName = "", CborEncoder *encoder = nullptr);
+    CborError appendAttribute(unsigned int value, String attributeName = "", CborEncoder *encoder = nullptr);
+    CborError appendAttribute(float value, String attributeName = "", CborEncoder *encoder = nullptr);
+    CborError appendAttribute(String value, String attributeName = "", CborEncoder *encoder = nullptr);
 #ifndef __AVR__
     CborError appendAttributeName(String attributeName, std::function<CborError (CborEncoder& mapEncoder)>f, CborEncoder *encoder);
     void setAttributeReal(String attributeName, std::function<void (CborMapData & md)>setValue);
