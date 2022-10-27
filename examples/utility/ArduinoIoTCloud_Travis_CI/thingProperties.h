@@ -14,12 +14,6 @@
 #endif
 
 /******************************************************************************
-   DEFINES
- ******************************************************************************/
-
-#define THING_ID "ARDUINO_IOT_CLOUD_THING_ID"
-
-/******************************************************************************
    GLOBAL CONSTANTS
  ******************************************************************************/
 
@@ -78,7 +72,6 @@ void onStringPropertyChange();
  ******************************************************************************/
 #if defined(BOARD_HAS_WIFI) || defined(BOARD_HAS_GSM) || defined (BOARD_HAS_NB)
 void initProperties() {
-  ArduinoCloud.setThingId(THING_ID);
 
   ArduinoCloud.addProperty(bool_property_1,  READWRITE, 1 * SECONDS);
   ArduinoCloud.addProperty(int_property_1,   READ,      2 * MINUTES);
@@ -109,7 +102,6 @@ void initProperties() {
 
 #elif defined(BOARD_HAS_LORA)
 void initProperties() {
-  ArduinoCloud.setThingId(THING_ID);
 
   ArduinoCloud.addProperty(bool_property_1,  1,   READWRITE, 1 * SECONDS);
   ArduinoCloud.addProperty(int_property_1,   2,   READ,      2 * MINUTES);

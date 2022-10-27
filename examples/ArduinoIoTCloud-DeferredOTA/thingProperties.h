@@ -9,7 +9,6 @@
   #error "Arduino IoT Cloud currently only supports MKR1000, MKR WiFi 1010, MKR WAN 1300/1310, MKR NB 1500 and MKR GSM 1400"
 #endif
 
-#define THING_ID "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
 #define BOARD_ID "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
 
 void onLedChange();
@@ -21,7 +20,6 @@ void initProperties() {
   ArduinoCloud.setBoardId(BOARD_ID);
   ArduinoCloud.setSecretDeviceKey(SECRET_DEVICE_KEY);
 #endif
-  ArduinoCloud.setThingId(THING_ID);
 #if defined(BOARD_HAS_WIFI) || defined(BOARD_HAS_GSM) || defined(BOARD_HAS_NB)
   ArduinoCloud.addProperty(led, Permission::Write).onUpdate(onLedChange);
 #elif defined(BOARD_HAS_LORA)
