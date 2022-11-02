@@ -88,6 +88,5 @@ OTA is supported by the following boards:
 Support for ESP boards is obtained through a third-party core with some differences and limitations compared to Arduino boards.
 
 - **Authentication scheme**: Board authentication is done through `DEVICE_LOGIN_NAME` and `DEVICE_KEY`, both values are included in the `thingProperties.h` file.
-- **RTC**: RTC support is not included thus each `ArduinoCould.update()` call will lead to an NTP request introducing delay in your `loop()` function. The scheduler widget will not work correctly if connection is lost after configuration.
 - **Watchdog**: Watchdog support is not included.
 - **OTA**: OTA support is not included
