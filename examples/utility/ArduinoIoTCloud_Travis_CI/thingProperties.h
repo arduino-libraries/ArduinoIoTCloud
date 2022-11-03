@@ -1,10 +1,3 @@
-/******************************************************************************
-   INCLUDE
- ******************************************************************************/
-
-#include <ArduinoIoTCloud.h>
-#include <Arduino_ConnectionHandler.h>
-
 #if defined(BOARD_HAS_WIFI)
 #elif defined(BOARD_HAS_GSM)
 #elif defined(BOARD_HAS_LORA)
