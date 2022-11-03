@@ -10,7 +10,9 @@
    DEFINES
  ******************************************************************************/
 
-#define BOARD_ID "ARDUINO_IOT_CLOUD_BOARD_ID"
+#if defined(BOARD_ESP)
+  #define BOARD_ID "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+#endif
 
 /******************************************************************************
    GLOBAL CONSTANTS
