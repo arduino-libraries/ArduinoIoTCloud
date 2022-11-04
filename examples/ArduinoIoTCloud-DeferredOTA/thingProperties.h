@@ -1,22 +1,21 @@
-#include <ArduinoIoTCloud.h>
-#include <Arduino_ConnectionHandler.h>
-
 #if defined(BOARD_HAS_WIFI)
 #elif defined(BOARD_HAS_GSM)
 #elif defined(BOARD_HAS_LORA)
 #elif defined(BOARD_HAS_NB)
 #else
-  #error "Arduino IoT Cloud currently only supports MKR1000, MKR WiFi 1010, MKR WAN 1300/1310, MKR NB 1500 and MKR GSM 1400"
+  #error "Please check Arduino IoT Cloud supported boards list: https://github.com/arduino-libraries/ArduinoIoTCloud/#what"
 #endif
 
-#define BOARD_ID "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+#if defined(BOARD_ESP)
+  #define BOARD_ID "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+#endif
 
 void onLedChange();
 
 bool led;
 
 void initProperties() {
-#if defined(BOARD_ESP8266)
+#if defined(BOARD_ESP)
   ArduinoCloud.setBoardId(BOARD_ID);
   ArduinoCloud.setSecretDeviceKey(SECRET_DEVICE_KEY);
 #endif

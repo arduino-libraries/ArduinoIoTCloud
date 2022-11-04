@@ -1,7 +1,14 @@
-#include <ArduinoIoTCloud.h>
-#include <Arduino_ConnectionHandler.h>
+#if defined(BOARD_HAS_WIFI)
+#elif defined(BOARD_HAS_GSM)
+#elif defined(BOARD_HAS_LORA)
+#elif defined(BOARD_HAS_NB)
+#else
+  #error "Please check Arduino IoT Cloud supported boards list: https://github.com/arduino-libraries/ArduinoIoTCloud/#what"
+#endif
 
-#define BOARD_ID "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+#if defined(BOARD_ESP)
+  #define BOARD_ID "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+#endif
 
 void onSwitchButtonChange();
 
@@ -15,7 +22,7 @@ CloudSchedule monthly;
 CloudSchedule yearly;
 
 void initProperties() {
-#if defined(BOARD_ESP8266)
+#if defined(BOARD_ESP)
   ArduinoCloud.setBoardId(BOARD_ID);
   ArduinoCloud.setSecretDeviceKey(SECRET_DEVICE_KEY);
 #endif

@@ -1,13 +1,16 @@
+#include <ArduinoIoTCloud.h>
 #include <Arduino_ConnectionHandler.h>
 
-/* MKR1000, MKR WiFi 1010 */
+/* A complete list of supported boards with WiFi is available here:
+ * https://github.com/arduino-libraries/ArduinoIoTCloud/#what
+ */
 #if defined(BOARD_HAS_WIFI)
   #define SECRET_SSID "YOUR_WIFI_NETWORK_NAME"
   #define SECRET_PASS "YOUR_WIFI_PASSWORD"
 #endif
 
 /* ESP8266 */
-#if defined(BOARD_ESP8266)
+#if defined(BOARD_ESP)
   #define SECRET_DEVICE_KEY "my-device-password"
 #endif
 
