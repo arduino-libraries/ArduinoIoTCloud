@@ -17,7 +17,7 @@
 #include "arduino_secrets.h"
 #include "thingProperties.h"
 
-#if defined(ESP32)
+#if !defined(LED_BUILTIN)
 static int const LED_BUILTIN = 2;
 #endif
 
