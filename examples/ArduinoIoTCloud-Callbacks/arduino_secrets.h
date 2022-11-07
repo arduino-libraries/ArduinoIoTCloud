@@ -35,3 +35,11 @@
   #define SECRET_LOGIN ""
   #define SECRET_PASS ""
 #endif
+
+/* Portenta H7 + Ethernet shield */
+#if defined(BOARD_HAS_ETHERNET)
+  #define SECRET_OPTIONAL_IP ""
+  #define SECRET_OPTIONAL_DNS ""
+  #define SECRET_OPTIONAL_GATEWAY ""
+  #define SECRET_OPTIONAL_NETMASK ""
+#endif
