@@ -307,9 +307,8 @@ int ArduinoIoTCloudTCP::begin(bool const enable_watchdog, String brokerAddress, 
 #if defined (ARDUINO_ARCH_SAMD) || defined (ARDUINO_ARCH_MBED)
   if (enable_watchdog) {
     watchdog_enable();
-#if defined (WIFI_HAS_FEED_WATCHDOG_FUNC) || defined (ARDUINO_PORTENTA_H7_WIFI_HAS_FEED_WATCHDOG_FUNC)
-      WiFi.setFeedWatchdogFunc(watchdog_reset);
-#endif
+    bool const use_ethernet = _connection->getInterface() == NetworkAdapter::ETHERNET ? true : false;
+    watchdog_enable_network_feed(use_ethernet);
   }
 #endif
 
@@ -830,7 +829,8 @@ void ArduinoIoTCloudTCP::onOTARequest()
 #endif
 
 #ifdef BOARD_STM32H7
-  _ota_error = portenta_h7_onOTARequest(_ota_url.c_str());
+  bool const use_ethernet = _connection->getInterface() == NetworkAdapter::ETHERNET ? true : false;
+  _ota_error = portenta_h7_onOTARequest(_ota_url.c_str(), use_ethernet);
 #endif
 }
 #endif

@@ -25,6 +25,7 @@
 #if defined (ARDUINO_ARCH_SAMD) || defined (ARDUINO_ARCH_MBED)
 void watchdog_enable();
 void watchdog_reset();
+void watchdog_enable_network_feed(const bool use_ethernet);
 #endif /* (ARDUINO_ARCH_SAMD) || (ARDUINO_ARCH_MBED) */
 
 #ifdef ARDUINO_ARCH_MBED

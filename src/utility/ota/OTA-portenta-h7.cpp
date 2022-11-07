@@ -27,6 +27,7 @@
 
 #include <Arduino_DebugUtils.h>
 #include <Arduino_Portenta_OTA.h>
+#include <Arduino_ConnectionHandler.h>
 
 #include "../watchdog/Watchdog.h"
 
@@ -34,7 +35,7 @@
  * FUNCTION DEFINITION
  ******************************************************************************/
 
-int portenta_h7_onOTARequest(char const * ota_url)
+int portenta_h7_onOTARequest(char const * ota_url, const bool use_ethernet)
 {
   watchdog_reset();
 
@@ -63,7 +64,13 @@ int portenta_h7_onOTARequest(char const * ota_url)
   watchdog_reset();
 
   /* Download the OTA file from the web storage location. */
-  int const ota_portenta_qspi_download_ret_code = ota_portenta_qspi.download(ota_url, true /* is_https */);
+  MbedSocketClass * download_socket = static_cast<MbedSocketClass*>(&WiFi);
+#if defined (BOARD_HAS_ETHERNET)
+  if(use_ethernet) {
+    download_socket = static_cast<MbedSocketClass*>(&Ethernet);
+  }
+#endif
+  int const ota_portenta_qspi_download_ret_code = ota_portenta_qspi.download(ota_url, true /* is_https */, download_socket);
   DEBUG_VERBOSE("Arduino_Portenta_OTA_QSPI::download(%s) returns %d", ota_url, ota_portenta_qspi_download_ret_code);
 
   watchdog_reset();
