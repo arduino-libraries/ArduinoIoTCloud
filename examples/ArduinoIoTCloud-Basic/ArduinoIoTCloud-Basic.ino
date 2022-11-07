@@ -6,11 +6,11 @@
   * When you flip the switch in the Cloud dashboard the onboard LED lights gets turned ON or OFF.
 
   IMPORTANT:
-  This sketch works with WiFi, GSM, NB and Lora enabled boards supported by Arduino IoT Cloud.
+  This sketch works with WiFi, GSM, NB, Ethernet and Lora enabled boards supported by Arduino IoT Cloud.
   On a LoRa board, if it is configured as a class A device (default and preferred option), values from Cloud dashboard are received
   only after a value is sent to Cloud.
 
-  This sketch is compatible with:
+  The full list of compatible boards can be found here:
    - https://github.com/arduino-libraries/ArduinoIoTCloud#what
 */
 

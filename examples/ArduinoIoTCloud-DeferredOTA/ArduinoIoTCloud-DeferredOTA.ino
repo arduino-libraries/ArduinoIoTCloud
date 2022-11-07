@@ -9,7 +9,10 @@
   * always_allow callback will immediately apply the OTA update
   * ask_user_via_serial callback will read user input from serial to apply or postpone OTA update
 
-  This sketch is compatible with:
+  IMPORTANT:
+  This sketch works with WiFi and Ethernet enabled boards supported by Arduino IoT Cloud.
+
+  The full list of compatible boards can be found here:
    - https://github.com/arduino-libraries/ArduinoIoTCloud/#ota
 */
 
