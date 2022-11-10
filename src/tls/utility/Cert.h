@@ -147,11 +147,11 @@ private:
     byte data[CERT_COMPRESSED_CERT_SLOT_LENGTH + CERT_SERIAL_NUMBER_LENGTH + CERT_AUTHORITY_KEY_ID_LENGTH];
   } _compressedCert;
 
-  /* only raw EC X Y values 64 byte */
-  const byte * _publicKey;
-
   byte * _certBuffer;
   int    _certBufferLen;
+
+  /* only raw EC X Y values 64 byte */
+  const byte * _publicKey;
 
   int versionLength();
   int issuerOrSubjectLength(const CertInfo& issuerOrSubjectData);
