@@ -169,13 +169,6 @@ class ArduinoIoTCloudClass
     String _device_id;
     OnCloudEventCallback _cloud_event_callback[3];
     bool _thing_id_outdated;
-
-    Property& addPropertyReal(Property& property, PropertyContainer &prop_cont, String name, int tag, Permission const permission);
-    Property& addPropertyReal(bool& property, PropertyContainer &prop_cont, String name, int tag, Permission const permission);
-    Property& addPropertyReal(float& property, PropertyContainer &prop_cont, String name, int tag, Permission const permission);
-    Property& addPropertyReal(int& property, PropertyContainer &prop_cont, String name, int tag, Permission const permission);
-    Property& addPropertyReal(unsigned int& property, PropertyContainer &prop_cont, String name, int tag, Permission const permission);
-    Property& addPropertyReal(String& property, PropertyContainer &prop_cont, String name, int tag, Permission const permission);
 };
 
 #ifdef HAS_TCP

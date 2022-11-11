@@ -69,53 +69,58 @@ void ArduinoIoTCloudClass::addCallback(ArduinoIoTCloudEvent const event, OnCloud
 /* The following methods are used for non-LoRa boards */
 Property& ArduinoIoTCloudClass::addPropertyReal(bool& property, String name, Permission const permission)
 {
-  return addPropertyReal(property, _thing_property_container, name, -1, permission);
+  return addPropertyReal(property, name, -1, permission);
 }
 Property& ArduinoIoTCloudClass::addPropertyReal(float& property, String name, Permission const permission)
 {
-  return addPropertyReal(property, _thing_property_container, name, -1, permission);
+  return addPropertyReal(property, name, -1, permission);
 }
 Property& ArduinoIoTCloudClass::addPropertyReal(int& property, String name, Permission const permission)
 {
-  return addPropertyReal(property, _thing_property_container, name, -1, permission);
+  return addPropertyReal(property, name, -1, permission);
 }
 Property& ArduinoIoTCloudClass::addPropertyReal(unsigned int& property, String name, Permission const permission)
 {
-  return addPropertyReal(property, _thing_property_container, name, -1, permission);
+  return addPropertyReal(property, name, -1, permission);
 }
 Property& ArduinoIoTCloudClass::addPropertyReal(String& property, String name, Permission const permission)
 {
-  return addPropertyReal(property, _thing_property_container, name, -1, permission);
+  return addPropertyReal(property, name, -1, permission);
 }
 Property& ArduinoIoTCloudClass::addPropertyReal(Property& property, String name, Permission const permission)
 {
-  return addPropertyReal(property, _thing_property_container, name, -1, permission);
+  return addPropertyReal(property, name, -1, permission);
 }
 
-/* The following methods are used for LoRa boards */
+/* The following methods are used for both LoRa and non-Lora boards */
 Property& ArduinoIoTCloudClass::addPropertyReal(bool& property, String name, int tag, Permission const permission)
 {
-  return addPropertyReal(property, _thing_property_container, name, tag, permission);
+  Property* p = new CloudWrapperBool(property);
+  return addPropertyReal(*p, name, tag, permission);
 }
 Property& ArduinoIoTCloudClass::addPropertyReal(float& property, String name, int tag, Permission const permission)
 {
-  return addPropertyReal(property, _thing_property_container, name, tag, permission);
+  Property* p = new CloudWrapperFloat(property);
+  return addPropertyReal(*p, name, tag, permission);
 }
 Property& ArduinoIoTCloudClass::addPropertyReal(int& property, String name, int tag, Permission const permission)
 {
-  return addPropertyReal(property, _thing_property_container, name, tag, permission);
+  Property* p = new CloudWrapperInt(property);
+  return addPropertyReal(*p, name, tag, permission);
 }
 Property& ArduinoIoTCloudClass::addPropertyReal(unsigned int& property, String name, int tag, Permission const permission)
 {
-  return addPropertyReal(property, _thing_property_container, name, tag, permission);
+  Property* p = new CloudWrapperUnsignedInt(property);
+  return addPropertyReal(*p, name, tag, permission);
 }
 Property& ArduinoIoTCloudClass::addPropertyReal(String& property, String name, int tag, Permission const permission)
 {
-  return addPropertyReal(property, _thing_property_container, name, tag, permission);
+  Property* p = new CloudWrapperString(property);
+  return addPropertyReal(*p, name, tag, permission);
 }
 Property& ArduinoIoTCloudClass::addPropertyReal(Property& property, String name, int tag, Permission const permission)
 {
-  return addPropertyReal(property, _thing_property_container, name, tag, permission);
+  return addPropertyToContainer(_thing_property_container, property, name, permission, tag);
 }
 
 /* The following methods are deprecated but still used for non-LoRa boards */
@@ -205,37 +210,3 @@ __attribute__((weak)) void setDebugMessageLevel(int const /* level */)
   /* do nothing */
 }
 
-/******************************************************************************
- * PRIVATE MEMBER FUNCTIONS
- ******************************************************************************/
-
-/* The following methods are used for both LoRa and non-LoRa boards */
-Property& ArduinoIoTCloudClass::addPropertyReal(bool& property, PropertyContainer &prop_cont, String name, int tag, Permission const permission)
-{
-  Property* p = new CloudWrapperBool(property);
-  return addPropertyReal(*p, prop_cont, name, tag, permission);
-}
-Property& ArduinoIoTCloudClass::addPropertyReal(float& property, PropertyContainer &prop_cont, String name, int tag, Permission const permission)
-{
-  Property* p = new CloudWrapperFloat(property);
-  return addPropertyReal(*p, prop_cont, name, tag, permission);
-}
-Property& ArduinoIoTCloudClass::addPropertyReal(int& property, PropertyContainer &prop_cont, String name, int tag, Permission const permission)
-{
-  Property* p = new CloudWrapperInt(property);
-  return addPropertyReal(*p, prop_cont, name, tag, permission);
-}
-Property& ArduinoIoTCloudClass::addPropertyReal(unsigned int& property, PropertyContainer &prop_cont, String name, int tag, Permission const permission)
-{
-  Property* p = new CloudWrapperUnsignedInt(property);
-  return addPropertyReal(*p, prop_cont, name, tag, permission);
-}
-Property& ArduinoIoTCloudClass::addPropertyReal(String& property, PropertyContainer &prop_cont, String name, int tag, Permission const permission)
-{
-  Property* p = new CloudWrapperString(property);
-  return addPropertyReal(*p, prop_cont, name, tag, permission);
-}
-Property& ArduinoIoTCloudClass::addPropertyReal(Property& property, PropertyContainer &prop_cont, String name, int tag, Permission const permission)
-{
-  return addPropertyToContainer(prop_cont, property, name, permission, tag);
-}
