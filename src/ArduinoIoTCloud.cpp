@@ -205,32 +205,6 @@ __attribute__((weak)) void setDebugMessageLevel(int const /* level */)
   /* do nothing */
 }
 
-/* The following methods are used internally to handle hidden thing and device properties */
-Property& ArduinoIoTCloudClass::addPropertyReal(bool& property, PropertyContainer &prop_cont, String name, Permission const permission)
-{
-  return addPropertyReal(property, prop_cont, name, -1, permission);
-}
-Property& ArduinoIoTCloudClass::addPropertyReal(float& property, PropertyContainer &prop_cont, String name, Permission const permission)
-{
-  return addPropertyReal(property, prop_cont, name, -1, permission);
-}
-Property& ArduinoIoTCloudClass::addPropertyReal(int& property, PropertyContainer &prop_cont, String name, Permission const permission)
-{
-  return addPropertyReal(property, prop_cont, name, -1, permission);
-}
-Property& ArduinoIoTCloudClass::addPropertyReal(unsigned int& property, PropertyContainer &prop_cont, String name, Permission const permission)
-{
-  return addPropertyReal(property, prop_cont, name, -1, permission);
-}
-Property& ArduinoIoTCloudClass::addPropertyReal(String& property, PropertyContainer &prop_cont, String name, Permission const permission)
-{
-  return addPropertyReal(property, prop_cont, name, -1, permission);
-}
-Property& ArduinoIoTCloudClass::addPropertyReal(Property& property, PropertyContainer &prop_cont, String name, Permission const permission)
-{
-  return addPropertyReal(property, prop_cont, name, -1, permission);
-}
-
 /******************************************************************************
  * PRIVATE MEMBER FUNCTIONS
  ******************************************************************************/

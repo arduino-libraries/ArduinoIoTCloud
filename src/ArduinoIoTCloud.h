@@ -164,14 +164,6 @@ class ArduinoIoTCloudClass
 
     void execCloudEventCallback(ArduinoIoTCloudEvent const event);
 
-    /* The following methods are used to handle hidden thing and device properties */
-    Property& addPropertyReal(Property& property, PropertyContainer &prop_cont, String name, Permission const permission);
-    Property& addPropertyReal(bool& property, PropertyContainer &prop_cont, String name, Permission const permission);
-    Property& addPropertyReal(float& property, PropertyContainer &prop_cont, String name, Permission const permission);
-    Property& addPropertyReal(int& property, PropertyContainer &prop_cont, String name, Permission const permission);
-    Property& addPropertyReal(unsigned int& property, PropertyContainer &prop_cont, String name, Permission const permission);
-    Property& addPropertyReal(String& property, PropertyContainer &prop_cont, String name, Permission const permission);
-
   private:
 
     String _device_id;
