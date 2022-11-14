@@ -60,6 +60,8 @@ int samd_onOTARequest(char const * ota_url)
 
   return static_cast<int>(OTAError::None);
 #endif /* OTA_STORAGE_SNU */
+
+  (void)ota_url;
 }
 
 #endif /* ARDUINO_ARCH_SAMD */
