@@ -250,18 +250,26 @@ int ArduinoIoTCloudTCP::begin(bool const enable_watchdog, String brokerAddress, 
   _deviceTopicOut = getTopic_deviceout();
   _deviceTopicIn  = getTopic_devicein();
 
-  addPropertyReal(_lib_version, _device_property_container, "LIB_VERSION", Permission::Read);
+  Property* p;
+  p = new CloudWrapperString(_lib_version);
+  addPropertyToContainer(_device_property_container, *p, "LIB_VERSION", Permission::Read, -1);
 #if OTA_ENABLED
-  addPropertyReal(_ota_cap, _device_property_container, "OTA_CAP", Permission::Read);
-  addPropertyReal(_ota_error, _device_property_container, "OTA_ERROR", Permission::Read);
-  addPropertyReal(_ota_img_sha256, _device_property_container, "OTA_SHA256", Permission::Read);
-  addPropertyReal(_ota_url, _device_property_container, "OTA_URL", Permission::ReadWrite);
-  addPropertyReal(_ota_req, _device_property_container, "OTA_REQ", Permission::ReadWrite);
+  p = new CloudWrapperBool(_ota_cap);
+  addPropertyToContainer(_device_property_container, *p, "OTA_CAP", Permission::Read, -1);
+  p = new CloudWrapperInt(_ota_error);
+  addPropertyToContainer(_device_property_container, *p, "OTA_ERROR", Permission::Read, -1);
+  p = new CloudWrapperString(_ota_img_sha256);
+  addPropertyToContainer(_device_property_container, *p, "OTA_SHA256", Permission::Read, -1);
+  p = new CloudWrapperString(_ota_url);
+  addPropertyToContainer(_device_property_container, *p, "OTA_URL", Permission::ReadWrite, -1);
+  p = new CloudWrapperBool(_ota_req);
+  addPropertyToContainer(_device_property_container, *p, "OTA_REQ", Permission::ReadWrite, -1);
 #endif /* OTA_ENABLED */
+  p = new CloudWrapperString(_thing_id);
+  addPropertyToContainer(_device_property_container, *p, "thing_id", Permission::ReadWrite, -1).onUpdate(setThingIdOutdated);
 
-  addPropertyReal(_tz_offset, _thing_property_container, "tz_offset", Permission::ReadWrite).onSync(CLOUD_WINS).onUpdate(updateTimezoneInfo);
-  addPropertyReal(_tz_dst_until, _thing_property_container, "tz_dst_until", Permission::ReadWrite).onSync(CLOUD_WINS).onUpdate(updateTimezoneInfo);
-  addPropertyReal(_thing_id, _device_property_container, "thing_id", Permission::ReadWrite).onUpdate(setThingIdOutdated);
+  addPropertyReal(_tz_offset, "tz_offset", Permission::ReadWrite).onSync(CLOUD_WINS).onUpdate(updateTimezoneInfo);
+  addPropertyReal(_tz_dst_until, "tz_dst_until", Permission::ReadWrite).onSync(CLOUD_WINS).onUpdate(updateTimezoneInfo);
 
 #if OTA_STORAGE_PORTENTA_QSPI
   #define BOOTLOADER_ADDR   (0x8000000)
