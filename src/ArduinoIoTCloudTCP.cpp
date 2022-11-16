@@ -44,13 +44,26 @@
 #  include <WiFi.h>
 #endif
 
-#include "utility/ota/OTA.h"
+#if defined (ARDUINO_ARCH_ESP32) && OTA_ENABLED
+#  include "tls/utility/SHA256.h"
+#include "esp_spi_flash.h"
+#include "esp_ota_ops.h"
+#include "esp_image_format.h"
+#endif
+
+#if defined (ARDUINO_NANO_RP2040_CONNECT) || \
+   (defined (ARDUINO_ARCH_SAMD) && OTA_ENABLED)
 #include "utility/ota/FlashSHA256.h"
+#endif
+
+#if OTA_ENABLED
+#include "utility/ota/OTA.h"
+#endif
+
 #include <algorithm>
 #include "cbor/CBOREncoder.h"
 
 #include "utility/watchdog/Watchdog.h"
-
 
 /******************************************************************************
  * EXTERN
@@ -201,6 +214,9 @@ int ArduinoIoTCloudTCP::begin(bool const enable_watchdog, String brokerAddress, 
    * 1024 bytes or 0x100'000 bytes).
    */
   String const sha256_str = FlashSHA256::calc(XIP_BASE, 0x100000);
+#elif defined(ARDUINO_ARCH_ESP32)
+# warning "Compute image SHA256"
+String const sha256_str;
 #else
 # error "No method for SHA256 checksum calculation over application image defined for this architecture."
 #endif
@@ -297,6 +313,11 @@ int ArduinoIoTCloudTCP::begin(bool const enable_watchdog, String brokerAddress, 
 #endif /* OTA_STORAGE_SNU */
 
 #if defined(ARDUINO_NANO_RP2040_CONNECT) || defined(ARDUINO_NICLA_VISION)
+  _ota_cap = true;
+#endif
+
+#if defined(ARDUINO_ARCH_ESP32) && OTA_ENABLED
+  /* NOTE: here is possible to check if current partition scheme is OTA compatible */
   _ota_cap = true;
 #endif
 
@@ -839,6 +860,10 @@ void ArduinoIoTCloudTCP::onOTARequest()
 #ifdef BOARD_STM32H7
   bool const use_ethernet = _connection->getInterface() == NetworkAdapter::ETHERNET ? true : false;
   _ota_error = portenta_h7_onOTARequest(_ota_url.c_str(), use_ethernet);
+#endif
+
+#ifdef ARDUINO_ARCH_ESP32
+  _ota_error = esp32_onOTARequest(_ota_url.c_str());
 #endif
 }
 #endif

@@ -66,4 +66,8 @@ int rp2040_connect_onOTARequest(char const * ota_url);
 int portenta_h7_onOTARequest(char const * ota_url, const bool use_ethernet);
 #endif
 
+#ifdef ARDUINO_ARCH_ESP32
+int esp32_onOTARequest(char const * ota_url);
+#endif
+
 #endif /* ARDUINO_OTA_LOGIC_H_ */
