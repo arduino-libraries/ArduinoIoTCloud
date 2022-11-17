@@ -9,7 +9,7 @@
   #define SECRET_PASS "YOUR_WIFI_PASSWORD"
 #endif
 
-/* ESP8266 */
+/* ESP8266 ESP32*/
 #if defined(BOARD_ESP)
   #define SECRET_DEVICE_KEY "my-device-password"
 #endif
@@ -34,4 +34,12 @@
   #define SECRET_APN ""
   #define SECRET_LOGIN ""
   #define SECRET_PASS ""
+#endif
+
+/* Portenta H7 + Ethernet shield */
+#if defined(BOARD_HAS_ETHERNET)
+  #define SECRET_OPTIONAL_IP ""
+  #define SECRET_OPTIONAL_DNS ""
+  #define SECRET_OPTIONAL_GATEWAY ""
+  #define SECRET_OPTIONAL_NETMASK ""
 #endif

@@ -1,7 +1,12 @@
 /*
   This sketch demonstrates how to use more complex cloud data types such as a colour or coordinates.
 
-  This sketch is compatible with:
+  IMPORTANT:
+  This sketch works with WiFi, GSM, NB, Ethernet and Lora enabled boards supported by Arduino IoT Cloud.
+  On a LoRa board, if it is configured as a class A device (default and preferred option), values from Cloud dashboard are received
+  only after a value is sent to Cloud.
+
+  The full list of compatible boards can be found here:
    - https://github.com/arduino-libraries/ArduinoIoTCloud#what
 */
 
