@@ -51,8 +51,6 @@ void aiotc_client_profile_init(br_ssl_client_context *cc, br_x509_minimal_contex
     BR_TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256
   };
 
-  int id;
-
   /*
    * Reset client context and set supported versions from TLS-1.0
    * to TLS-1.2 (inclusive).

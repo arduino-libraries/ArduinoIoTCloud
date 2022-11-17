@@ -57,7 +57,12 @@ int samd_onOTARequest(char const * ota_url)
 
   /* Perform the reset to reboot to SxU. */
   NVIC_SystemReset();
+
+  return static_cast<int>(OTAError::None);
 #endif /* OTA_STORAGE_SNU */
+
+  (void)ota_url;
+  return static_cast<int>(OTAError::DownloadFailed);
 }
 
 #endif /* ARDUINO_ARCH_SAMD */

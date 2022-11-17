@@ -173,6 +173,7 @@ void watchdog_reset()
 void watchdog_enable_network_feed(const bool use_ethernet)
 {
 #ifdef WIFI_HAS_FEED_WATCHDOG_FUNC
+  (void)use_ethernet;
   WiFi.setFeedWatchdogFunc(watchdog_reset);
 #endif
 

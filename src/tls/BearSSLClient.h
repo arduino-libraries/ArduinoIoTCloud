@@ -90,9 +90,8 @@ private:
   Client* _client;
   const br_x509_trust_anchor* _TAs;
   int _numTAs;
-  GetTimeCallbackFunc _get_time_func;
-
   bool _noSNI;
+  GetTimeCallbackFunc _get_time_func;
 
   br_ec_private_key _ecKey;
   br_x509_certificate _ecCert;
