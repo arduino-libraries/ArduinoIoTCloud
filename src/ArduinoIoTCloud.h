@@ -130,20 +130,6 @@ class ArduinoIoTCloudClass
     Property& addPropertyReal(unsigned int& property, String name, Permission const permission);
     Property& addPropertyReal(String& property, String name, Permission const permission);
 
-    Property& addPropertyReal(Property& property, PropertyContainer &prop_cont, String name, int tag, Permission const permission);
-    Property& addPropertyReal(bool& property, PropertyContainer &prop_cont, String name, int tag, Permission const permission);
-    Property& addPropertyReal(float& property, PropertyContainer &prop_cont, String name, int tag, Permission const permission);
-    Property& addPropertyReal(int& property, PropertyContainer &prop_cont, String name, int tag, Permission const permission);
-    Property& addPropertyReal(unsigned int& property, PropertyContainer &prop_cont, String name, int tag, Permission const permission);
-    Property& addPropertyReal(String& property, PropertyContainer &prop_cont, String name, int tag, Permission const permission);
-
-    Property& addPropertyReal(Property& property, PropertyContainer &prop_cont, String name, Permission const permission);
-    Property& addPropertyReal(bool& property, PropertyContainer &prop_cont, String name, Permission const permission);
-    Property& addPropertyReal(float& property, PropertyContainer &prop_cont, String name, Permission const permission);
-    Property& addPropertyReal(int& property, PropertyContainer &prop_cont, String name, Permission const permission);
-    Property& addPropertyReal(unsigned int& property, PropertyContainer &prop_cont, String name, Permission const permission);
-    Property& addPropertyReal(String& property, PropertyContainer &prop_cont, String name, Permission const permission);
-
     /* The following methods are for MKR WAN 1300/1310 LoRa boards since
      * they use a number to identify a given property within a CBOR message.
      * This approach reduces the required amount of data which is of great
