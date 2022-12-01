@@ -43,6 +43,9 @@ time_t cvt_time(char const * time);
  * CONSTANTS
  **************************************************************************************/
 
+#ifdef ARDUINO_ARCH_ESP8266
+static unsigned long const AIOT_TIMESERVICE_ESP8266_NTP_SYNC_TIMEOUT_ms = 86400000;
+#endif
 static time_t const EPOCH_AT_COMPILE_TIME = cvt_time(__DATE__);
 static time_t const EPOCH = 0;
 
@@ -52,12 +55,15 @@ static time_t const EPOCH = 0;
 
 TimeService::TimeService()
 : _con_hdl(nullptr)
-#if defined (ARDUINO_ARCH_SAMD) || defined (ARDUINO_ARCH_MBED)
 , _is_rtc_configured(false)
-#endif
 , _is_tz_configured(false)
 , _timezone_offset(0)
 , _timezone_dst_until(0)
+#ifdef ARDUINO_ARCH_ESP8266
+, _last_ntp_sync_tick(0)
+, _last_rtc_update_tick(0)
+, _rtc(0)
+#endif
 {
 
 }
@@ -100,6 +106,35 @@ unsigned long TimeService::getTime()
     return utc;
   }
   return time(NULL);
+#elif ARDUINO_ARCH_ESP32
+  if(!_is_rtc_configured)
+  {
+    configTime(0, 0, "time.arduino.cc", "pool.ntp.org", "time.nist.gov");
+    _is_rtc_configured = true;
+  }
+  return time(NULL);
+#elif ARDUINO_ARCH_ESP8266
+  unsigned long const now = millis();
+  bool const is_ntp_sync_timeout = (now - _last_ntp_sync_tick) > AIOT_TIMESERVICE_ESP8266_NTP_SYNC_TIMEOUT_ms;
+  if(!_is_rtc_configured || is_ntp_sync_timeout)
+  {
+    _is_rtc_configured = false;
+    unsigned long utc = getRemoteTime();
+    if(EPOCH_AT_COMPILE_TIME != utc)
+    {
+      _rtc = utc;
+      _last_ntp_sync_tick = now;
+      _last_rtc_update_tick = now;
+      _is_rtc_configured = true;
+    }
+    return utc;
+  }
+  unsigned long const elapsed_s = (now - _last_rtc_update_tick) / 1000;
+  if(elapsed_s) {
+    _rtc += elapsed_s;
+    _last_rtc_update_tick = now;
+  }
+  return _rtc;
 #else
   return getRemoteTime();
 #endif

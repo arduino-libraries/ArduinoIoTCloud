@@ -56,12 +56,15 @@ public:
 private:
 
   ConnectionHandler * _con_hdl;
-#if defined (ARDUINO_ARCH_SAMD) || defined (ARDUINO_ARCH_MBED)
   bool _is_rtc_configured;
-#endif
   bool _is_tz_configured;
   long _timezone_offset;
   unsigned long _timezone_dst_until;
+#ifdef ARDUINO_ARCH_ESP8266
+  unsigned long _last_ntp_sync_tick;
+  unsigned long _last_rtc_update_tick;
+  unsigned long _rtc;
+#endif
 
   unsigned long getRemoteTime();
   bool connected();
