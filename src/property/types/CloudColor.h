@@ -188,16 +188,16 @@ class CloudColor : public Property {
     virtual void fromLocalToCloud() {
       _cloud_value = _value;
     }
-    virtual CborError appendAttributesToCloud() {
-      CHECK_CBOR_MULTI(appendAttribute(_value.hue));
-      CHECK_CBOR_MULTI(appendAttribute(_value.sat));
-      CHECK_CBOR_MULTI(appendAttribute(_value.bri));
+    virtual CborError appendAttributesToCloud(CborEncoder *encoder) {
+      CHECK_CBOR_MULTI(appendAttribute(_value.hue, "hue", encoder));
+      CHECK_CBOR_MULTI(appendAttribute(_value.sat, "sat", encoder));
+      CHECK_CBOR_MULTI(appendAttribute(_value.bri, "bri", encoder));
       return CborNoError;
     }
     virtual void setAttributesFromCloud() {
-      setAttribute(_cloud_value.hue);
-      setAttribute(_cloud_value.sat);
-      setAttribute(_cloud_value.bri);
+      setAttribute(_cloud_value.hue, "hue");
+      setAttribute(_cloud_value.sat, "sat");
+      setAttribute(_cloud_value.bri, "bri");
     }
 };
 

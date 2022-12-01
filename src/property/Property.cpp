@@ -170,7 +170,7 @@ void Property::execCallbackOnSync() {
 CborError Property::append(CborEncoder *encoder, bool lightPayload) {
   _lightPayload = lightPayload;
   _attributeIdentifier = 0;
-  CHECK_CBOR(appendAttributesToCloudReal(encoder));
+  CHECK_CBOR(appendAttributesToCloud(encoder));
   fromLocalToCloud();
   _has_been_updated_once = true;
   _has_been_modified_in_callback = false;
@@ -181,7 +181,7 @@ CborError Property::append(CborEncoder *encoder, bool lightPayload) {
   return CborNoError;
 }
 
-CborError Property::appendAttributeReal(bool value, String attributeName, CborEncoder *encoder) {
+CborError Property::appendAttribute(bool value, String attributeName, CborEncoder *encoder) {
   return appendAttributeName(attributeName, [value](CborEncoder & mapEncoder)
   {
     CHECK_CBOR(cbor_encode_int(&mapEncoder, static_cast<int>(CborIntegerMapKey::BooleanValue)));
@@ -190,7 +190,7 @@ CborError Property::appendAttributeReal(bool value, String attributeName, CborEn
   }, encoder);
 }
 
-CborError Property::appendAttributeReal(int value, String attributeName, CborEncoder *encoder) {
+CborError Property::appendAttribute(int value, String attributeName, CborEncoder *encoder) {
   return appendAttributeName(attributeName, [value](CborEncoder & mapEncoder)
   {
     CHECK_CBOR(cbor_encode_int(&mapEncoder, static_cast<int>(CborIntegerMapKey::Value)));
@@ -199,7 +199,7 @@ CborError Property::appendAttributeReal(int value, String attributeName, CborEnc
   }, encoder);
 }
 
-CborError Property::appendAttributeReal(unsigned int value, String attributeName, CborEncoder *encoder) {
+CborError Property::appendAttribute(unsigned int value, String attributeName, CborEncoder *encoder) {
   return appendAttributeName(attributeName, [value](CborEncoder & mapEncoder)
   {
     CHECK_CBOR(cbor_encode_int(&mapEncoder, static_cast<int>(CborIntegerMapKey::Value)));
@@ -208,7 +208,7 @@ CborError Property::appendAttributeReal(unsigned int value, String attributeName
   }, encoder);
 }
 
-CborError Property::appendAttributeReal(float value, String attributeName, CborEncoder *encoder) {
+CborError Property::appendAttribute(float value, String attributeName, CborEncoder *encoder) {
   return appendAttributeName(attributeName, [value](CborEncoder & mapEncoder)
   {
     CHECK_CBOR(cbor_encode_int(&mapEncoder, static_cast<int>(CborIntegerMapKey::Value)));
@@ -217,7 +217,7 @@ CborError Property::appendAttributeReal(float value, String attributeName, CborE
   }, encoder);
 }
 
-CborError Property::appendAttributeReal(String value, String attributeName, CborEncoder *encoder) {
+CborError Property::appendAttribute(String value, String attributeName, CborEncoder *encoder) {
   return appendAttributeName(attributeName, [value](CborEncoder & mapEncoder)
   {
     CHECK_CBOR(cbor_encode_int(&mapEncoder, static_cast<int>(CborIntegerMapKey::StringValue)));
@@ -278,8 +278,8 @@ void Property::setAttributesFromCloud(std::list<CborMapData> * map_data_list) {
   setAttributesFromCloud();
 }
 
-void Property::setAttributeReal(bool& value, String attributeName) {
-  setAttributeReal(attributeName, [&value](CborMapData & md) {
+void Property::setAttribute(bool& value, String attributeName) {
+  setAttribute(attributeName, [&value](CborMapData & md) {
     // Manage the case to have boolean values received as integers 0/1
     if (md.bool_val.isSet()) {
       value = md.bool_val.get();
@@ -295,34 +295,34 @@ void Property::setAttributeReal(bool& value, String attributeName) {
   });
 }
 
-void Property::setAttributeReal(int& value, String attributeName) {
-  setAttributeReal(attributeName, [&value](CborMapData & md) {
+void Property::setAttribute(int& value, String attributeName) {
+  setAttribute(attributeName, [&value](CborMapData & md) {
     value = md.val.get();
   });
 }
 
-void Property::setAttributeReal(unsigned int& value, String attributeName) {
-  setAttributeReal(attributeName, [&value](CborMapData & md) {
+void Property::setAttribute(unsigned int& value, String attributeName) {
+  setAttribute(attributeName, [&value](CborMapData & md) {
     value = md.val.get();
   });
 }
 
-void Property::setAttributeReal(float& value, String attributeName) {
-  setAttributeReal(attributeName, [&value](CborMapData & md) {
+void Property::setAttribute(float& value, String attributeName) {
+  setAttribute(attributeName, [&value](CborMapData & md) {
     value = md.val.get();
   });
 }
 
-void Property::setAttributeReal(String& value, String attributeName) {
-  setAttributeReal(attributeName, [&value](CborMapData & md) {
+void Property::setAttribute(String& value, String attributeName) {
+  setAttribute(attributeName, [&value](CborMapData & md) {
     value = md.str_val.get();
   });
 }
 
 #ifdef __AVR__
-void Property::setAttributeReal(String attributeName, nonstd::function<void (CborMapData & md)>setValue)
+void Property::setAttribute(String attributeName, nonstd::function<void (CborMapData & md)>setValue)
 #else
-void Property::setAttributeReal(String attributeName, std::function<void (CborMapData & md)>setValue)
+void Property::setAttribute(String attributeName, std::function<void (CborMapData & md)>setValue)
 #endif
 {
   if (attributeName != "") {
@@ -352,13 +352,6 @@ void Property::setAttributeReal(String attributeName, std::function<void (CborMa
                     }
                   }
                 });
-}
-
-String Property::getAttributeName(String propertyName, char separator) {
-  int colonPos;
-  String attributeName = "";
-  (colonPos = propertyName.indexOf(separator)) != -1 ? attributeName = propertyName.substring(colonPos + 1) : "";
-  return attributeName;
 }
 
 void Property::updateLocalTimestamp() {

@@ -213,22 +213,22 @@ class CloudTelevision : public Property {
     virtual void fromLocalToCloud() {
       _cloud_value = _value;
     }
-    virtual CborError appendAttributesToCloud() {
-      CHECK_CBOR_MULTI(appendAttribute(_value.swi));
-      CHECK_CBOR_MULTI(appendAttribute(_value.vol));
-      CHECK_CBOR_MULTI(appendAttribute(_value.mut));
-      CHECK_CBOR_MULTI(appendAttribute((int)_value.pbc));
-      CHECK_CBOR_MULTI(appendAttribute((int)_value.inp));
-      CHECK_CBOR_MULTI(appendAttribute(_value.cha));
+    virtual CborError appendAttributesToCloud(CborEncoder *encoder) {
+      CHECK_CBOR_MULTI(appendAttribute(_value.swi, "swi", encoder));
+      CHECK_CBOR_MULTI(appendAttribute(_value.vol, "vol", encoder));
+      CHECK_CBOR_MULTI(appendAttribute(_value.mut, "mut", encoder));
+      CHECK_CBOR_MULTI(appendAttribute((int)_value.pbc, "pbc", encoder));
+      CHECK_CBOR_MULTI(appendAttribute((int)_value.inp, "inp", encoder));
+      CHECK_CBOR_MULTI(appendAttribute(_value.cha, "cha", encoder));
       return CborNoError;
     }
     virtual void setAttributesFromCloud() {
-      setAttribute(_cloud_value.swi);
-      setAttribute(_cloud_value.vol);
-      setAttribute(_cloud_value.mut);
-      setAttribute((int&)_cloud_value.pbc);
-      setAttribute((int&)_cloud_value.inp);
-      setAttribute(_cloud_value.cha);
+      setAttribute(_cloud_value.swi, "swi");
+      setAttribute(_cloud_value.vol, "vol");
+      setAttribute(_cloud_value.mut, "mut");
+      setAttribute((int&)_cloud_value.pbc, "pbc");
+      setAttribute((int&)_cloud_value.inp, "inp");
+      setAttribute(_cloud_value.cha, "cha");
     }
 };
 

@@ -98,15 +98,15 @@ class CloudDimmedLight : public Property {
       _cloud_value = _value;
     }
 
-    virtual CborError appendAttributesToCloud() {
-      CHECK_CBOR_MULTI(appendAttribute(_value.swi));
+    virtual CborError appendAttributesToCloud(CborEncoder *encoder) {
+      CHECK_CBOR_MULTI(appendAttribute(_value.swi, "swi", encoder));
       // To allow visualization through color widget
       // Start
       float hue = 0;
       float sat = 0;
-      CHECK_CBOR_MULTI(appendAttributeReal(hue, getAttributeName(".hue", '.'), encoder));
-      CHECK_CBOR_MULTI(appendAttributeReal(sat, getAttributeName(".sat", '.'), encoder));
-      CHECK_CBOR_MULTI(appendAttribute(_value.bri));
+      CHECK_CBOR_MULTI(appendAttribute(hue, "hue", encoder));
+      CHECK_CBOR_MULTI(appendAttribute(sat, "sat", encoder));
+      CHECK_CBOR_MULTI(appendAttribute(_value.bri, "bri", encoder));
       // should be only:
       // appendAttribute(_value.bri);
       // end
@@ -114,8 +114,8 @@ class CloudDimmedLight : public Property {
     }
 
     virtual void setAttributesFromCloud() {
-      setAttribute(_cloud_value.swi);
-      setAttribute(_cloud_value.bri);
+      setAttribute(_cloud_value.swi, "swi");
+      setAttribute(_cloud_value.bri, "bri");
     }
 };
 
