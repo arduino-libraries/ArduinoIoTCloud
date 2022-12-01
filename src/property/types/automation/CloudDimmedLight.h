@@ -100,16 +100,7 @@ class CloudDimmedLight : public Property {
 
     virtual CborError appendAttributesToCloud(CborEncoder *encoder) {
       CHECK_CBOR_MULTI(appendAttribute(_value.swi, "swi", encoder));
-      // To allow visualization through color widget
-      // Start
-      float hue = 0;
-      float sat = 0;
-      CHECK_CBOR_MULTI(appendAttribute(hue, "hue", encoder));
-      CHECK_CBOR_MULTI(appendAttribute(sat, "sat", encoder));
       CHECK_CBOR_MULTI(appendAttribute(_value.bri, "bri", encoder));
-      // should be only:
-      // appendAttribute(_value.bri);
-      // end
       return CborNoError;
     }
 
