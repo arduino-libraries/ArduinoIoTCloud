@@ -30,6 +30,9 @@ elif board == "NICLA_VISION"
     magic_number = 0x2341025F.to_bytes(4,byteorder='little')
 elif board == "OPTA":
     magic_number = 0x23410064.to_bytes(4,byteorder='little')
+# Magic number for all ESP32 boards not related to (VID/PID)
+elif board == "ESP32":
+    magic_number = 0x45535033.to_bytes(4,byteorder='little')
 else:
     print ("Error,", board, "is not a supported board type")
     sys.exit()
