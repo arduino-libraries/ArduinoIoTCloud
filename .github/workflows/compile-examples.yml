@@ -157,6 +157,7 @@ jobs:
               # Install mbed_opta platform via Boards Manager
               - name: arduino:mbed_opta
             libraries: |
+              - name: ArduinoECCX08
               - name: Arduino_Portenta_OTA
             sketch-paths: |
               - examples/utility/Provisioning
