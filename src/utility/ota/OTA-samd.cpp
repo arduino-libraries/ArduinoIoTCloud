@@ -15,17 +15,18 @@
    a commercial license, send an email to license@arduino.cc.
 */
 
-#ifdef ARDUINO_ARCH_SAMD
-
 /******************************************************************************
  * INCLUDE
  ******************************************************************************/
 
+#include <AIoTC_Config.h>
+
+#if defined (ARDUINO_ARCH_SAMD) && OTA_ENABLED
+
 #include "OTA.h"
-
 #include <Arduino_DebugUtils.h>
-
 #include "../watchdog/Watchdog.h"
+#include "utility/ota/FlashSHA256.h"
 
 #if OTA_STORAGE_SNU
 #  include <SNU.h>
@@ -63,6 +64,21 @@ int samd_onOTARequest(char const * ota_url)
 
   (void)ota_url;
   return static_cast<int>(OTAError::DownloadFailed);
+}
+
+String samd_getOTAImageSHA256()
+{
+  /* Calculate the SHA256 checksum over the firmware stored in the flash of the
+   * MCU. Note: As we don't know the length per-se we read chunks of the flash
+   * until we detect one containing only 0xFF (= flash erased). This only works
+   * for firmware updated via OTA and second stage bootloaders (SxU family)
+   * because only those erase the complete flash before performing an update.
+   * Since the SHA256 firmware image is only required for the cloud servers to
+   * perform a version check after the OTA update this is a acceptable trade off.
+   * The bootloader is excluded from the calculation and occupies flash address
+   * range 0 to 0x2000, total flash size of 0x40000 bytes (256 kByte).
+   */
+  return FlashSHA256::calc(0x2000, 0x40000 - 0x2000);
 }
 
 #endif /* ARDUINO_ARCH_SAMD */

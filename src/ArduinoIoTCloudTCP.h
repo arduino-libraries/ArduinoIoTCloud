@@ -202,6 +202,7 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
 
 #if OTA_ENABLED
     void onOTARequest();
+    String getOTAImageSHA256();
     void sendDevicePropertyToCloud(String const name);
 #endif
 
