@@ -70,31 +70,40 @@ int esp32_onOTARequest(char const * ota_url)
 
 String esp32_getOTAImageSHA256()
 {
-  SHA256         sha256;
-
-  uint32_t lengthLeft = ESP.getSketchSize();
-
   const esp_partition_t *running = esp_ota_get_running_partition();
   if (!running) {
-    DEBUG_ERROR("Partition could not be found");
-  }
-  const size_t bufSize = SPI_FLASH_SEC_SIZE;
-  std::unique_ptr<uint8_t[]> buf(new uint8_t[bufSize]);
-  uint32_t offset = 0;
-  if(!buf.get()) {
-    DEBUG_ERROR("Not enough memory to allocate buffer");
+    DEBUG_ERROR("ESP32::SHA256 Running partition could not be found");
+    return String();
   }
 
-  sha256.begin();
-  while( lengthLeft > 0) {
-    size_t readBytes = (lengthLeft < bufSize) ? lengthLeft : bufSize;
-    if (!ESP.flashRead(running->address + offset, reinterpret_cast<uint32_t*>(buf.get()), (readBytes + 3) & ~3)) {
-      DEBUG_ERROR("Could not read buffer from flash");
-    }
-    sha256.update(buf.get(), readBytes);
-    lengthLeft -= readBytes;
-    offset += readBytes;
+  uint8_t *b = (uint8_t*)malloc(SPI_FLASH_SEC_SIZE);
+  if(b == nullptr) {
+    DEBUG_ERROR("ESP32::SHA256 Not enough memory to allocate buffer");
+    return String();
   }
+
+  SHA256         sha256;
+  uint32_t const app_start = running->address;
+  uint32_t const app_size  = ESP.getSketchSize();
+  uint32_t       read_bytes = 0;
+
+  sha256.begin();
+  for(uint32_t a = app_start; read_bytes < app_size; )
+  {
+    /* Check if we are reading last sector and compute used size */
+    uint32_t const read_size = read_bytes + SPI_FLASH_SEC_SIZE < app_size ? SPI_FLASH_SEC_SIZE : app_size - read_bytes;
+
+    /* Use always 4 bytes aligned reads */
+    if (!ESP.flashRead(a, reinterpret_cast<uint32_t*>(b), (read_size + 3) & ~3)) {
+      DEBUG_ERROR("ESP32::SHA256 Could not read data from flash");
+      return String();
+    }
+    sha256.update(b, read_size);
+    a += read_size;
+    read_bytes += read_size;
+  }
+  free(b);
+
   /* Retrieve the final hash string. */
   uint8_t sha256_hash[SHA256::HASH_SIZE] = {0};
   sha256.finalize(sha256_hash);
@@ -107,7 +116,7 @@ String esp32_getOTAImageSHA256()
                   snprintf(buf, 4, "%02X", elem);
                   sha256_str += buf;
                 });
-  DEBUG_VERBOSE("SHA256: %d bytes (of %d) read", ESP.getSketchSize() - lengthLeft, ESP.getSketchSize());
+  DEBUG_VERBOSE("SHA256: %d bytes (of %d) read", read_bytes, app_size);
   return sha256_str;
 }
 
