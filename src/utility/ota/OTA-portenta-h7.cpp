@@ -149,6 +149,11 @@ String portenta_h7_getOTAImageSHA256()
   return sha256_str;
 }
 
+bool portenta_h7_isOTACapable()
+{
+  return Arduino_Portenta_OTA::isOtaCapable();
+}
+
 void portenta_h7_setNetworkAdapter(NetworkAdapter iface)
 {
   _ota_adapter = iface;

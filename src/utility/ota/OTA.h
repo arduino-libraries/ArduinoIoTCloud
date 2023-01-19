@@ -65,6 +65,7 @@ public:
   static int onRequest(String url);
   static String getImageSHA256();
   static void setNetworkAdapter(NetworkAdapter iface);
+  static bool isCapable();
 
 };
 

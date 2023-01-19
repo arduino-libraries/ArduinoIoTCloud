@@ -27,34 +27,37 @@
 #include <Arduino_DebugUtils.h>
 
 /******************************************************************************
- * FUNCTION DEFINITION
+ * FUNCTION DECLARATION
  ******************************************************************************/
 
 #ifdef ARDUINO_ARCH_SAMD
 int samd_onOTARequest(char const * url);
 String samd_getOTAImageSHA256();
+bool samd_isOTACapable();
 #endif
 
 #ifdef ARDUINO_NANO_RP2040_CONNECT
 int rp2040_connect_onOTARequest(char const * url);
 String rp2040_connect_getOTAImageSHA256();
+bool rp2040_connect_isOTACapable();
 #endif
 
 #ifdef BOARD_STM32H7
 int portenta_h7_onOTARequest(char const * url);
 String portenta_h7_getOTAImageSHA256();
 void portenta_h7_setNetworkAdapter(NetworkAdapter iface);
+bool portenta_h7_isOTACapable();
 #endif
 
 #ifdef ARDUINO_ARCH_ESP32
 int esp32_onOTARequest(char const * url);
 String esp32_getOTAImageSHA256();
+bool esp32_isOTACapable();
 #endif
 
 /******************************************************************************
  * PUBLIC MEMBER FUNCTIONS
  ******************************************************************************/
-
 
 int OTA::onRequest(String url)
 {
@@ -88,6 +91,20 @@ String OTA::getImageSHA256()
 #endif
 }
 
+bool OTA::isCapable()
+{
+#if defined (ARDUINO_ARCH_SAMD)
+  return samd_isOTACapable();
+#elif defined (ARDUINO_NANO_RP2040_CONNECT)
+  return rp2040_connect_isOTACapable();
+#elif defined (BOARD_STM32H7)
+  return portenta_h7_isOTACapable();
+#elif defined (ARDUINO_ARCH_ESP32)
+  return esp32_isOTACapable();
+#else
+  #error "OTA not supported for this architecture"
+#endif
+}
 
 void OTA::setNetworkAdapter(NetworkAdapter iface)
 {
@@ -105,4 +122,3 @@ void OTA::setNetworkAdapter(NetworkAdapter iface)
 }
 
 #endif /* OTA_ENABLED */
-
