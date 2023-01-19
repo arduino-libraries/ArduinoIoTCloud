@@ -5,7 +5,7 @@ import crccheck
 
 if len(sys.argv) != 4:
     print ("Usage: bin2ota.py BOARD sketch.bin sketch.ota")
-    print ("  BOARD = [MKR_WIFI_1010 | NANO_33_IOT]")
+    print ("  BOARD = [MKR_WIFI_1010 | NANO_33_IOT | PORTENTA_H7_M7 | NANO_RP2040_CONNECT | NICLA_VISION | OPTA ]")
     sys.exit()
 
 board = sys.argv[1]
@@ -26,6 +26,10 @@ elif board == "PORTENTA_H7_M7":
     magic_number = 0x2341025B.to_bytes(4,byteorder='little')
 elif board == "NANO_RP2040_CONNECT":
     magic_number = 0x2341005E.to_bytes(4,byteorder='little')
+elif board == "NICLA_VISION"
+    magic_number = 0x2341025F.to_bytes(4,byteorder='little')
+elif board == "OPTA":
+    magic_number = 0x23410064.to_bytes(4,byteorder='little')
 else:
     print ("Error,", board, "is not a supported board type")
     sys.exit()
