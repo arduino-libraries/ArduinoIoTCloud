@@ -138,7 +138,7 @@ int ArduinoIoTCloudTCP::begin(bool const enable_watchdog, String brokerAddress, 
 #endif /* AVR */
 
 #if OTA_ENABLED && !defined(__AVR__)
-  _ota_img_sha256 = getOTAImageSHA256();
+  _ota_img_sha256 = OTA::getImageSHA256();
   DEBUG_VERBOSE("SHA256: HASH(%d) = %s", strlen(_ota_img_sha256.c_str()), _ota_img_sha256.c_str());
 #endif /* OTA_ENABLED */
 
@@ -237,6 +237,10 @@ int ArduinoIoTCloudTCP::begin(bool const enable_watchdog, String brokerAddress, 
 #if defined(ARDUINO_ARCH_ESP32) && OTA_ENABLED
   /* NOTE: here is possible to check if current partition scheme is OTA compatible */
   _ota_cap = true;
+#endif
+
+#if OTA_ENABLED
+  OTA::setNetworkAdapter(_connection->getInterface());
 #endif
 
 #ifdef BOARD_HAS_OFFLOADED_ECCX08
@@ -609,7 +613,7 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_Connected()
         /* Transmit the cleared request flags to the cloud. */
         sendDevicePropertyToCloud("OTA_REQ");
         /* Call member function to handle OTA request. */
-        onOTARequest();
+        _ota_error = OTA::onRequest(_ota_url);
         /* If something fails send the OTA error to the cloud */
         sendDevicePropertyToCloud("OTA_ERROR");
       }
@@ -761,45 +765,6 @@ int ArduinoIoTCloudTCP::write(String const topic, byte const data[], int const l
   }
   return 0;
 }
-
-#if OTA_ENABLED
-void ArduinoIoTCloudTCP::onOTARequest()
-{
-  DEBUG_INFO("ArduinoIoTCloudTCP::%s _ota_url = %s", __FUNCTION__, _ota_url.c_str());
-
-#ifdef ARDUINO_ARCH_SAMD
-  _ota_error = samd_onOTARequest(_ota_url.c_str());
-#endif
-
-#ifdef ARDUINO_NANO_RP2040_CONNECT
-  _ota_error = rp2040_connect_onOTARequest(_ota_url.c_str());
-#endif
-
-#ifdef BOARD_STM32H7
-  bool const use_ethernet = _connection->getInterface() == NetworkAdapter::ETHERNET ? true : false;
-  _ota_error = portenta_h7_onOTARequest(_ota_url.c_str(), use_ethernet);
-#endif
-
-#ifdef ARDUINO_ARCH_ESP32
-  _ota_error = esp32_onOTARequest(_ota_url.c_str());
-#endif
-}
-
-String ArduinoIoTCloudTCP::getOTAImageSHA256()
-{
-#if defined (ARDUINO_ARCH_SAMD)
-  return samd_getOTAImageSHA256();
-#elif defined (ARDUINO_NANO_RP2040_CONNECT)
-  return rp2040_connect_getOTAImageSHA256();
-#elif defined (BOARD_STM32H7)
-  return portenta_h7_getOTAImageSHA256();
-#elif defined (ARDUINO_ARCH_ESP32)
-  return esp32_getOTAImageSHA256();
-#else
-  # error "No method for SHA256 checksum calculation over application image defined for this architecture."
-#endif
-}
-#endif
 
 void ArduinoIoTCloudTCP::updateThingTopics()
 {
