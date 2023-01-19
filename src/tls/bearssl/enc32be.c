@@ -23,7 +23,7 @@
  */
 
 #include <AIoTC_Config.h>
-#if defined(BOARD_HAS_ECCX08) || defined(BOARD_HAS_OFFLOADED_ECCX08) || defined(BOARD_HAS_SE050)
+#if defined(BOARD_HAS_ECCX08) || defined(BOARD_HAS_OFFLOADED_ECCX08) || defined(BOARD_HAS_SE050) || defined(ARDUINO_ARCH_ESP32)
 
 #include "inner.h"
 

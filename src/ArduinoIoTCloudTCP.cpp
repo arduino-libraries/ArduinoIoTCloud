@@ -23,6 +23,7 @@
 
 #ifdef HAS_TCP
 #include <ArduinoIoTCloudTCP.h>
+
 #ifdef BOARD_HAS_ECCX08
   #include "tls/BearSSLTrustAnchors.h"
   #include "tls/utility/CryptoUtil.h"
@@ -34,31 +35,17 @@
 #endif
 
 #ifdef BOARD_HAS_OFFLOADED_ECCX08
-#include <ArduinoECCX08.h>
-#include "tls/utility/CryptoUtil.h"
+  #include <ArduinoECCX08.h>
+  #include "tls/utility/CryptoUtil.h"
 #endif
 
-#ifdef BOARD_STM32H7
-#  include "tls/utility/SHA256.h"
-#  include <stm32h7xx_hal_rtc_ex.h>
-#  include <WiFi.h>
+#if OTA_ENABLED
+  #include "utility/ota/OTA.h"
 #endif
 
-#include "utility/ota/OTA.h"
-#include "utility/ota/FlashSHA256.h"
 #include <algorithm>
 #include "cbor/CBOREncoder.h"
-
 #include "utility/watchdog/Watchdog.h"
-
-
-/******************************************************************************
- * EXTERN
- ******************************************************************************/
-
-#ifdef BOARD_STM32H7
-extern RTC_HandleTypeDef RTCHandle;
-#endif
 
 /******************************************************************************
    LOCAL MODULE FUNCTIONS
@@ -151,61 +138,8 @@ int ArduinoIoTCloudTCP::begin(bool const enable_watchdog, String brokerAddress, 
 #endif /* AVR */
 
 #if OTA_ENABLED && !defined(__AVR__)
-#if defined(BOARD_STM32H7)
-  /* The length of the application can be retrieved the same way it was
-   * communicated to the bootloader, that is by writing to the non-volatile
-   * storage registers of the RTC.
-   */
-  SHA256         sha256;
-  uint32_t const app_start = 0x8040000;
-  uint32_t const app_size  = HAL_RTCEx_BKUPRead(&RTCHandle, RTC_BKP_DR3);
-
-  sha256.begin();
-  uint32_t b = 0;
-  uint32_t bytes_read = 0; for(uint32_t a = app_start;
-                               bytes_read < app_size;
-                               bytes_read += sizeof(b), a += sizeof(b))
-  {
-    /* Read the next chunk of memory. */
-    memcpy(&b, reinterpret_cast<const void *>(a), sizeof(b));
-    /* Feed it to SHA256. */
-    sha256.update(reinterpret_cast<uint8_t *>(&b), sizeof(b));
-  }
-  /* Retrieve the final hash string. */
-  uint8_t sha256_hash[SHA256::HASH_SIZE] = {0};
-  sha256.finalize(sha256_hash);
-  String sha256_str;
-  std::for_each(sha256_hash,
-                sha256_hash + SHA256::HASH_SIZE,
-                [&sha256_str](uint8_t const elem)
-                {
-                  char buf[4];
-                  snprintf(buf, 4, "%02X", elem);
-                  sha256_str += buf;
-                });
-  DEBUG_VERBOSE("SHA256: %d bytes (of %d) read", bytes_read, app_size);
-#elif defined(ARDUINO_ARCH_SAMD)
-  /* Calculate the SHA256 checksum over the firmware stored in the flash of the
-   * MCU. Note: As we don't know the length per-se we read chunks of the flash
-   * until we detect one containing only 0xFF (= flash erased). This only works
-   * for firmware updated via OTA and second stage bootloaders (SxU family)
-   * because only those erase the complete flash before performing an update.
-   * Since the SHA256 firmware image is only required for the cloud servers to
-   * perform a version check after the OTA update this is a acceptable trade off.
-   * The bootloader is excluded from the calculation and occupies flash address
-   * range 0 to 0x2000, total flash size of 0x40000 bytes (256 kByte).
-   */
-  String const sha256_str = FlashSHA256::calc(0x2000, 0x40000 - 0x2000);
-#elif defined(ARDUINO_NANO_RP2040_CONNECT)
-  /* The maximum size of a RP2040 OTA update image is 1 MByte (that is 1024 *
-   * 1024 bytes or 0x100'000 bytes).
-   */
-  String const sha256_str = FlashSHA256::calc(XIP_BASE, 0x100000);
-#else
-# error "No method for SHA256 checksum calculation over application image defined for this architecture."
-#endif
-  DEBUG_VERBOSE("SHA256: HASH(%d) = %s", strlen(sha256_str.c_str()), sha256_str.c_str());
-  _ota_img_sha256 = sha256_str;
+  _ota_img_sha256 = getOTAImageSHA256();
+  DEBUG_VERBOSE("SHA256: HASH(%d) = %s", strlen(_ota_img_sha256.c_str()), _ota_img_sha256.c_str());
 #endif /* OTA_ENABLED */
 
 #if defined(BOARD_HAS_ECCX08) || defined(BOARD_HAS_OFFLOADED_ECCX08) || defined(BOARD_HAS_SE050)
@@ -297,6 +231,11 @@ int ArduinoIoTCloudTCP::begin(bool const enable_watchdog, String brokerAddress, 
 #endif /* OTA_STORAGE_SNU */
 
 #if defined(ARDUINO_NANO_RP2040_CONNECT) || defined(ARDUINO_NICLA_VISION)
+  _ota_cap = true;
+#endif
+
+#if defined(ARDUINO_ARCH_ESP32) && OTA_ENABLED
+  /* NOTE: here is possible to check if current partition scheme is OTA compatible */
   _ota_cap = true;
 #endif
 
@@ -839,6 +778,25 @@ void ArduinoIoTCloudTCP::onOTARequest()
 #ifdef BOARD_STM32H7
   bool const use_ethernet = _connection->getInterface() == NetworkAdapter::ETHERNET ? true : false;
   _ota_error = portenta_h7_onOTARequest(_ota_url.c_str(), use_ethernet);
+#endif
+
+#ifdef ARDUINO_ARCH_ESP32
+  _ota_error = esp32_onOTARequest(_ota_url.c_str());
+#endif
+}
+
+String ArduinoIoTCloudTCP::getOTAImageSHA256()
+{
+#if defined (ARDUINO_ARCH_SAMD)
+  return samd_getOTAImageSHA256();
+#elif defined (ARDUINO_NANO_RP2040_CONNECT)
+  return rp2040_connect_getOTAImageSHA256();
+#elif defined (BOARD_STM32H7)
+  return portenta_h7_getOTAImageSHA256();
+#elif defined (ARDUINO_ARCH_ESP32)
+  return esp32_getOTAImageSHA256();
+#else
+  # error "No method for SHA256 checksum calculation over application image defined for this architecture."
 #endif
 }
 #endif

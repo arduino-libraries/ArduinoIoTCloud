@@ -23,6 +23,7 @@
  ******************************************************************************/
 
 #include <AIoTC_Config.h>
+#include <Arduino.h>
 
 /******************************************************************************
  * DEFINES
@@ -56,14 +57,22 @@ enum class OTAError : int
 
 #ifdef ARDUINO_ARCH_SAMD
 int samd_onOTARequest(char const * ota_url);
+String samd_getOTAImageSHA256();
 #endif
 
 #ifdef ARDUINO_NANO_RP2040_CONNECT
 int rp2040_connect_onOTARequest(char const * ota_url);
+String rp2040_connect_getOTAImageSHA256();
 #endif
 
 #ifdef BOARD_STM32H7
 int portenta_h7_onOTARequest(char const * ota_url, const bool use_ethernet);
+String portenta_h7_getOTAImageSHA256();
+#endif
+
+#ifdef ARDUINO_ARCH_ESP32
+int esp32_onOTARequest(char const * ota_url);
+String esp32_getOTAImageSHA256();
 #endif
 
 #endif /* ARDUINO_OTA_LOGIC_H_ */
