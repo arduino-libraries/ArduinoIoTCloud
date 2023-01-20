@@ -121,11 +121,13 @@ void TimeService::begin(ConnectionHandler * con_hdl)
 {
   _con_hdl = con_hdl;
   initRTC();
+#ifdef HAS_LORA
+  setRTC(EPOCH_AT_COMPILE_TIME);
+#endif
 }
 
 unsigned long TimeService::getTime()
 {
-#ifdef HAS_TCP
   /* Check if it's time to sync */
   unsigned long const current_tick = millis();
   bool const is_ntp_sync_timeout = (current_tick - _last_ntp_sync_tick) > _ntp_sync_interval_ms;
@@ -136,16 +138,25 @@ unsigned long TimeService::getTime()
   /* Read time from RTC */
   unsigned long utc = getRTC();
   return isTimeValid(utc) ? utc : EPOCH_AT_COMPILE_TIME;
-#else
-  return EPOCH_AT_COMPILE_TIME;
-#endif
 }
 
 #ifdef HAS_TCP
 bool TimeService::sync()
 {
   _is_rtc_configured = false;
-  unsigned long utc = getRemoteTime();
+
+  unsigned long utc = EPOCH_AT_COMPILE_TIME;
+  if(_sync_func) {
+    utc = _sync_func();
+  } else {
+#ifdef HAS_TCP
+    utc = getRemoteTime();
+#endif
+#ifdef HAS_LORA
+    /* Just keep incrementing stored RTC value*/
+    utc = getRTC();
+#endif
+  }
 
   if(isTimeValid(utc)) {
     DEBUG_DEBUG("TimeServiceClass::%s  Drift: %d RTC value: %u", __FUNCTION__, getRTC() - utc, utc);
