@@ -140,6 +140,11 @@ unsigned long TimeService::getTime()
   return isTimeValid(utc) ? utc : EPOCH_AT_COMPILE_TIME;
 }
 
+void TimeService::setTime(unsigned long time)
+{
+  setRTC(time);
+}
+
 #ifdef HAS_TCP
 bool TimeService::sync()
 {

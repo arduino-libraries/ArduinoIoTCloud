@@ -38,6 +38,7 @@ public:
 
   void          begin  (ConnectionHandler * con_hdl);
   unsigned long getTime();
+  void          setTime(unsigned long time);
   unsigned long getLocalTime();
   void          setTimeZoneData(long offset, unsigned long valid_until);
 #ifdef HAS_TCP
