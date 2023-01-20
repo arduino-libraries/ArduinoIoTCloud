@@ -39,6 +39,36 @@ RTCZero rtc;
 
 time_t cvt_time(char const * time);
 
+#ifdef ARDUINO_ARCH_SAMD
+void samd_initRTC();
+void samd_setRTC(unsigned long time);
+unsigned long samd_getRTC();
+#endif
+
+#ifdef ARDUINO_NANO_RP2040_CONNECT
+void rp2040_connect_initRTC();
+void rp2040_connect_setRTC(unsigned long time);
+unsigned long rp2040_connect_getRTC();
+#endif
+
+#ifdef BOARD_STM32H7
+void stm32h7_initRTC();
+void stm32h7_setRTC(unsigned long time);
+unsigned long stm32h7_getRTC();
+#endif
+
+#ifdef ARDUINO_ARCH_ESP32
+void esp32_initRTC();
+void esp32_setRTC(unsigned long time);
+unsigned long esp32_getRTC();
+#endif
+
+#ifdef ARDUINO_ARCH_ESP8266
+void esp8266_initRTC();
+void esp8266_setRTC(unsigned long time);
+unsigned long esp8266_getRTC();
+#endif
+
 /**************************************************************************************
  * CONSTANTS
  **************************************************************************************/
@@ -277,6 +307,57 @@ bool TimeService::isTimeValid(unsigned long const time)
   return (time >= EPOCH_AT_COMPILE_TIME);
 }
 
+void TimeService::initRTC()
+{
+#if defined (ARDUINO_ARCH_SAMD)
+  samd_initRTC();
+#elif defined (ARDUINO_NANO_RP2040_CONNECT)
+  rp2040_connect_initRTC();
+#elif defined (BOARD_STM32H7)
+  stm32h7_initRTC();
+#elif defined (ARDUINO_ARCH_ESP32)
+  esp32_initRTC();
+#elif ARDUINO_ARCH_ESP8266
+  esp8266_initRTC();
+#else
+  #error "RTC not available for this architecture"
+#endif
+}
+
+void TimeService::setRTC(unsigned long time)
+{
+#if defined (ARDUINO_ARCH_SAMD)
+  samd_setRTC(time);
+#elif defined (ARDUINO_NANO_RP2040_CONNECT)
+  rp2040_connect_setRTC(time);
+#elif defined (BOARD_STM32H7)
+  stm32h7_setRTC(time);
+#elif defined (ARDUINO_ARCH_ESP32)
+  esp32_setRTC(time);
+#elif ARDUINO_ARCH_ESP8266
+  esp8266_setRTC(time);
+#else
+  #error "RTC not available for this architecture"
+#endif
+}
+
+unsigned long TimeService::getRTC()
+{
+#if defined (ARDUINO_ARCH_SAMD)
+  return samd_getRTC();
+#elif defined (ARDUINO_NANO_RP2040_CONNECT)
+  return rp2040_connect_getRTC();
+#elif defined (BOARD_STM32H7)
+  return stm32h7_getRTC();
+#elif defined (ARDUINO_ARCH_ESP32)
+  return esp32_getRTC();
+#elif ARDUINO_ARCH_ESP8266
+  return esp8266_getRTC();
+#else
+  #error "RTC not available for this architecture"
+#endif
+}
+
 /**************************************************************************************
  * INTERNAL FUNCTION DEFINITION
  **************************************************************************************/
@@ -310,6 +391,92 @@ time_t cvt_time(char const * time)
 
   return mktime(&t);
 }
+
+#ifdef ARDUINO_ARCH_SAMD
+void samd_initRTC()
+{
+  rtc.begin();
+}
+
+void samd_setRTC(unsigned long time)
+{
+  rtc.setEpoch(time);
+}
+
+unsigned long samd_getRTC()
+{
+  return rtc.getEpoch();
+}
+#endif
+
+#ifdef ARDUINO_NANO_RP2040_CONNECT
+void rp2040_connect_initRTC()
+{
+  /* Nothing to do */
+}
+
+void rp2040_connect_setRTC(unsigned long time)
+{
+  set_time(time);
+}
+
+unsigned long rp2040_connect_getRTC()
+{
+  return time(NULL);
+}
+#endif
+
+#ifdef BOARD_STM32H7
+void stm32h7_initRTC()
+{
+  /* Nothing to do */
+}
+
+void stm32h7_setRTC(unsigned long time)
+{
+  set_time(time);
+}
+
+unsigned long stm32h7_getRTC()
+{
+  return time(NULL);
+}
+#endif
+
+#ifdef ARDUINO_ARCH_ESP32
+void esp32_initRTC()
+{
+  //configTime(0, 0, "time.arduino.cc", "pool.ntp.org", "time.nist.gov");
+}
+
+void esp32_setRTC(unsigned long time)
+{
+  const timeval epoch = {(time_t)time, 0};
+  settimeofday(&epoch, 0);
+}
+
+unsigned long esp32_getRTC()
+{
+  return time(NULL);
+}
+#endif
+
+#ifdef ARDUINO_ARCH_ESP8266
+void esp8266_initRTC()
+{
+  /* Nothing to do */
+}
+
+void esp8266_setRTC(unsigned long time)
+{
+  /* TODO */
+}
+
+unsigned long esp8266_getRTC()
+{
+  /* TODO */
+}
+#endif
 
 TimeService & ArduinoIoTCloudTimeService() {
   static TimeService _timeService_instance;
