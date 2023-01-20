@@ -302,7 +302,7 @@ unsigned long TimeService::getRemoteTime()
 
 bool TimeService::isTimeValid(unsigned long const time)
 {
-  return (time >= EPOCH_AT_COMPILE_TIME);
+  return (time > EPOCH_AT_COMPILE_TIME);
 }
 
 void TimeService::initRTC()
