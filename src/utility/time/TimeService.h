@@ -25,6 +25,12 @@
 #include <AIoTC_Config.h>
 #include <Arduino_ConnectionHandler.h>
 
+/******************************************************************************
+ * TYPEDEF
+ ******************************************************************************/
+
+typedef unsigned long(*syncTimeFunctionPtr)(void);
+
 /**************************************************************************************
  * CLASS DECLARATION
  **************************************************************************************/
@@ -41,10 +47,9 @@ public:
   void          setTime(unsigned long time);
   unsigned long getLocalTime();
   void          setTimeZoneData(long offset, unsigned long valid_until);
-#ifdef HAS_TCP
   bool          sync();
-#endif
   void          setSyncInterval(unsigned long seconds);
+  void          setSyncFunction(syncTimeFunctionPtr sync_func);
 
   /* Helper function to convert an input String into a UNIX timestamp.
    * The input String format must be as follow "2021 Nov 01 17:00:00"
@@ -58,10 +63,9 @@ private:
   bool _is_tz_configured;
   long _timezone_offset;
   unsigned long _timezone_dst_until;
-#ifdef HAS_TCP
-  unsigned long _last_ntp_sync_tick;
-  unsigned long _ntp_sync_interval_ms;
-#endif
+  unsigned long _last_sync_tick;
+  unsigned long _sync_interval_ms;
+  syncTimeFunctionPtr _sync_func;
 
 #ifdef HAS_TCP
   unsigned long getRemoteTime();

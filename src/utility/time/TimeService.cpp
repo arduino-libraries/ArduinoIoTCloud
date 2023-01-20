@@ -105,10 +105,9 @@ TimeService::TimeService()
 , _is_tz_configured(false)
 , _timezone_offset(0)
 , _timezone_dst_until(0)
-#ifdef HAS_TCP
-, _last_ntp_sync_tick(0)
-, _ntp_sync_interval_ms(TIMESERVICE_NTP_SYNC_TIMEOUT_ms)
-#endif
+, _last_sync_tick(0)
+, _sync_interval_ms(TIMESERVICE_NTP_SYNC_TIMEOUT_ms)
+, _sync_func(nullptr)
 {
 
 }
@@ -130,7 +129,7 @@ unsigned long TimeService::getTime()
 {
   /* Check if it's time to sync */
   unsigned long const current_tick = millis();
-  bool const is_ntp_sync_timeout = (current_tick - _last_ntp_sync_tick) > _ntp_sync_interval_ms;
+  bool const is_ntp_sync_timeout = (current_tick - _last_sync_tick) > _sync_interval_ms;
   if(!_is_rtc_configured || is_ntp_sync_timeout) {
     sync();
   }
@@ -145,7 +144,6 @@ void TimeService::setTime(unsigned long time)
   setRTC(time);
 }
 
-#ifdef HAS_TCP
 bool TimeService::sync()
 {
   _is_rtc_configured = false;
@@ -166,7 +164,7 @@ bool TimeService::sync()
   if(isTimeValid(utc)) {
     DEBUG_DEBUG("TimeServiceClass::%s  Drift: %d RTC value: %u", __FUNCTION__, getRTC() - utc, utc);
     setRTC(utc);
-    _last_ntp_sync_tick = millis();
+    _last_sync_tick = millis();
     _is_rtc_configured = true;
   }
   return _is_rtc_configured;
@@ -174,9 +172,15 @@ bool TimeService::sync()
 
 void TimeService::setSyncInterval(unsigned long seconds)
 {
-  _ntp_sync_interval_ms = seconds * 1000;
+  _sync_interval_ms = seconds * 1000;
 }
-#endif
+
+void TimeService::setSyncFunction(syncTimeFunctionPtr sync_func)
+{
+  if(sync_func) {
+    _sync_func = sync_func;
+  }
+}
 
 void TimeService::setTimeZoneData(long offset, unsigned long dst_until)
 {
