@@ -214,16 +214,14 @@ unsigned long TimeService::getTimeFromString(const String& input)
   static const int expected_length = 20;
   static const int expected_parameters = 6;
 
-  if(input == nullptr || input.length() != expected_length)
-  {
+  if(input == nullptr || input.length() != expected_length) {
     DEBUG_ERROR("ArduinoIoTCloudTCP::%s invalid input length", __FUNCTION__);
     return 0;
   }
 
   int scanned_parameters = sscanf(input.c_str(), "%d %s %d %d:%d:%d", &year, s_month, &day, &hour, &min, &sec);
 
-  if(scanned_parameters != expected_parameters)
-  {
+  if(scanned_parameters != expected_parameters) {
     DEBUG_ERROR("ArduinoIoTCloudTCP::%s invalid input parameters number", __FUNCTION__);
     return 0;
   }
