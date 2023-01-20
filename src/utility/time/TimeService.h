@@ -40,6 +40,8 @@ public:
   unsigned long getLocalTime();
   void          setTimeZoneData(long offset, unsigned long valid_until);
   bool          sync();
+  void          setSyncInterval(unsigned long seconds);
+
   /* Helper function to convert an input String into a UNIX timestamp.
    * The input String format must be as follow "2021 Nov 01 17:00:00"
    */
@@ -53,6 +55,7 @@ private:
   long _timezone_offset;
   unsigned long _timezone_dst_until;
   unsigned long _last_ntp_sync_tick;
+  unsigned long _ntp_sync_interval_ms;
 
   unsigned long getRemoteTime();
   bool connected();

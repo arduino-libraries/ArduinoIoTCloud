@@ -24,6 +24,7 @@
 #include <time.h>
 #include "TimeService.h"
 #include "NTPUtils.h"
+#include "AIoTC_Const.h"
 
 #ifdef ARDUINO_ARCH_SAMD
   #include <RTCZero.h>
@@ -90,8 +91,7 @@ unsigned long esp8266_getRTC();
  **************************************************************************************/
 
 /* Default NTP synch is scheduled each 24 hours from startup */
-static unsigned long const AIOT_TIMESERVICE_NTP_SYNC_TIMEOUT_ms = 86400000;
-
+static time_t const TIMESERVICE_NTP_SYNC_TIMEOUT_ms = DAYS * 1000;
 static time_t const EPOCH_AT_COMPILE_TIME = cvt_time(__DATE__);
 static time_t const EPOCH = 0;
 
@@ -106,6 +106,7 @@ TimeService::TimeService()
 , _timezone_offset(0)
 , _timezone_dst_until(0)
 , _last_ntp_sync_tick(0)
+, _ntp_sync_interval_ms(TIMESERVICE_NTP_SYNC_TIMEOUT_ms)
 {
 
 }
@@ -124,7 +125,7 @@ unsigned long TimeService::getTime()
 {
   /* Check if it's time to sync */
   unsigned long const current_tick = millis();
-  bool const is_ntp_sync_timeout = (current_tick - _last_ntp_sync_tick) > AIOT_TIMESERVICE_NTP_SYNC_TIMEOUT_ms;
+  bool const is_ntp_sync_timeout = (current_tick - _last_ntp_sync_tick) > _ntp_sync_interval_ms;
   if(!_is_rtc_configured || is_ntp_sync_timeout) {
     sync();
   }
@@ -146,6 +147,11 @@ bool TimeService::sync()
     _is_rtc_configured = true;
   }
   return _is_rtc_configured;
+}
+
+void TimeService::setSyncInterval(unsigned long seconds)
+{
+  _ntp_sync_interval_ms = seconds * 1000;
 }
 
 void TimeService::setTimeZoneData(long offset, unsigned long dst_until)
