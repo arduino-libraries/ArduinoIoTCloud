@@ -105,8 +105,10 @@ TimeService::TimeService()
 , _is_tz_configured(false)
 , _timezone_offset(0)
 , _timezone_dst_until(0)
+#ifdef HAS_TCP
 , _last_ntp_sync_tick(0)
 , _ntp_sync_interval_ms(TIMESERVICE_NTP_SYNC_TIMEOUT_ms)
+#endif
 {
 
 }
@@ -123,6 +125,7 @@ void TimeService::begin(ConnectionHandler * con_hdl)
 
 unsigned long TimeService::getTime()
 {
+#ifdef HAS_TCP
   /* Check if it's time to sync */
   unsigned long const current_tick = millis();
   bool const is_ntp_sync_timeout = (current_tick - _last_ntp_sync_tick) > _ntp_sync_interval_ms;
@@ -133,8 +136,12 @@ unsigned long TimeService::getTime()
   /* Read time from RTC */
   unsigned long utc = getRTC();
   return isTimeValid(utc) ? utc : EPOCH_AT_COMPILE_TIME;
+#else
+  return EPOCH_AT_COMPILE_TIME;
+#endif
 }
 
+#ifdef HAS_TCP
 bool TimeService::sync()
 {
   _is_rtc_configured = false;
@@ -153,6 +160,7 @@ void TimeService::setSyncInterval(unsigned long seconds)
 {
   _ntp_sync_interval_ms = seconds * 1000;
 }
+#endif
 
 void TimeService::setTimeZoneData(long offset, unsigned long dst_until)
 {
@@ -236,6 +244,7 @@ unsigned long TimeService::getTimeFromString(const String& input)
  * PRIVATE MEMBER FUNCTIONS
  **************************************************************************************/
 
+#ifdef HAS_TCP
 bool TimeService::connected()
 {
   if(_con_hdl == nullptr) {
@@ -247,7 +256,6 @@ bool TimeService::connected()
 
 unsigned long TimeService::getRemoteTime()
 {
-#ifndef HAS_LORA
   if(connected()) {
     /* At first try to see if a valid time can be obtained
      * using the network time available via the connection
@@ -269,8 +277,6 @@ unsigned long TimeService::getRemoteTime()
 #endif
   }
 
-#endif /* ifndef HAS_LORA */
-
   /* Return the epoch timestamp at compile time as a last
    * line of defense. Otherwise the certificate expiration
    * date is wrong and we'll be unable to establish a connection
@@ -278,6 +284,8 @@ unsigned long TimeService::getRemoteTime()
    */
   return EPOCH_AT_COMPILE_TIME;
 }
+
+#endif  /* HAS_TCP */
 
 bool TimeService::isTimeValid(unsigned long const time)
 {

@@ -22,6 +22,7 @@
  * INCLUDE
  **************************************************************************************/
 
+#include <AIoTC_Config.h>
 #include <Arduino_ConnectionHandler.h>
 
 /**************************************************************************************
@@ -39,7 +40,9 @@ public:
   unsigned long getTime();
   unsigned long getLocalTime();
   void          setTimeZoneData(long offset, unsigned long valid_until);
+#ifdef HAS_TCP
   bool          sync();
+#endif
   void          setSyncInterval(unsigned long seconds);
 
   /* Helper function to convert an input String into a UNIX timestamp.
@@ -54,12 +57,15 @@ private:
   bool _is_tz_configured;
   long _timezone_offset;
   unsigned long _timezone_dst_until;
+#ifdef HAS_TCP
   unsigned long _last_ntp_sync_tick;
   unsigned long _ntp_sync_interval_ms;
+#endif
 
+#ifdef HAS_TCP
   unsigned long getRemoteTime();
   bool connected();
-  static bool isTimeValid(unsigned long const time);
+#endif
   void initRTC();
   void setRTC(unsigned long time);
   unsigned long getRTC();
