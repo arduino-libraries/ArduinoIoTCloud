@@ -43,11 +43,11 @@ public:
 
   TimeService();
 
-
   void          begin  (ConnectionHandler * con_hdl);
   unsigned long getTime();
   unsigned long getLocalTime();
   void          setTimeZoneData(long offset, unsigned long valid_until);
+  bool          sync();
   /* Helper function to convert an input String into a UNIX timestamp.
    * The input String format must be as follow "2021 Nov 01 17:00:00"
    */

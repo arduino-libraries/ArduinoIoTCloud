@@ -170,6 +170,20 @@ unsigned long TimeService::getTime()
 #endif
 }
 
+bool TimeService::sync()
+{
+  _is_rtc_configured = false;
+  unsigned long utc = getRemoteTime();
+
+  if(isTimeValid(utc)) {
+    DEBUG_DEBUG("TimeServiceClass::%s  Drift: %d RTC value: %u", __FUNCTION__, getRTC() - utc, utc);
+    setRTC(utc);
+    _last_ntp_sync_tick = millis();
+    _is_rtc_configured = true;
+  }
+  return _is_rtc_configured;
+}
+
 void TimeService::setTimeZoneData(long offset, unsigned long dst_until)
 {
   if(_timezone_offset != offset)
