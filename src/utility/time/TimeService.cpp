@@ -99,7 +99,7 @@ static time_t const EPOCH = 0;
  * CTOR/DTOR
  **************************************************************************************/
 
-TimeService::TimeService()
+TimeServiceClass::TimeServiceClass()
 : _con_hdl(nullptr)
 , _is_rtc_configured(false)
 , _is_tz_configured(false)
@@ -116,7 +116,7 @@ TimeService::TimeService()
  * PUBLIC MEMBER FUNCTIONS
  **************************************************************************************/
 
-void TimeService::begin(ConnectionHandler * con_hdl)
+void TimeServiceClass::begin(ConnectionHandler * con_hdl)
 {
   _con_hdl = con_hdl;
   initRTC();
@@ -125,7 +125,7 @@ void TimeService::begin(ConnectionHandler * con_hdl)
 #endif
 }
 
-unsigned long TimeService::getTime()
+unsigned long TimeServiceClass::getTime()
 {
   /* Check if it's time to sync */
   unsigned long const current_tick = millis();
@@ -139,12 +139,12 @@ unsigned long TimeService::getTime()
   return isTimeValid(utc) ? utc : EPOCH_AT_COMPILE_TIME;
 }
 
-void TimeService::setTime(unsigned long time)
+void TimeServiceClass::setTime(unsigned long time)
 {
   setRTC(time);
 }
 
-bool TimeService::sync()
+bool TimeServiceClass::sync()
 {
   _is_rtc_configured = false;
 
@@ -170,29 +170,29 @@ bool TimeService::sync()
   return _is_rtc_configured;
 }
 
-void TimeService::setSyncInterval(unsigned long seconds)
+void TimeServiceClass::setSyncInterval(unsigned long seconds)
 {
   _sync_interval_ms = seconds * 1000;
 }
 
-void TimeService::setSyncFunction(syncTimeFunctionPtr sync_func)
+void TimeServiceClass::setSyncFunction(syncTimeFunctionPtr sync_func)
 {
   if(sync_func) {
     _sync_func = sync_func;
   }
 }
 
-void TimeService::setTimeZoneData(long offset, unsigned long dst_until)
+void TimeServiceClass::setTimeZoneData(long offset, unsigned long dst_until)
 {
   if(_timezone_offset != offset || _timezone_dst_until != dst_until) {
-    DEBUG_DEBUG("TimeService::%s offset: %d dst_unitl %ul", __FUNCTION__, offset, dst_until);
+    DEBUG_DEBUG("TimeServiceClass::%s offset: %d dst_unitl %ul", __FUNCTION__, offset, dst_until);
     _timezone_offset = offset;
     _timezone_dst_until = dst_until;
     _is_tz_configured = true;
   }
 }
 
-unsigned long TimeService::getLocalTime()
+unsigned long TimeServiceClass::getLocalTime()
 {
   unsigned long utc = getTime();
   if(_is_tz_configured) {
@@ -202,7 +202,7 @@ unsigned long TimeService::getLocalTime()
   }
 }
 
-unsigned long TimeService::getTimeFromString(const String& input)
+unsigned long TimeServiceClass::getTimeFromString(const String& input)
 {
   struct tm t =
   {
@@ -224,21 +224,21 @@ unsigned long TimeService::getTimeFromString(const String& input)
   static const int expected_parameters = 6;
 
   if(input == nullptr || input.length() != expected_length) {
-    DEBUG_ERROR("TimeService::%s invalid input length", __FUNCTION__);
+    DEBUG_ERROR("TimeServiceClass::%s invalid input length", __FUNCTION__);
     return 0;
   }
 
   int scanned_parameters = sscanf(input.c_str(), "%d %s %d %d:%d:%d", &year, s_month, &day, &hour, &min, &sec);
 
   if(scanned_parameters != expected_parameters) {
-    DEBUG_ERROR("TimeService::%s invalid input parameters number", __FUNCTION__);
+    DEBUG_ERROR("TimeServiceClass::%s invalid input parameters number", __FUNCTION__);
     return 0;
   }
 
   char * s_month_position = strstr(month_names, s_month);
 
   if(s_month_position == nullptr || strlen(s_month) != 3) {
-    DEBUG_ERROR("TimeService::%s invalid month name, use %s", __FUNCTION__, month_names);
+    DEBUG_ERROR("TimeServiceClass::%s invalid month name, use %s", __FUNCTION__, month_names);
     return 0;
   }
 
@@ -246,7 +246,7 @@ unsigned long TimeService::getTimeFromString(const String& input)
 
   if(month <  0 || month > 11 || day <  1 || day > 31 || year < 1900 || hour < 0 ||
      hour  > 24 || min   <  0 || min > 60 || sec <  0 || sec  >  60) {
-    DEBUG_ERROR("TimeService::%s invalid date values", __FUNCTION__);
+    DEBUG_ERROR("TimeServiceClass::%s invalid date values", __FUNCTION__);
     return 0;
   }
 
@@ -265,7 +265,7 @@ unsigned long TimeService::getTimeFromString(const String& input)
  **************************************************************************************/
 
 #ifdef HAS_TCP
-bool TimeService::connected()
+bool TimeServiceClass::connected()
 {
   if(_con_hdl == nullptr) {
     return false;
@@ -274,7 +274,7 @@ bool TimeService::connected()
   }
 }
 
-unsigned long TimeService::getRemoteTime()
+unsigned long TimeServiceClass::getRemoteTime()
 {
   if(connected()) {
     /* At first try to see if a valid time can be obtained
@@ -307,12 +307,12 @@ unsigned long TimeService::getRemoteTime()
 
 #endif  /* HAS_TCP */
 
-bool TimeService::isTimeValid(unsigned long const time)
+bool TimeServiceClass::isTimeValid(unsigned long const time)
 {
   return (time > EPOCH_AT_COMPILE_TIME);
 }
 
-void TimeService::initRTC()
+void TimeServiceClass::initRTC()
 {
 #if defined (ARDUINO_ARCH_SAMD)
   samd_initRTC();
@@ -329,7 +329,7 @@ void TimeService::initRTC()
 #endif
 }
 
-void TimeService::setRTC(unsigned long time)
+void TimeServiceClass::setRTC(unsigned long time)
 {
 #if defined (ARDUINO_ARCH_SAMD)
   samd_setRTC(time);
@@ -346,7 +346,7 @@ void TimeService::setRTC(unsigned long time)
 #endif
 }
 
-unsigned long TimeService::getRTC()
+unsigned long TimeServiceClass::getRTC()
 {
 #if defined (ARDUINO_ARCH_SAMD)
   return samd_getRTC();
@@ -483,7 +483,8 @@ unsigned long esp8266_getRTC()
 }
 #endif
 
-TimeService & ArduinoIoTCloudTimeService() {
-  static TimeService _timeService_instance;
-  return _timeService_instance;
-}
+/******************************************************************************
+ * EXTERN DEFINITION
+ ******************************************************************************/
+
+TimeServiceClass TimeService;

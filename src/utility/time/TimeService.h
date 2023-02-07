@@ -35,12 +35,12 @@ typedef unsigned long(*syncTimeFunctionPtr)(void);
  * CLASS DECLARATION
  **************************************************************************************/
 
-class TimeService
+class TimeServiceClass
 {
 
 public:
 
-  TimeService();
+  TimeServiceClass();
 
   void          begin  (ConnectionHandler * con_hdl);
   unsigned long getTime();
@@ -77,6 +77,10 @@ private:
 
 };
 
-TimeService & ArduinoIoTCloudTimeService();
+/******************************************************************************
+ * EXTERN DECLARATION
+ ******************************************************************************/
+
+extern TimeServiceClass TimeService;
 
 #endif /* ARDUINO_IOT_CLOUD_TIME_SERVICE_H_ */
