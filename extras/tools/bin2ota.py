@@ -26,7 +26,7 @@ elif board == "PORTENTA_H7_M7":
     magic_number = 0x2341025B.to_bytes(4,byteorder='little')
 elif board == "NANO_RP2040_CONNECT":
     magic_number = 0x2341005E.to_bytes(4,byteorder='little')
-elif board == "NICLA_VISION"
+elif board == "NICLA_VISION":
     magic_number = 0x2341025F.to_bytes(4,byteorder='little')
 elif board == "OPTA":
     magic_number = 0x23410064.to_bytes(4,byteorder='little')
