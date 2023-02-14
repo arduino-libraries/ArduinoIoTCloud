@@ -36,12 +36,6 @@
 #include "../watchdog/Watchdog.h"
 
 /******************************************************************************
- * LOCAL VARIABLES
- ******************************************************************************/
-
-static NetworkAdapter _ota_adapter = NetworkAdapter::WIFI;
-
-/******************************************************************************
  * EXTERN
  ******************************************************************************/
 
@@ -51,7 +45,7 @@ extern RTC_HandleTypeDef RTCHandle;
  * FUNCTION DEFINITION
  ******************************************************************************/
 
-int portenta_h7_onOTARequest(char const * ota_url)
+int portenta_h7_onOTARequest(char const * ota_url, NetworkAdapter iface)
 {
   watchdog_reset();
 
@@ -82,7 +76,7 @@ int portenta_h7_onOTARequest(char const * ota_url)
   /* Download the OTA file from the web storage location. */
   MbedSocketClass * download_socket = static_cast<MbedSocketClass*>(&WiFi);
 #if defined (BOARD_HAS_ETHERNET)
-  if(_ota_adapter == NetworkAdapter::ETHERNET) {
+  if(iface == NetworkAdapter::ETHERNET) {
     download_socket = static_cast<MbedSocketClass*>(&Ethernet);
   }
 #endif
@@ -152,11 +146,6 @@ String portenta_h7_getOTAImageSHA256()
 bool portenta_h7_isOTACapable()
 {
   return Arduino_Portenta_OTA::isOtaCapable();
-}
-
-void portenta_h7_setNetworkAdapter(NetworkAdapter iface)
-{
-  _ota_adapter = iface;
 }
 
 #endif /* BOARD_STM32H7 */

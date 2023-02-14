@@ -209,10 +209,6 @@ int ArduinoIoTCloudTCP::begin(bool const enable_watchdog, String brokerAddress, 
   _ota_cap = OTA::isCapable();
 #endif
 
-#if OTA_ENABLED
-  OTA::setNetworkAdapter(_connection->getInterface());
-#endif
-
 #ifdef BOARD_HAS_OFFLOADED_ECCX08
   if (String(WiFi.firmwareVersion()) < String("1.4.4")) {
     DEBUG_ERROR("ArduinoIoTCloudTCP::%s In order to connect to Arduino IoT Cloud, NINA firmware needs to be >= 1.4.4, current %s", __FUNCTION__, WiFi.firmwareVersion());
@@ -583,7 +579,7 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_Connected()
         /* Transmit the cleared request flags to the cloud. */
         sendDevicePropertyToCloud("OTA_REQ");
         /* Call member function to handle OTA request. */
-        _ota_error = OTA::onRequest(_ota_url);
+        _ota_error = OTA::onRequest(_ota_url, _connection->getInterface());
         /* If something fails send the OTA error to the cloud */
         sendDevicePropertyToCloud("OTA_ERROR");
       }

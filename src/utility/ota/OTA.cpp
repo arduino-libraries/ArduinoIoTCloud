@@ -43,7 +43,7 @@ bool rp2040_connect_isOTACapable();
 #endif
 
 #ifdef BOARD_STM32H7
-int portenta_h7_onOTARequest(char const * url);
+int portenta_h7_onOTARequest(char const * url, NetworkAdapter iface);
 String portenta_h7_getOTAImageSHA256();
 void portenta_h7_setNetworkAdapter(NetworkAdapter iface);
 bool portenta_h7_isOTACapable();
@@ -59,17 +59,20 @@ bool esp32_isOTACapable();
  * PUBLIC MEMBER FUNCTIONS
  ******************************************************************************/
 
-int OTA::onRequest(String url)
+int OTA::onRequest(String url, NetworkAdapter iface)
 {
   DEBUG_INFO("ArduinoIoTCloudTCP::%s _ota_url = %s", __FUNCTION__, url.c_str());
 
 #if defined (ARDUINO_ARCH_SAMD)
+  (void)iface;
   return samd_onOTARequest(url.c_str());
 #elif defined (ARDUINO_NANO_RP2040_CONNECT)
+  (void)iface;
   return rp2040_connect_onOTARequest(url.c_str());
 #elif defined (BOARD_STM32H7)
-  return portenta_h7_onOTARequest(url.c_str());
+  return portenta_h7_onOTARequest(url.c_str(), iface);
 #elif defined (ARDUINO_ARCH_ESP32)
+  (void)iface;
   return esp32_onOTARequest(url.c_str());
 #else
   #error "OTA not supported for this architecture"
@@ -101,21 +104,6 @@ bool OTA::isCapable()
   return portenta_h7_isOTACapable();
 #elif defined (ARDUINO_ARCH_ESP32)
   return esp32_isOTACapable();
-#else
-  #error "OTA not supported for this architecture"
-#endif
-}
-
-void OTA::setNetworkAdapter(NetworkAdapter iface)
-{
-#if defined (ARDUINO_ARCH_SAMD)
-  /* Only WiFi available */
-#elif defined (ARDUINO_NANO_RP2040_CONNECT)
-  /* Only WiFi available */
-#elif defined (BOARD_STM32H7)
-  portenta_h7_setNetworkAdapter(iface);
-#elif defined (ARDUINO_ARCH_ESP32)
-  /* Only WiFi available */
 #else
   #error "OTA not supported for this architecture"
 #endif

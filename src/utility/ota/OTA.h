@@ -62,9 +62,8 @@ class OTA
 {
 public:
 
-  static int onRequest(String url);
+  static int onRequest(String url, NetworkAdapter iface);
   static String getImageSHA256();
-  static void setNetworkAdapter(NetworkAdapter iface);
   static bool isCapable();
 
 };
