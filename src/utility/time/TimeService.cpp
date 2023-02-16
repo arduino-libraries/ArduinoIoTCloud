@@ -25,12 +25,20 @@
 
 #include "NTPUtils.h"
 
+#ifdef ARDUINO_ARCH_ESP8266
+  #include "RTCMillis.h"
+#endif
+
 /**************************************************************************************
  * GLOBAL VARIABLES
  **************************************************************************************/
 
 #ifdef ARDUINO_ARCH_SAMD
 RTCZero rtc;
+#endif
+
+#ifdef ARDUINO_ARCH_ESP8266
+RTCMillis rtc;
 #endif
 
 /**************************************************************************************
@@ -476,17 +484,17 @@ unsigned long esp32_getRTC()
 #ifdef ARDUINO_ARCH_ESP8266
 void esp8266_initRTC()
 {
-  /* Nothing to do */
+  rtc.begin();
 }
 
 void esp8266_setRTC(unsigned long time)
 {
-  /* TODO */
+  rtc.set(time);
 }
 
 unsigned long esp8266_getRTC()
 {
-  /* TODO */
+  return rtc.get();
 }
 #endif
 
