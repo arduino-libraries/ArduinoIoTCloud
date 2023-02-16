@@ -24,14 +24,6 @@
 
 #include <Arduino_ConnectionHandler.h>
 
-#ifdef ARDUINO_ARCH_SAMD
-  #include <RTCZero.h>
-#endif
-
-#ifdef ARDUINO_ARCH_MBED
-  #include <mbed_rtc_time.h>
-#endif
-
 /**************************************************************************************
  * CLASS DECLARATION
  **************************************************************************************/

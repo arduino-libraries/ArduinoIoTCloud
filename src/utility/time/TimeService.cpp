@@ -19,11 +19,19 @@
  * INCLUDE
  **************************************************************************************/
 
-#include "TimeService.h"
+#include <AIoTC_Config.h>
 
 #include <time.h>
-
+#include "TimeService.h"
 #include "NTPUtils.h"
+
+#ifdef ARDUINO_ARCH_SAMD
+  #include <RTCZero.h>
+#endif
+
+#ifdef ARDUINO_ARCH_MBED
+  #include <mbed_rtc_time.h>
+#endif
 
 #ifdef ARDUINO_ARCH_ESP8266
   #include "RTCMillis.h"
@@ -288,9 +296,7 @@ bool TimeService::connected()
 
 unsigned long TimeService::getRemoteTime()
 {
-#include "../../AIoTC_Config.h"
 #ifndef HAS_LORA
-
   if(connected()) {
     /* At first try to see if a valid time can be obtained
      * using the network time available via the connection
