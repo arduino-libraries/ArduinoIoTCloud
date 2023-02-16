@@ -117,69 +117,21 @@ TimeService::TimeService()
 void TimeService::begin(ConnectionHandler * con_hdl)
 {
   _con_hdl = con_hdl;
-#ifdef ARDUINO_ARCH_SAMD
-  rtc.begin();
-#endif
+  initRTC();
 }
 
 unsigned long TimeService::getTime()
 {
-#ifdef ARDUINO_ARCH_SAMD
-  if(!_is_rtc_configured)
-  {
-    unsigned long utc = getRemoteTime();
-    if(EPOCH_AT_COMPILE_TIME != utc)
-    {
-      rtc.setEpoch(utc);
-      _is_rtc_configured = true;
-    }
-    return utc;
+  /* Check if it's time to sync */
+  unsigned long const current_tick = millis();
+  bool const is_ntp_sync_timeout = (current_tick - _last_ntp_sync_tick) > AIOT_TIMESERVICE_NTP_SYNC_TIMEOUT_ms;
+  if(!_is_rtc_configured || is_ntp_sync_timeout) {
+    sync();
   }
-  return rtc.getEpoch();
-#elif ARDUINO_ARCH_MBED
-  if(!_is_rtc_configured)
-  {
-    unsigned long utc = getRemoteTime();
-    if(EPOCH_AT_COMPILE_TIME != utc)
-    {
-      set_time(utc);
-      _is_rtc_configured = true;
-    }
-    return utc;
-  }
-  return time(NULL);
-#elif ARDUINO_ARCH_ESP32
-  if(!_is_rtc_configured)
-  {
-    configTime(0, 0, "time.arduino.cc", "pool.ntp.org", "time.nist.gov");
-    _is_rtc_configured = true;
-  }
-  return time(NULL);
-#elif ARDUINO_ARCH_ESP8266
-  unsigned long const now = millis();
-  bool const is_ntp_sync_timeout = (now - _last_ntp_sync_tick) > AIOT_TIMESERVICE_ESP8266_NTP_SYNC_TIMEOUT_ms;
-  if(!_is_rtc_configured || is_ntp_sync_timeout)
-  {
-    _is_rtc_configured = false;
-    unsigned long utc = getRemoteTime();
-    if(EPOCH_AT_COMPILE_TIME != utc)
-    {
-      _rtc = utc;
-      _last_ntp_sync_tick = now;
-      _last_rtc_update_tick = now;
-      _is_rtc_configured = true;
-    }
-    return utc;
-  }
-  unsigned long const elapsed_s = (now - _last_rtc_update_tick) / 1000;
-  if(elapsed_s) {
-    _rtc += elapsed_s;
-    _last_rtc_update_tick = now;
-  }
-  return _rtc;
-#else
-  return getRemoteTime();
-#endif
+
+  /* Read time from RTC */
+  unsigned long utc = getRTC();
+  return isTimeValid(utc) ? utc : EPOCH_AT_COMPILE_TIME;
 }
 
 bool TimeService::sync()
