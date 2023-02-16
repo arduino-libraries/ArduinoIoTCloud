@@ -89,9 +89,9 @@ unsigned long esp8266_getRTC();
  * CONSTANTS
  **************************************************************************************/
 
-#ifdef ARDUINO_ARCH_ESP8266
-static unsigned long const AIOT_TIMESERVICE_ESP8266_NTP_SYNC_TIMEOUT_ms = 86400000;
-#endif
+/* Default NTP synch is scheduled each 24 hours from startup */
+static unsigned long const AIOT_TIMESERVICE_NTP_SYNC_TIMEOUT_ms = 86400000;
+
 static time_t const EPOCH_AT_COMPILE_TIME = cvt_time(__DATE__);
 static time_t const EPOCH = 0;
 
@@ -105,11 +105,7 @@ TimeService::TimeService()
 , _is_tz_configured(false)
 , _timezone_offset(0)
 , _timezone_dst_until(0)
-#ifdef ARDUINO_ARCH_ESP8266
 , _last_ntp_sync_tick(0)
-, _last_rtc_update_tick(0)
-, _rtc(0)
-#endif
 {
 
 }
