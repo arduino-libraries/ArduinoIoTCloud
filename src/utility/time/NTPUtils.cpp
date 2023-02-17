@@ -92,8 +92,11 @@ void NTPUtils::sendNTPpacket(UDP & udp)
 
 int NTPUtils::getRandomPort(int const min_port, int const max_port)
 {
-#ifdef BOARD_HAS_ECCX08
+#if defined (BOARD_HAS_ECCX08)
   return ECCX08.random(min_port, max_port);
+#elif defined (ARDUINO_ARCH_ESP8266) || (ARDUINO_ARCH_ESP32)
+  /* Uses HW Random Number Generator */
+  return random(min_port, max_port);
 #else
   randomSeed(analogRead(0));
   return random(min_port, max_port);
