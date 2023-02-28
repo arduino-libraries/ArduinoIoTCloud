@@ -45,7 +45,7 @@ extern RTC_HandleTypeDef RTCHandle;
  * FUNCTION DEFINITION
  ******************************************************************************/
 
-int portenta_h7_onOTARequest(char const * ota_url, const bool use_ethernet)
+int portenta_h7_onOTARequest(char const * ota_url, NetworkAdapter iface)
 {
   watchdog_reset();
 
@@ -76,7 +76,7 @@ int portenta_h7_onOTARequest(char const * ota_url, const bool use_ethernet)
   /* Download the OTA file from the web storage location. */
   MbedSocketClass * download_socket = static_cast<MbedSocketClass*>(&WiFi);
 #if defined (BOARD_HAS_ETHERNET)
-  if(use_ethernet) {
+  if(iface == NetworkAdapter::ETHERNET) {
     download_socket = static_cast<MbedSocketClass*>(&Ethernet);
   }
 #endif
@@ -141,6 +141,11 @@ String portenta_h7_getOTAImageSHA256()
                 });
   DEBUG_VERBOSE("SHA256: %d bytes (of %d) read", bytes_read, app_size);
   return sha256_str;
+}
+
+bool portenta_h7_isOTACapable()
+{
+  return Arduino_Portenta_OTA::isOtaCapable();
 }
 
 #endif /* BOARD_STM32H7 */

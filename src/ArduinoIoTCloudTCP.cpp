@@ -138,7 +138,7 @@ int ArduinoIoTCloudTCP::begin(bool const enable_watchdog, String brokerAddress, 
 #endif /* AVR */
 
 #if OTA_ENABLED && !defined(__AVR__)
-  _ota_img_sha256 = getOTAImageSHA256();
+  _ota_img_sha256 = OTA::getImageSHA256();
   DEBUG_VERBOSE("SHA256: HASH(%d) = %s", strlen(_ota_img_sha256.c_str()), _ota_img_sha256.c_str());
 #endif /* OTA_ENABLED */
 
@@ -205,38 +205,8 @@ int ArduinoIoTCloudTCP::begin(bool const enable_watchdog, String brokerAddress, 
   addPropertyReal(_tz_offset, "tz_offset", Permission::ReadWrite).onSync(CLOUD_WINS).onUpdate(updateTimezoneInfo);
   addPropertyReal(_tz_dst_until, "tz_dst_until", Permission::ReadWrite).onSync(CLOUD_WINS).onUpdate(updateTimezoneInfo);
 
-#if OTA_STORAGE_PORTENTA_QSPI
-  #define BOOTLOADER_ADDR   (0x8000000)
-  uint32_t bootloader_data_offset = 0x1F000;
-  uint8_t* bootloader_data = (uint8_t*)(BOOTLOADER_ADDR + bootloader_data_offset);
-  uint8_t currentBootloaderVersion = bootloader_data[1];
-  if (currentBootloaderVersion < 22) {
-    _ota_cap = false;
-    DEBUG_WARNING("ArduinoIoTCloudTCP::%s In order to be ready for cloud OTA, update the bootloader", __FUNCTION__);
-    DEBUG_WARNING("ArduinoIoTCloudTCP::%s File -> Examples -> Portenta_System -> PortentaH7_updateBootloader", __FUNCTION__);
-  }
-  else {
-    _ota_cap = true;
-  }
-#endif
-
-#if OTA_STORAGE_SNU && OTA_ENABLED
-  if (String(WiFi.firmwareVersion()) < String("1.4.1")) {
-    _ota_cap = false;
-    DEBUG_WARNING("ArduinoIoTCloudTCP::%s In order to be ready for cloud OTA, NINA firmware needs to be >= 1.4.1, current %s", __FUNCTION__, WiFi.firmwareVersion());
-  }
-  else {
-    _ota_cap = true;
-  }
-#endif /* OTA_STORAGE_SNU */
-
-#if defined(ARDUINO_NANO_RP2040_CONNECT) || defined(ARDUINO_NICLA_VISION)
-  _ota_cap = true;
-#endif
-
-#if defined(ARDUINO_ARCH_ESP32) && OTA_ENABLED
-  /* NOTE: here is possible to check if current partition scheme is OTA compatible */
-  _ota_cap = true;
+#if OTA_ENABLED
+  _ota_cap = OTA::isCapable();
 #endif
 
 #ifdef BOARD_HAS_OFFLOADED_ECCX08
@@ -609,7 +579,7 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_Connected()
         /* Transmit the cleared request flags to the cloud. */
         sendDevicePropertyToCloud("OTA_REQ");
         /* Call member function to handle OTA request. */
-        onOTARequest();
+        _ota_error = OTA::onRequest(_ota_url, _connection->getInterface());
         /* If something fails send the OTA error to the cloud */
         sendDevicePropertyToCloud("OTA_ERROR");
       }
@@ -761,45 +731,6 @@ int ArduinoIoTCloudTCP::write(String const topic, byte const data[], int const l
   }
   return 0;
 }
-
-#if OTA_ENABLED
-void ArduinoIoTCloudTCP::onOTARequest()
-{
-  DEBUG_INFO("ArduinoIoTCloudTCP::%s _ota_url = %s", __FUNCTION__, _ota_url.c_str());
-
-#ifdef ARDUINO_ARCH_SAMD
-  _ota_error = samd_onOTARequest(_ota_url.c_str());
-#endif
-
-#ifdef ARDUINO_NANO_RP2040_CONNECT
-  _ota_error = rp2040_connect_onOTARequest(_ota_url.c_str());
-#endif
-
-#ifdef BOARD_STM32H7
-  bool const use_ethernet = _connection->getInterface() == NetworkAdapter::ETHERNET ? true : false;
-  _ota_error = portenta_h7_onOTARequest(_ota_url.c_str(), use_ethernet);
-#endif
-
-#ifdef ARDUINO_ARCH_ESP32
-  _ota_error = esp32_onOTARequest(_ota_url.c_str());
-#endif
-}
-
-String ArduinoIoTCloudTCP::getOTAImageSHA256()
-{
-#if defined (ARDUINO_ARCH_SAMD)
-  return samd_getOTAImageSHA256();
-#elif defined (ARDUINO_NANO_RP2040_CONNECT)
-  return rp2040_connect_getOTAImageSHA256();
-#elif defined (BOARD_STM32H7)
-  return portenta_h7_getOTAImageSHA256();
-#elif defined (ARDUINO_ARCH_ESP32)
-  return esp32_getOTAImageSHA256();
-#else
-  # error "No method for SHA256 checksum calculation over application image defined for this architecture."
-#endif
-}
-#endif
 
 void ArduinoIoTCloudTCP::updateThingTopics()
 {

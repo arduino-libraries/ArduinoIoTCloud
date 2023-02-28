@@ -81,4 +81,17 @@ String samd_getOTAImageSHA256()
   return FlashSHA256::calc(0x2000, 0x40000 - 0x2000);
 }
 
+bool samd_isOTACapable()
+{
+#if OTA_STORAGE_SNU
+  if (String(WiFi.firmwareVersion()) < String("1.4.1")) {
+    DEBUG_WARNING("ArduinoIoTCloudTCP::%s In order to be ready for cloud OTA, NINA firmware needs to be >= 1.4.1, current %s", __FUNCTION__, WiFi.firmwareVersion());
+    return false;
+  } else {
+    return true;
+  }
+#endif
+  return false;
+}
+
 #endif /* ARDUINO_ARCH_SAMD */

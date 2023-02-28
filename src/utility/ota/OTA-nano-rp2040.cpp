@@ -258,4 +258,9 @@ String rp2040_connect_getOTAImageSHA256()
   return FlashSHA256::calc(XIP_BASE, 0x100000);
 }
 
+bool rp2040_connect_isOTACapable()
+{
+  return true;
+}
+
 #endif /* ARDUINO_NANO_RP2040_CONNECT */
