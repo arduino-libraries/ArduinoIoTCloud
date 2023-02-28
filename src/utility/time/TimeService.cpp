@@ -19,11 +19,24 @@
  * INCLUDE
  **************************************************************************************/
 
-#include "TimeService.h"
+#include <AIoTC_Config.h>
 
 #include <time.h>
-
+#include "TimeService.h"
 #include "NTPUtils.h"
+#include "AIoTC_Const.h"
+
+#ifdef ARDUINO_ARCH_SAMD
+  #include <RTCZero.h>
+#endif
+
+#ifdef ARDUINO_ARCH_MBED
+  #include <mbed_rtc_time.h>
+#endif
+
+#ifdef ARDUINO_ARCH_ESP8266
+  #include "RTCMillis.h"
+#endif
 
 /**************************************************************************************
  * GLOBAL VARIABLES
@@ -33,19 +46,52 @@
 RTCZero rtc;
 #endif
 
+#ifdef ARDUINO_ARCH_ESP8266
+RTCMillis rtc;
+#endif
+
 /**************************************************************************************
  * INTERNAL FUNCTION DECLARATION
  **************************************************************************************/
 
 time_t cvt_time(char const * time);
 
+#ifdef ARDUINO_ARCH_SAMD
+void samd_initRTC();
+void samd_setRTC(unsigned long time);
+unsigned long samd_getRTC();
+#endif
+
+#ifdef ARDUINO_NANO_RP2040_CONNECT
+void rp2040_connect_initRTC();
+void rp2040_connect_setRTC(unsigned long time);
+unsigned long rp2040_connect_getRTC();
+#endif
+
+#ifdef BOARD_STM32H7
+void stm32h7_initRTC();
+void stm32h7_setRTC(unsigned long time);
+unsigned long stm32h7_getRTC();
+#endif
+
+#ifdef ARDUINO_ARCH_ESP32
+void esp32_initRTC();
+void esp32_setRTC(unsigned long time);
+unsigned long esp32_getRTC();
+#endif
+
+#ifdef ARDUINO_ARCH_ESP8266
+void esp8266_initRTC();
+void esp8266_setRTC(unsigned long time);
+unsigned long esp8266_getRTC();
+#endif
+
 /**************************************************************************************
  * CONSTANTS
  **************************************************************************************/
 
-#ifdef ARDUINO_ARCH_ESP8266
-static unsigned long const AIOT_TIMESERVICE_ESP8266_NTP_SYNC_TIMEOUT_ms = 86400000;
-#endif
+/* Default NTP synch is scheduled each 24 hours from startup */
+static time_t const TIMESERVICE_NTP_SYNC_TIMEOUT_ms = DAYS * 1000;
 static time_t const EPOCH_AT_COMPILE_TIME = cvt_time(__DATE__);
 static time_t const EPOCH = 0;
 
@@ -53,17 +99,15 @@ static time_t const EPOCH = 0;
  * CTOR/DTOR
  **************************************************************************************/
 
-TimeService::TimeService()
+TimeServiceClass::TimeServiceClass()
 : _con_hdl(nullptr)
 , _is_rtc_configured(false)
 , _is_tz_configured(false)
-, _timezone_offset(0)
+, _timezone_offset(24 * 60 * 60)
 , _timezone_dst_until(0)
-#ifdef ARDUINO_ARCH_ESP8266
-, _last_ntp_sync_tick(0)
-, _last_rtc_update_tick(0)
-, _rtc(0)
-#endif
+, _last_sync_tick(0)
+, _sync_interval_ms(TIMESERVICE_NTP_SYNC_TIMEOUT_ms)
+, _sync_func(nullptr)
 {
 
 }
@@ -72,88 +116,85 @@ TimeService::TimeService()
  * PUBLIC MEMBER FUNCTIONS
  **************************************************************************************/
 
-void TimeService::begin(ConnectionHandler * con_hdl)
+void TimeServiceClass::begin(ConnectionHandler * con_hdl)
 {
   _con_hdl = con_hdl;
-#ifdef ARDUINO_ARCH_SAMD
-  rtc.begin();
+  initRTC();
+#ifdef HAS_LORA
+  setRTC(EPOCH_AT_COMPILE_TIME);
 #endif
 }
 
-unsigned long TimeService::getTime()
+unsigned long TimeServiceClass::getTime()
 {
-#ifdef ARDUINO_ARCH_SAMD
-  if(!_is_rtc_configured)
-  {
-    unsigned long utc = getRemoteTime();
-    if(EPOCH_AT_COMPILE_TIME != utc)
-    {
-      rtc.setEpoch(utc);
-      _is_rtc_configured = true;
-    }
-    return utc;
+  /* Check if it's time to sync */
+  unsigned long const current_tick = millis();
+  bool const is_ntp_sync_timeout = (current_tick - _last_sync_tick) > _sync_interval_ms;
+  if(!_is_rtc_configured || is_ntp_sync_timeout) {
+    sync();
   }
-  return rtc.getEpoch();
-#elif ARDUINO_ARCH_MBED
-  if(!_is_rtc_configured)
-  {
-    unsigned long utc = getRemoteTime();
-    if(EPOCH_AT_COMPILE_TIME != utc)
-    {
-      set_time(utc);
-      _is_rtc_configured = true;
-    }
-    return utc;
+
+  /* Read time from RTC */
+  unsigned long utc = getRTC();
+  return isTimeValid(utc) ? utc : EPOCH_AT_COMPILE_TIME;
+}
+
+void TimeServiceClass::setTime(unsigned long time)
+{
+  setRTC(time);
+}
+
+bool TimeServiceClass::sync()
+{
+  _is_rtc_configured = false;
+
+  unsigned long utc = EPOCH_AT_COMPILE_TIME;
+  if(_sync_func) {
+    utc = _sync_func();
+  } else {
+#ifdef HAS_TCP
+    utc = getRemoteTime();
+#endif
+#ifdef HAS_LORA
+    /* Just keep incrementing stored RTC value*/
+    utc = getRTC();
+#endif
   }
-  return time(NULL);
-#elif ARDUINO_ARCH_ESP32
-  if(!_is_rtc_configured)
-  {
-    configTime(0, 0, "time.arduino.cc", "pool.ntp.org", "time.nist.gov");
+
+  if(isTimeValid(utc)) {
+    DEBUG_DEBUG("TimeServiceClass::%s  Drift: %d RTC value: %u", __FUNCTION__, getRTC() - utc, utc);
+    setRTC(utc);
+    _last_sync_tick = millis();
     _is_rtc_configured = true;
   }
-  return time(NULL);
-#elif ARDUINO_ARCH_ESP8266
-  unsigned long const now = millis();
-  bool const is_ntp_sync_timeout = (now - _last_ntp_sync_tick) > AIOT_TIMESERVICE_ESP8266_NTP_SYNC_TIMEOUT_ms;
-  if(!_is_rtc_configured || is_ntp_sync_timeout)
-  {
-    _is_rtc_configured = false;
-    unsigned long utc = getRemoteTime();
-    if(EPOCH_AT_COMPILE_TIME != utc)
-    {
-      _rtc = utc;
-      _last_ntp_sync_tick = now;
-      _last_rtc_update_tick = now;
-      _is_rtc_configured = true;
-    }
-    return utc;
-  }
-  unsigned long const elapsed_s = (now - _last_rtc_update_tick) / 1000;
-  if(elapsed_s) {
-    _rtc += elapsed_s;
-    _last_rtc_update_tick = now;
-  }
-  return _rtc;
-#else
-  return getRemoteTime();
-#endif
+  return _is_rtc_configured;
 }
 
-void TimeService::setTimeZoneData(long offset, unsigned long dst_until)
+void TimeServiceClass::setSyncInterval(unsigned long seconds)
 {
-  if(_timezone_offset != offset)
-    DEBUG_DEBUG("ArduinoIoTCloudTCP::%s tz_offset: [%d]", __FUNCTION__, offset);
-  _timezone_offset = offset;
-
-  if(_timezone_dst_until != dst_until)
-    DEBUG_DEBUG("ArduinoIoTCloudTCP::%s tz_dst_unitl: [%ul]", __FUNCTION__, dst_until);
-  _timezone_dst_until = dst_until;
-
-  _is_tz_configured = true;
+  _sync_interval_ms = seconds * 1000;
 }
 
-unsigned long TimeService::getLocalTime()
+void TimeServiceClass::setSyncFunction(syncTimeFunctionPtr sync_func)
+{
+  if(sync_func) {
+    _sync_func = sync_func;
+  }
+}
+
+void TimeServiceClass::setTimeZoneData(long offset, unsigned long dst_until)
+{
+  if(isTimeZoneOffsetValid(offset) && isTimeValid(dst_until)) {
+    if(_timezone_offset != offset || _timezone_dst_until != dst_until) {
+      DEBUG_DEBUG("TimeServiceClass::%s offset: %d dst_unitl %u", __FUNCTION__, offset, dst_until);
+      _timezone_offset = offset;
+      _timezone_dst_until = dst_until;
+      _is_tz_configured = true;
+    }
+  }
+}
+
+unsigned long TimeServiceClass::getLocalTime()
 {
   unsigned long utc = getTime();
   if(_is_tz_configured) {
@@ -163,7 +204,7 @@ unsigned long TimeService::getLocalTime()
   }
 }
 
-unsigned long TimeService::getTimeFromString(const String& input)
+unsigned long TimeServiceClass::getTimeFromString(const String& input)
 {
   struct tm t =
   {
@@ -184,24 +225,22 @@ unsigned long TimeService::getTimeFromString(const String& input)
   static const int expected_length = 20;
   static const int expected_parameters = 6;
 
-  if(input == nullptr || input.length() != expected_length)
-  {
-    DEBUG_ERROR("ArduinoIoTCloudTCP::%s invalid input length", __FUNCTION__);
+  if(input == nullptr || input.length() != expected_length) {
+    DEBUG_ERROR("TimeServiceClass::%s invalid input length", __FUNCTION__);
     return 0;
   }
 
   int scanned_parameters = sscanf(input.c_str(), "%d %s %d %d:%d:%d", &year, s_month, &day, &hour, &min, &sec);
 
-  if(scanned_parameters != expected_parameters)
-  {
-    DEBUG_ERROR("ArduinoIoTCloudTCP::%s invalid input parameters number", __FUNCTION__);
+  if(scanned_parameters != expected_parameters) {
+    DEBUG_ERROR("TimeServiceClass::%s invalid input parameters number", __FUNCTION__);
     return 0;
   }
 
   char * s_month_position = strstr(month_names, s_month);
 
   if(s_month_position == nullptr || strlen(s_month) != 3) {
-    DEBUG_ERROR("ArduinoIoTCloudTCP::%s invalid month name, use %s", __FUNCTION__, month_names);
+    DEBUG_ERROR("TimeServiceClass::%s invalid month name, use %s", __FUNCTION__, month_names);
     return 0;
   }
 
@@ -209,7 +248,7 @@ unsigned long TimeService::getTimeFromString(const String& input)
 
   if(month <  0 || month > 11 || day <  1 || day > 31 || year < 1900 || hour < 0 ||
      hour  > 24 || min   <  0 || min > 60 || sec <  0 || sec  >  60) {
-    DEBUG_ERROR("ArduinoIoTCloudTCP::%s invalid date values", __FUNCTION__);
+    DEBUG_ERROR("TimeServiceClass::%s invalid date values", __FUNCTION__);
     return 0;
   }
 
@@ -227,7 +266,8 @@ unsigned long TimeService::getTimeFromString(const String& input)
  * PRIVATE MEMBER FUNCTIONS
  **************************************************************************************/
 
-bool TimeService::connected()
+#ifdef HAS_TCP
+bool TimeServiceClass::connected()
 {
   if(_con_hdl == nullptr) {
     return false;
@@ -236,11 +276,8 @@ bool TimeService::connected()
   }
 }
 
-unsigned long TimeService::getRemoteTime()
+unsigned long TimeServiceClass::getRemoteTime()
 {
-#include "../../AIoTC_Config.h"
-#ifndef HAS_LORA
-
   if(connected()) {
     /* At first try to see if a valid time can be obtained
      * using the network time available via the connection
@@ -262,8 +299,6 @@ unsigned long TimeService::getRemoteTime()
 #endif
   }
 
-#endif /* ifndef HAS_LORA */
-
   /* Return the epoch timestamp at compile time as a last
    * line of defense. Otherwise the certificate expiration
    * date is wrong and we'll be unable to establish a connection
@@ -272,9 +307,68 @@ unsigned long TimeService::getRemoteTime()
   return EPOCH_AT_COMPILE_TIME;
 }
 
-bool TimeService::isTimeValid(unsigned long const time)
+#endif  /* HAS_TCP */
+
+bool TimeServiceClass::isTimeValid(unsigned long const time)
 {
-  return (time >= EPOCH_AT_COMPILE_TIME);
+  return (time > EPOCH_AT_COMPILE_TIME);
+}
+
+bool TimeServiceClass::isTimeZoneOffsetValid(long const offset)
+{
+  /* UTC offset can go from +14 to -12 hours */
+  return ((offset < (14 * 60 * 60)) && (offset > (-12 * 60 * 60)));
+}
+
+void TimeServiceClass::initRTC()
+{
+#if defined (ARDUINO_ARCH_SAMD)
+  samd_initRTC();
+#elif defined (ARDUINO_NANO_RP2040_CONNECT)
+  rp2040_connect_initRTC();
+#elif defined (BOARD_STM32H7)
+  stm32h7_initRTC();
+#elif defined (ARDUINO_ARCH_ESP32)
+  esp32_initRTC();
+#elif ARDUINO_ARCH_ESP8266
+  esp8266_initRTC();
+#else
+  #error "RTC not available for this architecture"
+#endif
+}
+
+void TimeServiceClass::setRTC(unsigned long time)
+{
+#if defined (ARDUINO_ARCH_SAMD)
+  samd_setRTC(time);
+#elif defined (ARDUINO_NANO_RP2040_CONNECT)
+  rp2040_connect_setRTC(time);
+#elif defined (BOARD_STM32H7)
+  stm32h7_setRTC(time);
+#elif defined (ARDUINO_ARCH_ESP32)
+  esp32_setRTC(time);
+#elif ARDUINO_ARCH_ESP8266
+  esp8266_setRTC(time);
+#else
+  #error "RTC not available for this architecture"
+#endif
+}
+
+unsigned long TimeServiceClass::getRTC()
+{
+#if defined (ARDUINO_ARCH_SAMD)
+  return samd_getRTC();
+#elif defined (ARDUINO_NANO_RP2040_CONNECT)
+  return rp2040_connect_getRTC();
+#elif defined (BOARD_STM32H7)
+  return stm32h7_getRTC();
+#elif defined (ARDUINO_ARCH_ESP32)
+  return esp32_getRTC();
+#elif ARDUINO_ARCH_ESP8266
+  return esp8266_getRTC();
+#else
+  #error "RTC not available for this architecture"
+#endif
 }
 
 /**************************************************************************************
@@ -311,7 +405,94 @@ time_t cvt_time(char const * time)
   return mktime(&t);
 }
 
-TimeService & ArduinoIoTCloudTimeService() {
-  static TimeService _timeService_instance;
-  return _timeService_instance;
+#ifdef ARDUINO_ARCH_SAMD
+void samd_initRTC()
+{
+  rtc.begin();
 }
+
+void samd_setRTC(unsigned long time)
+{
+  rtc.setEpoch(time);
+}
+
+unsigned long samd_getRTC()
+{
+  return rtc.getEpoch();
+}
+#endif
+
+#ifdef ARDUINO_NANO_RP2040_CONNECT
+void rp2040_connect_initRTC()
+{
+  /* Nothing to do */
+}
+
+void rp2040_connect_setRTC(unsigned long time)
+{
+  set_time(time);
+}
+
+unsigned long rp2040_connect_getRTC()
+{
+  return time(NULL);
+}
+#endif
+
+#ifdef BOARD_STM32H7
+void stm32h7_initRTC()
+{
+  /* Nothing to do */
+}
+
+void stm32h7_setRTC(unsigned long time)
+{
+  set_time(time);
+}
+
+unsigned long stm32h7_getRTC()
+{
+  return time(NULL);
+}
+#endif
+
+#ifdef ARDUINO_ARCH_ESP32
+void esp32_initRTC()
+{
+  //configTime(0, 0, "time.arduino.cc", "pool.ntp.org", "time.nist.gov");
+}
+
+void esp32_setRTC(unsigned long time)
+{
+  const timeval epoch = {(time_t)time, 0};
+  settimeofday(&epoch, 0);
+}
+
+unsigned long esp32_getRTC()
+{
+  return time(NULL);
+}
+#endif
+
+#ifdef ARDUINO_ARCH_ESP8266
+void esp8266_initRTC()
+{
+  rtc.begin();
+}
+
+void esp8266_setRTC(unsigned long time)
+{
+  rtc.set(time);
+}
+
+unsigned long esp8266_getRTC()
+{
+  return rtc.get();
+}
+#endif
+
+/******************************************************************************
+ * EXTERN DEFINITION
+ ******************************************************************************/
+
+TimeServiceClass TimeService;

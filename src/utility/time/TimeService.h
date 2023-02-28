@@ -22,32 +22,35 @@
  * INCLUDE
  **************************************************************************************/
 
+#include <AIoTC_Config.h>
 #include <Arduino_ConnectionHandler.h>
 
-#ifdef ARDUINO_ARCH_SAMD
-  #include <RTCZero.h>
-#endif
+/******************************************************************************
+ * TYPEDEF
+ ******************************************************************************/
 
-#ifdef ARDUINO_ARCH_MBED
-  #include <mbed_rtc_time.h>
-#endif
+typedef unsigned long(*syncTimeFunctionPtr)(void);
 
 /**************************************************************************************
  * CLASS DECLARATION
  **************************************************************************************/
 
-class TimeService
+class TimeServiceClass
 {
 
 public:
 
-  TimeService();
-
+  TimeServiceClass();
 
   void          begin  (ConnectionHandler * con_hdl);
   unsigned long getTime();
+  void          setTime(unsigned long time);
   unsigned long getLocalTime();
   void          setTimeZoneData(long offset, unsigned long valid_until);
+  bool          sync();
+  void          setSyncInterval(unsigned long seconds);
+  void          setSyncFunction(syncTimeFunctionPtr sync_func);
+
   /* Helper function to convert an input String into a UNIX timestamp.
    * The input String format must be as follow "2021 Nov 01 17:00:00"
    */
@@ -60,18 +63,26 @@ private:
   bool _is_tz_configured;
   long _timezone_offset;
   unsigned long _timezone_dst_until;
-#ifdef ARDUINO_ARCH_ESP8266
-  unsigned long _last_ntp_sync_tick;
-  unsigned long _last_rtc_update_tick;
-  unsigned long _rtc;
-#endif
+  unsigned long _last_sync_tick;
+  unsigned long _sync_interval_ms;
+  syncTimeFunctionPtr _sync_func;
 
+#ifdef HAS_TCP
   unsigned long getRemoteTime();
   bool connected();
+#endif
+  void initRTC();
+  void setRTC(unsigned long time);
+  unsigned long getRTC();
   static bool isTimeValid(unsigned long const time);
+  static bool isTimeZoneOffsetValid(long const offset);
 
 };
 
-TimeService & ArduinoIoTCloudTimeService();
+/******************************************************************************
+ * EXTERN DECLARATION
+ ******************************************************************************/
+
+extern TimeServiceClass TimeService;
 
 #endif /* ARDUINO_IOT_CLOUD_TIME_SERVICE_H_ */

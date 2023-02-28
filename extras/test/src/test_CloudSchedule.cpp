@@ -13,16 +13,22 @@
 unsigned long time_now = 1;
 
 /**************************************************************************************
- * TimeService Fake CTOR/DTOR
+ * TimeServiceClass Fake CTOR
  **************************************************************************************/
 
-TimeService::TimeService() {}
+TimeServiceClass::TimeServiceClass() {}
 
 /**************************************************************************************
- * TimeService Fake Methods
+ * TimeServiceClass Fake Methods
  **************************************************************************************/
 
-unsigned long TimeService::getLocalTime() {return time_now;}
+unsigned long TimeServiceClass::getLocalTime() {return time_now;}
+
+/**************************************************************************************
+ * TimeService Fake local instance
+ **************************************************************************************/
+
+TimeServiceClass TimeService;
 
 /**************************************************************************************
   TEST CODE

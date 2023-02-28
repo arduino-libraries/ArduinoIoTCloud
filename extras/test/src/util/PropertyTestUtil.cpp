@@ -18,8 +18,3 @@ unsigned long getTime()
 {
   return 0;
 }
-
-TimeService & ArduinoIoTCloudTimeService() {
-  static TimeService _timeService_instance;
-  return _timeService_instance;
-}
