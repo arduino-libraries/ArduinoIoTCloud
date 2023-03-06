@@ -102,7 +102,7 @@
   #define OTA_STORAGE_SSU         (0)
 #endif
 
-#if defined(ARDUINO_PORTENTA_H7_M7) || defined(ARDUINO_NICLA_VISION) || defined(ARDUINO_OPTA)
+#if defined(ARDUINO_PORTENTA_H7_M7) || defined(ARDUINO_NICLA_VISION) || defined(ARDUINO_OPTA) || defined(ARDUINO_GIGA)
   #define OTA_STORAGE_PORTENTA_QSPI   (1)
 #else
   #define OTA_STORAGE_PORTENTA_QSPI   (0)
@@ -120,7 +120,8 @@
 
 #if defined(ARDUINO_SAMD_MKRGSM1400) || defined(ARDUINO_SAMD_MKR1000) ||   \
   defined(ARDUINO_SAMD_MKRNB1500) || defined(ARDUINO_PORTENTA_H7_M7)      ||   \
-  defined (ARDUINO_NANO_RP2040_CONNECT) || defined(ARDUINO_OPTA)
+  defined (ARDUINO_NANO_RP2040_CONNECT) || defined(ARDUINO_OPTA) || \
+  defined(ARDUINO_GIGA)
   #define BOARD_HAS_ECCX08
   #define HAS_TCP
 #endif
@@ -145,7 +146,7 @@
   #define HAS_TCP
 #endif
 
-#if defined(ARDUINO_PORTENTA_H7_M7) || defined(ARDUINO_NICLA_VISION) || defined(ARDUINO_OPTA)
+#if defined(ARDUINO_PORTENTA_H7_M7) || defined(ARDUINO_NICLA_VISION) || defined(ARDUINO_OPTA) || defined(ARDUINO_GIGA)
   #define BOARD_STM32H7
 #endif
 

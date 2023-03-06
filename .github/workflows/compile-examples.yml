@@ -60,6 +60,9 @@ jobs:
             type: mbed_nicla
           - fqbn: arduino:mbed_opta:opta
             type: mbed_opta
+          - fqbn: arduino:mbed_giga:giga
+            type: mbed_giga
+
 
         # make board type-specific customizations to the matrix jobs
         include:
@@ -156,6 +159,17 @@ jobs:
             platforms: |
               # Install mbed_opta platform via Boards Manager
               - name: arduino:mbed_opta
+            libraries: |
+              - name: ArduinoECCX08
+              - name: Arduino_Portenta_OTA
+            sketch-paths: |
+              - examples/utility/Provisioning
+          # GIGA
+          - board:
+              type: mbed_giga
+            platforms: |
+              # Install mbed_giga platform via Boards Manager
+              - name: arduino:mbed_giga
             libraries: |
               - name: ArduinoECCX08
               - name: Arduino_Portenta_OTA
