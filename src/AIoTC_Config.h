@@ -126,7 +126,7 @@
   #define HAS_TCP
 #endif
 
-#if defined(ARDUINO_NICLA_VISION)
+#if defined(ARDUINO_NICLA_VISION) || defined(ARDUINO_PORTENTA_C33)
   #define BOARD_HAS_SE050
   #define HAS_TCP
 #endif

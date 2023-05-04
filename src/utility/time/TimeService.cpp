@@ -330,8 +330,9 @@ void TimeServiceClass::initRTC()
   stm32h7_initRTC();
 #elif defined (ARDUINO_ARCH_ESP32)
   esp32_initRTC();
-#elif ARDUINO_ARCH_ESP8266
+#elif defined (ARDUINO_ARCH_ESP8266)
   esp8266_initRTC();
+#elif defined (ARDUINO_PORTENTA_C33)
 #else
   #error "RTC not available for this architecture"
 #endif
@@ -347,8 +348,9 @@ void TimeServiceClass::setRTC(unsigned long time)
   stm32h7_setRTC(time);
 #elif defined (ARDUINO_ARCH_ESP32)
   esp32_setRTC(time);
-#elif ARDUINO_ARCH_ESP8266
+#elif defined (ARDUINO_ARCH_ESP8266)
   esp8266_setRTC(time);
+#elif defined (ARDUINO_PORTENTA_C33)
 #else
   #error "RTC not available for this architecture"
 #endif
@@ -364,8 +366,9 @@ unsigned long TimeServiceClass::getRTC()
   return stm32h7_getRTC();
 #elif defined (ARDUINO_ARCH_ESP32)
   return esp32_getRTC();
-#elif ARDUINO_ARCH_ESP8266
+#elif defined (ARDUINO_ARCH_ESP8266)
   return esp8266_getRTC();
+#elif defined (ARDUINO_PORTENTA_C33)
 #else
   #error "RTC not available for this architecture"
 #endif
