@@ -15,7 +15,7 @@
    a commercial license, send an email to license@arduino.cc.
 */
 
-#ifdef ARDUINO_ARCH_ESP8266
+#if defined (ARDUINO_ARCH_ESP8266) || defined (ARDUINO_RASPBERRY_PI_PICO_W)
 
 /**************************************************************************************
  * INCLUDE
@@ -59,4 +59,4 @@ unsigned long RTCMillis::get()
   return _last_rtc_update_value;
 }
 
-#endif /* ARDUINO_ARCH_ESP8266 */
+#endif /* ARDUINO_ARCH_ESP8266 || ARDUINO_RASPBERRY_PI_PICO_W */

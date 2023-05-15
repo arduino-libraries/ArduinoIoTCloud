@@ -18,7 +18,7 @@
 #ifndef ARDUINO_IOT_CLOUD_RTC_MILLIS_H_
 #define ARDUINO_IOT_CLOUD_RTC_MILLIS_H_
 
-#ifdef ARDUINO_ARCH_ESP8266
+#if defined (ARDUINO_ARCH_ESP8266) || defined (ARDUINO_RASPBERRY_PI_PICO_W)
 
 /**************************************************************************************
  * INCLUDE
@@ -45,6 +45,6 @@ private:
 
 };
 
-#endif /* ARDUINO_ARCH_ESP8266 */
+#endif /* ARDUINO_ARCH_ESP8266 || ARDUINO_RASPBERRY_PI_PICO_W */
 
 #endif /* ARDUINO_IOT_CLOUD_RTC_MILLIS_H_ */
