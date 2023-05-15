@@ -59,6 +59,8 @@ void TLSClientMqtt::begin(ConnectionHandler & connection) {
    * https://github.com/arduino/uno-r4-wifi-usb-bridge/blob/f09ca94fdcab845b8368d4435fdac9f6999d21d2/certificates/certificates.pem#L852
    */
   (void)connection;
+#elif defined(ARDUINO_RASPBERRY_PI_PICO_W)
+    setCACert(AIoTUPCert);
 #elif defined(ARDUINO_ARCH_ESP32)
   #if (ESP_ARDUINO_VERSION < ESP_ARDUINO_VERSION_VAL(3, 0, 4))
     setCACertBundle(x509_crt_bundle);
