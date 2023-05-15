@@ -21,7 +21,7 @@
 
 #include "AIoTC_Config.h"
 
-#if defined(HAS_NOTECARD) || defined(ARDUINO_ARCH_ESP8266)
+#if defined(HAS_NOTECARD) || defined(ARDUINO_ARCH_ESP8266) || defined (ARDUINO_RASPBERRY_PI_PICO_W)
 
 #include <Arduino.h>
 #include "RTCMillis.h"
@@ -61,4 +61,4 @@ unsigned long RTCMillis::get()
   return _last_rtc_update_value;
 }
 
-#endif /* HAS_NOTECARD || ARDUINO_ARCH_ESP8266 */
+#endif /* HAS_NOTECARD || ARDUINO_ARCH_ESP8266 || ARDUINO_RASPBERRY_PI_PICO_W */
