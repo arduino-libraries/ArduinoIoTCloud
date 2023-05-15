@@ -27,7 +27,7 @@
 #include "NTPUtils.h"
 #include "TimeService.h"
 
-#if defined(HAS_NOTECARD) || defined(ARDUINO_ARCH_ESP8266)
+#if defined(HAS_NOTECARD) || defined(ARDUINO_ARCH_ESP8266) || defined (ARDUINO_RASPBERRY_PI_PICO_W)
   #include "RTCMillis.h"
 #elif defined(ARDUINO_ARCH_SAMD)
   #include <RTCZero.h>
@@ -41,7 +41,7 @@
  * GLOBAL VARIABLES
  **************************************************************************************/
 
-#if defined(HAS_NOTECARD) || defined(ARDUINO_ARCH_ESP8266)
+#if defined(HAS_NOTECARD) || defined(ARDUINO_ARCH_ESP8266) || defined (ARDUINO_RASPBERRY_PI_PICO_W)
 RTCMillis rtc;
 #elif defined(ARDUINO_ARCH_SAMD)
 RTCZero rtc;
@@ -87,6 +87,12 @@ unsigned long esp8266_getRTC();
 void renesas_initRTC();
 void renesas_setRTC(unsigned long time);
 unsigned long renesas_getRTC();
+#endif
+
+#ifdef ARDUINO_RASPBERRY_PI_PICO_W
+void pico_w_initRTC();
+void pico_w_setRTC(unsigned long time);
+unsigned long pico_w_getRTC();
 #endif
 
 #endif /* HAS_NOTECARD */
@@ -356,6 +362,7 @@ void TimeServiceClass::initRTC()
 #elif defined (ARDUINO_ARCH_RENESAS)
   renesas_initRTC();
 #elif defined (ARDUINO_RASPBERRY_PI_PICO_W)
+  pico_w_initRTC();
 #else
   #error "RTC not available for this architecture"
 #endif
@@ -376,6 +383,7 @@ void TimeServiceClass::setRTC(unsigned long time)
 #elif defined (ARDUINO_ARCH_RENESAS)
   renesas_setRTC(time);
 #elif defined (ARDUINO_RASPBERRY_PI_PICO_W)
+  pico_w_setRTC(time);
 #else
   #error "RTC not available for this architecture"
 #endif
@@ -396,7 +404,7 @@ unsigned long TimeServiceClass::getRTC()
 #elif defined (ARDUINO_ARCH_RENESAS)
   return renesas_getRTC();
 #elif defined (ARDUINO_RASPBERRY_PI_PICO_W)
-  return 1;
+  return pico_w_getRTC();
 #else
   #error "RTC not available for this architecture"
 #endif
@@ -545,6 +553,23 @@ unsigned long renesas_getRTC()
   RTCTime t;
   RTC.getTime(t);
   return t.getUnixTime();
+}
+#endif
+
+#ifdef ARDUINO_RASPBERRY_PI_PICO_W
+void pico_w_initRTC()
+{
+  rtc.begin();
+}
+
+void pico_w_setRTC(unsigned long time)
+{
+  rtc.set(time);
+}
+
+unsigned long pico_w_getRTC()
+{
+  return rtc.get();
 }
 #endif
 
