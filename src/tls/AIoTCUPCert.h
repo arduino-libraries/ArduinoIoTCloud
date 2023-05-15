@@ -24,7 +24,7 @@
  ******************************************************************************/
 
 #include <AIoTC_Config.h>
-#if defined(ARDUINO_ARCH_ESP32) ||  defined (ARDUINO_EDGE_CONTROL)
+#if defined(ARDUINO_ARCH_ESP32) ||  defined (ARDUINO_EDGE_CONTROL) || defined (ARDUINO_RASPBERRY_PI_PICO_W)
 
 /******************************************************************************
  * CONSTANTS
@@ -163,6 +163,6 @@ static const char AIoTUPCert[] =
 "-----END CERTIFICATE-----\n";
 #else
 
-#endif /* #ifdef ARDUINO_ARCH_ESP32 */
+#endif /* #ifdef ARDUINO_ARCH_ESP32 || ARDUINO_EDGE_CONTROL || ARDUINO_RASPBERRY_PI_PICO_W */
 
 #endif /* _AIOTC_UP_CERT_H_ */
