@@ -29,7 +29,7 @@
 #ifdef BOARD_HAS_ECCX08
   #include "tls/BearSSLClient.h"
   #include "tls/utility/CryptoUtil.h"
-#elif defined(BOARD_ESP)
+#elif defined(BOARD_HAS_SECRET_KEY)
   #include <WiFiClientSecure.h>
 #elif defined(BOARD_HAS_SE050)
   #include "tls/utility/CryptoUtil.h"
@@ -81,7 +81,7 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
     #endif
     int begin(bool const enable_watchdog = true, String brokerAddress = DEFAULT_BROKER_ADDRESS_SECURE_AUTH, uint16_t brokerPort = DEFAULT_BROKER_PORT_SECURE_AUTH);
 
-    #ifdef BOARD_ESP
+    #ifdef BOARD_HAS_SECRET_KEY
     inline void setBoardId        (String const device_id) { setDeviceId(device_id); }
     inline void setSecretDeviceKey(String const password)  { _password = password;  }
     #endif
@@ -143,7 +143,7 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
     ArduinoIoTCloudCertClass _cert;
     WiFiBearSSLClient _sslClient;
     CryptoUtil _crypto;
-    #elif defined(BOARD_ESP)
+    #elif defined(BOARD_HAS_SECRET_KEY)
     WiFiClientSecure _sslClient;
     String _password;
     #elif defined(BOARD_HAS_SE050)

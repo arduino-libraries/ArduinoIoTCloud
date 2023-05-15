@@ -11,7 +11,7 @@
    DEFINES
  ******************************************************************************/
 
-#if defined(BOARD_ESP)
+#if defined(BOARD_HAS_SECRET_KEY)
   #define BOARD_ID "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
 #endif
 
@@ -79,7 +79,7 @@ void onStringPropertyChange();
  ******************************************************************************/
 #if defined(BOARD_HAS_WIFI) || defined(BOARD_HAS_GSM) || defined (BOARD_HAS_NB)
 void initProperties() {
-#if defined(BOARD_ESP)
+#if defined(BOARD_HAS_SECRET_KEY)
   ArduinoCloud.setBoardId(BOARD_ID);
   ArduinoCloud.setSecretDeviceKey(SECRET_DEVICE_KEY);
 #endif
