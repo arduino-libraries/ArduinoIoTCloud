@@ -240,7 +240,7 @@ static const unsigned char x509_crt_bundle[] = {
   0x00, 0x01
 };
 
-#elif defined (ARDUINO_EDGE_CONTROL)
+#elif defined (ARDUINO_EDGE_CONTROL) || defined (ARDUINO_RASPBERRY_PI_PICO_W)
   /*
    * https://www.amazontrust.com/repository/AmazonRootCA1.pem
    * https://www.amazontrust.com/repository/AmazonRootCA2.pem
