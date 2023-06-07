@@ -168,7 +168,7 @@ int ArduinoIoTCloudTCP::begin(bool const enable_watchdog, String brokerAddress, 
   _sslClient.setClient(_connection->getClient());
 #elif defined(BOARD_HAS_SE050)
   _sslClient.appendCustomCACert(AIoTSSCert);
-#elif defined(BOARD_HAS_SECRET_KEY)
+#elif defined(BOARD_ESP)
   _sslClient.setInsecure();
 #endif
 
