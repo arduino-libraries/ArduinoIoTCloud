@@ -38,6 +38,10 @@
   #include "RTCMillis.h"
 #endif
 
+#ifdef ARDUINO_ARCH_RENESAS
+  #include "RTC.h"
+#endif
+
 /**************************************************************************************
  * GLOBAL VARIABLES
  **************************************************************************************/
@@ -84,6 +88,12 @@ unsigned long esp32_getRTC();
 void esp8266_initRTC();
 void esp8266_setRTC(unsigned long time);
 unsigned long esp8266_getRTC();
+#endif
+
+#ifdef ARDUINO_ARCH_RENESAS
+void renesas_initRTC();
+void renesas_setRTC(unsigned long time);
+unsigned long renesas_getRTC();
 #endif
 
 /**************************************************************************************
@@ -332,7 +342,8 @@ void TimeServiceClass::initRTC()
   esp32_initRTC();
 #elif defined (ARDUINO_ARCH_ESP8266)
   esp8266_initRTC();
-#elif defined (ARDUINO_PORTENTA_C33)
+#elif defined (ARDUINO_ARCH_RENESAS)
+  renesas_initRTC();
 #else
   #error "RTC not available for this architecture"
 #endif
@@ -350,7 +361,8 @@ void TimeServiceClass::setRTC(unsigned long time)
   esp32_setRTC(time);
 #elif defined (ARDUINO_ARCH_ESP8266)
   esp8266_setRTC(time);
-#elif defined (ARDUINO_PORTENTA_C33)
+#elif defined (ARDUINO_ARCH_RENESAS)
+  renesas_setRTC(time);
 #else
   #error "RTC not available for this architecture"
 #endif
@@ -368,7 +380,8 @@ unsigned long TimeServiceClass::getRTC()
   return esp32_getRTC();
 #elif defined (ARDUINO_ARCH_ESP8266)
   return esp8266_getRTC();
-#elif defined (ARDUINO_PORTENTA_C33)
+#elif defined (ARDUINO_ARCH_RENESAS)
+  return renesas_getRTC();
 #else
   #error "RTC not available for this architecture"
 #endif
@@ -491,6 +504,26 @@ void esp8266_setRTC(unsigned long time)
 unsigned long esp8266_getRTC()
 {
   return rtc.get();
+}
+#endif
+
+#ifdef ARDUINO_ARCH_RENESAS
+void renesas_initRTC()
+{
+  RTC.begin();
+}
+
+void renesas_setRTC(unsigned long time)
+{
+  RTCTime t(time);
+  RTC.setTime(t);
+}
+
+unsigned long renesas_getRTC()
+{
+  RTCTime t;
+  RTC.getTime(t);
+  return t.getUnixTime();
 }
 #endif
 
