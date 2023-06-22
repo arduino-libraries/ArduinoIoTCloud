@@ -54,9 +54,8 @@ unsigned long RTCMillis::get()
 {
   unsigned long current_tick = millis();
   unsigned long const elapsed_s = (current_tick - _last_rtc_update_tick) / 1000;
-  if(elapsed_s) {
-    set(_last_rtc_update_value + elapsed_s);
-  }
+  _last_rtc_update_value += elapsed_s;
+  _last_rtc_update_tick += elapsed_s * 1000;
   return _last_rtc_update_value;
 }
 

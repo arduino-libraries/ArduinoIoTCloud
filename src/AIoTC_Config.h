@@ -126,7 +126,7 @@
   #define HAS_TCP
 #endif
 
-#if defined(ARDUINO_NICLA_VISION)
+#if defined(ARDUINO_NICLA_VISION) || defined(ARDUINO_PORTENTA_C33)
   #define BOARD_HAS_SE050
   #define HAS_TCP
 #endif
@@ -141,7 +141,7 @@
   #define HAS_LORA
 #endif
 
-#if defined(ARDUINO_ESP8266_ESP12) || defined(ARDUINO_ARCH_ESP32) || defined(ESP8266) || defined(ESP32)
+#if defined(ARDUINO_ARCH_ESP8266) || defined(ARDUINO_ARCH_ESP32)
   #define BOARD_ESP
   #define BOARD_HAS_SECRET_KEY
   #define HAS_TCP
@@ -168,6 +168,6 @@
 #define AIOT_CONFIG_RP2040_OTA_HTTP_HEADER_RECEIVE_TIMEOUT_ms   (10*1000UL)
 #define AIOT_CONFIG_RP2040_OTA_HTTP_DATA_RECEIVE_TIMEOUT_ms   (4*60*1000UL)
 
-#define AIOT_CONFIG_LIB_VERSION "1.11.0"
+#define AIOT_CONFIG_LIB_VERSION "1.11.1"
 
 #endif /* ARDUINO_AIOTC_CONFIG_H_ */
