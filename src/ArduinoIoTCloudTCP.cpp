@@ -166,6 +166,9 @@ int ArduinoIoTCloudTCP::begin(bool const enable_watchdog, String brokerAddress, 
 
 #if defined(BOARD_HAS_ECCX08)
   _sslClient.setClient(_connection->getClient());
+#elif defined(ARDUINO_PORTENTA_C33)
+  _sslClient.setClient(_connection->getClient());
+  _sslClient.setCACert(AIoTSSCert);
 #elif defined(BOARD_HAS_SE050)
   _sslClient.appendCustomCACert(AIoTSSCert);
 #elif defined(BOARD_ESP)
