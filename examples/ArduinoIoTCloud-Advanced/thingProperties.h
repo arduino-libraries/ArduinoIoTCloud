@@ -7,7 +7,7 @@
   #error "Please check Arduino IoT Cloud supported boards list: https://github.com/arduino-libraries/ArduinoIoTCloud/#what"
 #endif
 
-#if defined(BOARD_ESP)
+#if defined(BOARD_HAS_SECRET_KEY)
   #define BOARD_ID "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
 #endif
 
@@ -19,7 +19,7 @@ CloudLocation location;
 CloudColor color;
 
 void initProperties() {
-#if defined(BOARD_ESP)
+#if defined(BOARD_HAS_SECRET_KEY)
   ArduinoCloud.setBoardId(BOARD_ID);
   ArduinoCloud.setSecretDeviceKey(SECRET_DEVICE_KEY);
 #endif
