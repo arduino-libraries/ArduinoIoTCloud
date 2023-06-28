@@ -62,6 +62,8 @@ jobs:
             type: mbed_opta
           - fqbn: arduino:mbed_giga:giga
             type: mbed_giga
+          - fqbn: arduino:renesas_portenta:portenta_c33
+            type: renesas_portenta
 
 
         # make board type-specific customizations to the matrix jobs
@@ -173,6 +175,14 @@ jobs:
             libraries: |
               - name: ArduinoECCX08
               - name: Arduino_Portenta_OTA
+            sketch-paths: |
+              - examples/utility/Provisioning
+          # Portneta C33
+          - board:
+              type: renesas_portenta
+            platforms: |
+              # Install renesas_portenta platform via Boards Manager
+              - name: arduino:renesas_portenta
             sketch-paths: |
               - examples/utility/Provisioning
           # ESP8266 boards
