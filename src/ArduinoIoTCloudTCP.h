@@ -31,6 +31,8 @@
   #include "tls/utility/CryptoUtil.h"
 #elif defined(BOARD_ESP)
   #include <WiFiClientSecure.h>
+#elif defined(ARDUINO_UNOR4_WIFI)
+  #include <WiFiSSLClient.h>
 #elif defined(ARDUINO_PORTENTA_C33)
   #include "tls/utility/CryptoUtil.h"
   #include <SSLClient.h>
@@ -148,6 +150,8 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
     CryptoUtil _crypto;
     #elif defined(BOARD_ESP)
     WiFiClientSecure _sslClient;
+    #elif defined(ARDUINO_UNOR4_WIFI)
+    WiFiSSLClient _sslClient;
     #elif defined(ARDUINO_PORTENTA_C33)
     ArduinoIoTCloudCertClass _cert;
     SSLClient _sslClient;
