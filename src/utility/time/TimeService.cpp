@@ -398,32 +398,38 @@ unsigned long TimeServiceClass::getRTC()
 
 time_t cvt_time(char const * time)
 {
-  char s_month[5];
-  int month, day, year;
-  struct tm t =
-  {
-    0 /* tm_sec   */,
-    0 /* tm_min   */,
-    0 /* tm_hour  */,
-    0 /* tm_mday  */,
-    0 /* tm_mon   */,
-    0 /* tm_year  */,
-    0 /* tm_wday  */,
-    0 /* tm_yday  */,
-    0 /* tm_isdst */
-  };
-  static const char month_names[] = "JanFebMarAprMayJunJulAugSepOctNovDec";
+  static time_t build_time = 0;
 
-  sscanf(time, "%s %d %d", s_month, &day, &year);
+  if (!build_time) {
+    char s_month[5];
+    int month, day, year;
+    struct tm t =
+    {
+      0 /* tm_sec   */,
+      0 /* tm_min   */,
+      0 /* tm_hour  */,
+      0 /* tm_mday  */,
+      0 /* tm_mon   */,
+      0 /* tm_year  */,
+      0 /* tm_wday  */,
+      0 /* tm_yday  */,
+      0 /* tm_isdst */
+    };
+    static const char month_names[] = "JanFebMarAprMayJunJulAugSepOctNovDec";
 
-  month = (strstr(month_names, s_month) - month_names) / 3;
+    sscanf(time, "%s %d %d", s_month, &day, &year);
 
-  t.tm_mon = month;
-  t.tm_mday = day;
-  t.tm_year = year - 1900;
-  t.tm_isdst = -1;
+    month = (strstr(month_names, s_month) - month_names) / 3;
 
-  return mktime(&t);
+    t.tm_mon = month;
+    t.tm_mday = day;
+    t.tm_year = year - 1900;
+    t.tm_isdst = -1;
+
+    build_time = mktime(&t);
+  }
+
+  return build_time;
 }
 
 #ifdef ARDUINO_ARCH_SAMD
