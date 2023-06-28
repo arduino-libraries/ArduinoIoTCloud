@@ -97,12 +97,17 @@ unsigned long renesas_getRTC();
 #endif
 
 /**************************************************************************************
+ * DEFINES
+ **************************************************************************************/
+
+#define EPOCH_AT_COMPILE_TIME cvt_time(__DATE__)
+
+/**************************************************************************************
  * CONSTANTS
  **************************************************************************************/
 
 /* Default NTP synch is scheduled each 24 hours from startup */
 static time_t const TIMESERVICE_NTP_SYNC_TIMEOUT_ms = DAYS * 1000;
-static time_t const EPOCH_AT_COMPILE_TIME = cvt_time(__DATE__);
 static time_t const EPOCH = 0;
 
 /**************************************************************************************
