@@ -329,7 +329,7 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_ConnectMqttBroker()
 
 #if defined(ARDUINO_UNOWIFIR4)
     if (String(WiFi.firmwareVersion()) < String("0.2.0")) {
-      DEBUG_ERROR("ArduinoIoTCloudTCP::%s In order to connect to Arduino IoT Cloud, WiFI firmware needs to be >= 0.2.0, current %s", __FUNCTION__, WiFi.firmwareVersion());
+      DEBUG_ERROR("ArduinoIoTCloudTCP::%s In order to connect to Arduino IoT Cloud, WiFi firmware needs to be >= 0.2.0, current %s", __FUNCTION__, WiFi.firmwareVersion());
     }
 #endif
 
