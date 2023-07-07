@@ -64,6 +64,8 @@ jobs:
             type: mbed_giga
           - fqbn: arduino:renesas_portenta:portenta_c33
             type: renesas_portenta
+          - fqbn: arduino:renesas_uno:unor4wifi
+            type: renesas_uno
 
 
         # make board type-specific customizations to the matrix jobs
@@ -177,7 +179,7 @@ jobs:
               - name: Arduino_Portenta_OTA
             sketch-paths: |
               - examples/utility/Provisioning
-          # Portneta C33
+          # Portenta C33
           - board:
               type: renesas_portenta
             platforms: |
@@ -185,6 +187,12 @@ jobs:
               - name: arduino:renesas_portenta
             sketch-paths: |
               - examples/utility/Provisioning
+          # UNO R4 WiFi
+          - board:
+              type: renesas_uno
+            platforms: |
+              # Install renesas_uno platform via Boards Manager
+              - name: arduino:renesas_uno
           # ESP8266 boards
           - board:
               type: esp8266
