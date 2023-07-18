@@ -66,6 +66,8 @@ jobs:
             type: renesas_portenta
           - fqbn: arduino:renesas_uno:unor4wifi
             type: renesas_uno
+          - fqbn: arduino:esp32:nano_nora
+            type: arduino_esp32
 
 
         # make board type-specific customizations to the matrix jobs
@@ -193,6 +195,16 @@ jobs:
             platforms: |
               # Install renesas_uno platform via Boards Manager
               - name: arduino:renesas_uno
+          # Nano ESP32
+          - board:
+              type: arduino_esp32
+            platforms: |
+              # Install arduino_esp32 platform via Boards Manager
+              - name: arduino:esp32
+            libraries: |
+              - name: Arduino_ESP32_OTA
+            sketch-paths: |
+              - examples/ArduinoIoTCloud-DeferredOTA
           # ESP8266 boards
           - board:
               type: esp8266
