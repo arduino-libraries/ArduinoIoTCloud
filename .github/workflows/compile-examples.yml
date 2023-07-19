@@ -28,6 +28,8 @@ jobs:
       UNIVERSAL_SKETCH_PATHS: |
         - examples/ArduinoIoTCloud-Advanced
         - examples/ArduinoIoTCloud-Basic
+        - examples/ArduinoIoTCloud-Callbacks
+        - examples/ArduinoIoTCloud-Schedule
         - examples/utility/ArduinoIoTCloud_Travis_CI
       SKETCHES_REPORTS_PATH: sketches-reports
 
@@ -97,6 +99,7 @@ jobs:
               - name: Arduino_JSON
               - source-url: https://github.com/adafruit/Adafruit_SleepyDog.git
             sketch-paths: |
+              - examples/ArduinoIoTCloud-DeferredOTA
               - examples/utility/Provisioning
               - examples/utility/SelfProvisioning
           - board:
@@ -146,6 +149,7 @@ jobs:
               - name: ArduinoECCX08
               - name: Arduino_Portenta_OTA
             sketch-paths: |
+              - examples/ArduinoIoTCloud-DeferredOTA
               - examples/utility/Provisioning
           # Nicla Vision
           - board:
@@ -156,6 +160,7 @@ jobs:
             libraries: |
               - name: Arduino_Portenta_OTA
             sketch-paths: |
+              - examples/ArduinoIoTCloud-DeferredOTA
               - examples/utility/Provisioning
           # Opta
           - board:
@@ -167,6 +172,7 @@ jobs:
               - name: ArduinoECCX08
               - name: Arduino_Portenta_OTA
             sketch-paths: |
+              - examples/ArduinoIoTCloud-DeferredOTA
               - examples/utility/Provisioning
           # GIGA
           - board:
@@ -178,6 +184,7 @@ jobs:
               - name: ArduinoECCX08
               - name: Arduino_Portenta_OTA
             sketch-paths: |
+              - examples/ArduinoIoTCloud-DeferredOTA
               - examples/utility/Provisioning
           # Portenta C33
           - board:
@@ -213,7 +220,8 @@ jobs:
                 source-url: https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json
             libraries: |
               - name: Arduino_ESP32_OTA
-            sketch-paths:
+            sketch-paths: |
+              - examples/ArduinoIoTCloud-DeferredOTA
 
     steps:
       - name: Checkout

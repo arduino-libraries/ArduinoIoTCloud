@@ -37,7 +37,7 @@ void initProperties() {
   ArduinoCloud.addProperty(monthly, READWRITE, ON_CHANGE);
   ArduinoCloud.addProperty(yearly, READWRITE, ON_CHANGE);
 #elif defined(BOARD_HAS_LORA)
-  ArduinoCloud.addProperty(switchButton, 1, WRITE, ON_CHANGE;
+  ArduinoCloud.addProperty(switchButton, 1, WRITE, ON_CHANGE);
 #endif
 }
 
