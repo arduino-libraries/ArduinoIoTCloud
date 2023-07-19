@@ -58,7 +58,7 @@ void setup() {
   */
 void setupOneShotSchedule() {
 
-  ScheduleTimeType startingFrom = TimeService::getTimeFromString("2021 Nov 01 17:00:00");
+  ScheduleTimeType startingFrom = TimeServiceClass::getTimeFromString("2021 Nov 01 17:00:00");
   ScheduleTimeType until = startingFrom + ( DAYS * 1 );
   ScheduleTimeType activePeriod = MINUTES * 5;
 
@@ -74,7 +74,7 @@ void setupOneShotSchedule() {
   */
 void setupMinuteSchedule() {
 
-  ScheduleTimeType startingFrom = TimeService::getTimeFromString("2021 Nov 01 17:00:00");
+  ScheduleTimeType startingFrom = TimeServiceClass::getTimeFromString("2021 Nov 01 17:00:00");
   ScheduleTimeType until = startingFrom + ( DAYS * 1 );
   ScheduleTimeType activePeriod = SECONDS * 15;
   unsigned int repetitionPeriod = 1;
@@ -91,8 +91,8 @@ void setupMinuteSchedule() {
  */
 void setupHourlySchedule() {
 
-  ScheduleTimeType startingFrom = TimeService::getTimeFromString("2021 Nov 01 17:00:00");
-  ScheduleTimeType until = TimeService::getTimeFromString("2021 Nov 15 13:00:00");
+  ScheduleTimeType startingFrom = TimeServiceClass::getTimeFromString("2021 Nov 01 17:00:00");
+  ScheduleTimeType until = TimeServiceClass::getTimeFromString("2021 Nov 15 13:00:00");
   ScheduleTimeType activePeriod = MINUTES * 20;
   unsigned int repetitionPeriod = 1;
 
@@ -108,8 +108,8 @@ void setupHourlySchedule() {
  */
 void setupDailySchedule() {
 
-  ScheduleTimeType startingFrom = TimeService::getTimeFromString("2021 Nov 01 17:00:00");
-  ScheduleTimeType until = TimeService::getTimeFromString("2021 Nov 15 13:00:00");
+  ScheduleTimeType startingFrom = TimeServiceClass::getTimeFromString("2021 Nov 01 17:00:00");
+  ScheduleTimeType until = TimeServiceClass::getTimeFromString("2021 Nov 15 13:00:00");
   ScheduleTimeType activePeriod = HOURS * 2;
   unsigned int repetitionPeriod = 1;
 
@@ -133,7 +133,7 @@ void setupDailySchedule() {
  */
 void setupWeeklySchedule() {
 
-  unsigned int startingFrom = TimeService::getTimeFromString("2021 Nov 01 17:00:00");
+  unsigned int startingFrom = TimeServiceClass::getTimeFromString("2021 Nov 01 17:00:00");
   unsigned int until = startingFrom + ( DAYS * 30 );
   unsigned int executionPeriod = MINUTES * 3;
 
@@ -158,8 +158,8 @@ void setupWeeklySchedule() {
  */
 void setupMonthlySchedule() {
 
-  ScheduleTimeType startingFrom = TimeService::getTimeFromString("2021 Nov 01 17:00:00");
-  ScheduleTimeType until = TimeService::getTimeFromString("2021 Nov 15 13:00:00");
+  ScheduleTimeType startingFrom = TimeServiceClass::getTimeFromString("2021 Nov 01 17:00:00");
+  ScheduleTimeType until = TimeServiceClass::getTimeFromString("2021 Nov 15 13:00:00");
   ScheduleTimeType activePeriod = DAYS * 1;
   int dayOfMonth = 3;
 
@@ -175,8 +175,8 @@ void setupMonthlySchedule() {
  */
 void setupYearlySchedule() {
 
-  ScheduleTimeType startingFrom = TimeService::getTimeFromString("2021 Nov 06 17:00:00");
-  ScheduleTimeType until = TimeService::getTimeFromString("2041 Nov 06 13:00:00");
+  ScheduleTimeType startingFrom = TimeServiceClass::getTimeFromString("2021 Nov 06 17:00:00");
+  ScheduleTimeType until = TimeServiceClass::getTimeFromString("2041 Nov 06 13:00:00");
   ScheduleTimeType activePeriod = DAYS * 2;
   int dayOfMonth = 6;
 
@@ -222,4 +222,3 @@ void loop() {
   }
 
 }
-
