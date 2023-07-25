@@ -87,3 +87,13 @@ In this case either the device has not been associated with the thing within the
 OTA is supported by the following boards:
 [`MKR WiFi 1010`](https://store.arduino.cc/arduino-mkr-wifi-1010), [`Nano 33 IoT`](https://store.arduino.cc/arduino-nano-33-iot), [`Portenta H7`](https://store.arduino.cc/portenta-h7), [`Nano RP2040 Connect`](https://store.arduino.cc/products/arduino-nano-rp2040-connect), [`Nicla Vision`](https://store.arduino.cc/products/nicla-vision), [`OPTA WiFi`](https://store.arduino.cc/products/opta-wifi), [`OPTA RS485`](https://store.arduino.cc/products/opta-rs485), [`OPTA Lite`](https://store.arduino.cc/products/opta-lite), [`GIGA R1 WiFi`](https://store.arduino.cc/products/giga-r1-wifi), [`Nano ESP32`](https://store.arduino.cc/products/nano-esp32), [`ESP32`](https://github.com/espressif/arduino-esp32/releases/tag/2.0.5)
 
+#### Authentication
+Boards can authenticate to the ArduinoIoTCloud servers using 3 methods:
+
+ * `DEVICE_LOGIN_NAME` and `DEVICE_KEY`. This values are defined in the `thingProperties.h` file and included in the Sketch. Boards that are using this method are: [`UNO R4 WiFi`](https://store.arduino.cc/products/uno-r4-wifi), [`Nano ESP32`](https://store.arduino.cc/products/nano-esp32), [`ESP8266`](https://github.com/esp8266/Arduino/releases/tag/2.5.0), [`ESP32`](https://github.com/espressif/arduino-esp32/releases/tag/2.0.5)
+
+ * `DEVICE_CERTIFICATE` and `PRIVATE_KEY`. This values are stored inside the board secure element during the device provisioning phase. Boards that are using this method are: [`MKR 1000`](https://store.arduino.cc/arduino-mkr1000-wifi), [`MKR WiFi 1010`](https://store.arduino.cc/arduino-mkr-wifi-1010), [`MKR GSM 1400`](https://store.arduino.cc/arduino-mkr-gsm-1400-1415), [`MKR NB 1500`](https://store.arduino.cc/arduino-mkr-nb-1500-1413), [`Nano 33 IoT`](https://store.arduino.cc/arduino-nano-33-iot), [`Portenta H7`](https://store.arduino.cc/portenta-h7), [`Nano RP2040 Connect`](https://store.arduino.cc/products/arduino-nano-rp2040-connect), [`Nicla Vision`](https://store.arduino.cc/products/nicla-vision), [`OPTA WiFi`](https://store.arduino.cc/products/opta-wifi), [`OPTA RS485`](https://store.arduino.cc/products/opta-rs485), [`OPTA Lite`](https://store.arduino.cc/products/opta-lite), [`GIGA R1 WiFi`](https://store.arduino.cc/products/giga-r1-wifi), [`Portenta C33`](https://store.arduino.cc/products/portenta-c33)
+
+ * `APP_EUI` and `APP_KEY`. This values are defined in the `thingProperties.h` file and included in the Sketch. Boards that are using this method are: [`MKR WAN 1300/1310`](https://store.arduino.cc/mkr-wan-1310)
+
+ 
