@@ -87,9 +87,3 @@ In this case either the device has not been associated with the thing within the
 OTA is supported by the following boards:
 [`MKR WiFi 1010`](https://store.arduino.cc/arduino-mkr-wifi-1010), [`Nano 33 IoT`](https://store.arduino.cc/arduino-nano-33-iot), [`Portenta H7`](https://store.arduino.cc/portenta-h7), [`Nano RP2040 Connect`](https://store.arduino.cc/products/arduino-nano-rp2040-connect), [`Nicla Vision`](https://store.arduino.cc/products/nicla-vision), [`OPTA WiFi`](https://store.arduino.cc/products/opta-wifi), [`OPTA RS485`](https://store.arduino.cc/products/opta-rs485), [`OPTA Lite`](https://store.arduino.cc/products/opta-lite), [`GIGA R1 WiFi`](https://store.arduino.cc/products/giga-r1-wifi), [`Nano ESP32`](https://store.arduino.cc/products/nano-esp32), [`ESP32`](https://github.com/espressif/arduino-esp32/releases/tag/2.0.5)
 
-#### ESP Boards
-Support for ESP boards is obtained through a third-party core with some differences and limitations compared to Arduino boards.
-
-- **Authentication scheme**: Board authentication is done through `DEVICE_LOGIN_NAME` and `DEVICE_KEY`, both values are included in the `thingProperties.h` file.
-- **Watchdog**: Watchdog support is not included.
-- **OTA**: OTA support is not included
