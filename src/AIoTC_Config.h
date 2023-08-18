@@ -108,7 +108,7 @@
   #define OTA_STORAGE_PORTENTA_QSPI   (0)
 #endif
 
-#if defined(ARDUINO_ARCH_ESP32)
+#if defined(ARDUINO_ARCH_ESP32) || defined(ARDUINO_UNOR4_WIFI)
   #define OTA_STORAGE_ESP         (1)
 #endif
 
