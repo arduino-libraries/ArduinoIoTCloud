@@ -55,6 +55,12 @@ String esp32_getOTAImageSHA256();
 bool esp32_isOTACapable();
 #endif
 
+#ifdef ARDUINO_UNOR4_WIFI
+int unor4_onOTARequest(char const * url);
+String unor4_getOTAImageSHA256();
+bool unor4_isOTACapable();
+#endif
+
 /******************************************************************************
  * PUBLIC MEMBER FUNCTIONS
  ******************************************************************************/
@@ -74,6 +80,9 @@ int OTA::onRequest(String url, NetworkAdapter iface)
 #elif defined (ARDUINO_ARCH_ESP32)
   (void)iface;
   return esp32_onOTARequest(url.c_str());
+#elif defined (ARDUINO_UNOR4_WIFI)
+  (void)iface;
+  return unor4_onOTARequest(url.c_str());
 #else
   #error "OTA not supported for this architecture"
 #endif
@@ -89,6 +98,8 @@ String OTA::getImageSHA256()
   return portenta_h7_getOTAImageSHA256();
 #elif defined (ARDUINO_ARCH_ESP32)
   return esp32_getOTAImageSHA256();
+#elif defined (ARDUINO_UNOR4_WIFI)
+  return unor4_getOTAImageSHA256();
 #else
   #error "No method for SHA256 checksum calculation over application image defined for this architecture."
 #endif
@@ -104,6 +115,8 @@ bool OTA::isCapable()
   return portenta_h7_isOTACapable();
 #elif defined (ARDUINO_ARCH_ESP32)
   return esp32_isOTACapable();
+#elif defined (ARDUINO_UNOR4_WIFI)
+  return unor4_isOTACapable();
 #else
   #error "OTA not supported for this architecture"
 #endif
