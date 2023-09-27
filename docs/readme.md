@@ -17,7 +17,7 @@ As a result, functions such as `begin()`, `update()`, `connected()` and `printDe
 
 ## Connection Handler Library
 
-When the library is initalized via the `begin()` function, it will choose the specified **connection handler**, which is automatically added to your `thingProperties.h` file when configuring a Thing.
+When the library is initialized via the `begin()` function, it will choose the specified **connection handler**, which is automatically added to your `thingProperties.h` file when configuring a Thing.
 
 The connection handler is done via another library, [Arduino_ConnectionHandler](https://github.com/arduino-libraries/Arduino_ConnectionHandler), which supports Wi-Fi®, GSM, NB-IoT, LoRa® & Ethernet.
 
