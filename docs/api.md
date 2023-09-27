@@ -51,26 +51,22 @@ ArduinoCloud.setTimestamp(cloudVariable, timestamp)
 - `String` - property name
 - `unsigned long const` - timestamp
 
-### `setThingId()`
 
-Sets the Thing ID.
-
-#### Syntax
-
-```
-ArduinoCloud.setThingId(thingId)
-```
-
-#### Parameters
-- `String` - your Thing's ID. Obtainable in the IoT Cloud interface. 
-
-### `String & getThingId()`
+### `getThingId()`
 
 Gets the Thing ID.
 
 #### Syntax
 
+```
+ArduinoCloud.getThingId()
+```
+
 #### Parameters
+None.
+
+#### Returns
+- `String` - Thing ID.
 
 ### `setDeviceId()`
 
@@ -214,14 +210,6 @@ None
 - `unsigned long` - local time
 
 
-### `updateInternalTimezoneInfo()`
-
-Updates the internal timezone information.
-
-#### Syntax
-
-#### Parameters
-
 ### `addCallback()`
 
 Adds a callback function for IoT Cloud events.
@@ -355,6 +343,10 @@ Nothing.
 
 This method is only enabled if you are using an ESP32/ESP8266 board, and sets the board/device id.
 
+Currently, the following official Arduino boards uses this method:
+- [Arduino UNO R4 WiFi](https://store.arduino.cc/products/uno-r4-wifi)
+- [Arduino Nano ESP32](https://store.arduino.cc/products/nano-esp32)
+
 #### Syntax
 
 ```
@@ -430,16 +422,7 @@ This function initializes the ArduinoIoTCloudLPWAN library with the specified co
 
 #### Description
 
-**Note:** for TCP devices, the `update()` function is implemented differently. See [ArduinoCloud Class (TCP)](). 
-
-Responsible for updating the IoT Cloud connection. 
-- First it feeds a watchdog timer, making sure it is not stuck anywhere,
-- then sends variable updates to the IoT Cloud (via MQTT client)
-- finally, it checks for new data from the IoT Cloud (via the MQTT client)
-
-Any IoT Cloud sketch needs to continuously call the `update()` function, as it will otherwise time out and reset. The `update()` is by default placed inside of the `loop()`.
-
-**Note:** do not use the `delay()` function in the sketch, as the watchdog timer will cause the board to reset and attempt to reconnect.
+This method handles the update between the board and the IoT Cloud.
 
 #### Syntax
 
@@ -505,7 +488,21 @@ ArduinoCloud.addProperty(cloudVariable, tag, permission, policy, callbackFunctio
 #### Returns
 Nothing.
 
-## `isRetryEnabled()`
+### `setThingId()`
+
+Sets the Thing ID.
+
+#### Syntax
+
+```
+ArduinoCloud.setThingId(thingId)
+```
+
+#### Parameters
+- `String` - your Thing's ID. Obtainable in the IoT Cloud interface. 
+
+
+### `isRetryEnabled()`
 
 #### Description
 This method is used to check whether retry functionality is enabled.
