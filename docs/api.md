@@ -222,7 +222,7 @@ Updates the internal timezone information.
 
 #### Parameters
 
-### `addCallback(ArduinoIoTCloudEvent const event, OnCloudEventCallback callback)`
+### `addCallback()`
 
 Adds a callback function for IoT Cloud events.
 
@@ -325,6 +325,26 @@ Print any available debug information.
 
 #### Parameters
 None
+
+#### Returns
+Nothing.
+
+### `addProperty()` (TCP)
+
+#### Description
+
+Adds a variable/property with a set of parameters. 
+
+#### Syntax
+```
+ArduinoCloud.addProperty(cloudVariable, tag, permission, policy, callbackFunction)
+```
+
+#### Parameters
+- `cloudVariable` - name of the variable/property.
+- `permission` - can either be `READ` / `WRITE` or `READWRITE`
+- `policy` - `ON_CHANGE` (whenever variable data changes) or `<seconds> * SECONDS`. `<seconds>` is specified in the Thing configuration.
+- `callBackFunction` - by default, a callback function is added to a variable with **WRITE** permissions. A variable called `test` will automatically be added as `onTestChange` which also is added to your sketch. 
 
 #### Returns
 Nothing.
@@ -460,6 +480,27 @@ Print any available debug information.
 
 #### Parameters
 None.
+
+#### Returns
+Nothing.
+
+### `addProperty()` (LPWAN)
+
+#### Description
+
+Adds a variable/property with a set of parameters. 
+
+#### Syntax
+```
+ArduinoCloud.addProperty(cloudVariable, tag, permission, policy, callbackFunction)
+```
+
+#### Parameters
+- `cloudVariable` - name of the variable/property.
+- `permission` - can either be `READ` / `WRITE` or `READWRITE`
+- `tag` - matches the cloud and local variables with a number. E.g. adding a second variable will have the tag `2`.
+- `policy` - `ON_CHANGE` (whenever variable data changes) or `<seconds> * SECONDS`. `<seconds>` is specified in the Thing configuration.
+- `callBackFunction` - by default, a callback function is added to a variable with **WRITE** permissions. A variable called `test` will automatically be added as `onTestChange` which also is added to your sketch. 
 
 #### Returns
 Nothing.
