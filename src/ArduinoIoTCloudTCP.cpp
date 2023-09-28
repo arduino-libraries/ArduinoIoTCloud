@@ -39,7 +39,7 @@
   #include "tls/utility/CryptoUtil.h"
 #endif
 
-#ifdef BOARD_HAS_SECRET_KEY
+#ifdef ARDUINO_ARCH_ESP32
   #include "tls/AIoTCUPCert.h"
 #endif
 
@@ -179,7 +179,7 @@ int ArduinoIoTCloudTCP::begin(bool const enable_watchdog, String brokerAddress, 
   #if defined(ARDUINO_ARCH_ESP8266)
   _sslClient.setInsecure();
   #else
-  _sslClient.setCACert(AAIoTUPCert);
+  _sslClient.setCACertBundle(x509_crt_bundle);
   #endif
 #endif
 
