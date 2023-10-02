@@ -27,6 +27,7 @@
 #include <Arduino_DebugUtils.h>
 #include <Arduino_ESP32_OTA.h>
 #include "tls/utility/SHA256.h"
+#include "tls/AIoTCUPCert.h"
 
 #include <esp_ota_ops.h>
 
@@ -45,6 +46,8 @@ int esp32_onOTARequest(char const * ota_url)
     DEBUG_ERROR("Arduino_ESP32_OTA::begin() failed with %d", static_cast<int>(ota_err));
     return static_cast<int>(ota_err);
   }
+
+  ota.setCACertBundle(x509_crt_bundle);
 
   /* Download the OTA file from the web storage location. */
   int const ota_download = ota.download(ota_url);
