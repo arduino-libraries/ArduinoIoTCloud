@@ -151,8 +151,8 @@ class ArduinoIoTCloudClass
     PropertyContainer _thing_property_container;
     unsigned int _last_checked_property_index;
     TimeServiceClass & _time_service;
-    int _tz_offset;
-    unsigned int _tz_dst_until;
+    CloudInt _tz_offset;
+    CloudUnsignedInt _tz_dst_until;
     CloudString _thing_id;
     String _lib_version;
 
