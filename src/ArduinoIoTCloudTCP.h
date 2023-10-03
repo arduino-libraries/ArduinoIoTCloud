@@ -179,8 +179,6 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
     String _dataTopicOut;
     String _dataTopicIn;
 
-    bool _deviceSubscribedToThing;
-
 #if OTA_ENABLED
     bool _ota_cap;
     int _ota_error;
