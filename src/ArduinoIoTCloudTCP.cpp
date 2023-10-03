@@ -87,7 +87,6 @@ ArduinoIoTCloudTCP::ArduinoIoTCloudTCP()
 , _shadowTopicIn("")
 , _dataTopicOut("")
 , _dataTopicIn("")
-, _deviceSubscribedToThing{false}
 #if OTA_ENABLED
 , _ota_cap{false}
 , _ota_error{static_cast<int>(OTAError::None)}
@@ -376,16 +375,13 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_SubscribeDeviceTopic()
   if (!_mqttClient.subscribe(_deviceTopicIn))
   {
     DEBUG_ERROR("ArduinoIoTCloudTCP::%s could not subscribe to %s", __FUNCTION__, _deviceTopicIn.c_str());
-    return State::SubscribeDeviceTopic;
   }
 
   if (_last_device_subscribe_cnt > AIOT_CONFIG_LASTVALUES_SYNC_MAX_RETRY_CNT)
   {
     _last_device_subscribe_cnt = 0;
     _next_device_subscribe_attempt_tick = 0;
-    _mqttClient.stop();
-    execCloudEventCallback(ArduinoIoTCloudEvent::DISCONNECT);
-    return State::ConnectPhy;
+    return State::Disconnect;
   }
 
   /* No device configuration reply. Wait: 5s -> 10s -> 20s -> 30s */
@@ -428,16 +424,6 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_CheckDeviceConfig()
     return State::Disconnect;
   }
 
-  if(_deviceSubscribedToThing == true)
-  {
-    /* Unsubscribe from old things topics and go on with a new subscription */
-    _mqttClient.unsubscribe(_shadowTopicIn);
-    _mqttClient.unsubscribe(_dataTopicIn);
-    _deviceSubscribedToThing = false;
-    DEBUG_INFO("Disconnected from Arduino IoT Cloud");
-    execCloudEventCallback(ArduinoIoTCloudEvent::DISCONNECT);
-  }
-
   updateThingTopics();
 
   if (_thing_id.length() == 0)
@@ -465,7 +451,7 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_SubscribeThingTopics()
 
   if (_thing_id_property->isDifferentFromCloud())
   {
-    return State::CheckDeviceConfig;
+    return State::Disconnect;
   }
 
   unsigned long const now = millis();
@@ -481,9 +467,7 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_SubscribeThingTopics()
   {
     _last_subscribe_request_cnt = 0;
     _last_subscribe_request_tick = 0;
-    _mqttClient.stop();
-    execCloudEventCallback(ArduinoIoTCloudEvent::DISCONNECT);
-    return State::ConnectPhy;
+    return State::Disconnect;
   }
 
   _last_subscribe_request_tick = now;
@@ -506,7 +490,6 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_SubscribeThingTopics()
   DEBUG_INFO("Connected to Arduino IoT Cloud");
   DEBUG_INFO("Thing ID: %s", getThingId().c_str());
   execCloudEventCallback(ArduinoIoTCloudEvent::CONNECT);
-  _deviceSubscribedToThing = true;
 
   /*Add retry wait time otherwise we are trying to reconnect every 250 ms...*/
   return State::RequestLastValues;
@@ -521,7 +504,7 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_RequestLastValues()
 
   if (_thing_id_property->isDifferentFromCloud())
   {
-    return State::CheckDeviceConfig;
+    return State::Disconnect;
   }
 
   /* Check whether or not we need to send a new request. */
@@ -542,9 +525,7 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_RequestLastValues()
     {
       _last_sync_request_cnt = 0;
       _last_sync_request_tick = 0;
-      _mqttClient.stop();
-      execCloudEventCallback(ArduinoIoTCloudEvent::DISCONNECT);
-      return State::ConnectPhy;
+      return State::Disconnect;
     }
   }
 
@@ -564,7 +545,7 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_Connected()
   {
     if (_thing_id_property->isDifferentFromCloud())
     {
-      return State::CheckDeviceConfig;
+      return State::Disconnect;
     }
 
     /* Check if a primitive property wrapper is locally changed.
@@ -641,9 +622,14 @@ void ArduinoIoTCloudTCP::handle_OTARequest() {
 
 ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_Disconnect()
 {
-  DEBUG_ERROR("ArduinoIoTCloudTCP::%s MQTT client connection lost", __FUNCTION__);
+  if (!_mqttClient.connected()) {
+    DEBUG_ERROR("ArduinoIoTCloudTCP::%s MQTT client connection lost", __FUNCTION__);
+  } else {
+    _mqttClient.unsubscribe(_shadowTopicIn);
+    _mqttClient.unsubscribe(_dataTopicIn);
+    _mqttClient.stop();
+  }
   DEBUG_INFO("Disconnected from Arduino IoT Cloud");
-  _mqttClient.stop();
   execCloudEventCallback(ArduinoIoTCloudEvent::DISCONNECT);
   return State::ConnectPhy;
 }
