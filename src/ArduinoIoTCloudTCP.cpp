@@ -642,6 +642,7 @@ void ArduinoIoTCloudTCP::handle_OTARequest() {
 ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_Disconnect()
 {
   DEBUG_ERROR("ArduinoIoTCloudTCP::%s MQTT client connection lost", __FUNCTION__);
+  DEBUG_INFO("Disconnected from Arduino IoT Cloud");
   _mqttClient.stop();
   execCloudEventCallback(ArduinoIoTCloudEvent::DISCONNECT);
   return State::ConnectPhy;
