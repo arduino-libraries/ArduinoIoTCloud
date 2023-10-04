@@ -132,7 +132,6 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
     unsigned int _last_connection_attempt_cnt;
     unsigned long _next_device_subscribe_attempt_tick;
     unsigned int _last_device_subscribe_cnt;
-    unsigned int _last_device_attach_cnt;
     unsigned long _last_sync_request_tick;
     unsigned int _last_sync_request_cnt;
     unsigned long _last_subscribe_request_tick;
