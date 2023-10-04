@@ -344,13 +344,15 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_ConnectMqttBroker()
     return State::SendDeviceProperties;
   }
 
+  /* Can't connect to the broker. Wait: 2s -> 4s -> 8s -> 16s -> 32s -> 32s ... */
   _last_connection_attempt_cnt++;
   unsigned long reconnection_retry_delay = (1 << _last_connection_attempt_cnt) * AIOT_CONFIG_RECONNECTION_RETRY_DELAY_ms;
   reconnection_retry_delay = min(reconnection_retry_delay, static_cast<unsigned long>(AIOT_CONFIG_MAX_RECONNECTION_RETRY_DELAY_ms));
   _next_connection_attempt_tick = millis() + reconnection_retry_delay;
 
   DEBUG_ERROR("ArduinoIoTCloudTCP::%s could not connect to %s:%d", __FUNCTION__, _brokerAddress.c_str(), _brokerPort);
-  DEBUG_ERROR("ArduinoIoTCloudTCP::%s %d connection attempt at tick time %d", __FUNCTION__, _last_connection_attempt_cnt, _next_connection_attempt_tick);
+  DEBUG_VERBOSE("ArduinoIoTCloudTCP::%s %d next connection attempt in %d ms", __FUNCTION__, _last_connection_attempt_cnt, reconnection_retry_delay);
+  /* Go back to ConnectPhy and retry to get time from network (invalid time for SSL handshake?)*/
   return State::ConnectPhy;
 }
 
@@ -361,6 +363,8 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_SendDeviceProperties()
     return State::Disconnect;
   }
 
+  DEBUG_VERBOSE("ArduinoIoTCloudTCP::%s announce device to the Cloud %d", __FUNCTION__, _time_service.getTime());
+  /* TODO check if write fails */
   sendDevicePropertiesToCloud();
   return State::WaitDeviceConfig;
 }
@@ -372,11 +376,17 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_SubscribeDeviceTopic()
     return State::Disconnect;
   }
 
+  DEBUG_VERBOSE("ArduinoIoTCloudTCP::%s request device configuration %d", __FUNCTION__, _time_service.getTime());
+
   if (!_mqttClient.subscribe(_deviceTopicIn))
   {
+    /* If device_id is wrong the board can't connect to the broker so this condition
+    * should never happen.
+    */
     DEBUG_ERROR("ArduinoIoTCloudTCP::%s could not subscribe to %s", __FUNCTION__, _deviceTopicIn.c_str());
   }
 
+  /* Max retry than disconnect */
   if (_last_device_subscribe_cnt > AIOT_CONFIG_LASTVALUES_SYNC_MAX_RETRY_CNT)
   {
     _last_device_subscribe_cnt = 0;
@@ -384,10 +394,12 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_SubscribeDeviceTopic()
     return State::Disconnect;
   }
 
+  /* No device configuration received. Wait: 4s -> 8s -> 16s -> 32s -> 32s ...*/
   _last_device_subscribe_cnt++;
   unsigned long subscribe_retry_delay = (1 << _last_device_subscribe_cnt) * AIOT_CONFIG_DEVICE_TOPIC_SUBSCRIBE_RETRY_DELAY_ms;
   subscribe_retry_delay = min(subscribe_retry_delay, static_cast<unsigned long>(AIOT_CONFIG_MAX_DEVICE_TOPIC_SUBSCRIBE_RETRY_DELAY_ms));
   _next_device_subscribe_attempt_tick = millis() + subscribe_retry_delay;
+  DEBUG_VERBOSE("ArduinoIoTCloudTCP::%s %d next configuration request in %d ms", __FUNCTION__, _last_device_subscribe_cnt, subscribe_retry_delay);
 
   return State::WaitDeviceConfig;
 }
@@ -405,7 +417,7 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_WaitDeviceConfig()
     /* Configuration not received or device not attached to a valid thing. Try to resubscribe */
     if (_mqttClient.unsubscribe(_deviceTopicIn))
     {
-      DEBUG_ERROR("ArduinoIoTCloudTCP::%s device waiting for valid thing_id", __FUNCTION__);
+      DEBUG_ERROR("ArduinoIoTCloudTCP::%s device waiting for valid thing_id %d", __FUNCTION__, _time_service.getTime());
     }
   }
 
@@ -432,10 +444,12 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_CheckDeviceConfig()
     unsigned long attach_retry_delay = (1 << _last_device_subscribe_cnt) * AIOT_CONFIG_DEVICE_TOPIC_ATTACH_RETRY_DELAY_ms;
     attach_retry_delay = min(attach_retry_delay, static_cast<unsigned long>(AIOT_CONFIG_MAX_DEVICE_TOPIC_ATTACH_RETRY_DELAY_ms));
     _next_device_subscribe_attempt_tick = millis() + attach_retry_delay;
+
+    DEBUG_VERBOSE("ArduinoIoTCloudTCP::%s device not attached, next configuration request in %d ms", __FUNCTION__, attach_retry_delay);
     return State::WaitDeviceConfig;
   }
 
-  DEBUG_VERBOSE("ArduinoIoTCloudTCP::%s Device attached to a new valid Thing %s", __FUNCTION__, getThingId().c_str());
+  DEBUG_VERBOSE("ArduinoIoTCloudTCP::%s device attached to a new valid thing_id %s %d", __FUNCTION__, getThingId().c_str(), _time_service.getTime());
 
   /* Received valid thing_id reset counters and go on */
   _last_device_subscribe_cnt = 0;
