@@ -369,6 +369,29 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_SendDeviceProperties()
   return State::WaitDeviceConfig;
 }
 
+ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_WaitDeviceConfig()
+{
+  if (!_mqttClient.connected())
+  {
+    return State::Disconnect;
+  }
+
+  bool const is_retry_attempt = (_last_device_subscribe_cnt > 0);
+  if (is_retry_attempt && (millis() > _next_device_subscribe_attempt_tick))
+  {
+    /* Configuration not received or device not attached to a valid thing. Try to resubscribe */
+    if (_mqttClient.unsubscribe(_deviceTopicIn))
+    {
+      DEBUG_ERROR("ArduinoIoTCloudTCP::%s device waiting for valid thing_id %d", __FUNCTION__, _time_service.getTime());
+    }
+  }
+
+  if (!is_retry_attempt || (is_retry_attempt && (millis() > _next_device_subscribe_attempt_tick)))
+    return State::SubscribeDeviceTopic;
+
+  return State::WaitDeviceConfig;
+}
+
 ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_SubscribeDeviceTopic()
 {
   if (!_mqttClient.connected())
@@ -400,29 +423,6 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_SubscribeDeviceTopic()
   subscribe_retry_delay = min(subscribe_retry_delay, static_cast<unsigned long>(AIOT_CONFIG_MAX_DEVICE_TOPIC_SUBSCRIBE_RETRY_DELAY_ms));
   _next_device_subscribe_attempt_tick = millis() + subscribe_retry_delay;
   DEBUG_VERBOSE("ArduinoIoTCloudTCP::%s %d next configuration request in %d ms", __FUNCTION__, _last_device_subscribe_cnt, subscribe_retry_delay);
-
-  return State::WaitDeviceConfig;
-}
-
-ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_WaitDeviceConfig()
-{
-  if (!_mqttClient.connected())
-  {
-    return State::Disconnect;
-  }
-
-  bool const is_retry_attempt = (_last_device_subscribe_cnt > 0);
-  if (is_retry_attempt && (millis() > _next_device_subscribe_attempt_tick))
-  {
-    /* Configuration not received or device not attached to a valid thing. Try to resubscribe */
-    if (_mqttClient.unsubscribe(_deviceTopicIn))
-    {
-      DEBUG_ERROR("ArduinoIoTCloudTCP::%s device waiting for valid thing_id %d", __FUNCTION__, _time_service.getTime());
-    }
-  }
-
-  if (!is_retry_attempt || (is_retry_attempt && (millis() > _next_device_subscribe_attempt_tick)))
-    return State::SubscribeDeviceTopic;
 
   return State::WaitDeviceConfig;
 }
