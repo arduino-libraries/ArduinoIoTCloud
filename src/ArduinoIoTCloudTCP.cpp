@@ -69,8 +69,8 @@ ArduinoIoTCloudTCP::ArduinoIoTCloudTCP()
 , _last_device_subscribe_cnt{0}
 , _last_sync_request_tick{0}
 , _last_sync_request_cnt{0}
-, _last_subscribe_request_tick{0}
-, _last_subscribe_request_cnt{0}
+, _next_thing_subscribe_attempt_tick{0}
+, _last_thing_subscribe_attempt_cnt{0}
 , _mqtt_data_buf{0}
 , _mqtt_data_len{0}
 , _mqtt_data_request_retransmit{false}
@@ -413,7 +413,6 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_SubscribeDeviceTopic()
   if (_last_device_subscribe_cnt > AIOT_CONFIG_LASTVALUES_SYNC_MAX_RETRY_CNT)
   {
     _last_device_subscribe_cnt = 0;
-    _next_device_subscribe_attempt_tick = 0;
     return State::Disconnect;
   }
 
@@ -469,24 +468,18 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_SubscribeThingTopics()
     return State::Disconnect;
   }
 
-  unsigned long const now = millis();
-  bool const is_subscribe_retry_delay_expired = (now - _last_subscribe_request_tick) > AIOT_CONFIG_THING_TOPICS_SUBSCRIBE_RETRY_DELAY_ms;
-  bool const is_first_subscribe_request = (_last_subscribe_request_cnt == 0);
-
-  if (!is_first_subscribe_request && !is_subscribe_retry_delay_expired)
-  {
+  bool const is_retry_attempt = (_last_thing_subscribe_attempt_cnt > 0);
+  if (is_retry_attempt && (millis() < _next_thing_subscribe_attempt_tick))
     return State::SubscribeThingTopics;
-  }
 
-  if (_last_subscribe_request_cnt > AIOT_CONFIG_THING_TOPICS_SUBSCRIBE_MAX_RETRY_CNT)
+  if (_last_thing_subscribe_attempt_cnt > AIOT_CONFIG_THING_TOPICS_SUBSCRIBE_MAX_RETRY_CNT)
   {
-    _last_subscribe_request_cnt = 0;
-    _last_subscribe_request_tick = 0;
+    _last_thing_subscribe_attempt_cnt = 0;
     return State::Disconnect;
   }
 
-  _last_subscribe_request_tick = now;
-  _last_subscribe_request_cnt++;
+  _next_thing_subscribe_attempt_tick = millis() + AIOT_CONFIG_THING_TOPICS_SUBSCRIBE_RETRY_DELAY_ms;
+  _last_thing_subscribe_attempt_cnt++;
 
   if (!_mqttClient.subscribe(_dataTopicIn))
   {
@@ -506,7 +499,6 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_SubscribeThingTopics()
   DEBUG_INFO("Thing ID: %s", getThingId().c_str());
   execCloudEventCallback(ArduinoIoTCloudEvent::CONNECT);
 
-  /*Add retry wait time otherwise we are trying to reconnect every 250 ms...*/
   return State::RequestLastValues;
 }
 
