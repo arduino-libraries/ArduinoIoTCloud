@@ -69,8 +69,8 @@ ArduinoIoTCloudTCP::ArduinoIoTCloudTCP()
 , _last_device_subscribe_cnt{0}
 , _next_thing_subscribe_attempt_tick{0}
 , _last_thing_subscribe_attempt_cnt{0}
-, _last_sync_request_tick{0}
-, _last_sync_request_cnt{0}
+, _next_sync_attempt_tick{0}
+, _last_sync_attempt_cnt{0}
 , _mqtt_data_buf{0}
 , _mqtt_data_len{0}
 , _mqtt_data_request_retransmit{false}
@@ -515,26 +515,24 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_RequestLastValues()
   }
 
   /* Check whether or not we need to send a new request. */
-  unsigned long const now = millis();
-  bool const is_sync_request_timeout = (now - _last_sync_request_tick) > AIOT_CONFIG_TIMEOUT_FOR_LASTVALUES_SYNC_ms;
-  bool const is_first_sync_request = (_last_sync_request_cnt == 0);
-  if (is_first_sync_request || is_sync_request_timeout)
+  bool const is_retry_attempt = (_last_sync_attempt_cnt > 0);
+  if (is_retry_attempt && (millis() < _next_sync_attempt_tick))
+    return State::RequestLastValues;
+
+  if (_last_sync_attempt_cnt > AIOT_CONFIG_LASTVALUES_SYNC_MAX_RETRY_CNT)
   {
-    DEBUG_VERBOSE("ArduinoIoTCloudTCP::%s [%d] last values requested", __FUNCTION__, now);
-    requestLastValue();
-    _last_sync_request_tick = now;
     /* Track the number of times a get-last-values request was sent to the cloud.
      * If no data is received within a certain number of retry-requests it's a better
      * strategy to disconnect and re-establish connection from the ground up.
      */
-    _last_sync_request_cnt++;
-    if (_last_sync_request_cnt > AIOT_CONFIG_LASTVALUES_SYNC_MAX_RETRY_CNT)
-    {
-      _last_sync_request_cnt = 0;
-      _last_sync_request_tick = 0;
-      return State::Disconnect;
-    }
+    _last_sync_attempt_cnt = 0;
+    return State::Disconnect;
   }
+
+  DEBUG_VERBOSE("ArduinoIoTCloudTCP::%s [%d] last values requested", __FUNCTION__, _time_service.getTime());
+  requestLastValue();
+  _next_sync_attempt_tick = millis() + AIOT_CONFIG_TIMEOUT_FOR_LASTVALUES_SYNC_ms;
+  _last_sync_attempt_cnt++;
 
   return State::RequestLastValues;
 }
@@ -674,8 +672,7 @@ void ArduinoIoTCloudTCP::handleMessage(int length)
     CBORDecoder::decode(_thing_property_container, (uint8_t*)bytes, length, true);
     _time_service.setTimeZoneData(_tz_offset, _tz_dst_until);
     execCloudEventCallback(ArduinoIoTCloudEvent::SYNC);
-    _last_sync_request_cnt = 0;
-    _last_sync_request_tick = 0;
+    _last_sync_attempt_cnt = 0;
     _state = State::Connected;
   }
 }
