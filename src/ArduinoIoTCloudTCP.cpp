@@ -382,10 +382,7 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_SubscribeDeviceTopic()
   if (is_retry_attempt)
   {
     /* Configuration not received or device not attached to a valid thing. Try to resubscribe */
-    if (_mqttClient.unsubscribe(_deviceTopicIn))
-    {
-      DEBUG_ERROR("ArduinoIoTCloudTCP::%s device waiting for valid thing_id %d", __FUNCTION__, _time_service.getTime());
-    }
+    DEBUG_ERROR("ArduinoIoTCloudTCP::%s device waiting for valid thing_id %d", __FUNCTION__, _time_service.getTime());
   }
 
   DEBUG_VERBOSE("ArduinoIoTCloudTCP::%s request device configuration %d", __FUNCTION__, _time_service.getTime());
