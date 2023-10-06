@@ -67,10 +67,10 @@ ArduinoIoTCloudTCP::ArduinoIoTCloudTCP()
 , _last_connection_attempt_cnt{0}
 , _next_device_subscribe_attempt_tick{0}
 , _last_device_subscribe_cnt{0}
-, _last_sync_request_tick{0}
-, _last_sync_request_cnt{0}
 , _next_thing_subscribe_attempt_tick{0}
 , _last_thing_subscribe_attempt_cnt{0}
+, _last_sync_request_tick{0}
+, _last_sync_request_cnt{0}
 , _mqtt_data_buf{0}
 , _mqtt_data_len{0}
 , _mqtt_data_request_retransmit{false}
