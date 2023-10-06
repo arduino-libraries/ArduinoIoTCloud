@@ -132,10 +132,10 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
     unsigned int _last_connection_attempt_cnt;
     unsigned long _next_device_subscribe_attempt_tick;
     unsigned int _last_device_subscribe_cnt;
-    unsigned long _last_sync_request_tick;
-    unsigned int _last_sync_request_cnt;
     unsigned long _next_thing_subscribe_attempt_tick;
     unsigned int  _last_thing_subscribe_attempt_cnt;
+    unsigned long _last_sync_request_tick;
+    unsigned int _last_sync_request_cnt;
     String _brokerAddress;
     uint16_t _brokerPort;
     uint8_t _mqtt_data_buf[MQTT_TRANSMIT_BUFFER_SIZE];
