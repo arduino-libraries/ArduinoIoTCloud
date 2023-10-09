@@ -28,8 +28,6 @@
 #  define __STDC_LIMIT_MACROS 1
 #endif
 
-#ifndef __AVR__
-
 #include "cbor.h"
 #include "cborinternal_p.h"
 #include "compilersupport_p.h"
@@ -581,7 +579,5 @@ CborError cbor_value_to_pretty_stream(CborStreamFunction streamFunction, void *t
 }
 
 #pragma GCC diagnostic pop
-
-#endif // __AVR__
 
 /** @} */

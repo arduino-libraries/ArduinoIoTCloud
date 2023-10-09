@@ -30,8 +30,6 @@
 #  define __STDC_LIMIT_MACROS 1
 #endif
 
-#ifndef __AVR__
-
 #include "cbor.h"
 #include "cborjson.h"
 #include "cborinternal_p.h"
@@ -702,7 +700,5 @@ CborError cbor_value_to_json_advance(FILE *out, CborValue *value, int flags)
 }
 
 #pragma GCC diagnostic pop
-
-#endif // __AVR__
 
 /** @} */
