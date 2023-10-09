@@ -396,7 +396,7 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_SubscribeDeviceTopic()
   }
 
   /* Max retry than disconnect */
-  if (_last_device_subscribe_cnt > AIOT_CONFIG_LASTVALUES_SYNC_MAX_RETRY_CNT)
+  if (_last_device_subscribe_cnt > AIOT_CONFIG_DEVICE_TOPIC_MAX_RETRY_CNT)
   {
     _last_device_subscribe_cnt = 0;
     return State::Disconnect;
