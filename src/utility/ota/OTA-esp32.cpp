@@ -31,6 +31,12 @@
 #include <esp_ota_ops.h>
 
 /******************************************************************************
+ * DEFINES
+ ******************************************************************************/
+
+#define ESP32_OTA_ERROR_BASE        (-300)
+
+/******************************************************************************
  * FUNCTION DEFINITION
  ******************************************************************************/
 
@@ -43,7 +49,7 @@ int esp32_onOTARequest(char const * ota_url)
   if ((ota_err = ota.begin()) != Arduino_ESP32_OTA::Error::None)
   {
     DEBUG_ERROR("Arduino_ESP32_OTA::begin() failed with %d", static_cast<int>(ota_err));
-    return static_cast<int>(ota_err);
+    return (ESP32_OTA_ERROR_BASE + static_cast<int>(ota_err));
   }
 
   /* Download the OTA file from the web storage location. */
@@ -51,7 +57,7 @@ int esp32_onOTARequest(char const * ota_url)
   if (ota_download <= 0)
   {
     DEBUG_ERROR("Arduino_ESP_OTA::download() failed with %d", ota_download);
-    return ota_download;
+    return (ESP32_OTA_ERROR_BASE + ota_download);
   }
   DEBUG_VERBOSE("Arduino_ESP_OTA::download() %d bytes downloaded", static_cast<int>(ota_download));
 
@@ -59,7 +65,7 @@ int esp32_onOTARequest(char const * ota_url)
   if ((ota_err = ota.update()) != Arduino_ESP32_OTA::Error::None)
   {
     DEBUG_ERROR("Arduino_ESP_OTA::update() failed with %d", static_cast<int>(ota_err));
-    return static_cast<int>(ota_err);
+    return (ESP32_OTA_ERROR_BASE + static_cast<int>(ota_err));
   }
 
   /* Perform the reset to reboot */
