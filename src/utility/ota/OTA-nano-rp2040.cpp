@@ -53,6 +53,7 @@ enum class rp2040OTAError : int
   ServerConnectError   = RP2040_OTA_ERROR_BASE - 10,
   HttpHeaderError      = RP2040_OTA_ERROR_BASE - 11,
   HttpDataError        = RP2040_OTA_ERROR_BASE - 12,
+  HttpResponse         = RP2040_OTA_ERROR_BASE - 14,
   ErrorOpenUpdateFile  = RP2040_OTA_ERROR_BASE - 19,
   ErrorWriteUpdateFile = RP2040_OTA_ERROR_BASE - 20,
   ErrorReformat        = RP2040_OTA_ERROR_BASE - 21,
@@ -207,6 +208,26 @@ int rp2040_connect_onOTARequest(char const * ota_url)
     return static_cast<int>(rp2040OTAError::HttpHeaderError);
   }
 
+  /* Check HTTP response status code */
+  char const * http_response_ptr = strstr(http_header.c_str(), "HTTP/1.1");
+  if (!http_response_ptr)
+  {
+    DEBUG_ERROR("%s: Failure to extract http response from header", __FUNCTION__);
+    return static_cast<int>(rp2040OTAError::ErrorParseHttpHeader);
+  }
+  /* Find start of numerical value. */
+  char * ptr = const_cast<char *>(http_response_ptr);
+  for (ptr += strlen("HTTP/1.1"); (*ptr != '\0') && !isDigit(*ptr); ptr++) { }
+  /* Extract numerical value. */
+  String http_response_str;
+  for (; isDigit(*ptr); ptr++) http_response_str += *ptr;
+  int const http_response = atoi(http_response_str.c_str());
+
+  if (http_response != 200) {
+    DEBUG_ERROR("%s: HTTP response status code = %d", __FUNCTION__, http_response);
+    return static_cast<int>(rp2040OTAError::HttpResponse);
+  }
+
   /* Extract concent length from HTTP header. A typical entry looks like
    *   "Content-Length: 123456"
    */
@@ -218,7 +239,7 @@ int rp2040_connect_onOTARequest(char const * ota_url)
     return static_cast<int>(rp2040OTAError::ErrorParseHttpHeader);
   }
   /* Find start of numerical value. */
-  char * ptr = const_cast<char *>(content_length_ptr);
+  ptr = const_cast<char *>(content_length_ptr);
   for (; (*ptr != '\0') && !isDigit(*ptr); ptr++) { }
   /* Extract numerical value. */
   String content_length_str;
