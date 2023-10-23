@@ -23,7 +23,6 @@
 
 #if defined ARDUINO_ARCH_ESP32 && OTA_ENABLED
 
-#include "OTA.h"
 #include <Arduino_DebugUtils.h>
 #include <Arduino_ESP32_OTA.h>
 #include "tls/utility/SHA256.h"
@@ -71,7 +70,7 @@ int esp32_onOTARequest(char const * ota_url)
   /* Perform the reset to reboot */
   ota.reset();
 
-  return static_cast<int>(OTAError::None);
+  return static_cast<int>(Arduino_ESP32_OTA::Error::None);
 }
 
 String esp32_getOTAImageSHA256()
