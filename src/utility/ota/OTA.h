@@ -29,12 +29,6 @@
 #include <Arduino_ConnectionHandler.h>
 
 /******************************************************************************
- * DEFINES
- ******************************************************************************/
-
-#define RP2040_OTA_ERROR_BASE (-100)
-
-/******************************************************************************
  * TYPEDEF
  ******************************************************************************/
 
@@ -42,16 +36,6 @@ enum class OTAError : int
 {
   None           = 0,
   DownloadFailed = 1,
-  RP2040_UrlParseError        = RP2040_OTA_ERROR_BASE - 0,
-  RP2040_ServerConnectError   = RP2040_OTA_ERROR_BASE - 1,
-  RP2040_HttpHeaderError      = RP2040_OTA_ERROR_BASE - 2,
-  RP2040_HttpDataError        = RP2040_OTA_ERROR_BASE - 3,
-  RP2040_ErrorOpenUpdateFile  = RP2040_OTA_ERROR_BASE - 4,
-  RP2040_ErrorWriteUpdateFile = RP2040_OTA_ERROR_BASE - 5,
-  RP2040_ErrorParseHttpHeader = RP2040_OTA_ERROR_BASE - 6,
-  RP2040_ErrorFlashInit       = RP2040_OTA_ERROR_BASE - 7,
-  RP2040_ErrorReformat        = RP2040_OTA_ERROR_BASE - 8,
-  RP2040_ErrorUnmount         = RP2040_OTA_ERROR_BASE - 9,
 };
 
 /******************************************************************************
