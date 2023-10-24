@@ -15,7 +15,7 @@
    a commercial license, send an email to license@arduino.cc.
 */
 
-#if defined(ARDUINO_NANO_RP2040_CONNECT)
+#ifdef ARDUINO_NANO_RP2040_CONNECT
 
 /******************************************************************************
  * INCLUDE
