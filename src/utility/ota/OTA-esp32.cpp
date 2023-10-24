@@ -15,13 +15,11 @@
    a commercial license, send an email to license@arduino.cc.
 */
 
+#ifdef ARDUINO_ARCH_ESP32
+
 /******************************************************************************
  * INCLUDE
  ******************************************************************************/
-
-#include <AIoTC_Config.h>
-
-#if defined ARDUINO_ARCH_ESP32 && OTA_ENABLED
 
 #include <Arduino_DebugUtils.h>
 #include <Arduino_ESP32_OTA.h>
