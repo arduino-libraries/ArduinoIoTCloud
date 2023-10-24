@@ -34,8 +34,49 @@
 #endif
 
 /******************************************************************************
+ * DEFINES
+ ******************************************************************************/
+
+#define SAMD_OTA_ERROR_BASE (-200)
+
+/******************************************************************************
+ * TYPEDEF
+ ******************************************************************************/
+
+enum class samdOTAError : int
+{
+  None            =                        0,
+  OtaHeaderCrc    = SAMD_OTA_ERROR_BASE -  6,
+  OtaDownload     = SAMD_OTA_ERROR_BASE - 12,
+  OpenUpdateFile  = SAMD_OTA_ERROR_BASE - 19,
+  Rename          = SAMD_OTA_ERROR_BASE - 23,
+};
+
+enum class ninaOTAError : int
+{
+  None            = 0,
+  Open            = 1,
+  Length          = 2,
+  CRC             = 3,
+  Rename          = 4,
+};
+
+/******************************************************************************
  * FUNCTION DEFINITION
  ******************************************************************************/
+
+samdOTAError samd_getOTAError(ninaOTAError nina_ota_error_code)
+{
+  switch(nina_ota_error_code)
+  {
+    case ninaOTAError::None:   return samdOTAError::None;
+    case ninaOTAError::Open:   return samdOTAError::OpenUpdateFile;
+    case ninaOTAError::Length: return samdOTAError::OtaDownload;
+    case ninaOTAError::CRC:    return samdOTAError::OtaHeaderCrc;
+    case ninaOTAError::Rename: return samdOTAError::Rename;
+    default:                   return samdOTAError::OtaDownload;
+  }
+}
 
 int samd_onOTARequest(char const * ota_url)
 {
@@ -53,7 +94,8 @@ int samd_onOTARequest(char const * ota_url)
   if (!WiFiStorage.downloadOTA(ota_url, &nina_ota_err_code))
   {
     DEBUG_ERROR("ArduinoIoTCloudTCP::%s error download to nina: %d", __FUNCTION__, nina_ota_err_code);
-    return (NINAFW_OTA_ERROR_BASE - nina_ota_err_code);
+    samdOTAError samd_ota_err_code = samd_getOTAError(static_cast<ninaOTAError>(nina_ota_err_code));
+    return static_cast<int>(samd_ota_err_code);
   }
 
   /* Perform the reset to reboot to SxU. */
