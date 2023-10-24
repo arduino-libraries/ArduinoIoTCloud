@@ -44,17 +44,17 @@
 
 enum class rp2040OTAError : int
 {
-  None                 =                          0,
-  ErrorFlashInit       = RP2040_OTA_ERROR_BASE -  3,
-  ErrorParseHttpHeader = RP2040_OTA_ERROR_BASE -  8,
-  UrlParseError        = RP2040_OTA_ERROR_BASE -  9,
-  ServerConnectError   = RP2040_OTA_ERROR_BASE - 10,
-  HttpHeaderError      = RP2040_OTA_ERROR_BASE - 11,
-  HttpDataError        = RP2040_OTA_ERROR_BASE - 12,
-  ErrorOpenUpdateFile  = RP2040_OTA_ERROR_BASE - 19,
-  ErrorWriteUpdateFile = RP2040_OTA_ERROR_BASE - 20,
-  ErrorReformat        = RP2040_OTA_ERROR_BASE - 21,
-  ErrorUnmount         = RP2040_OTA_ERROR_BASE - 22,
+  None            =                          0,
+  OtaStorageInit  = RP2040_OTA_ERROR_BASE -  3,
+  ParseHttpHeader = RP2040_OTA_ERROR_BASE -  8,
+  UrlParse        = RP2040_OTA_ERROR_BASE -  9,
+  ServerConnect   = RP2040_OTA_ERROR_BASE - 10,
+  HttpHeader      = RP2040_OTA_ERROR_BASE - 11,
+  HttpData        = RP2040_OTA_ERROR_BASE - 12,
+  OpenUpdateFile  = RP2040_OTA_ERROR_BASE - 19,
+  WriteUpdateFile = RP2040_OTA_ERROR_BASE - 20,
+  Reformat        = RP2040_OTA_ERROR_BASE - 21,
+  Unmount         = RP2040_OTA_ERROR_BASE - 22,
 };
 
 /******************************************************************************
@@ -115,7 +115,7 @@ int rp2040_connect_onOTARequest(char const * ota_url)
   if ((err = flash.init()) < 0)
   {
     DEBUG_ERROR("%s: flash.init() failed with %d", __FUNCTION__, err);
-    return static_cast<int>(rp2040OTAError::ErrorFlashInit);
+    return static_cast<int>(rp2040OTAError::OtaStorageInit);
   }
 
   watchdog_reset();
@@ -128,7 +128,7 @@ int rp2040_connect_onOTARequest(char const * ota_url)
   if ((err = fs.reformat(&flash)) != 0)
   {
      DEBUG_ERROR("%s: fs.reformat() failed with %d", __FUNCTION__, err);
-     return static_cast<int>(rp2040OTAError::ErrorReformat);
+     return static_cast<int>(rp2040OTAError::Reformat);
   }
 
   watchdog_reset();
@@ -138,7 +138,7 @@ int rp2040_connect_onOTARequest(char const * ota_url)
   {
     DEBUG_ERROR("%s: fopen() failed", __FUNCTION__);
     fclose(file);
-    return static_cast<int>(rp2040OTAError::ErrorOpenUpdateFile);
+    return static_cast<int>(rp2040OTAError::OpenUpdateFile);
   }
 
   watchdog_reset();
@@ -156,7 +156,7 @@ int rp2040_connect_onOTARequest(char const * ota_url)
   } else {
     DEBUG_ERROR("%s: Failed to parse OTA URL %s", __FUNCTION__, ota_url);
     fclose(file);
-    return static_cast<int>(rp2040OTAError::UrlParseError);
+    return static_cast<int>(rp2040OTAError::UrlParse);
   }
 
   watchdog_reset();
@@ -165,7 +165,7 @@ int rp2040_connect_onOTARequest(char const * ota_url)
   {
     DEBUG_ERROR("%s: Connection failure with OTA storage server %s", __FUNCTION__, url.host_.c_str());
     fclose(file);
-    return static_cast<int>(rp2040OTAError::ServerConnectError);
+    return static_cast<int>(rp2040OTAError::ServerConnect);
   }
 
   watchdog_reset();
@@ -202,7 +202,7 @@ int rp2040_connect_onOTARequest(char const * ota_url)
   {
     DEBUG_ERROR("%s: Error receiving HTTP header %s", __FUNCTION__, is_http_header_timeout ? "(timeout)":"");
     fclose(file);
-    return static_cast<int>(rp2040OTAError::HttpHeaderError);
+    return static_cast<int>(rp2040OTAError::HttpHeader);
   }
 
   /* Extract concent length from HTTP header. A typical entry looks like
@@ -213,7 +213,7 @@ int rp2040_connect_onOTARequest(char const * ota_url)
   {
     DEBUG_ERROR("%s: Failure to extract content length from http header", __FUNCTION__);
     fclose(file);
-    return static_cast<int>(rp2040OTAError::ErrorParseHttpHeader);
+    return static_cast<int>(rp2040OTAError::ParseHttpHeader);
   }
   /* Find start of numerical value. */
   char * ptr = const_cast<char *>(content_length_ptr);
@@ -242,7 +242,7 @@ int rp2040_connect_onOTARequest(char const * ota_url)
       {
         DEBUG_ERROR("%s: Writing of firmware image to flash failed", __FUNCTION__);
         fclose(file);
-        return static_cast<int>(rp2040OTAError::ErrorWriteUpdateFile);
+        return static_cast<int>(rp2040OTAError::WriteUpdateFile);
       }
 
       bytes_received++;
@@ -252,7 +252,7 @@ int rp2040_connect_onOTARequest(char const * ota_url)
   if (bytes_received != content_length_val) {
     DEBUG_ERROR("%s: Error receiving HTTP data %s (%d bytes received, %d expected)", __FUNCTION__, is_http_data_timeout ? "(timeout)":"", bytes_received, content_length_val);
     fclose(file);
-    return static_cast<int>(rp2040OTAError::HttpDataError);
+    return static_cast<int>(rp2040OTAError::HttpData);
   }
 
   DEBUG_INFO("%s: %d bytes received", __FUNCTION__, ftell(file));
@@ -262,7 +262,7 @@ int rp2040_connect_onOTARequest(char const * ota_url)
   if ((err = fs.unmount()) != 0)
   {
      DEBUG_ERROR("%s: fs.unmount() failed with %d", __FUNCTION__, err);
-     return static_cast<int>(rp2040OTAError::ErrorUnmount);
+     return static_cast<int>(rp2040OTAError::Unmount);
   }
 
   /* Perform the reset to reboot to SFU. */
