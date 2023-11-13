@@ -72,10 +72,10 @@ void rp2040_connect_setRTC(unsigned long time);
 unsigned long rp2040_connect_getRTC();
 #endif
 
-#ifdef BOARD_STM32H7
-void stm32h7_initRTC();
-void stm32h7_setRTC(unsigned long time);
-unsigned long stm32h7_getRTC();
+#ifdef ARDUINO_ARCH_MBED
+void mbed_initRTC();
+void mbed_setRTC(unsigned long time);
+unsigned long mbed_getRTC();
 #endif
 
 #ifdef ARDUINO_ARCH_ESP32
@@ -339,8 +339,8 @@ void TimeServiceClass::initRTC()
   samd_initRTC();
 #elif defined (ARDUINO_NANO_RP2040_CONNECT)
   rp2040_connect_initRTC();
-#elif defined (BOARD_STM32H7)
-  stm32h7_initRTC();
+#elif defined (ARDUINO_ARCH_MBED)
+  mbed_initRTC();
 #elif defined (ARDUINO_ARCH_ESP32)
   esp32_initRTC();
 #elif defined (ARDUINO_ARCH_ESP8266)
@@ -358,8 +358,8 @@ void TimeServiceClass::setRTC(unsigned long time)
   samd_setRTC(time);
 #elif defined (ARDUINO_NANO_RP2040_CONNECT)
   rp2040_connect_setRTC(time);
-#elif defined (BOARD_STM32H7)
-  stm32h7_setRTC(time);
+#elif defined (ARDUINO_ARCH_MBED)
+  mbed_setRTC(time);
 #elif defined (ARDUINO_ARCH_ESP32)
   esp32_setRTC(time);
 #elif defined (ARDUINO_ARCH_ESP8266)
@@ -377,8 +377,8 @@ unsigned long TimeServiceClass::getRTC()
   return samd_getRTC();
 #elif defined (ARDUINO_NANO_RP2040_CONNECT)
   return rp2040_connect_getRTC();
-#elif defined (BOARD_STM32H7)
-  return stm32h7_getRTC();
+#elif defined (ARDUINO_ARCH_MBED)
+  return mbed_getRTC();
 #elif defined (ARDUINO_ARCH_ESP32)
   return esp32_getRTC();
 #elif defined (ARDUINO_ARCH_ESP8266)
@@ -464,18 +464,18 @@ unsigned long rp2040_connect_getRTC()
 }
 #endif
 
-#ifdef BOARD_STM32H7
-void stm32h7_initRTC()
+#ifdef ARDUINO_ARCH_MBED
+void mbed_initRTC()
 {
   /* Nothing to do */
 }
 
-void stm32h7_setRTC(unsigned long time)
+void mbed_setRTC(unsigned long time)
 {
   set_time(time);
 }
 
-unsigned long stm32h7_getRTC()
+unsigned long mbed_getRTC()
 {
   return time(NULL);
 }
