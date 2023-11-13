@@ -66,12 +66,6 @@ void samd_setRTC(unsigned long time);
 unsigned long samd_getRTC();
 #endif
 
-#ifdef ARDUINO_NANO_RP2040_CONNECT
-void rp2040_connect_initRTC();
-void rp2040_connect_setRTC(unsigned long time);
-unsigned long rp2040_connect_getRTC();
-#endif
-
 #ifdef ARDUINO_ARCH_MBED
 void mbed_initRTC();
 void mbed_setRTC(unsigned long time);
@@ -337,8 +331,6 @@ void TimeServiceClass::initRTC()
 {
 #if defined (ARDUINO_ARCH_SAMD)
   samd_initRTC();
-#elif defined (ARDUINO_NANO_RP2040_CONNECT)
-  rp2040_connect_initRTC();
 #elif defined (ARDUINO_ARCH_MBED)
   mbed_initRTC();
 #elif defined (ARDUINO_ARCH_ESP32)
@@ -356,8 +348,6 @@ void TimeServiceClass::setRTC(unsigned long time)
 {
 #if defined (ARDUINO_ARCH_SAMD)
   samd_setRTC(time);
-#elif defined (ARDUINO_NANO_RP2040_CONNECT)
-  rp2040_connect_setRTC(time);
 #elif defined (ARDUINO_ARCH_MBED)
   mbed_setRTC(time);
 #elif defined (ARDUINO_ARCH_ESP32)
@@ -375,8 +365,6 @@ unsigned long TimeServiceClass::getRTC()
 {
 #if defined (ARDUINO_ARCH_SAMD)
   return samd_getRTC();
-#elif defined (ARDUINO_NANO_RP2040_CONNECT)
-  return rp2040_connect_getRTC();
 #elif defined (ARDUINO_ARCH_MBED)
   return mbed_getRTC();
 #elif defined (ARDUINO_ARCH_ESP32)
@@ -444,23 +432,6 @@ void samd_setRTC(unsigned long time)
 unsigned long samd_getRTC()
 {
   return rtc.getEpoch();
-}
-#endif
-
-#ifdef ARDUINO_NANO_RP2040_CONNECT
-void rp2040_connect_initRTC()
-{
-  /* Nothing to do */
-}
-
-void rp2040_connect_setRTC(unsigned long time)
-{
-  set_time(time);
-}
-
-unsigned long rp2040_connect_getRTC()
-{
-  return time(NULL);
 }
 #endif
 
