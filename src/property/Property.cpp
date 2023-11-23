@@ -386,8 +386,10 @@ void onAutoSync(Property & property) {
 }
 
 void onForceCloudSync(Property & property) {
-  property.fromCloudToLocal();
-  property.execCallbackOnChange();
+  if (property.isDifferentFromCloud()) {
+    property.fromCloudToLocal();
+    property.execCallbackOnChange();
+  }
 }
 
 void onForceDeviceSync(Property & /* property */) {
