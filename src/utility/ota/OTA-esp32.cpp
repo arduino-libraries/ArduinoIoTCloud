@@ -122,8 +122,7 @@ String esp32_getOTAImageSHA256()
 
 bool esp32_isOTACapable()
 {
-  /* NOTE: here is possible to check if current partition scheme is OTA compatible */
-  return true;
+  return Arduino_ESP32_OTA::isCapable();
 }
 
 #endif /* ARDUINO_ARCH_ESP32 */
