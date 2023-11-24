@@ -152,6 +152,8 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
     WiFiClientSecure _sslClient;
     #elif defined(ARDUINO_UNOR4_WIFI)
     WiFiSSLClient _sslClient;
+    #elif defined(ARDUINO_EDGE_CONTROL)
+    GSMSSLClient _sslClient;
     #elif defined(ARDUINO_PORTENTA_C33)
     ArduinoIoTCloudCertClass _cert;
     SSLClient _sslClient;
