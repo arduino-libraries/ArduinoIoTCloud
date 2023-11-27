@@ -151,7 +151,7 @@
   #define BOARD_STM32H7
 #endif
 
-#if defined(ARDUINO_UNOR4_WIFI)
+#if defined(ARDUINO_UNOR4_WIFI) || defined(ARDUINO_EDGE_CONTROL)
   #define BOARD_HAS_SECRET_KEY
   #define HAS_TCP
 #endif

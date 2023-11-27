@@ -70,6 +70,8 @@ jobs:
             type: renesas_uno
           - fqbn: arduino:esp32:nano_nora
             type: arduino_esp32
+          - fqbn: arduino:mbed_edge:edge_control
+            type: mbed_edge
 
 
         # make board type-specific customizations to the matrix jobs
@@ -212,6 +214,12 @@ jobs:
               - name: Arduino_ESP32_OTA
             sketch-paths: |
               - examples/ArduinoIoTCloud-DeferredOTA
+          # Edge Control
+          - board:
+              type: mbed_edge
+            platforms: |
+              # Install mbed_edge platform via Boards Manager
+              - name: arduino:mbed_edge
           # ESP8266 boards
           - board:
               type: esp8266
