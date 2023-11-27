@@ -36,7 +36,7 @@
 #  include <watchdog_api.h>
 #  define PORTENTA_H7_WATCHDOG_MAX_TIMEOUT_ms  (32760)
 #  define NANO_RP2040_WATCHDOG_MAX_TIMEOUT_ms  (8389)
-#  define EDGE_CONTROL_WATCHDOG_MAX_TIMEOUT_ms (32760)
+#  define EDGE_CONTROL_WATCHDOG_MAX_TIMEOUT_ms (65536)
 #endif /* ARDUINO_ARCH_MBED */
 
 #include <Arduino_ConnectionHandler.h>
