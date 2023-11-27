@@ -14,8 +14,8 @@
   #define SECRET_DEVICE_KEY "my-device-password"
 #endif
 
-/* MKR GSM 1400 */
-#if defined(BOARD_HAS_GSM)
+/* MKR GSM 1400 */ /* MKR NB 1500 */ /* Portenta CAT.M1/NB IoT GNSS Shield */
+#if defined(BOARD_HAS_GSM) || defined(BOARD_HAS_NB) || defined(BOARD_HAS_CATM1_NBIOT)
   #define SECRET_PIN ""
   #define SECRET_APN ""
   #define SECRET_LOGIN ""
@@ -26,14 +26,6 @@
 #if defined(BOARD_HAS_LORA)
   #define SECRET_APP_EUI ""
   #define SECRET_APP_KEY ""
-#endif
-
-/* MKR NB 1500 */
-#if defined(BOARD_HAS_NB)
-  #define SECRET_PIN ""
-  #define SECRET_APN ""
-  #define SECRET_LOGIN ""
-  #define SECRET_PASS ""
 #endif
 
 /* Portenta H7 + Ethernet shield */

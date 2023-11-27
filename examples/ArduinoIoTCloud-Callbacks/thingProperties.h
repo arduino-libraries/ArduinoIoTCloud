@@ -1,9 +1,5 @@
-#if defined(BOARD_HAS_WIFI)
-#elif defined(BOARD_HAS_GSM)
-#elif defined(BOARD_HAS_LORA)
-#elif defined(BOARD_HAS_NB)
-#elif defined(BOARD_HAS_ETHERNET)
-#else
+#if !(defined(BOARD_HAS_WIFI) || defined(BOARD_HAS_GSM) || defined(BOARD_HAS_LORA) || \
+      defined(BOARD_HAS_NB) || defined(BOARD_HAS_ETHERNET) || defined(BOARD_HAS_CATM1_NBIOT))
   #error "Please check Arduino IoT Cloud supported boards list: https://github.com/arduino-libraries/ArduinoIoTCloud/#what"
 #endif
 
@@ -26,6 +22,8 @@ void initProperties() {
   LoRaConnectionHandler ArduinoIoTPreferredConnection(SECRET_APP_EUI, SECRET_APP_KEY, _lora_band::EU868, NULL, _lora_class::CLASS_A);
 #elif defined(BOARD_HAS_NB)
   NBConnectionHandler ArduinoIoTPreferredConnection(SECRET_PIN, SECRET_APN, SECRET_LOGIN, SECRET_PASS);
+#elif defined(BOARD_HAS_CATM1_NBIOT)
+  CatM1ConnectionHandler ArduinoIoTPreferredConnection(SECRET_PIN, SECRET_APN, SECRET_LOGIN, SECRET_PASS);
 #elif defined(BOARD_HAS_ETHERNET)
   /* DHCP mode */
   //EthernetConnectionHandler ArduinoIoTPreferredConnection;
