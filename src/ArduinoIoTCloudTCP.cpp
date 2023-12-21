@@ -81,7 +81,7 @@ ArduinoIoTCloudTCP::ArduinoIoTCloudTCP()
 , _mqtt_data_len{0}
 , _mqtt_data_request_retransmit{false}
 #ifdef BOARD_HAS_ECCX08
-, _sslClient(nullptr, ArduinoIoTCloudTrustAnchor, ArduinoIoTCloudTrustAnchor_NUM, getTime)
+, _sslClient(nullptr, ArduinoIoTCloudTrustAnchor, ArduinoIoTCloudTrustAnchor_NUM)
 #endif
 #ifdef BOARD_HAS_SECRET_KEY
 , _password("")
@@ -171,6 +171,7 @@ int ArduinoIoTCloudTCP::begin(bool const enable_watchdog, String brokerAddress, 
 #if defined(BOARD_HAS_OFFLOADED_ECCX08)
 
 #elif defined(BOARD_HAS_ECCX08)
+  ArduinoBearSSL.onGetTime(getTime);
   _sslClient.setClient(_connection->getClient());
 #elif defined(ARDUINO_PORTENTA_C33)
   _sslClient.setClient(_connection->getClient());

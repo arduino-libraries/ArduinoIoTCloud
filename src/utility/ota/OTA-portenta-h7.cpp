@@ -31,7 +31,7 @@
 
 #include <stm32h7xx_hal_rtc_ex.h>
 
-#include "tls/utility/SHA256.h"
+#include <SHA256.h>
 
 #include "../watchdog/Watchdog.h"
 
@@ -117,11 +117,11 @@ String portenta_h7_getOTAImageSHA256()
     sha256.update(reinterpret_cast<uint8_t *>(&b), sizeof(b));
   }
   /* Retrieve the final hash string. */
-  uint8_t sha256_hash[SHA256::HASH_SIZE] = {0};
+  uint8_t sha256_hash[SHA256_DIGEST_SIZE] = {0};
   sha256.finalize(sha256_hash);
   String sha256_str;
   std::for_each(sha256_hash,
-                sha256_hash + SHA256::HASH_SIZE,
+                sha256_hash + SHA256_DIGEST_SIZE,
                 [&sha256_str](uint8_t const elem)
                 {
                   char buf[4];

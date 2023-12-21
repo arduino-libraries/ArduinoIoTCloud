@@ -37,7 +37,7 @@
 #if defined(BOARD_HAS_OFFLOADED_ECCX08)
   #include "WiFiSSLClient.h"
 #elif defined(BOARD_HAS_ECCX08)
-  #include "tls/BearSSLClient.h"
+  #include <ArduinoBearSSL.h>
 #elif defined(ARDUINO_PORTENTA_C33)
   #include <SSLClient.h>
 #elif defined(ARDUINO_NICLA_VISION)

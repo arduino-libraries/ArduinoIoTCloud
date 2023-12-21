@@ -25,7 +25,7 @@
 
 #include "OTAUpdate.h"
 #include <Arduino_DebugUtils.h>
-#include "tls/utility/SHA256.h"
+#include <SHA256.h>
 #include "fsp_common_api.h"
 #include "r_flash_lp.h"
 #include "WiFiS3.h"
@@ -159,11 +159,11 @@ String unor4_getOTAImageSHA256()
   unor4_codeFlashClose(&ctrl);
 
   /* Retrieve the final hash string. */
-  uint8_t sha256_hash[SHA256::HASH_SIZE] = {0};
+  uint8_t sha256_hash[SHA256_DIGEST_SIZE] = {0};
   sha256.finalize(sha256_hash);
   String sha256_str;
   std::for_each(sha256_hash,
-                sha256_hash + SHA256::HASH_SIZE,
+                sha256_hash + SHA256_DIGEST_SIZE,
                 [&sha256_str](uint8_t const elem)
                 {
                   char buf[4];
