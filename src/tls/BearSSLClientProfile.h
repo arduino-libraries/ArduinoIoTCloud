@@ -22,10 +22,15 @@
  * SOFTWARE.
  */
 
+#ifndef _BEAR_SSL_CLIENT_PROFILE_H_
+#define _BEAR_SSL_CLIENT_PROFILE_H_
+
+/******************************************************************************
+ * INCLUDE
+ ******************************************************************************/
+
 #include <AIoTC_Config.h>
 #ifdef BOARD_HAS_ECCX08
-
-#include "../bearssl/inner.h"
 
 /* see bearssl_ssl.h */
 void aiotc_client_profile_init(br_ssl_client_context *cc, br_x509_minimal_context *xc, const br_x509_trust_anchor *trust_anchors, size_t trust_anchors_num)
@@ -99,3 +104,6 @@ void aiotc_client_profile_init(br_ssl_client_context *cc, br_x509_minimal_contex
 }
 
 #endif /* #ifdef BOARD_HAS_ECCX08 */
+
+#endif /* _BEAR_SSL_CLIENT_PROFILE_H_ */
+
