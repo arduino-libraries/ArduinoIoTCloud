@@ -29,6 +29,7 @@
 #endif
 
 #ifdef BOARD_HAS_ECCX08
+  #include "tls/BearSSLClientProfile.h"
   #include "tls/BearSSLTrustAnchors.h"
 #endif
 
@@ -173,6 +174,7 @@ int ArduinoIoTCloudTCP::begin(bool const enable_watchdog, String brokerAddress, 
 #elif defined(BOARD_HAS_ECCX08)
   ArduinoBearSSL.onGetTime(getTime);
   _sslClient.setClient(_connection->getClient());
+  _sslClient.setProfile(aiotc_client_profile_init);
 #elif defined(ARDUINO_PORTENTA_C33)
   _sslClient.setClient(_connection->getClient());
   _sslClient.setCACert(AIoTSSCert);
