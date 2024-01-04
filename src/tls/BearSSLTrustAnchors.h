@@ -1,5 +1,5 @@
 /*
-   This file is part of ArduinoIoTBearSSL.
+   This file is part of ArduinoIoTCloud.
 
    Copyright 2019 ARDUINO SA (http://www.arduino.cc/)
 
@@ -25,8 +25,6 @@
 
 #include <AIoTC_Config.h>
 #ifdef BOARD_HAS_ECCX08
-
-#include "bearssl/bearssl_ssl.h"
 
 /******************************************************************************
  * CONSTANTS
