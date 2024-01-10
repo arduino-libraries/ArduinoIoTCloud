@@ -143,7 +143,7 @@ class Property
     /* Composable configuration of the Property class */
     Property & onUpdate(UpdateCallbackFunc func);
     Property & onSync(OnSyncCallbackFunc func);
-    Property & publishOnChange(float const min_delta_property, unsigned long const min_time_between_updates_millis = 0);
+    Property & publishOnChange(float const min_delta_property, unsigned long const min_time_between_updates_millis = DEFAULT_MIN_TIME_BETWEEN_UPDATES_MILLIS);
     Property & publishEvery(unsigned long const seconds);
     Property & publishOnDemand();
     Property & encodeTimestamp();
