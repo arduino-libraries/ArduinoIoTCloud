@@ -42,12 +42,13 @@ public:
 
   TimeServiceClass();
 
-  void          begin  (ConnectionHandler * con_hdl);
+  void          begin  (UDP & udp);
   unsigned long getTime();
   void          setTime(unsigned long time);
   unsigned long getLocalTime();
   void          setTimeZoneData(long offset, unsigned long valid_until);
   bool          sync();
+  bool          isTimeValid();
   void          setSyncInterval(unsigned long seconds);
   void          setSyncFunction(syncTimeFunctionPtr sync_func);
 
@@ -58,7 +59,7 @@ public:
 
 private:
 
-  ConnectionHandler * _con_hdl;
+  UDP * _udp;
   bool _is_rtc_configured;
   bool _is_tz_configured;
   long _timezone_offset;
@@ -69,7 +70,6 @@ private:
 
 #ifdef HAS_TCP
   unsigned long getRemoteTime();
-  bool connected();
 #endif
   void initRTC();
   void setRTC(unsigned long time);

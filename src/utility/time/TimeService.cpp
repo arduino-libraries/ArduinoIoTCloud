@@ -109,7 +109,7 @@ static time_t const EPOCH = 0;
  **************************************************************************************/
 
 TimeServiceClass::TimeServiceClass()
-: _con_hdl(nullptr)
+: _udp(nullptr)
 , _is_rtc_configured(false)
 , _is_tz_configured(false)
 , _timezone_offset(24 * 60 * 60)
@@ -125,13 +125,14 @@ TimeServiceClass::TimeServiceClass()
  * PUBLIC MEMBER FUNCTIONS
  **************************************************************************************/
 
-void TimeServiceClass::begin(ConnectionHandler * con_hdl)
+void TimeServiceClass::begin(UDP & udp)
 {
-  _con_hdl = con_hdl;
   initRTC();
 #ifdef HAS_LORA
   setRTC(EPOCH_AT_COMPILE_TIME);
 #endif
+
+  _udp = &udp;
 }
 
 unsigned long TimeServiceClass::getTime()
@@ -177,6 +178,14 @@ bool TimeServiceClass::sync()
     _is_rtc_configured = true;
   }
   return _is_rtc_configured;
+}
+
+bool TimeServiceClass::isTimeValid()
+{
+  if (_is_rtc_configured) {
+    return isTimeValid(getRTC());
+  }
+  return false;
 }
 
 void TimeServiceClass::setSyncInterval(unsigned long seconds)
@@ -276,34 +285,15 @@ unsigned long TimeServiceClass::getTimeFromString(const String& input)
  **************************************************************************************/
 
 #ifdef HAS_TCP
-bool TimeServiceClass::connected()
-{
-  if(_con_hdl == nullptr) {
-    return false;
-  } else {
-    return _con_hdl->getStatus() == NetworkConnectionState::CONNECTED;
-  }
-}
-
 unsigned long TimeServiceClass::getRemoteTime()
 {
-  if(connected()) {
-    /* At first try to obtain a valid time via NTP.
-     * This is the most reliable time source and it will
-     * ensure a correct behaviour of the library.
-     */
-    unsigned long const ntp_time = NTPUtils::getTime(_con_hdl->getUDP());
-    if(isTimeValid(ntp_time)) {
-      return ntp_time;
-    }
-
-    /* As fallback if NTP request fails try to obtain the
-     * network time using the connection handler.
-     */
-    unsigned long const connection_time = _con_hdl->getTime();
-    if(isTimeValid(connection_time)) {
-      return connection_time;
-    }
+  /* At first try to obtain a valid time via NTP.
+   * This is the most reliable time source and it will
+   * ensure a correct behaviour of the library.
+   */
+  unsigned long const ntp_time = NTPUtils::getTime(_udp);
+  if(isTimeValid(ntp_time)) {
+    return ntp_time;
   }
 
   /* Return the epoch timestamp at compile time as a last
