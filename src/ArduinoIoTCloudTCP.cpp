@@ -121,14 +121,22 @@ ArduinoIoTCloudTCP::ArduinoIoTCloudTCP()
 int ArduinoIoTCloudTCP::begin(ConnectionHandler & connection, bool const enable_watchdog, String brokerAddress, uint16_t brokerPort)
 {
   _connection = &connection;
-  _brokerAddress = brokerAddress;
-  _brokerPort = brokerPort;
-  _time_service.begin(&connection);
-  return begin(enable_watchdog, _brokerAddress, _brokerPort);
+
+  return begin(_connection->getClient(), _connection->getUDP(), _connection->getInterface(), enable_watchdog, brokerAddress, brokerPort);
 }
 
-int ArduinoIoTCloudTCP::begin(bool const enable_watchdog, String brokerAddress, uint16_t brokerPort)
+int ArduinoIoTCloudTCP::begin(Client & client, UDP & udp, NetworkAdapter adapter, bool const enable_watchdog, String brokerAddress, uint16_t brokerPort)
 {
+  _adapter = adapter;
+  _time_service.begin(udp);
+
+  return begin(client, enable_watchdog, brokerAddress, brokerPort);
+}
+
+int ArduinoIoTCloudTCP::begin(Client & client, bool const enable_watchdog, String brokerAddress, uint16_t brokerPort)
+{
+  _client = &client;
+
   _brokerAddress = brokerAddress;
   _brokerPort = brokerPort;
 
@@ -160,9 +168,9 @@ int ArduinoIoTCloudTCP::begin(bool const enable_watchdog, String brokerAddress, 
 #endif
 
 #if defined(BOARD_HAS_ECCX08)
-  _sslClient.setClient(_connection->getClient());
+  _sslClient.setClient(client);
 #elif defined(ARDUINO_PORTENTA_C33)
-  _sslClient.setClient(_connection->getClient());
+  _sslClient.setClient(client);
   _sslClient.setCACert(AIoTSSCert);
 #elif defined(BOARD_HAS_SE050)
   _sslClient.appendCustomCACert(AIoTSSCert);
@@ -234,7 +242,7 @@ int ArduinoIoTCloudTCP::begin(bool const enable_watchdog, String brokerAddress, 
 #if defined (ARDUINO_ARCH_SAMD) || defined (ARDUINO_ARCH_MBED)
   if (enable_watchdog) {
     watchdog_enable();
-    bool const use_ethernet = _connection->getInterface() == NetworkAdapter::ETHERNET ? true : false;
+    bool const use_ethernet = _adapter == NetworkAdapter::ETHERNET ? true : false;
     watchdog_enable_network_feed(use_ethernet);
   }
 #endif
@@ -301,6 +309,11 @@ void ArduinoIoTCloudTCP::printDebugInfo()
 
 ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_ConnectPhy()
 {
+  if (_connection == nullptr)
+  {
+    return State::SyncTime;
+  }
+
   if (_connection->check() == NetworkConnectionState::CONNECTED)
   {
     bool const is_retry_attempt = (_last_connection_attempt_cnt > 0);
@@ -313,12 +326,17 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_ConnectPhy()
 
 ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_SyncTime()
 {
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunused-variable"
-  unsigned long const internal_posix_time = _time_service.getTime();
-#pragma GCC diagnostic pop
-  DEBUG_VERBOSE("ArduinoIoTCloudTCP::%s internal clock configured to posix timestamp %d", __FUNCTION__, internal_posix_time);
-  return State::ConnectMqttBroker;
+  _time_service.sync();
+  Serial.println("_time_service.sync()");
+
+  if (_time_service.isTimeValid())
+  {
+    DEBUG_VERBOSE("ArduinoIoTCloudTCP::%s internal clock configured to posix timestamp %d", __FUNCTION__,  _time_service.getTime());
+    return State::ConnectMqttBroker;
+  }
+
+  // TODO: handle retry delay
+  return State::SyncTime;
 }
 
 ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_ConnectMqttBroker()
@@ -585,7 +603,7 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_Connected()
         /* Transmit the cleared request flags to the cloud. */
         sendDevicePropertyToCloud("OTA_REQ");
         /* Call member function to handle OTA request. */
-        _ota_error = OTA::onRequest(_ota_url, _connection->getInterface());
+        _ota_error = OTA::onRequest(_ota_url, _adapter);
         /* If something fails send the OTA error to the cloud */
         sendDevicePropertyToCloud("OTA_ERROR");
       }
