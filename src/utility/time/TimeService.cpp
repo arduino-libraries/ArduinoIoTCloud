@@ -127,12 +127,17 @@ TimeServiceClass::TimeServiceClass()
 
 void TimeServiceClass::begin(UDP & udp)
 {
+  _udp = &udp;
+
+  begin();
+}
+
+void TimeServiceClass::begin()
+{
   initRTC();
 #ifdef HAS_LORA
   setRTC(EPOCH_AT_COMPILE_TIME);
 #endif
-
-  _udp = &udp;
 }
 
 unsigned long TimeServiceClass::getTime()

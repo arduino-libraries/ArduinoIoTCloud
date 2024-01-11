@@ -103,7 +103,9 @@ class ArduinoIoTCloudClass
     inline bool     deviceNotAttached()                 { return _thing_id == ""; }
 
     inline ConnectionHandler * getConnection()          { return _connection; }
+#ifdef HAS_TCP
     inline Client * getClient()                         { return _client; }
+#endif
 
 
     inline unsigned long getInternalTime()              { return _time_service.getTime(); }
@@ -155,7 +157,9 @@ class ArduinoIoTCloudClass
   protected:
 
     ConnectionHandler * _connection;
+#ifdef HAS_TCP
     Client * _client;
+#endif
     NetworkAdapter _adapter;
     PropertyContainer _device_property_container;
     PropertyContainer _thing_property_container;

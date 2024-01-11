@@ -42,7 +42,8 @@ public:
 
   TimeServiceClass();
 
-  void          begin  (UDP & udp);
+  void          begin(UDP & udp);
+  void          begin();
   unsigned long getTime();
   void          setTime(unsigned long time);
   unsigned long getLocalTime();

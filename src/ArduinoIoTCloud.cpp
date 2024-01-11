@@ -27,7 +27,9 @@
 
 ArduinoIoTCloudClass::ArduinoIoTCloudClass()
 : _connection{nullptr}
+#ifdef HAS_TCP
 , _client{nullptr}
+#endif
 , _adapter{NetworkAdapter::WIFI}
 , _last_checked_property_index{0}
 , _time_service(TimeService)
