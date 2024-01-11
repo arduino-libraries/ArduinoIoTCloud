@@ -33,12 +33,12 @@
  * PUBLIC MEMBER FUNCTIONS
  **************************************************************************************/
 
-unsigned long NTPUtils::getTime(UDP & udp)
+unsigned long NTPUtils::getTime(UDP * udp)
 {
 #ifdef NTP_USE_RANDOM_PORT
-  udp.begin(NTPUtils::getRandomPort(MIN_NTP_PORT, MAX_NTP_PORT));
+  udp->begin(NTPUtils::getRandomPort(MIN_NTP_PORT, MAX_NTP_PORT));
 #else
-  udp.begin(NTP_LOCAL_PORT);
+  udp->begin(NTP_LOCAL_PORT);
 #endif
 
   sendNTPpacket(udp);
@@ -48,16 +48,16 @@ unsigned long NTPUtils::getTime(UDP & udp)
   do
   {
     is_timeout = (millis() - start) >= NTP_TIMEOUT_MS;
-  } while(!is_timeout && !udp.parsePacket());
+  } while(!is_timeout && !udp->parsePacket());
 
   if(is_timeout) {
-    udp.stop();
+    udp->stop();
     return 0;
   }
   
   uint8_t ntp_packet_buf[NTP_PACKET_SIZE];
-  udp.read(ntp_packet_buf, NTP_PACKET_SIZE);
-  udp.stop();
+  udp->read(ntp_packet_buf, NTP_PACKET_SIZE);
+  udp->stop();
 
   unsigned long const highWord      = word(ntp_packet_buf[40], ntp_packet_buf[41]);
   unsigned long const lowWord       = word(ntp_packet_buf[42], ntp_packet_buf[43]);
@@ -72,7 +72,7 @@ unsigned long NTPUtils::getTime(UDP & udp)
  * PRIVATE MEMBER FUNCTIONS
  **************************************************************************************/
 
-void NTPUtils::sendNTPpacket(UDP & udp)
+void NTPUtils::sendNTPpacket(UDP * udp)
 {
   uint8_t ntp_packet_buf[NTP_PACKET_SIZE] = {0};
   
@@ -85,9 +85,9 @@ void NTPUtils::sendNTPpacket(UDP & udp)
   ntp_packet_buf[14] = 49;
   ntp_packet_buf[15] = 52;
   
-  udp.beginPacket(NTP_TIME_SERVER, NTP_TIME_SERVER_PORT);
-  udp.write(ntp_packet_buf, NTP_PACKET_SIZE);
-  udp.endPacket();
+  udp->beginPacket(NTP_TIME_SERVER, NTP_TIME_SERVER_PORT);
+  udp->write(ntp_packet_buf, NTP_PACKET_SIZE);
+  udp->endPacket();
 }
 
 int NTPUtils::getRandomPort(int const min_port, int const max_port)
