@@ -166,6 +166,8 @@ class ArduinoIoTCloudClass
 
   private:
 
+    void addPropertyRealInternal(Property& property, String name, int tag, permissionType permission_type = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, float minDelta = 0.0f, void(*synFn)(Property & property) = CLOUD_WINS);
+
     String _device_id;
     OnCloudEventCallback _cloud_event_callback[3];
     bool _thing_id_outdated;
