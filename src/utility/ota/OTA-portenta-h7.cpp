@@ -80,19 +80,8 @@ int portenta_h7_onOTARequest(char const * ota_url, NetworkAdapter iface)
     download_socket = static_cast<MbedSocketClass*>(&Ethernet);
   }
 #endif
-  int const ota_portenta_qspi_download_ret_code = ota_portenta_qspi.download(ota_url, true /* is_https */, download_socket);
+  int const ota_portenta_qspi_download_ret_code = ota_portenta_qspi.downloadAndDecompress(ota_url, true /* is_https */, download_socket);
   DEBUG_VERBOSE("Arduino_Portenta_OTA_QSPI::download(%s) returns %d", ota_url, ota_portenta_qspi_download_ret_code);
-
-  watchdog_reset();
-
-  /* Decompress the LZSS compressed OTA file. */
-  int const ota_portenta_qspi_decompress_ret_code = ota_portenta_qspi.decompress();
-  DEBUG_VERBOSE("Arduino_Portenta_OTA_QSPI::decompress() returns %d", ota_portenta_qspi_decompress_ret_code);
-  if (ota_portenta_qspi_decompress_ret_code < 0)
-  {
-    DEBUG_ERROR("Arduino_Portenta_OTA_QSPI::decompress() failed with %d", ota_portenta_qspi_decompress_ret_code);
-    return ota_portenta_qspi_decompress_ret_code;
-  }
 
   watchdog_reset();
 
