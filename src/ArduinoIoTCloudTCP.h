@@ -103,6 +103,8 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
       _get_ota_confirmation = cb;
       _ask_user_before_executing_ota = true;
     }
+
+    void handle_OTARequest();
 #endif
 
   private:
