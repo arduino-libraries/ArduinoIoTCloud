@@ -106,7 +106,7 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
 #endif
 
   private:
-    static const int MQTT_TRANSMIT_BUFFER_SIZE = 256;
+    static const int MQTT_TRANSMIT_BUFFER_SIZE = MQTT_TX_BUFFER_SIZE;
 
     enum class State
     {
