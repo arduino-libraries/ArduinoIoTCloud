@@ -1,4 +1,3 @@
-#include <ArduinoIoTCloud.h>
 #include <Arduino_ConnectionHandler.h>
 
 /* A complete list of supported boards with WiFi is available here:
