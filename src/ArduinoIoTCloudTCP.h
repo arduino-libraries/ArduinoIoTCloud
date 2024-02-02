@@ -23,30 +23,36 @@
  ******************************************************************************/
 
 #include <AIoTC_Config.h>
-
 #include <ArduinoIoTCloud.h>
-
-#ifdef BOARD_HAS_ECCX08
-  #include "tls/BearSSLClient.h"
-  #include "tls/utility/CryptoUtil.h"
-#elif defined(BOARD_ESP)
-  #include <WiFiClientSecure.h>
-#elif defined(ARDUINO_UNOR4_WIFI)
-  #include <WiFiSSLClient.h>
-#elif defined(ARDUINO_PORTENTA_C33)
-  #include "tls/utility/CryptoUtil.h"
-  #include <SSLClient.h>
-#elif defined(BOARD_HAS_SE050)
-  #include "tls/utility/CryptoUtil.h"
-  #include <WiFiSSLSE050Client.h>
-#endif
-
-#ifdef BOARD_HAS_OFFLOADED_ECCX08
-#include "tls/utility/CryptoUtil.h"
-#include <WiFiSSLClient.h>
-#endif
-
 #include <ArduinoMqttClient.h>
+
+#if defined(BOARD_HAS_SECRET_KEY)
+  #if defined(BOARD_ESP)
+    #include <WiFiClientSecure.h>
+  #elif defined(ARDUINO_EDGE_CONTROL)
+    #include <GSMSSLClient.h>
+  #endif
+#else
+  #include <Arduino_SecureElement.h>
+  #include <utility/SElementArduinoCloudDeviceId.h>
+  #if defined(BOARD_HAS_OFFLOADED_ECCX08)
+  #else
+    #include <utility/SElementArduinoCloudCertificate.h>
+    #ifdef BOARD_HAS_ECCX08
+      #include "tls/BearSSLClient.h"
+    #elif defined(BOARD_HAS_OFFLOADED_ECCX08)
+      #include <WiFiSSLClient.h>
+    #elif defined(BOARD_HAS_SE050)
+      #if defined(ARDUINO_PORTENTA_C33)
+        #include <SSLClient.h>
+      #else
+        #include <WiFiSSLSE050Client.h>
+      #endif
+    #elif defined(BOARD_HAS_SOFTSE)
+      #include <WiFiSSLClient.h>
+    #endif
+  #endif
+#endif
 
 /******************************************************************************
    CONSTANTS
@@ -79,7 +85,7 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
     virtual int  connected     () override;
     virtual void printDebugInfo() override;
 
-    #if defined(BOARD_HAS_ECCX08) || defined(BOARD_HAS_OFFLOADED_ECCX08) || defined(BOARD_HAS_SE050)
+    #if !defined(BOARD_HAS_SECRET_KEY)
     int begin(ConnectionHandler & connection, bool const enable_watchdog = true, String brokerAddress = DEFAULT_BROKER_ADDRESS_SECURE_AUTH, uint16_t brokerPort = DEFAULT_BROKER_PORT_SECURE_AUTH);
     #else
     int begin(ConnectionHandler & connection, bool const enable_watchdog = true, String brokerAddress = DEFAULT_BROKER_ADDRESS_USER_PASS_AUTH, uint16_t brokerPort = DEFAULT_BROKER_PORT_USER_PASS_AUTH);
@@ -142,33 +148,32 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
     int _mqtt_data_len;
     bool _mqtt_data_request_retransmit;
 
-    #if defined(BOARD_HAS_ECCX08)
-    ArduinoIoTCloudCertClass _cert;
-    BearSSLClient _sslClient;
-    CryptoUtil _crypto;
-    #elif defined(BOARD_HAS_OFFLOADED_ECCX08)
-    ArduinoIoTCloudCertClass _cert;
-    WiFiBearSSLClient _sslClient;
-    CryptoUtil _crypto;
-    #elif defined(BOARD_ESP)
-    WiFiClientSecure _sslClient;
-    #elif defined(ARDUINO_UNOR4_WIFI)
-    WiFiSSLClient _sslClient;
-    #elif defined(ARDUINO_EDGE_CONTROL)
-    GSMSSLClient _sslClient;
-    #elif defined(ARDUINO_PORTENTA_C33)
-    ArduinoIoTCloudCertClass _cert;
-    SSLClient _sslClient;
-    CryptoUtil _crypto;
-    #elif defined(BOARD_HAS_SE050)
-    ArduinoIoTCloudCertClass _cert;
-    WiFiSSLSE050Client _sslClient;
-    CryptoUtil _crypto;
-    #endif
-
-    #if defined (BOARD_HAS_SECRET_KEY)
+#if defined(BOARD_HAS_SECRET_KEY)
     String _password;
+  #if defined(BOARD_ESP)
+    WiFiClientSecure _sslClient;
+  #elif defined(ARDUINO_EDGE_CONTROL)
+    GSMSSLClient _sslClient;
+  #endif
+#else
+    SecureElement _crypto;
+  #if defined(BOARD_HAS_OFFLOADED_ECCX08)
+    WiFiBearSSLClient _sslClient;
+  #else
+    ECP256Certificate _cert;
+    #if defined(BOARD_HAS_ECCX08)
+    BearSSLClient _sslClient;
+    #elif defined(BOARD_HAS_SE050)
+      #if defined(ARDUINO_PORTENTA_C33)
+    SSLClient _sslClient;
+      #else
+    WiFiSSLSE050Client _sslClient;
+      #endif
+    #elif defined(BOARD_HAS_SOFTSE)
+    WiFiSSLClient _sslClient;
     #endif
+  #endif
+#endif
 
     MqttClient _mqttClient;
 

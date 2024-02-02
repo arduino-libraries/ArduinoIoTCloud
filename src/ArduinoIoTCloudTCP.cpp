@@ -24,23 +24,16 @@
 #ifdef HAS_TCP
 #include <ArduinoIoTCloudTCP.h>
 
-#ifdef BOARD_HAS_ECCX08
-  #include "tls/BearSSLTrustAnchors.h"
-  #include "tls/utility/CryptoUtil.h"
-#endif
-
-#ifdef BOARD_HAS_SE050
-  #include "tls/AIoTCSSCert.h"
-  #include "tls/utility/CryptoUtil.h"
-#endif
-
-#ifdef BOARD_HAS_OFFLOADED_ECCX08
-  #include <ArduinoECCX08.h>
-  #include "tls/utility/CryptoUtil.h"
-#endif
-
 #ifdef BOARD_HAS_SECRET_KEY
   #include "tls/AIoTCUPCert.h"
+#endif
+
+#ifdef BOARD_HAS_ECCX08
+  #include "tls/BearSSLTrustAnchors.h"
+#endif
+
+#if defined(BOARD_HAS_SE050) || defined(BOARD_HAS_SOFTSE)
+  #include "tls/AIoTCSSCert.h"
 #endif
 
 #if OTA_ENABLED
@@ -90,9 +83,9 @@ ArduinoIoTCloudTCP::ArduinoIoTCloudTCP()
 #ifdef BOARD_HAS_ECCX08
 , _sslClient(nullptr, ArduinoIoTCloudTrustAnchor, ArduinoIoTCloudTrustAnchor_NUM, getTime)
 #endif
-  #ifdef BOARD_HAS_SECRET_KEY
+#ifdef BOARD_HAS_SECRET_KEY
 , _password("")
-  #endif
+#endif
 , _mqttClient{nullptr}
 , _deviceTopicOut("")
 , _deviceTopicIn("")
@@ -137,43 +130,50 @@ int ArduinoIoTCloudTCP::begin(bool const enable_watchdog, String brokerAddress, 
   DEBUG_VERBOSE("SHA256: HASH(%d) = %s", strlen(_ota_img_sha256.c_str()), _ota_img_sha256.c_str());
 #endif /* OTA_ENABLED */
 
-#if defined(BOARD_HAS_ECCX08) || defined(BOARD_HAS_OFFLOADED_ECCX08) || defined(BOARD_HAS_SE050)
+#if !defined(BOARD_HAS_SECRET_KEY)
   if (!_crypto.begin())
   {
     DEBUG_ERROR("_crypto.begin() failed.");
     return 0;
   }
-  if (!_crypto.readDeviceId(getDeviceId(), CryptoSlot::DeviceId))
+  if (!SElementArduinoCloudDeviceId::read(_crypto, getDeviceId(), SElementArduinoCloudSlot::DeviceId))
   {
     DEBUG_ERROR("_crypto.readDeviceId(...) failed.");
     return 0;
   }
 #endif
 
-#if defined(BOARD_HAS_ECCX08) || defined(BOARD_HAS_SE050)
-  if (!_crypto.readCert(_cert, CryptoSlot::CompressedCertificate))
+#if defined(BOARD_HAS_ECCX08) || defined(BOARD_HAS_SE050) || defined(BOARD_HAS_SOFTSE)
+  if (!SElementArduinoCloudCertificate::read(_crypto, _cert, SElementArduinoCloudSlot::CompressedCertificate))
   {
     DEBUG_ERROR("Cryptography certificate reconstruction failure.");
     return 0;
   }
-  _sslClient.setEccSlot(static_cast<int>(CryptoSlot::Key), _cert.bytes(), _cert.length());
+  _sslClient.setEccSlot(static_cast<int>(SElementArduinoCloudSlot::Key), _cert.bytes(), _cert.length());
 #endif
 
-#if defined(BOARD_HAS_ECCX08)
+
+#if defined(BOARD_HAS_SECRET_KEY)
+  #if defined(ARDUINO_EDGE_CONTROL)
+  _sslClient.appendCustomCACert(AIoTUPCert);
+  #elif defined(ARDUINO_ARCH_ESP32)
+  _sslClient.setCACertBundle(x509_crt_bundle);
+  #else
+  _sslClient.setInsecure();
+  #endif
+#else
+  #if defined(BOARD_HAS_ECCX08)
   _sslClient.setClient(_connection->getClient());
-#elif defined(ARDUINO_PORTENTA_C33)
+  #elif defined(BOARD_HAS_SE050)
+    #if defined(ARDUINO_PORTENTA_C33)
   _sslClient.setClient(_connection->getClient());
   _sslClient.setCACert(AIoTSSCert);
-#elif defined(BOARD_HAS_SE050)
+    #else
   _sslClient.appendCustomCACert(AIoTSSCert);
-#elif defined(BOARD_ESP)
-  #if defined(ARDUINO_ARCH_ESP8266)
-  _sslClient.setInsecure();
-  #else
-  _sslClient.setCACertBundle(x509_crt_bundle);
+    #endif
+  #elif defined(BOARD_HAS_SOFTSE)
+  _sslClient.setCACert(AIoTSSCert, strlen(AIoTSSCert));
   #endif
-#elif defined(ARDUINO_EDGE_CONTROL)
-  _sslClient.appendCustomCACert(AIoTUPCert);
 #endif
 
   _mqttClient.setClient(_sslClient);

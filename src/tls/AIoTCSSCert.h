@@ -24,7 +24,7 @@
  ******************************************************************************/
 
 #include <AIoTC_Config.h>
-#ifdef BOARD_HAS_SE050
+#if defined(BOARD_HAS_SE050) || defined(BOARD_HAS_SOFTSE)
 
 /******************************************************************************
  * CONSTANTS
@@ -43,6 +43,6 @@ static const char AIoTSSCert[] =
 "AiEA6tnZ2lrNElKXCajtZg/hjWRE/+giFzBP8riar8qOz2w=\n"
 "-----END CERTIFICATE-----\n";
 
-#endif /* #ifdef BOARD_HAS_SE050 */
+#endif /* #if defined(BOARD_HAS_SE050) || defined(BOARD_HAS_SOFTSE) */
 
 #endif /* _AIOTC_SS_CERT_H_ */
