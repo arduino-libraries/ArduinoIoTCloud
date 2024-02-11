@@ -23,6 +23,7 @@
  ******************************************************************************/
 
 #include <ArduinoIoTCloud.h>
+#include <ArduinoIoTCloudLPWANThing.h>
 
 /******************************************************************************
  * CLASS DECLARATION
@@ -38,6 +39,13 @@ class ArduinoIoTCloudLPWAN : public ArduinoIoTCloudClass
     virtual void update        () override;
     virtual int  connected     () override;
     virtual void printDebugInfo() override;
+    virtual void     setThingId (String const thing_id)  override;
+    virtual String & getThingId ()                       override;
+    virtual bool    deviceNotAttached()                 override;
+
+    inline void     setThingId (String const thing_id)  { _thing_id = thing_id; };
+    inline String & getThingId ()                       { return _thing_id; };
+    inline bool     deviceNotAttached()                 { return _thing_id == ""; }
 
     int begin(ConnectionHandler& connection, bool retry = false);
 
@@ -58,6 +66,8 @@ class ArduinoIoTCloudLPWAN : public ArduinoIoTCloudClass
       SyncTime,
       Connected,
     };
+
+    String _thing_id;
 
     State _state;
     bool _retryEnable;

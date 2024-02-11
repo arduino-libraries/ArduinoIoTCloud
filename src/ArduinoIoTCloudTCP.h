@@ -47,6 +47,7 @@
 #endif
 
 #include <ArduinoMqttClient.h>
+#include <ArduinoIoTCloudTCPThing.h>
 
 /******************************************************************************
    CONSTANTS
@@ -78,6 +79,9 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
     virtual void update        () override;
     virtual int  connected     () override;
     virtual void printDebugInfo() override;
+    virtual bool deviceNotAttached() override;
+    virtual void     setThingId (String const thing_id)  override;
+    virtual String & getThingId ()                       override;
 
     #if defined(BOARD_HAS_ECCX08) || defined(BOARD_HAS_OFFLOADED_ECCX08) || defined(BOARD_HAS_SE050)
     int begin(ConnectionHandler & connection, bool const enable_watchdog = true, String brokerAddress = DEFAULT_BROKER_ADDRESS_SECURE_AUTH, uint16_t brokerPort = DEFAULT_BROKER_PORT_SECURE_AUTH);
@@ -169,6 +173,7 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
     #endif
 
     MqttClient _mqttClient;
+    ArduinoIoTCloudTCPThing _arduinoCloudThing;
 
     String _deviceTopicOut;
     String _deviceTopicIn;

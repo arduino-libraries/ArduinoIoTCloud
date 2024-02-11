@@ -87,20 +87,20 @@ class ArduinoIoTCloudClass
     virtual void update        () = 0;
     virtual int  connected     () = 0;
     virtual void printDebugInfo() = 0;
+    virtual bool deviceNotAttached() = 0;
+    virtual void     setThingId (String const thing_id)  = 0;
+    virtual String & getThingId ()                       = 0;
+
 
             void push();
             bool setTimestamp(String const & prop_name, unsigned long const timestamp);
 
-    inline void     setThingId (String const thing_id)  { _thing_id = thing_id; };
-    inline String & getThingId ()                       { return _thing_id; };
     inline void     setDeviceId(String const device_id) { _device_id = device_id; };
     inline String & getDeviceId()                       { return _device_id; };
 
     inline void     setThingIdOutdatedFlag()            { _thing_id_outdated = true ; }
     inline void     clrThingIdOutdatedFlag()            { _thing_id_outdated = false ; }
     inline bool     getThingIdOutdatedFlag()            { return _thing_id_outdated; }
-
-    inline bool     deviceNotAttached()                 { return _thing_id == ""; }
 
     inline ConnectionHandler * getConnection()          { return _connection; }
 
@@ -170,7 +170,7 @@ class ArduinoIoTCloudClass
 
     String _device_id;
     OnCloudEventCallback _cloud_event_callback[3];
-    bool _thing_id_outdated;
+
 };
 
 #ifdef HAS_TCP
