@@ -15,8 +15,9 @@
    a commercial license, send an email to license@arduino.cc.
 */
 
-#ifndef ARDUINO_IOT_CLOUD_TCP_H
-#define ARDUINO_IOT_CLOUD_TCP_H
+#ifndef ARDUINO_IOT_CLOUD_TCP_THING_H
+#define ARDUINO_IOT_CLOUD_TCP_THING_H
+
 
 /******************************************************************************
  * INCLUDE
@@ -48,10 +49,12 @@ class ArduinoIoTCloudTCPThing
     virtual ~ArduinoIoTCloudTCPThing() { }
 
 
-    void update;
+    void update();
 
     // begin takes an mqtt client
-    int begin(MqttClient& mqttClient, TimeServiceClass time_service, PropertyContainer & thing_property_container, void (*callback)(ArduinoIoTCloudEvent)),
+    int begin(MqttClient& mqttClient, TimeServiceClass time_service, PropertyContainer & thing_property_container);
+    void updateTimezoneInfo();
+    
     inline void     setThingId (String const thing_id)  { _thing_id = thing_id; };
     inline String & getThingId ()                       { return _thing_id; };
     
@@ -65,10 +68,10 @@ class ArduinoIoTCloudTCPThing
     inline void     clrMqttDataRequestRetransmitFlag()  { _mqtt_data_request_retransmit = false; }
 
     inline void     setTzOffset(int tz_offset)  { _tz_offset = tz_offset; }
-    inline int      getTzOffset()         { return _tz_offset; }
+    inline int &     getTzOffset()         { return _tz_offset; }
 
     inline void setTzDstUntil(unsigned int tz_dst_until) { _tz_dst_until = tz_dst_until; }
-    inline unsigned int getTzDstUntil() { return _tz_dst_until; }
+    inline unsigned int &  getTzDstUntil() { return _tz_dst_until; }
     
   private:
     static const int MQTT_TRANSMIT_BUFFER_SIZE = 256;
@@ -102,25 +105,21 @@ class ArduinoIoTCloudTCPThing
 
     MqttClient &_mqttClient;
     PropertyContainer & _thing_property_container;
-    TimeServiceClass &_time_service
+    TimeServiceClass &_time_service;
 
     String _thing_id;
     bool _thing_id_outdated;
-    bool _mqtt_data_request_retransmit
     bool _deviceSubscribedToThing;
+    unsigned int _last_checked_property_index;
 
     int _tz_offset;
     unsigned int _tz_dst_until;
-
-    _cloud_callback void (*OnCloudEventCallback)(void);
 
     String _shadowTopicOut;
     String _shadowTopicIn;
     String _dataTopicOut;
     String _dataTopicIn;
 
-    inline String getTopic_deviceout() { return String("/a/d/" + getDeviceId() + "/e/o");}
-    inline String getTopic_devicein () { return String("/a/d/" + getDeviceId() + "/e/i");}
     inline String getTopic_shadowout() { return ( getThingId().length() == 0) ? String("") : String("/a/t/" + getThingId() + "/shadow/o"); }
     inline String getTopic_shadowin () { return ( getThingId().length() == 0) ? String("") : String("/a/t/" + getThingId() + "/shadow/i"); }
     inline String getTopic_dataout  () { return ( getThingId().length() == 0) ? String("") : String("/a/t/" + getThingId() + "/e/o"); }
@@ -128,7 +127,6 @@ class ArduinoIoTCloudTCPThing
 
     State handle_WaitDeviceConfig();
     State handle_CheckDeviceConfig();
-    State handle_SubscribeDeviceTopic();
     State handle_SubscribeThingTopics();
     State handle_RequestLastValues();
     State handle_Connected();

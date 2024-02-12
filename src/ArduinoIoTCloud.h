@@ -90,11 +90,13 @@ class ArduinoIoTCloudClass
     virtual bool deviceNotAttached() = 0;
     virtual void     setThingId (String const thing_id)  = 0;
     virtual String & getThingId ()                       = 0;
-    virtual void updateInternalTimezoneInfo()   = 0;
-    virtual void setTZOffset(int offset) = 0;
-    virtual int getTZOffset() = 0;
-    virtual void setTZDSTUntil(unsigned long dst_until) = 0;
-    virtual unsigned long getTZDSTUntil() = 0;
+    virtual void setTzOffset(int offset) = 0;
+    virtual int & getTzOffset() = 0;
+    virtual void setTzDstUntil(unsigned int dst_until) = 0;
+    virtual unsigned int & getTzDstUntil() = 0;
+    virtual void     setThingIdOutdatedFlag() = 0;
+    virtual void     clrThingIdOutdatedFlag() = 0;
+    virtual bool     getThingIdOutdatedFlag() = 0;
 
             void push();
             bool setTimestamp(String const & prop_name, unsigned long const timestamp);
@@ -102,15 +104,10 @@ class ArduinoIoTCloudClass
     inline void     setDeviceId(String const device_id) { _device_id = device_id; };
     inline String & getDeviceId()                       { return _device_id; };
 
-    inline void     setThingIdOutdatedFlag()            { _thing_id_outdated = true ; }
-    inline void     clrThingIdOutdatedFlag()            { _thing_id_outdated = false ; }
-    inline bool     getThingIdOutdatedFlag()            { return _thing_id_outdated; }
-
     inline ConnectionHandler * getConnection()          { return _connection; }
 
     inline unsigned long getInternalTime()              { return _time_service.getTime(); }
     inline unsigned long getLocalTime()                 { return _time_service.getLocalTime(); }
-    inline void          updateInternalTimezoneInfo()   { _time_service.setTimeZoneData(_tz_offset, _tz_dst_until); }
 
     void addCallback(ArduinoIoTCloudEvent const event, OnCloudEventCallback callback);
 
@@ -159,7 +156,6 @@ class ArduinoIoTCloudClass
     ConnectionHandler * _connection;
     PropertyContainer _device_property_container;
     PropertyContainer _thing_property_container;
-    unsigned int _last_checked_property_index;
     TimeServiceClass & _time_service;
     String _lib_version;
 

@@ -60,11 +60,6 @@ unsigned long getTime()
   return ArduinoCloud.getInternalTime();
 }
 
-void updateTimezoneInfo()
-{
-  ArduinoCloud.updateInternalTimezoneInfo();
-}
-
 void setThingIdOutdated()
 {
   ArduinoCloud.setThingIdOutdatedFlag();
@@ -125,8 +120,7 @@ int ArduinoIoTCloudTCP::begin(ConnectionHandler & connection, bool const enable_
   _brokerAddress = brokerAddress;
   _brokerPort = brokerPort;
   _time_service.begin(&connection);
-  // Begin arduinoCloudThing with the mqttClient and the execCloudEventCallback callback
-  _arduinoCloudThing.begin(_mqttClient, execCloudEventCallback);
+  _arduinoCloudThing.begin(_mqttClient, _time_service, _thing_property_container);
   return begin(enable_watchdog, _brokerAddress, _brokerPort);
 }
 
@@ -209,8 +203,8 @@ int ArduinoIoTCloudTCP::begin(bool const enable_watchdog, String brokerAddress, 
   p = new CloudWrapperString(_arduinoCloudThing.getThingId());
   addPropertyToContainer(_device_property_container, *p, "thing_id", Permission::ReadWrite, -1).onUpdate(setThingIdOutdated);
 
-  addPropertyReal(_tz_offset, "tz_offset", Permission::ReadWrite).onSync(CLOUD_WINS).onUpdate(updateTimezoneInfo);
-  addPropertyReal(_tz_dst_until, "tz_dst_until", Permission::ReadWrite).onSync(CLOUD_WINS).onUpdate(updateTimezoneInfo);
+  addPropertyReal(_arduinoCloudThing.getTzOffset(), "tz_offset", Permission::ReadWrite).onSync(CLOUD_WINS);//.onUpdate(updateTimezoneInfo);
+  addPropertyReal(_arduinoCloudThing.getTzDstUntil(), "tz_dst_until", Permission::ReadWrite).onSync(CLOUD_WINS);//.onUpdate(updateTimezoneInfo);
 
 #if OTA_ENABLED
   _ota_cap = OTA::isCapable();
@@ -256,29 +250,44 @@ void ArduinoIoTCloudTCP::setThingId(String const thing_id)
   _arduinoCloudThing.setThingId(thing_id);
 }
 
-String & ArduinoIoTCloudTCP::getThingId()
+String& ArduinoIoTCloudTCP::getThingId()
 {
   return _arduinoCloudThing.getThingId();
 }
 
-void ArduinoIoTCloudTCP::setTZOffset(int offset)
+void ArduinoIoTCloudTCP::setTzOffset(int offset)
 {
-  _arduinoCloudThing.setTzOffset(offset)
+  _arduinoCloudThing.setTzOffset(offset);
 }
 
-void ArduinoIoTCloudTCP::setTZDstUntil(unsigned int dst_until)
+void ArduinoIoTCloudTCP::setTzDstUntil(unsigned int dst_until)
 {
-  _arduinoCloudThing.setTZDstUntil(dst_until)
+  _arduinoCloudThing.setTzDstUntil(dst_until);
 }
 
-int ArduinoIoTCloudTCP::getTZOffset()
+int & ArduinoIoTCloudTCP::getTzOffset()
 {
   return _arduinoCloudThing.getTzOffset();
 }
 
-unsigned int ArduinoIoTCloudTCP::getTZDstUntil()
+unsigned int & ArduinoIoTCloudTCP::getTzDstUntil()
 {
-  return _arduinoCloudThing.getTZDstUntil();
+  return _arduinoCloudThing.getTzDstUntil();
+}
+
+void ArduinoIoTCloudTCP::setThingIdOutdatedFlag()
+{
+  _arduinoCloudThing.setThingIdOutdatedFlag();
+}
+
+void ArduinoIoTCloudTCP::clrThingIdOutdatedFlag()
+{
+  _arduinoCloudThing.clrThingIdOutdatedFlag();
+}
+
+bool ArduinoIoTCloudTCP::getThingIdOutdatedFlag()
+{
+  return _arduinoCloudThing.getThingIdOutdatedFlag();
 }
 
 void ArduinoIoTCloudTCP::update()
@@ -333,6 +342,12 @@ void ArduinoIoTCloudTCP::printDebugInfo()
 /******************************************************************************
  * PRIVATE MEMBER FUNCTIONS
  ******************************************************************************/
+
+void ArduinoIoTCloudTCP::updateTimezoneInfo()
+{
+  _arduinoCloudThing.updateTimezoneInfo();
+}
+
 
 ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_ConnectPhy()
 {
@@ -436,7 +451,7 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_Connected()
     * to phy layer or MQTT connectivity loss.
     */
     if(_mqtt_data_request_retransmit) {
-      _arduinoCloudThing.setMqttDataRequestRetransmitFlag()
+      _arduinoCloudThing.setMqttDataRequestRetransmitFlag();
     }
 
 #if OTA_ENABLED
@@ -517,7 +532,7 @@ void ArduinoIoTCloudTCP::handleMessage(int length)
   {
     DEBUG_VERBOSE("ArduinoIoTCloudTCP::%s [%d] last values received", __FUNCTION__, millis());
     CBORDecoder::decode(_thing_property_container, (uint8_t*)bytes, length, true);
-    _time_service.setTimeZoneData(_tz_offset, _tz_dst_until);
+    updateTimezoneInfo();
     execCloudEventCallback(ArduinoIoTCloudEvent::SYNC);
     _last_sync_request_cnt = 0;
     _last_sync_request_tick = 0;

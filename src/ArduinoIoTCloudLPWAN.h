@@ -42,16 +42,23 @@ class ArduinoIoTCloudLPWAN : public ArduinoIoTCloudClass
     virtual void     setThingId (String const thing_id)  override;
     virtual String & getThingId ()                       override;
     virtual bool    deviceNotAttached()                 override;
+    virtual void     setThingIdOutdatedFlag()            override;
+    virtual void     clrThingIdOutdatedFlag()            override;
+    virtual bool     getThingIdOutdatedFlag()            override;
+
+    inline void     setThingIdOutdatedFlag()            { _thing_id_outdated = true ; }
+    inline void     clrThingIdOutdatedFlag()            { _thing_id_outdated = false ; }
+    inline bool     getThingIdOutdatedFlag()            { return _thing_id_outdated; }
 
     inline void     setThingId (String const thing_id)  { _thing_id = thing_id; };
-    inline String & getThingId ()                       { return _thing_id; };
+    inline String &  getThingId ()                       { return _thing_id; };
     inline bool     deviceNotAttached()                 { return _thing_id == ""; }
 
     inline void     setTzOffset(int tz_offset)  { _tz_offset = tz_offset; }
-    inline int      getTzOffset()         { return _tz_offset; }
+    inline int &    getTzOffset()         { return _tz_offset; }
 
     inline void setTzDstUntil(unsigned int tz_dst_until) { _tz_dst_until = tz_dst_until; }
-    inline unsigned int getTzDstUntil() { return _tz_dst_until; }
+    inline unsigned int & getTzDstUntil() { return _tz_dst_until; }
 
     int begin(ConnectionHandler& connection, bool retry = false);
 
@@ -74,9 +81,11 @@ class ArduinoIoTCloudLPWAN : public ArduinoIoTCloudClass
     };
 
     String _thing_id;
+    bool _thing_id_outdated;
 
     int _tz_offset;
     unsigned int _tz_dst_until;
+    unsigned int _last_checked_property_index;
 
     State _state;
     bool _retryEnable;
