@@ -94,6 +94,7 @@ ArduinoIoTCloudTCP::ArduinoIoTCloudTCP()
 , _password("")
   #endif
 , _mqttClient{nullptr}
+, _arduinoCloudThing()
 , _deviceTopicOut("")
 , _deviceTopicIn("")
 , _shadowTopicOut("")
@@ -123,9 +124,9 @@ int ArduinoIoTCloudTCP::begin(ConnectionHandler & connection, bool const enable_
   _connection = &connection;
   _brokerAddress = brokerAddress;
   _brokerPort = brokerPort;
+  _time_service.begin(&connection);
   // Begin arduinoCloudThing with the mqttClient and the execCloudEventCallback callback
   _arduinoCloudThing.begin(_mqttClient, execCloudEventCallback);
-  _time_service.begin(&connection);
   return begin(enable_watchdog, _brokerAddress, _brokerPort);
 }
 
@@ -205,7 +206,7 @@ int ArduinoIoTCloudTCP::begin(bool const enable_watchdog, String brokerAddress, 
   p = new CloudWrapperBool(_ota_req);
   addPropertyToContainer(_device_property_container, *p, "OTA_REQ", Permission::ReadWrite, -1);
 #endif /* OTA_ENABLED */
-  p = new CloudWrapperString(_thing_id);
+  p = new CloudWrapperString(_arduinoCloudThing.getThingId());
   addPropertyToContainer(_device_property_container, *p, "thing_id", Permission::ReadWrite, -1).onUpdate(setThingIdOutdated);
 
   addPropertyReal(_tz_offset, "tz_offset", Permission::ReadWrite).onSync(CLOUD_WINS).onUpdate(updateTimezoneInfo);
@@ -258,6 +259,26 @@ void ArduinoIoTCloudTCP::setThingId(String const thing_id)
 String & ArduinoIoTCloudTCP::getThingId()
 {
   return _arduinoCloudThing.getThingId();
+}
+
+void ArduinoIoTCloudTCP::setTZOffset(int offset)
+{
+  _arduinoCloudThing.setTzOffset(offset)
+}
+
+void ArduinoIoTCloudTCP::setTZDstUntil(unsigned int dst_until)
+{
+  _arduinoCloudThing.setTZDstUntil(dst_until)
+}
+
+int ArduinoIoTCloudTCP::getTZOffset()
+{
+  return _arduinoCloudThing.getTzOffset();
+}
+
+unsigned int ArduinoIoTCloudTCP::getTZDstUntil()
+{
+  return _arduinoCloudThing.getTZDstUntil();
 }
 
 void ArduinoIoTCloudTCP::update()
@@ -451,12 +472,8 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_Connected()
     // update the thing state machine
     _arduinoCloudThing.update();
 
-    unsigned long const internal_posix_time = _time_service.getTime();
-    if(internal_posix_time < _tz_dst_until) {
-      return State::Connected;
-    } else {
-      return State::RequestLastValues;
-    }
+    return State::Connected;
+
   }
 }
 

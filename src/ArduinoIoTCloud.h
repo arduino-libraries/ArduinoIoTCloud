@@ -90,7 +90,11 @@ class ArduinoIoTCloudClass
     virtual bool deviceNotAttached() = 0;
     virtual void     setThingId (String const thing_id)  = 0;
     virtual String & getThingId ()                       = 0;
-
+    virtual void updateInternalTimezoneInfo()   = 0;
+    virtual void setTZOffset(int offset) = 0;
+    virtual int getTZOffset() = 0;
+    virtual void setTZDSTUntil(unsigned long dst_until) = 0;
+    virtual unsigned long getTZDSTUntil() = 0;
 
             void push();
             bool setTimestamp(String const & prop_name, unsigned long const timestamp);
@@ -157,9 +161,6 @@ class ArduinoIoTCloudClass
     PropertyContainer _thing_property_container;
     unsigned int _last_checked_property_index;
     TimeServiceClass & _time_service;
-    int _tz_offset;
-    unsigned int _tz_dst_until;
-    String _thing_id;
     String _lib_version;
 
     void execCloudEventCallback(ArduinoIoTCloudEvent const event);

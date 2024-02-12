@@ -47,6 +47,12 @@ class ArduinoIoTCloudLPWAN : public ArduinoIoTCloudClass
     inline String & getThingId ()                       { return _thing_id; };
     inline bool     deviceNotAttached()                 { return _thing_id == ""; }
 
+    inline void     setTzOffset(int tz_offset)  { _tz_offset = tz_offset; }
+    inline int      getTzOffset()         { return _tz_offset; }
+
+    inline void setTzDstUntil(unsigned int tz_dst_until) { _tz_dst_until = tz_dst_until; }
+    inline unsigned int getTzDstUntil() { return _tz_dst_until; }
+
     int begin(ConnectionHandler& connection, bool retry = false);
 
     inline bool isRetryEnabled  () const { return _retryEnable; }
@@ -68,6 +74,9 @@ class ArduinoIoTCloudLPWAN : public ArduinoIoTCloudClass
     };
 
     String _thing_id;
+
+    int _tz_offset;
+    unsigned int _tz_dst_until;
 
     State _state;
     bool _retryEnable;

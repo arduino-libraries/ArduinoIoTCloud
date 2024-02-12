@@ -82,6 +82,12 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
     virtual bool deviceNotAttached() override;
     virtual void     setThingId (String const thing_id)  override;
     virtual String & getThingId ()                       override;
+    virtual void setTZOffset(int offset) override;
+    virtual getTZOffset() override;
+    virtual void setTZUntil(unsigned long timestamp) override;
+    virtual getTZOffset() override;
+
+
 
     #if defined(BOARD_HAS_ECCX08) || defined(BOARD_HAS_OFFLOADED_ECCX08) || defined(BOARD_HAS_SE050)
     int begin(ConnectionHandler & connection, bool const enable_watchdog = true, String brokerAddress = DEFAULT_BROKER_ADDRESS_SECURE_AUTH, uint16_t brokerPort = DEFAULT_BROKER_PORT_SECURE_AUTH);

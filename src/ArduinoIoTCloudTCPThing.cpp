@@ -62,11 +62,12 @@ ArduinoIoTCloudTCPThing::ArduinoIoTCloudTCPThing()
  * PUBLIC MEMBER FUNCTIONS
  ******************************************************************************/
 
-int ArduinoIoTCloudTCPThing::begin(MqttClient& mqttClient, PropertyContainer & thing_property_container, void (*callback)(ArduinoIoTCloudEvent))
+int ArduinoIoTCloudTCPThing::begin(MqttClient& mqttClient, TimeServiceClass & time_service, PropertyContainer & thing_property_container, void (*callback)(ArduinoIoTCloudEvent))
 {
   _mqttClient = mqttClient;
   _thing_property_container = thing_property_container;
   _execCloudEventCallback = callback;
+  _time_service = time_service;
   return 1;
 }
 

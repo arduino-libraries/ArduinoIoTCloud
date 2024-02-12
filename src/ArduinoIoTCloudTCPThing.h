@@ -27,6 +27,8 @@
 #include <ArduinoIoTCloud.h>
 #include <ArduinoMqttClient.h>
 
+#include "utility/time/TimeService.h"
+
 
 /******************************************************************************
  * TYPEDEF
@@ -49,7 +51,7 @@ class ArduinoIoTCloudTCPThing
     void update;
 
     // begin takes an mqtt client
-    int begin(MqttClient& mqttClient, PropertyContainer & thing_property_container, bool retry = false);
+    int begin(MqttClient& mqttClient, TimeServiceClass time_service, PropertyContainer & thing_property_container, void (*callback)(ArduinoIoTCloudEvent)),
     inline void     setThingId (String const thing_id)  { _thing_id = thing_id; };
     inline String & getThingId ()                       { return _thing_id; };
     
@@ -62,6 +64,12 @@ class ArduinoIoTCloudTCPThing
     inline void     setMqttDataRequestRetransmitFlag()  { _mqtt_data_request_retransmit = true; }
     inline void     clrMqttDataRequestRetransmitFlag()  { _mqtt_data_request_retransmit = false; }
 
+    inline void     setTzOffset(int tz_offset)  { _tz_offset = tz_offset; }
+    inline int      getTzOffset()         { return _tz_offset; }
+
+    inline void setTzDstUntil(unsigned int tz_dst_until) { _tz_dst_until = tz_dst_until; }
+    inline unsigned int getTzDstUntil() { return _tz_dst_until; }
+    
   private:
     static const int MQTT_TRANSMIT_BUFFER_SIZE = 256;
 
@@ -92,12 +100,17 @@ class ArduinoIoTCloudTCPThing
     int _mqtt_data_len;
     bool _mqtt_data_request_retransmit;
 
-    MqttClient _mqttClient;
+    MqttClient &_mqttClient;
+    PropertyContainer & _thing_property_container;
+    TimeServiceClass &_time_service
+
     String _thing_id;
     bool _thing_id_outdated;
     bool _mqtt_data_request_retransmit
-    PropertyContainer & _thing_property_container;
     bool _deviceSubscribedToThing;
+
+    int _tz_offset;
+    unsigned int _tz_dst_until;
 
     _cloud_callback void (*OnCloudEventCallback)(void);
 
