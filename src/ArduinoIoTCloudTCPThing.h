@@ -25,7 +25,7 @@
 
 #include <AIoTC_Config.h>
 
-#include <ArduinoIoTCloud.h>
+#include "property/PropertyContainer.h"
 #include <ArduinoMqttClient.h>
 
 #include "utility/time/TimeService.h"
@@ -52,7 +52,8 @@ class ArduinoIoTCloudTCPThing
     void update();
 
     // begin takes an mqtt client
-    int begin(MqttClient& mqttClient, TimeServiceClass time_service, PropertyContainer & thing_property_container);
+    int begin(MqttClient *mqttClient, TimeServiceClass *time_service, PropertyContainer *thing_property_container);
+    int connected();
     void updateTimezoneInfo();
     
     inline void     setThingId (String const thing_id)  { _thing_id = thing_id; };
@@ -72,6 +73,9 @@ class ArduinoIoTCloudTCPThing
 
     inline void setTzDstUntil(unsigned int tz_dst_until) { _tz_dst_until = tz_dst_until; }
     inline unsigned int &  getTzDstUntil() { return _tz_dst_until; }
+
+    inline void setLastValueReceived() {_last_values_received = true;}
+    inline void clrLastValueReceived() {_last_values_received = false;}
     
   private:
     static const int MQTT_TRANSMIT_BUFFER_SIZE = 256;
@@ -103,14 +107,15 @@ class ArduinoIoTCloudTCPThing
     int _mqtt_data_len;
     bool _mqtt_data_request_retransmit;
 
-    MqttClient &_mqttClient;
-    PropertyContainer & _thing_property_container;
-    TimeServiceClass &_time_service;
+    MqttClient *_mqttClient;
+    PropertyContainer *_thing_property_container;
+    TimeServiceClass *_time_service;
 
     String _thing_id;
     bool _thing_id_outdated;
     bool _deviceSubscribedToThing;
     unsigned int _last_checked_property_index;
+    bool _last_values_received;
 
     int _tz_offset;
     unsigned int _tz_dst_until;

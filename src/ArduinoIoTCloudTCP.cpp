@@ -120,7 +120,7 @@ int ArduinoIoTCloudTCP::begin(ConnectionHandler & connection, bool const enable_
   _brokerAddress = brokerAddress;
   _brokerPort = brokerPort;
   _time_service.begin(&connection);
-  _arduinoCloudThing.begin(_mqttClient, _time_service, _thing_property_container);
+  _arduinoCloudThing.begin(&_mqttClient, &_time_service, &_thing_property_container);
   return begin(enable_watchdog, _brokerAddress, _brokerPort);
 }
 
@@ -375,6 +375,7 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_ConnectMqttBroker()
 {
   if (_mqttClient.connect(_brokerAddress.c_str(), _brokerPort))
   {
+    _arduinoCloudThing.clrLastValueReceived();
     _last_connection_attempt_cnt = 0;
     return State::SendDeviceProperties;
   }
@@ -536,6 +537,8 @@ void ArduinoIoTCloudTCP::handleMessage(int length)
     execCloudEventCallback(ArduinoIoTCloudEvent::SYNC);
     _last_sync_request_cnt = 0;
     _last_sync_request_tick = 0;
+    DEBUG_INFO("Last values received");
+    _arduinoCloudThing.setLastValueReceived();
     _state = State::Connected;
   }
 }
