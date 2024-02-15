@@ -47,6 +47,7 @@ public:
   void          setTime(unsigned long time);
   unsigned long getLocalTime();
   void          setTimeZoneData(long offset, unsigned long valid_until);
+  unsigned int  getTimeZoneUntil();
   bool          sync();
   void          setSyncInterval(unsigned long seconds);
   void          setSyncFunction(syncTimeFunctionPtr sync_func);

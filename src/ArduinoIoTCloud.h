@@ -90,10 +90,6 @@ class ArduinoIoTCloudClass
     virtual bool deviceNotAttached() = 0;
     virtual void     setThingId (String const thing_id)  = 0;
     virtual String & getThingId ()                       = 0;
-    virtual void setTzOffset(int offset) = 0;
-    virtual int & getTzOffset() = 0;
-    virtual void setTzDstUntil(unsigned int dst_until) = 0;
-    virtual unsigned int & getTzDstUntil() = 0;
     virtual void     setThingIdOutdatedFlag() = 0;
     virtual void     clrThingIdOutdatedFlag() = 0;
     virtual bool     getThingIdOutdatedFlag() = 0;
@@ -108,6 +104,9 @@ class ArduinoIoTCloudClass
 
     inline unsigned long getInternalTime()              { return _time_service.getTime(); }
     inline unsigned long getLocalTime()                 { return _time_service.getLocalTime(); }
+    inline void          updateInternalTimezoneInfo()   { _time_service.setTimeZoneData(_tz_offset, _tz_dst_until); }
+    inline int           tzOffset()                     { return _tz_offset; }
+    inline unsigned int  getTzDstUntil()                { return _tz_dst_until; }
 
     void addCallback(ArduinoIoTCloudEvent const event, OnCloudEventCallback callback);
 
@@ -157,6 +156,8 @@ class ArduinoIoTCloudClass
     PropertyContainer _device_property_container;
     PropertyContainer _thing_property_container;
     TimeServiceClass & _time_service;
+    int _tz_offset;
+    unsigned int _tz_dst_until;
     String _lib_version;
 
     void execCloudEventCallback(ArduinoIoTCloudEvent const event);

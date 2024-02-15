@@ -49,8 +49,6 @@ ArduinoIoTCloudTCPThing::ArduinoIoTCloudTCPThing()
 , _deviceSubscribedToThing{false}
 , _thing_id("")
 , _thing_id_outdated{false}
-, _tz_offset{0}
-, _tz_dst_until{0}
 , _last_checked_property_index{0}
 , _mqttClient()
 , _time_service()
@@ -73,13 +71,8 @@ int ArduinoIoTCloudTCPThing::begin(MqttClient *mqttClient, TimeServiceClass *tim
   return 1;
 }
 
-void ArduinoIoTCloudTCPThing::updateTimezoneInfo() {
-  _time_service->setTimeZoneData(_tz_offset, _tz_dst_until);
-}
-
 void ArduinoIoTCloudTCPThing::update()
 {
-  DEBUG_INFO("Thing update");
   /* Run through the state machine. */
   State next_state = _state;
   switch (_state)
@@ -92,6 +85,28 @@ void ArduinoIoTCloudTCPThing::update()
   case State::Disconnect:           next_state = handle_Disconnect();           break;
   }
   _state = next_state;
+}
+
+void ArduinoIoTCloudTCPThing::handleMessage(String topic,uint8_t const * const bytes, int length)
+{
+  DEBUG_INFO("Handle message invoked");
+    /* Topic for user input data */
+  if (_dataTopicIn == topic) {
+    CBORDecoder::decode(*_thing_property_container, (uint8_t*)bytes, length);
+  }
+
+  /* Topic for sync Thing last values on connect */
+  if ((_shadowTopicIn == topic) && (_state == State::RequestLastValues))
+  {
+    DEBUG_INFO("ArduinoIoTCloudTCP::%s [%d] last values received", __FUNCTION__, millis());
+    CBORDecoder::decode(*_thing_property_container, (uint8_t*)bytes, length, true);
+    //updateTimezoneInfo();
+    //execCloudEventCallback(ArduinoIoTCloudEvent::SYNC);
+    _last_sync_request_cnt = 0;
+    _last_sync_request_tick = 0;
+    DEBUG_INFO("Last values received");
+    _last_values_received = true;
+  }
 }
 
 int ArduinoIoTCloudTCPThing::connected()
@@ -230,11 +245,9 @@ ArduinoIoTCloudTCPThing::State ArduinoIoTCloudTCPThing::handle_RequestLastValues
   unsigned long const now = millis();
   bool const is_sync_request_timeout = (now - _last_sync_request_tick) > AIOT_CONFIG_TIMEOUT_FOR_LASTVALUES_SYNC_ms;
   bool const is_first_sync_request = (_last_sync_request_cnt == 0);
-  DEBUG_INFO("is_sync_request_timeout: %d", is_sync_request_timeout);
-  DEBUG_INFO("is_first_sync_request: %d", is_first_sync_request);
+
   if (is_first_sync_request || is_sync_request_timeout)
   {
-    DEBUG_INFO("requesting last values");
     DEBUG_INFO("ArduinoIoTCloudTCP::%s [%d] last values requested", __FUNCTION__, now);
     requestLastValue();
     _last_sync_request_tick = now;
@@ -280,7 +293,6 @@ ArduinoIoTCloudTCPThing::State ArduinoIoTCloudTCPThing::handle_Connected()
     * in the reconstructed certificate.
     */
     updateTimestampOnLocallyChangedProperties(*_thing_property_container);
-    DEBUG_INFO("Sending values");
     /* Retransmit data in case there was a lost transaction due
     * to phy layer or MQTT connectivity loss.
     */
@@ -294,8 +306,9 @@ ArduinoIoTCloudTCPThing::State ArduinoIoTCloudTCPThing::handle_Connected()
     */
     sendThingPropertiesToCloud();
 
+    unsigned int tz_dst_until = _time_service->getTimeZoneUntil();
     unsigned long const internal_posix_time = _time_service->getTime();
-    if(internal_posix_time < _tz_dst_until) {
+    if(internal_posix_time < tz_dst_until) {
       return State::Connected;
     } else {
       return State::RequestLastValues;
@@ -348,10 +361,12 @@ int ArduinoIoTCloudTCPThing::write(String const topic, byte const data[], int co
   if (_mqttClient->beginMessage(topic, length, false, 0)) {
     if (_mqttClient->write(data, length)) {
       if (_mqttClient->endMessage()) {
+        DEBUG_INFO("Sending request last value %s", topic.c_str());
         return 1;
       }
     }
   }
+  DEBUG_INFO("NOT Sending request last value");
   return 0;
 }
 

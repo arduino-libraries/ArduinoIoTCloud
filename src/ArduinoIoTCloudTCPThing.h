@@ -24,11 +24,12 @@
  ******************************************************************************/
 
 #include <AIoTC_Config.h>
-
-#include "property/PropertyContainer.h"
 #include <ArduinoMqttClient.h>
 
 #include "utility/time/TimeService.h"
+#include "property/PropertyContainer.h"
+#include "cbor/CBOREncoder.h"
+#include "cbor/CBORDecoder.h"
 
 
 /******************************************************************************
@@ -50,6 +51,7 @@ class ArduinoIoTCloudTCPThing
 
 
     void update();
+    void handleMessage(String topic,uint8_t const * const bytes, int length);
 
     // begin takes an mqtt client
     int begin(MqttClient *mqttClient, TimeServiceClass *time_service, PropertyContainer *thing_property_container);
@@ -67,12 +69,6 @@ class ArduinoIoTCloudTCPThing
 
     inline void     setMqttDataRequestRetransmitFlag()  { _mqtt_data_request_retransmit = true; }
     inline void     clrMqttDataRequestRetransmitFlag()  { _mqtt_data_request_retransmit = false; }
-
-    inline void     setTzOffset(int tz_offset)  { _tz_offset = tz_offset; }
-    inline int &     getTzOffset()         { return _tz_offset; }
-
-    inline void setTzDstUntil(unsigned int tz_dst_until) { _tz_dst_until = tz_dst_until; }
-    inline unsigned int &  getTzDstUntil() { return _tz_dst_until; }
 
     inline void setLastValueReceived() {_last_values_received = true;}
     inline void clrLastValueReceived() {_last_values_received = false;}
@@ -117,9 +113,6 @@ class ArduinoIoTCloudTCPThing
     unsigned int _last_checked_property_index;
     bool _last_values_received;
 
-    int _tz_offset;
-    unsigned int _tz_dst_until;
-
     String _shadowTopicOut;
     String _shadowTopicIn;
     String _dataTopicOut;
@@ -137,8 +130,6 @@ class ArduinoIoTCloudTCPThing
     State handle_Connected();
     State handle_Disconnect();
 
-    static void onMessage(int length);
-    void handleMessage(int length);
     void sendPropertyContainerToCloud(String const topic, PropertyContainer & property_container, unsigned int & current_property_index);
     void sendThingPropertiesToCloud();
     void sendDevicePropertiesToCloud();

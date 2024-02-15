@@ -203,6 +203,11 @@ void TimeServiceClass::setTimeZoneData(long offset, unsigned long dst_until)
   }
 }
 
+unsigned int TimeServiceClass::getTimeZoneUntil()
+{
+  return _timezone_dst_until;
+}
+
 unsigned long TimeServiceClass::getLocalTime()
 {
   unsigned long utc = getTime();
