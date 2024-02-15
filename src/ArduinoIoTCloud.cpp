@@ -39,23 +39,6 @@ ArduinoIoTCloudClass::ArduinoIoTCloudClass()
  * PUBLIC MEMBER FUNCTIONS
  ******************************************************************************/
 
-void ArduinoIoTCloudClass::push()
-{
-  requestUpdateForAllProperties(_thing_property_container);
-}
-
-bool ArduinoIoTCloudClass::setTimestamp(String const & prop_name, unsigned long const timestamp)
-{
-  Property * p = getProperty(_thing_property_container, prop_name);
-
-  if (p == nullptr)
-    return false;
-
-  p->setTimestamp(timestamp);
-
-  return true;
-}
-
 void ArduinoIoTCloudClass::addCallback(ArduinoIoTCloudEvent const event, OnCloudEventCallback callback)
 {
   _cloud_event_callback[static_cast<size_t>(event)] = callback;
@@ -115,7 +98,7 @@ Property& ArduinoIoTCloudClass::addPropertyReal(String& property, String name, i
 }
 Property& ArduinoIoTCloudClass::addPropertyReal(Property& property, String name, int tag, Permission const permission)
 {
-  return addPropertyToContainer(_thing_property_container, property, name, permission, tag);
+  return addInternalPropertyReal(property, name, tag, permission);
 }
 
 /* The following methods are deprecated but still used for non-LoRa boards */
@@ -177,25 +160,7 @@ void ArduinoIoTCloudClass::addPropertyReal(String& property, String name, int ta
 }
 void ArduinoIoTCloudClass::addPropertyReal(Property& property, String name, int tag, permissionType permission_type, long seconds, void(*fn)(void), float minDelta, void(*synFn)(Property & property))
 {
-  addPropertyRealInternal(property, name, tag, permission_type, seconds, fn, minDelta, synFn);
-}
-
-void ArduinoIoTCloudClass::addPropertyRealInternal(Property& property, String name, int tag, permissionType permission_type, long seconds, void(*fn)(void), float minDelta, void(*synFn)(Property & property))
-{
-  Permission permission = Permission::ReadWrite;
-  if (permission_type == READ) {
-    permission = Permission::Read;
-  } else if (permission_type == WRITE) {
-    permission = Permission::Write;
-  } else {
-    permission = Permission::ReadWrite;
-  }
-
-  if (seconds == ON_CHANGE) {
-    addPropertyToContainer(_thing_property_container, property, name, permission, tag).publishOnChange(minDelta, Property::DEFAULT_MIN_TIME_BETWEEN_UPDATES_MILLIS).onUpdate(fn).onSync(synFn);
-  } else {
-    addPropertyToContainer(_thing_property_container, property, name, permission, tag).publishEvery(seconds).onUpdate(fn).onSync(synFn);
-  }
+  addInternalPropertyReal(property, name, tag, permission_type, seconds, fn, minDelta, synFn);
 }
 
 /******************************************************************************

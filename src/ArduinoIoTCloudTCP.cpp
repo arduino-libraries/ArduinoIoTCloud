@@ -125,7 +125,7 @@ int ArduinoIoTCloudTCP::begin(ConnectionHandler & connection, bool const enable_
   _brokerAddress = brokerAddress;
   _brokerPort = brokerPort;
   _time_service.begin(&connection);
-  _arduinoCloudThing.begin(&_mqttClient, &_time_service, &_thing_property_container);
+  _arduinoCloudThing.begin(&_mqttClient, &_time_service);
   return begin(enable_watchdog, _brokerAddress, _brokerPort);
 }
 
@@ -207,7 +207,6 @@ int ArduinoIoTCloudTCP::begin(bool const enable_watchdog, String brokerAddress, 
 #endif /* OTA_ENABLED */
   p = new CloudWrapperString(_arduinoCloudThing.getThingId());
   addPropertyToContainer(_device_property_container, *p, "thing_id", Permission::ReadWrite, -1).onUpdate(setThingIdOutdated);
-
   addPropertyReal(_tz_offset, "tz_offset", Permission::ReadWrite).onSync(CLOUD_WINS).onUpdate(updateTimezoneInfo);
   addPropertyReal(_tz_dst_until, "tz_dst_until", Permission::ReadWrite).onSync(CLOUD_WINS).onUpdate(updateTimezoneInfo);
 
@@ -243,6 +242,26 @@ int ArduinoIoTCloudTCP::begin(bool const enable_watchdog, String brokerAddress, 
 #endif
 
   return 1;
+}
+
+Property& ArduinoIoTCloudTCP::addInternalPropertyReal(Property& property, String name, int tag, Permission const permission)
+{
+  return _arduinoCloudThing.addPropertyReal(property, name, tag, permission);
+}
+
+void ArduinoIoTCloudTCP::addInternalPropertyReal(Property& property, String name, int tag, permissionType permission_type, long seconds, void(*fn)(void), float minDelta, void(*synFn)(Property & property))
+{
+  _arduinoCloudThing.addPropertyReal(property, name, tag, permission_type, seconds, fn, minDelta, synFn);
+}
+
+void ArduinoIoTCloudTCP::push()
+{
+  _arduinoCloudThing.push();
+}
+
+bool ArduinoIoTCloudTCP::setTimestamp(String const & prop_name, unsigned long const timestamp)
+{
+  return _arduinoCloudThing.setTimestamp(prop_name, timestamp);
 }
 
 bool ArduinoIoTCloudTCP::deviceNotAttached()

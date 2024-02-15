@@ -48,13 +48,6 @@
    TYPEDEF
  ******************************************************************************/
 
-typedef enum
-{
-  READ      = 0x01,
-  WRITE     = 0x02,
-  READWRITE = READ | WRITE
-} permissionType;
-
 enum class ArduinoIoTConnectionStatus
 {
   IDLE,
@@ -94,8 +87,8 @@ class ArduinoIoTCloudClass
     virtual void     clrThingIdOutdatedFlag() = 0;
     virtual bool     getThingIdOutdatedFlag() = 0;
 
-            void push();
-            bool setTimestamp(String const & prop_name, unsigned long const timestamp);
+    virtual  void push() = 0;
+    virtual  bool setTimestamp(String const & prop_name, unsigned long const timestamp) = 0;
 
     inline void     setDeviceId(String const device_id) { _device_id = device_id; };
     inline String & getDeviceId()                       { return _device_id; };
@@ -135,7 +128,6 @@ class ArduinoIoTCloudClass
      * This approach reduces the required amount of data which is of great
      * important when using LoRa.
      */
-
     void addPropertyReal(Property& property, String name, int tag, permissionType permission_type = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, float minDelta = 0.0f, void(*synFn)(Property & property) = CLOUD_WINS) __attribute__((deprecated("Use addProperty(property, Permission::ReadWrite) instead.")));
     void addPropertyReal(bool& property, String name, int tag, permissionType permission_type = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, float minDelta = 0.0f, void(*synFn)(Property & property) = CLOUD_WINS) __attribute__((deprecated("Use addProperty(property, Permission::ReadWrite) instead.")));
     void addPropertyReal(float& property, String name, int tag, permissionType permission_type = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, float minDelta = 0.0f, void(*synFn)(Property & property) = CLOUD_WINS) __attribute__((deprecated("Use addProperty(property, Permission::ReadWrite) instead.")));
@@ -150,11 +142,13 @@ class ArduinoIoTCloudClass
     Property& addPropertyReal(unsigned int& property, String name, int tag, Permission const permission);
     Property& addPropertyReal(String& property, String name, int tag, Permission const permission);
 
+    virtual void addInternalPropertyReal(Property& property, String name, int tag, permissionType permission_type = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, float minDelta = 0.0f, void(*synFn)(Property & property) = CLOUD_WINS) = 0;
+    virtual Property& addInternalPropertyReal(Property& property, String name, int tag, Permission const permission) = 0;
+
   protected:
 
     ConnectionHandler * _connection;
     PropertyContainer _device_property_container;
-    PropertyContainer _thing_property_container;
     TimeServiceClass & _time_service;
     int _tz_offset;
     unsigned int _tz_dst_until;

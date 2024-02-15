@@ -27,16 +27,11 @@
 #include <ArduinoMqttClient.h>
 
 #include "utility/time/TimeService.h"
+#include "property/Property.h"
 #include "property/PropertyContainer.h"
 #include "cbor/CBOREncoder.h"
 #include "cbor/CBORDecoder.h"
 
-
-/******************************************************************************
- * TYPEDEF
- ******************************************************************************/
-
-typedef bool (*onOTARequestCallbackFunc)(void);
 
 /******************************************************************************
  * CLASS DECLARATION
@@ -54,10 +49,16 @@ class ArduinoIoTCloudTCPThing
     void handleMessage(String topic,uint8_t const * const bytes, int length);
 
     // begin takes an mqtt client
-    int begin(MqttClient *mqttClient, TimeServiceClass *time_service, PropertyContainer *thing_property_container);
+    int begin(MqttClient *mqttClient, TimeServiceClass *time_service);
     int connected();
     void updateTimezoneInfo();
+
+    void addPropertyReal(Property& property, String name, int tag, permissionType permission_type = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, float minDelta = 0.0f, void(*synFn)(Property & property) = CLOUD_WINS) __attribute__((deprecated("Use addProperty(property, Permission::ReadWrite) instead.")));
+    Property& addPropertyReal(Property& property, String name, int tag, Permission const permission);
     
+    void push();
+    bool setTimestamp(String const & prop_name, unsigned long const timestamp);
+
     inline void     setThingId (String const thing_id)  { _thing_id = thing_id; };
     inline String & getThingId ()                       { return _thing_id; };
     
@@ -104,7 +105,6 @@ class ArduinoIoTCloudTCPThing
     bool _mqtt_data_request_retransmit;
 
     MqttClient *_mqttClient;
-    PropertyContainer *_thing_property_container;
     TimeServiceClass *_time_service;
 
     String _thing_id;
@@ -117,6 +117,8 @@ class ArduinoIoTCloudTCPThing
     String _shadowTopicIn;
     String _dataTopicOut;
     String _dataTopicIn;
+
+    PropertyContainer _thing_property_container;
 
     inline String getTopic_shadowout() { return ( getThingId().length() == 0) ? String("") : String("/a/t/" + getThingId() + "/shadow/o"); }
     inline String getTopic_shadowin () { return ( getThingId().length() == 0) ? String("") : String("/a/t/" + getThingId() + "/shadow/i"); }

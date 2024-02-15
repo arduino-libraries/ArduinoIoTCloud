@@ -23,6 +23,7 @@
  ******************************************************************************/
 
 #include <ArduinoIoTCloud.h>
+#include "property/PropertyContainer.h"
 
 /******************************************************************************
  * CLASS DECLARATION
@@ -77,6 +78,8 @@ class ArduinoIoTCloudLPWAN : public ArduinoIoTCloudClass
     bool _thing_id_outdated;
 
     unsigned int _last_checked_property_index;
+
+    PropertyContainer _thing_property_container;
 
     State _state;
     bool _retryEnable;

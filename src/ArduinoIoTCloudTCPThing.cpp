@@ -52,7 +52,6 @@ ArduinoIoTCloudTCPThing::ArduinoIoTCloudTCPThing()
 , _last_checked_property_index{0}
 , _mqttClient()
 , _time_service()
-, _thing_property_container()
 , _last_values_received{false}
 {
 
@@ -62,11 +61,10 @@ ArduinoIoTCloudTCPThing::ArduinoIoTCloudTCPThing()
  * PUBLIC MEMBER FUNCTIONS
  ******************************************************************************/
 
-int ArduinoIoTCloudTCPThing::begin(MqttClient *mqttClient, TimeServiceClass *time_service, PropertyContainer *thing_property_container)
+int ArduinoIoTCloudTCPThing::begin(MqttClient *mqttClient, TimeServiceClass *time_service)
 {
   DEBUG_INFO("Thing initialized");
   _mqttClient = mqttClient;
-  _thing_property_container = thing_property_container;
   _time_service = time_service;
   return 1;
 }
@@ -92,14 +90,14 @@ void ArduinoIoTCloudTCPThing::handleMessage(String topic,uint8_t const * const b
   DEBUG_INFO("Handle message invoked");
     /* Topic for user input data */
   if (_dataTopicIn == topic) {
-    CBORDecoder::decode(*_thing_property_container, (uint8_t*)bytes, length);
+    CBORDecoder::decode(_thing_property_container, (uint8_t*)bytes, length);
   }
 
   /* Topic for sync Thing last values on connect */
   if ((_shadowTopicIn == topic) && (_state == State::RequestLastValues))
   {
     DEBUG_INFO("ArduinoIoTCloudTCP::%s [%d] last values received", __FUNCTION__, millis());
-    CBORDecoder::decode(*_thing_property_container, (uint8_t*)bytes, length, true);
+    CBORDecoder::decode(_thing_property_container, (uint8_t*)bytes, length, true);
     //updateTimezoneInfo();
     //execCloudEventCallback(ArduinoIoTCloudEvent::SYNC);
     _last_sync_request_cnt = 0;
@@ -112,6 +110,46 @@ void ArduinoIoTCloudTCPThing::handleMessage(String topic,uint8_t const * const b
 int ArduinoIoTCloudTCPThing::connected()
 {
   return _mqttClient->connected();
+}
+
+Property& ArduinoIoTCloudTCPThing::addPropertyReal(Property& property, String name, int tag, Permission const permission)
+{
+  return addPropertyToContainer(_thing_property_container, property, name, permission, tag);
+}
+
+void ArduinoIoTCloudTCPThing::addPropertyReal(Property& property, String name, int tag, permissionType permission_type, long seconds, void(*fn)(void), float minDelta, void(*synFn)(Property & property))
+{
+  Permission permission = Permission::ReadWrite;
+  if (permission_type == READ) {
+    permission = Permission::Read;
+  } else if (permission_type == WRITE) {
+    permission = Permission::Write;
+  } else {
+    permission = Permission::ReadWrite;
+  }
+
+  if (seconds == ON_CHANGE) {
+    addPropertyToContainer(_thing_property_container, property, name, permission, tag).publishOnChange(minDelta, Property::DEFAULT_MIN_TIME_BETWEEN_UPDATES_MILLIS).onUpdate(fn).onSync(synFn);
+  } else {
+    addPropertyToContainer(_thing_property_container, property, name, permission, tag).publishEvery(seconds).onUpdate(fn).onSync(synFn);
+  }
+}
+
+void ArduinoIoTCloudTCPThing::push()
+{
+  requestUpdateForAllProperties(_thing_property_container);
+}
+
+bool ArduinoIoTCloudTCPThing::setTimestamp(String const & prop_name, unsigned long const timestamp)
+{
+  Property * p = getProperty(_thing_property_container, prop_name);
+
+  if (p == nullptr)
+    return false;
+
+  p->setTimestamp(timestamp);
+
+  return true;
 }
 
 /******************************************************************************
@@ -292,7 +330,7 @@ ArduinoIoTCloudTCPThing::State ArduinoIoTCloudTCPThing::handle_Connected()
     * the connection from being established due to a wrong data
     * in the reconstructed certificate.
     */
-    updateTimestampOnLocallyChangedProperties(*_thing_property_container);
+    updateTimestampOnLocallyChangedProperties(_thing_property_container);
     /* Retransmit data in case there was a lost transaction due
     * to phy layer or MQTT connectivity loss.
     */
@@ -344,7 +382,7 @@ void ArduinoIoTCloudTCPThing::sendPropertyContainerToCloud(String const topic, P
 
 void ArduinoIoTCloudTCPThing::sendThingPropertiesToCloud()
 {
-  sendPropertyContainerToCloud(_dataTopicOut, *_thing_property_container, _last_checked_property_index);
+  sendPropertyContainerToCloud(_dataTopicOut, _thing_property_container, _last_checked_property_index);
 }
 
 void ArduinoIoTCloudTCPThing::requestLastValue()
