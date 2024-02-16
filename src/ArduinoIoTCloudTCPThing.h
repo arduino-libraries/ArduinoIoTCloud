@@ -24,14 +24,13 @@
  ******************************************************************************/
 
 #include <AIoTC_Config.h>
+#include <AIoTC_Types.h>
 #include <ArduinoMqttClient.h>
 
 #include "utility/time/TimeService.h"
-#include "property/Property.h"
 #include "property/PropertyContainer.h"
 #include "cbor/CBOREncoder.h"
 #include "cbor/CBORDecoder.h"
-
 
 /******************************************************************************
  * CLASS DECLARATION
@@ -49,7 +48,7 @@ class ArduinoIoTCloudTCPThing
     void handleMessage(String topic,uint8_t const * const bytes, int length);
 
     // begin takes an mqtt client
-    int begin(MqttClient *mqttClient, TimeServiceClass *time_service);
+    int begin(MqttClient *mqttClient, TimeServiceClass *time_service, ExecCloudEventCallback event_callback);
     int connected();
     void updateTimezoneInfo();
 
@@ -89,11 +88,6 @@ class ArduinoIoTCloudTCPThing
 
     State _state;
 
-    unsigned long _next_connection_attempt_tick;
-    unsigned int _last_connection_attempt_cnt;
-    unsigned long _next_device_subscribe_attempt_tick;
-    unsigned int _last_device_subscribe_cnt;
-    unsigned int _last_device_attach_cnt;
     unsigned long _last_sync_request_tick;
     unsigned int _last_sync_request_cnt;
     unsigned long _last_subscribe_request_tick;
@@ -106,6 +100,7 @@ class ArduinoIoTCloudTCPThing
 
     MqttClient *_mqttClient;
     TimeServiceClass *_time_service;
+    ExecCloudEventCallback _event_callback;
 
     String _thing_id;
     bool _thing_id_outdated;
@@ -134,7 +129,6 @@ class ArduinoIoTCloudTCPThing
 
     void sendPropertyContainerToCloud(String const topic, PropertyContainer & property_container, unsigned int & current_property_index);
     void sendThingPropertiesToCloud();
-    void sendDevicePropertiesToCloud();
     void requestLastValue();
     int write(String const topic, byte const data[], int const length);
 

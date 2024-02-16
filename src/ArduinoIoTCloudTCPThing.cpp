@@ -31,10 +31,6 @@
 
 ArduinoIoTCloudTCPThing::ArduinoIoTCloudTCPThing()
 : _state{State::WaitDeviceConfig}
-, _next_connection_attempt_tick{0}
-, _last_connection_attempt_cnt{0}
-, _next_device_subscribe_attempt_tick{0}
-, _last_device_subscribe_cnt{0}
 , _last_sync_request_tick{0}
 , _last_sync_request_cnt{0}
 , _last_subscribe_request_tick{0}
@@ -61,11 +57,11 @@ ArduinoIoTCloudTCPThing::ArduinoIoTCloudTCPThing()
  * PUBLIC MEMBER FUNCTIONS
  ******************************************************************************/
 
-int ArduinoIoTCloudTCPThing::begin(MqttClient *mqttClient, TimeServiceClass *time_service)
+int ArduinoIoTCloudTCPThing::begin(MqttClient *mqttClient, TimeServiceClass *time_service, ExecCloudEventCallback event_callback)
 {
-  DEBUG_INFO("Thing initialized");
   _mqttClient = mqttClient;
   _time_service = time_service;
+  _event_callback = event_callback;
   return 1;
 }
 
@@ -87,7 +83,6 @@ void ArduinoIoTCloudTCPThing::update()
 
 void ArduinoIoTCloudTCPThing::handleMessage(String topic,uint8_t const * const bytes, int length)
 {
-  DEBUG_INFO("Handle message invoked");
     /* Topic for user input data */
   if (_dataTopicIn == topic) {
     CBORDecoder::decode(_thing_property_container, (uint8_t*)bytes, length);
@@ -98,11 +93,9 @@ void ArduinoIoTCloudTCPThing::handleMessage(String topic,uint8_t const * const b
   {
     DEBUG_INFO("ArduinoIoTCloudTCP::%s [%d] last values received", __FUNCTION__, millis());
     CBORDecoder::decode(_thing_property_container, (uint8_t*)bytes, length, true);
-    //updateTimezoneInfo();
-    //execCloudEventCallback(ArduinoIoTCloudEvent::SYNC);
+    _event_callback(ArduinoIoTCloudEvent::SYNC);
     _last_sync_request_cnt = 0;
     _last_sync_request_tick = 0;
-    DEBUG_INFO("Last values received");
     _last_values_received = true;
   }
 }
@@ -162,14 +155,12 @@ ArduinoIoTCloudTCPThing::State ArduinoIoTCloudTCPThing::handle_WaitDeviceConfig(
   {
     return State::Disconnect;
   }
-    DEBUG_INFO("Waiting thing id");
   // If the thing id is not set, we need to wait for it
   if (deviceNotAttached())
   {
-    DEBUG_INFO("Device not attached");
     return State::WaitDeviceConfig;
   }
-  DEBUG_INFO("Thing ID: %s", getThingId().c_str());
+
   if (getThingIdOutdatedFlag())
   {
     return State::CheckDeviceConfig;
@@ -191,8 +182,8 @@ ArduinoIoTCloudTCPThing::State ArduinoIoTCloudTCPThing::handle_CheckDeviceConfig
     _mqttClient->unsubscribe(_shadowTopicIn);
     _mqttClient->unsubscribe(_dataTopicIn);
     _deviceSubscribedToThing = false;
-    DEBUG_INFO("Disconnected from Arduino IoT Cloud");
-    //_execCloudEventCallback(ArduinoIoTCloudEvent::DISCONNECT);
+    DEBUG_INFO("Detached from the Thing");
+    _event_callback(ArduinoIoTCloudEvent::DISCONNECT);
   }
 
   updateThingTopics();
@@ -233,7 +224,6 @@ ArduinoIoTCloudTCPThing::State ArduinoIoTCloudTCPThing::handle_SubscribeThingTop
     _last_subscribe_request_cnt = 0;
     _last_subscribe_request_tick = 0;
     _mqttClient->stop();
-    //_execCloudEventCallback(ArduinoIoTCloudEvent::DISCONNECT);
     return State::WaitDeviceConfig;
   }
 
@@ -256,7 +246,7 @@ ArduinoIoTCloudTCPThing::State ArduinoIoTCloudTCPThing::handle_SubscribeThingTop
 
   DEBUG_INFO("Connected to Arduino IoT Cloud");
   DEBUG_INFO("Thing ID: %s", getThingId().c_str());
-  //_execCloudEventCallback(ArduinoIoTCloudEvent::CONNECT);
+  _event_callback(ArduinoIoTCloudEvent::CONNECT);
   _deviceSubscribedToThing = true;
 
   /*Add retry wait time otherwise we are trying to reconnect every 250 ms...*/
@@ -299,7 +289,6 @@ ArduinoIoTCloudTCPThing::State ArduinoIoTCloudTCPThing::handle_RequestLastValues
       _last_sync_request_cnt = 0;
       _last_sync_request_tick = 0;
       _mqttClient->stop();
-      //_execCloudEventCallback(ArduinoIoTCloudEvent::DISCONNECT);
       return State::WaitDeviceConfig;
     }
   }
@@ -358,7 +347,6 @@ ArduinoIoTCloudTCPThing::State ArduinoIoTCloudTCPThing::handle_Disconnect()
 {
   DEBUG_ERROR("ArduinoIoTCloudTCP::%s MQTT client connection lost", __FUNCTION__);
   _mqttClient->stop();
-  //_execCloudEventCallback(ArduinoIoTCloudEvent::DISCONNECT);
   return State::WaitDeviceConfig;
 }
 
@@ -399,12 +387,10 @@ int ArduinoIoTCloudTCPThing::write(String const topic, byte const data[], int co
   if (_mqttClient->beginMessage(topic, length, false, 0)) {
     if (_mqttClient->write(data, length)) {
       if (_mqttClient->endMessage()) {
-        DEBUG_INFO("Sending request last value %s", topic.c_str());
         return 1;
       }
     }
   }
-  DEBUG_INFO("NOT Sending request last value");
   return 0;
 }
 

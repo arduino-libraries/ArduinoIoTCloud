@@ -23,6 +23,7 @@
  ******************************************************************************/
 
 #include <AIoTC_Config.h>
+#include <AIoTC_Types.h>
 
 #include <ArduinoIoTCloud.h>
 
@@ -143,10 +144,7 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
     unsigned long _next_device_subscribe_attempt_tick;
     unsigned int _last_device_subscribe_cnt;
     unsigned int _last_device_attach_cnt;
-    unsigned long _last_sync_request_tick;
-    unsigned int _last_sync_request_cnt;
-    unsigned long _last_subscribe_request_tick;
-    unsigned int  _last_subscribe_request_cnt;
+
     String _brokerAddress;
     uint16_t _brokerPort;
     uint8_t _mqtt_data_buf[MQTT_TRANSMIT_BUFFER_SIZE];
@@ -191,8 +189,6 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
     String _dataTopicOut;
     String _dataTopicIn;
 
-    bool _deviceSubscribedToThing;
-
 #if OTA_ENABLED
     bool _ota_cap;
     int _ota_error;
@@ -214,20 +210,15 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
     State handle_SyncTime();
     State handle_ConnectMqttBroker();
     State handle_SendDeviceProperties();
-    State handle_WaitDeviceConfig();
     State handle_CheckDeviceConfig();
     State handle_SubscribeDeviceTopic();
-    State handle_SubscribeThingTopics();
-    State handle_RequestLastValues();
     State handle_Connected();
     State handle_Disconnect();
 
     static void onMessage(int length);
     void handleMessage(int length);
     void sendPropertyContainerToCloud(String const topic, PropertyContainer & property_container, unsigned int & current_property_index);
-    void sendThingPropertiesToCloud();
     void sendDevicePropertiesToCloud();
-    void requestLastValue();
     int write(String const topic, byte const data[], int const length);
 
 #if OTA_ENABLED

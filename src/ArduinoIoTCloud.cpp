@@ -163,10 +163,6 @@ void ArduinoIoTCloudClass::addPropertyReal(Property& property, String name, int 
   addInternalPropertyReal(property, name, tag, permission_type, seconds, fn, minDelta, synFn);
 }
 
-/******************************************************************************
- * PROTECTED MEMBER FUNCTIONS
- ******************************************************************************/
-
 void ArduinoIoTCloudClass::execCloudEventCallback(ArduinoIoTCloudEvent const event)
 {
   OnCloudEventCallback callback = _cloud_event_callback[static_cast<size_t>(event)];
@@ -174,6 +170,10 @@ void ArduinoIoTCloudClass::execCloudEventCallback(ArduinoIoTCloudEvent const eve
     (*callback)();
   }
 }
+
+/******************************************************************************
+ * PROTECTED MEMBER FUNCTIONS
+ ******************************************************************************/
 
 __attribute__((weak)) void setDebugMessageLevel(int const /* level */)
 {

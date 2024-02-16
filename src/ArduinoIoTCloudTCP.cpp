@@ -70,6 +70,11 @@ void setThingIdOutdated()
   ArduinoCloud.setThingIdOutdatedFlag();
 }
 
+void executeEventCallback(ArduinoIoTCloudEvent const event)
+{
+  ArduinoCloud.execCloudEventCallback(event);
+}
+
 /******************************************************************************
    CTOR/DTOR
  ******************************************************************************/
@@ -80,10 +85,6 @@ ArduinoIoTCloudTCP::ArduinoIoTCloudTCP()
 , _last_connection_attempt_cnt{0}
 , _next_device_subscribe_attempt_tick{0}
 , _last_device_subscribe_cnt{0}
-, _last_sync_request_tick{0}
-, _last_sync_request_cnt{0}
-, _last_subscribe_request_tick{0}
-, _last_subscribe_request_cnt{0}
 , _mqtt_data_buf{0}
 , _mqtt_data_len{0}
 , _mqtt_data_request_retransmit{false}
@@ -101,7 +102,6 @@ ArduinoIoTCloudTCP::ArduinoIoTCloudTCP()
 , _shadowTopicIn("")
 , _dataTopicOut("")
 , _dataTopicIn("")
-, _deviceSubscribedToThing{false}
 #if OTA_ENABLED
 , _ota_cap{false}
 , _ota_error{static_cast<int>(OTAError::None)}
@@ -125,7 +125,7 @@ int ArduinoIoTCloudTCP::begin(ConnectionHandler & connection, bool const enable_
   _brokerAddress = brokerAddress;
   _brokerPort = brokerPort;
   _time_service.begin(&connection);
-  _arduinoCloudThing.begin(&_mqttClient, &_time_service);
+  _arduinoCloudThing.begin(&_mqttClient, &_time_service, executeEventCallback);
   return begin(enable_watchdog, _brokerAddress, _brokerPort);
 }
 
@@ -329,7 +329,6 @@ void ArduinoIoTCloudTCP::update()
   /* Check for new data from the MQTT client. */
   if (_mqttClient.connected()) 
   {
-    //DEBUG_INFO("Poll");
     _mqttClient.poll();
   }
 }
@@ -438,6 +437,7 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_Connected()
   if (!_mqttClient.connected())
   {
     /* The last message was definitely lost, trigger a retransmit. */
+    //TODO set the variable in the thing class
     _mqtt_data_request_retransmit = true;
     return State::Disconnect;
   }
@@ -509,8 +509,6 @@ void ArduinoIoTCloudTCP::onMessage(int length)
 void ArduinoIoTCloudTCP::handleMessage(int length)
 {
   String topic = _mqttClient.messageTopic();
-  DEBUG_INFO("Handle message invoked on topic %s", topic.c_str());
-  DEBUG_INFO("Shadow topic is %s", _shadowTopicIn.c_str());
   byte bytes[length];
 
   for (int i = 0; i < length; i++) {
@@ -524,9 +522,10 @@ void ArduinoIoTCloudTCP::handleMessage(int length)
     _next_device_subscribe_attempt_tick = 0;
   }
 
-      /* Topic for user input data */
+  /* Topics for thing input data */
   updateThingTopics();
   if (_dataTopicIn == topic || _shadowTopicIn == topic) {
+    updateTimezoneInfo();
     _arduinoCloudThing.handleMessage(topic, (uint8_t*)bytes, length);
   }
 }

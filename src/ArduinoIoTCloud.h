@@ -31,6 +31,7 @@
 #endif
 
 #include "AIoTC_Const.h"
+#include "AIoTC_Types.h"
 
 #include "cbor/CBORDecoder.h"
 
@@ -43,27 +44,6 @@
 #include "property/types/CloudWrapperString.h"
 
 #include "utility/time/TimeService.h"
-
-/******************************************************************************
-   TYPEDEF
- ******************************************************************************/
-
-enum class ArduinoIoTConnectionStatus
-{
-  IDLE,
-  CONNECTING,
-  CONNECTED,
-  DISCONNECTED,
-  RECONNECTING,
-  ERROR,
-};
-
-enum class ArduinoIoTCloudEvent : size_t
-{
-  SYNC = 0, CONNECT = 1, DISCONNECT = 2
-};
-
-typedef void (*OnCloudEventCallback)(void);
 
 /******************************************************************************
  * CLASS DECLARATION
@@ -145,6 +125,8 @@ class ArduinoIoTCloudClass
     virtual void addInternalPropertyReal(Property& property, String name, int tag, permissionType permission_type = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, float minDelta = 0.0f, void(*synFn)(Property & property) = CLOUD_WINS) = 0;
     virtual Property& addInternalPropertyReal(Property& property, String name, int tag, Permission const permission) = 0;
 
+    void execCloudEventCallback(ArduinoIoTCloudEvent const event);
+
   protected:
 
     ConnectionHandler * _connection;
@@ -153,8 +135,6 @@ class ArduinoIoTCloudClass
     int _tz_offset;
     unsigned int _tz_dst_until;
     String _lib_version;
-
-    void execCloudEventCallback(ArduinoIoTCloudEvent const event);
 
   private:
 
