@@ -125,6 +125,7 @@
 
 #if defined(ARDUINO_UNOR4_WIFI)
   #define BOARD_HAS_SOFTSE
+  #define BOARD_HAS_SECRET_KEY
   #define HAS_TCP
 #endif
 

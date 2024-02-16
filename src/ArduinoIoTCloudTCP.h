@@ -26,42 +26,42 @@
 #include <ArduinoIoTCloud.h>
 #include <ArduinoMqttClient.h>
 
-#if defined(BOARD_HAS_SECRET_KEY)
-  #if defined(BOARD_ESP)
-    #include <WiFiClientSecure.h>
-  #elif defined(ARDUINO_EDGE_CONTROL)
-    #include <GSMSSLClient.h>
-  #endif
-#else
+#if defined(BOARD_HAS_SECURE_ELEMENT)
   #include <Arduino_SecureElement.h>
   #include <utility/SElementArduinoCloudDeviceId.h>
-  #if defined(BOARD_HAS_OFFLOADED_ECCX08)
-  #else
+  #if !defined(BOARD_HAS_OFFLOADED_ECCX08)
     #include <utility/SElementArduinoCloudCertificate.h>
-    #ifdef BOARD_HAS_ECCX08
-      #include "tls/BearSSLClient.h"
-    #elif defined(BOARD_HAS_OFFLOADED_ECCX08)
-      #include <WiFiSSLClient.h>
-    #elif defined(BOARD_HAS_SE050)
-      #if defined(ARDUINO_PORTENTA_C33)
-        #include <SSLClient.h>
-      #else
-        #include <WiFiSSLSE050Client.h>
-      #endif
-    #elif defined(BOARD_HAS_SOFTSE)
-      #include <WiFiSSLClient.h>
-    #endif
   #endif
+#endif
+
+#if defined(BOARD_HAS_OFFLOADED_ECCX08)
+  #include "WiFiSSLClient.h"
+#elif defined(BOARD_HAS_ECCX08)
+  #include "tls/BearSSLClient.h"
+#elif defined(ARDUINO_PORTENTA_C33)
+  #include <SSLClient.h>
+#elif defined(ARDUINO_NICLA_VISION)
+  #include <WiFiSSLSE050Client.h>
+#elif defined(ARDUINO_EDGE_CONTROL)
+  #include <GSMSSLClient.h>
+#elif defined(ARDUINO_UNOR4_WIFI)
+  #include <WiFiSSLClient.h>
+#elif defined(BOARD_ESP)
+  #include <WiFiClientSecure.h>
 #endif
 
 /******************************************************************************
    CONSTANTS
  ******************************************************************************/
-
+#if defined(BOARD_HAS_SECURE_ELEMENT)
 static char const DEFAULT_BROKER_ADDRESS_SECURE_AUTH[] = "mqtts-sa.iot.arduino.cc";
 static uint16_t const DEFAULT_BROKER_PORT_SECURE_AUTH = 8883;
+#endif
+
+#if defined(BOARD_HAS_SECRET_KEY)
 static char const DEFAULT_BROKER_ADDRESS_USER_PASS_AUTH[] = "mqtts-up.iot.arduino.cc";
 static uint16_t const DEFAULT_BROKER_PORT_USER_PASS_AUTH = 8884;
+#endif
 
 /******************************************************************************
  * TYPEDEF
@@ -85,11 +85,7 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
     virtual int  connected     () override;
     virtual void printDebugInfo() override;
 
-    #if !defined(BOARD_HAS_SECRET_KEY)
     int begin(ConnectionHandler & connection, bool const enable_watchdog = true, String brokerAddress = DEFAULT_BROKER_ADDRESS_SECURE_AUTH, uint16_t brokerPort = DEFAULT_BROKER_PORT_SECURE_AUTH);
-    #else
-    int begin(ConnectionHandler & connection, bool const enable_watchdog = true, String brokerAddress = DEFAULT_BROKER_ADDRESS_USER_PASS_AUTH, uint16_t brokerPort = DEFAULT_BROKER_PORT_USER_PASS_AUTH);
-    #endif
     int begin(bool const enable_watchdog = true, String brokerAddress = DEFAULT_BROKER_ADDRESS_SECURE_AUTH, uint16_t brokerPort = DEFAULT_BROKER_PORT_SECURE_AUTH);
 
     #ifdef BOARD_HAS_SECRET_KEY
@@ -150,29 +146,29 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
 
 #if defined(BOARD_HAS_SECRET_KEY)
     String _password;
-  #if defined(BOARD_ESP)
-    WiFiClientSecure _sslClient;
-  #elif defined(ARDUINO_EDGE_CONTROL)
-    GSMSSLClient _sslClient;
-  #endif
-#else
+#endif
+
+#if defined(BOARD_HAS_SECURE_ELEMENT)
     SecureElement _crypto;
-  #if defined(BOARD_HAS_OFFLOADED_ECCX08)
-    WiFiBearSSLClient _sslClient;
-  #else
-    ECP256Certificate _cert;
-    #if defined(BOARD_HAS_ECCX08)
-    BearSSLClient _sslClient;
-    #elif defined(BOARD_HAS_SE050)
-      #if defined(ARDUINO_PORTENTA_C33)
-    SSLClient _sslClient;
-      #else
-    WiFiSSLSE050Client _sslClient;
-      #endif
-    #elif defined(BOARD_HAS_SOFTSE)
-    WiFiSSLClient _sslClient;
-    #endif
+  #if !defined(BOARD_HAS_OFFLOADED_ECCX08)
+     ECP256Certificate _cert;
   #endif
+#endif
+
+#if defined(BOARD_HAS_OFFLOADED_ECCX08)
+    WiFiSSLClient _sslClient;
+#elif defined(BOARD_HAS_ECCX08)
+    BearSSLClient _sslClient;
+#elif defined(ARDUINO_PORTENTA_C33)
+    SSLClient _sslClient;
+#elif defined(ARDUINO_NICLA_VISION)
+    WiFiSSLSE050Client _sslClient;
+#elif defined(ARDUINO_EDGE_CONTROL)
+    GSMSSLClient _sslClient;
+#elif defined(ARDUINO_UNOR4_WIFI)
+    WiFiSSLClient _sslClient;
+#elif defined(BOARD_ESP)
+    WiFiClientSecure _sslClient;
 #endif
 
     MqttClient _mqttClient;
