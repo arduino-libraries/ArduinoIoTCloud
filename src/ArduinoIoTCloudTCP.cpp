@@ -114,11 +114,10 @@ ArduinoIoTCloudTCP::ArduinoIoTCloudTCP()
 int ArduinoIoTCloudTCP::begin(ConnectionHandler & connection, bool const enable_watchdog, String brokerAddress, uint16_t brokerPort)
 {
   _connection = &connection;
+  _brokerAddress = brokerAddress;
 #ifdef BOARD_HAS_SECRET_KEY
-  _brokerAddress = _password.length() ? DEFAULT_BROKER_ADDRESS_USER_PASS_AUTH : brokerAddress;
   _brokerPort = _password.length() ? DEFAULT_BROKER_PORT_USER_PASS_AUTH : brokerPort;
 #else
-  _brokerAddress = brokerAddress;
   _brokerPort = brokerPort;
 #endif
   _time_service.begin(&connection);

@@ -53,15 +53,9 @@
 /******************************************************************************
    CONSTANTS
  ******************************************************************************/
-#if defined(BOARD_HAS_SECURE_ELEMENT)
-static char const DEFAULT_BROKER_ADDRESS_SECURE_AUTH[] = "mqtts-sa.iot.arduino.cc";
+static char const DEFAULT_BROKER_ADDRESS_SECURE_AUTH[] = "iot.arduino.cc";
 static uint16_t const DEFAULT_BROKER_PORT_SECURE_AUTH = 8883;
-#endif
-
-#if defined(BOARD_HAS_SECRET_KEY)
-static char const DEFAULT_BROKER_ADDRESS_USER_PASS_AUTH[] = "mqtts-up.iot.arduino.cc";
 static uint16_t const DEFAULT_BROKER_PORT_USER_PASS_AUTH = 8884;
-#endif
 
 /******************************************************************************
  * TYPEDEF
@@ -151,7 +145,7 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
 #if defined(BOARD_HAS_SECURE_ELEMENT)
     SecureElement _crypto;
   #if !defined(BOARD_HAS_OFFLOADED_ECCX08)
-     ECP256Certificate _cert;
+    ECP256Certificate _cert;
   #endif
 #endif
 
