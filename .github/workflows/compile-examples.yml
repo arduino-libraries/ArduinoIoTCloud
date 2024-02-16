@@ -24,6 +24,7 @@ jobs:
         - name: Arduino_ConnectionHandler
         - name: Arduino_DebugUtils
         - name: ArduinoMqttClient
+        - name: Arduino_SecureElement
       # sketch paths to compile (recursive) for all boards
       UNIVERSAL_SKETCH_PATHS: |
         - examples/ArduinoIoTCloud-Advanced
