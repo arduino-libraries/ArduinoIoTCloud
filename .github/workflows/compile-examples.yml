@@ -40,38 +40,55 @@ jobs:
         board:
           - fqbn: arduino:samd:mkr1000
             type: mkr1000
+            artifact-name-suffix: arduino-samd-mkr1000
           - fqbn: arduino:samd:mkrwifi1010
             type: nina
+            artifact-name-suffix: arduino-samd-mkrwifi1010
           - fqbn: arduino:samd:nano_33_iot
             type: nina
+            artifact-name-suffix: arduino-samd-nano_33_iot
           - fqbn: arduino:samd:mkrwan1300
             type: wan
+            artifact-name-suffix: arduino-samd-mkrwan1300
           - fqbn: arduino:samd:mkrgsm1400
             type: gsm
+            artifact-name-suffix: arduino-samd-mkrgsm1400
           - fqbn: arduino:samd:mkrnb1500
             type: nb
+            artifact-name-suffix: arduino-samd-mkrnb1500
           - fqbn: arduino:mbed_portenta:envie_m7
             type: mbed_portenta
+            artifact-name-suffix: arduino-mbed_portenta-envie_m7
           - fqbn: esp8266:esp8266:huzzah
             type: esp8266
+            artifact-name-suffix: esp8266-esp8266-huzzah
           - fqbn: esp32:esp32:esp32
             type: esp32
+            artifact-name-suffix: esp32-esp32-esp32
           - fqbn: arduino:mbed_nano:nanorp2040connect
             type: nina
+            artifact-name-suffix: arduino-mbed_nano-nanorp2040connect
           - fqbn: arduino:mbed_nicla:nicla_vision
             type: mbed_nicla
+            artifact-name-suffix: arduino-mbed_nicla-nicla_vision
           - fqbn: arduino:mbed_opta:opta
             type: mbed_opta
+            artifact-name-suffix: arduino-mbed_opta-opta
           - fqbn: arduino:mbed_giga:giga
             type: mbed_giga
+            artifact-name-suffix: arduino-mbed_giga-giga
           - fqbn: arduino:renesas_portenta:portenta_c33
             type: renesas_portenta
+            artifact-name-suffix: arduino-renesas_portenta-portenta_c33
           - fqbn: arduino:renesas_uno:unor4wifi
             type: renesas_uno
+            artifact-name-suffix: arduino-renesas_uno-unor4wifi
           - fqbn: arduino:esp32:nano_nora
             type: arduino_esp32
+            artifact-name-suffix: arduino-esp32-nano_nora
           - fqbn: arduino:mbed_edge:edge_control
             type: mbed_edge
+            artifact-name-suffix: arduino-mbed_edge-edge_control
 
 
         # make board type-specific customizations to the matrix jobs
@@ -279,5 +296,5 @@ jobs:
         if: github.event_name == 'pull_request'
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ env.SKETCHES_REPORTS_PATH }}
+          name: sketches-report-${{ matrix.board.artifact-name-suffix }}
           path: ${{ env.SKETCHES_REPORTS_PATH }}
