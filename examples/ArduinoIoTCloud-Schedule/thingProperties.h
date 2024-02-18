@@ -1,5 +1,6 @@
 #include <ArduinoIoTCloud.h>
 #include <Arduino_ConnectionHandler.h>
+
 #include "arduino_secrets.h"
 
 #if !(defined(BOARD_HAS_WIFI) || defined(BOARD_HAS_GSM) || defined(BOARD_HAS_LORA) || \
@@ -28,16 +29,16 @@ void initProperties() {
   ArduinoCloud.setSecretDeviceKey(SECRET_DEVICE_KEY);
 #endif
 #if defined(BOARD_HAS_WIFI) || defined(BOARD_HAS_GSM) || defined(BOARD_HAS_NB) || defined(BOARD_HAS_ETHERNET) || defined(BOARD_HAS_CATM1_NBIOT)
-  ArduinoCloud.addProperty(switchButton, WRITE, ON_CHANGE);
-  ArduinoCloud.addProperty(oneShot, READWRITE, ON_CHANGE);
-  ArduinoCloud.addProperty(minute, READWRITE, ON_CHANGE);
-  ArduinoCloud.addProperty(hourly, READWRITE, ON_CHANGE);
-  ArduinoCloud.addProperty(daily, READWRITE, ON_CHANGE);
-  ArduinoCloud.addProperty(weekly, READWRITE, ON_CHANGE);
-  ArduinoCloud.addProperty(monthly, READWRITE, ON_CHANGE);
-  ArduinoCloud.addProperty(yearly, READWRITE, ON_CHANGE);
+  ArduinoCloud.addProperty(switchButton, Permission::Write).onUpdate(nullptr);
+  ArduinoCloud.addProperty(oneShot, Permission::ReadWrite).onUpdate(nullptr);
+  ArduinoCloud.addProperty(minute, Permission::ReadWrite).onUpdate(nullptr);
+  ArduinoCloud.addProperty(hourly, Permission::ReadWrite).onUpdate(nullptr);
+  ArduinoCloud.addProperty(daily, Permission::ReadWrite).onUpdate(nullptr);
+  ArduinoCloud.addProperty(weekly, Permission::ReadWrite).onUpdate(nullptr);
+  ArduinoCloud.addProperty(monthly, Permission::ReadWrite).onUpdate(nullptr);
+  ArduinoCloud.addProperty(yearly, Permission::ReadWrite).onUpdate(nullptr);
 #elif defined(BOARD_HAS_LORA)
-  ArduinoCloud.addProperty(switchButton, 1, WRITE, ON_CHANGE);
+  ArduinoCloud.addProperty(switchButton, 1, Permission::Write).onUpdate(nullptr);
 #endif
 }
 

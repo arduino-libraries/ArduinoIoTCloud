@@ -6,6 +6,9 @@
 
 */
 
+#include <ArduinoIoTCloud.h>
+
+#include "arduino_secrets.h"
 #include "thingProperties.h"
 
 #if !defined(LED_BUILTIN) && !defined(ARDUINO_NANO_ESP32)
@@ -206,7 +209,7 @@ void loop() {
   if(daily.isActive()) {
     Serial.println("Daily schedule is active");
   }
-  
+
   /* Activate LED when the weekly schedule is active */
   digitalWrite(LED_BUILTIN, weekly.isActive());
 
@@ -219,5 +222,4 @@ void loop() {
   if(yearly.isActive()) {
     Serial.println("Yearly schedule is active");
   }
-
 }
