@@ -1,4 +1,4 @@
-#include <Arduino_ConnectionHandler.h>
+#include <AIoTC_Config.h>
 
 /* A complete list of supported boards with WiFi is available here:
  * https://github.com/arduino-libraries/ArduinoIoTCloud/#what
@@ -8,7 +8,7 @@
   #define SECRET_PASS "YOUR_WIFI_PASSWORD"
 #endif
 
-/* ESP8266 ESP32*/
+/* ESP8266 ESP32 */
 #if defined(BOARD_HAS_SECRET_KEY)
   #define SECRET_DEVICE_KEY "my-device-password"
 #endif

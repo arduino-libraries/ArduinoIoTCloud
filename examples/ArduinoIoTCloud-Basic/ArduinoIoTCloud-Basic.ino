@@ -14,6 +14,9 @@
    - https://github.com/arduino-libraries/ArduinoIoTCloud#what
 */
 
+#include <ArduinoIoTCloud.h>
+
+#include "arduino_secrets.h"
 #include "thingProperties.h"
 
 #if !defined(LED_BUILTIN) && !defined(ARDUINO_NANO_ESP32)
