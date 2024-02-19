@@ -233,9 +233,10 @@ int ArduinoIoTCloudTCP::begin(bool const enable_watchdog, String brokerAddress, 
    */
 #if defined (ARDUINO_ARCH_SAMD) || defined (ARDUINO_ARCH_MBED)
   if (enable_watchdog) {
+    /* Initialize watchdog hardware */
     watchdog_enable();
-    bool const use_ethernet = _connection->getInterface() == NetworkAdapter::ETHERNET ? true : false;
-    watchdog_enable_network_feed(use_ethernet);
+    /* Setup callbacks to feed the watchdog during offloaded network operations (connection/download)*/
+    watchdog_enable_network_feed(_connection->getInterface());
   }
 #endif
 
