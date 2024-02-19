@@ -38,17 +38,17 @@ ArduinoIoTCloudTCPThing::ArduinoIoTCloudTCPThing()
 , _mqtt_data_buf{0}
 , _mqtt_data_len{0}
 , _mqtt_data_request_retransmit{false}
+, _mqttClient()
+, _time_service()
+, _thing_id("")
+, _thing_id_outdated{false}
+, _deviceSubscribedToThing{false}
+, _last_checked_property_index{0}
+, _last_values_received{false}
 , _shadowTopicOut("")
 , _shadowTopicIn("")
 , _dataTopicOut("")
 , _dataTopicIn("")
-, _deviceSubscribedToThing{false}
-, _thing_id("")
-, _thing_id_outdated{false}
-, _last_checked_property_index{0}
-, _mqttClient()
-, _time_service()
-, _last_values_received{false}
 {
 
 }
