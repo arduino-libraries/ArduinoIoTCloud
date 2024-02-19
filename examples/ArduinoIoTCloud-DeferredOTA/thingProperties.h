@@ -1,3 +1,7 @@
+#include <ArduinoIoTCloud.h>
+#include <Arduino_ConnectionHandler.h>
+#include "arduino_secrets.h"
+
 #if !(defined(BOARD_HAS_WIFI) || defined(BOARD_HAS_ETHERNET))
   #error "Please check Arduino IoT Cloud supported boards list: https://github.com/arduino-libraries/ArduinoIoTCloud/#what"
 #endif
