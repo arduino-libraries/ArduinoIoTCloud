@@ -81,10 +81,12 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
 
     #if defined(BOARD_HAS_ECCX08) || defined(BOARD_HAS_OFFLOADED_ECCX08) || defined(BOARD_HAS_SE050)
     int begin(ConnectionHandler & connection, bool const enable_watchdog = true, String brokerAddress = DEFAULT_BROKER_ADDRESS_SECURE_AUTH, uint16_t brokerPort = DEFAULT_BROKER_PORT_SECURE_AUTH);
+    int begin(Client & client, UDP & udp, NetworkAdapter adapter = NetworkAdapter::WIFI, bool const enable_watchdog = true, String brokerAddress = DEFAULT_BROKER_ADDRESS_SECURE_AUTH, uint16_t brokerPort = DEFAULT_BROKER_PORT_SECURE_AUTH);
     #else
     int begin(ConnectionHandler & connection, bool const enable_watchdog = true, String brokerAddress = DEFAULT_BROKER_ADDRESS_USER_PASS_AUTH, uint16_t brokerPort = DEFAULT_BROKER_PORT_USER_PASS_AUTH);
+    int begin(Client & client, UDP & udp, NetworkAdapter adapter = NetworkAdapter::WIFI, bool const enable_watchdog = true, String brokerAddress = DEFAULT_BROKER_ADDRESS_USER_PASS_AUTH, uint16_t brokerPort = DEFAULT_BROKER_PORT_USER_PASS_AUTH);
     #endif
-    int begin(bool const enable_watchdog = true, String brokerAddress = DEFAULT_BROKER_ADDRESS_SECURE_AUTH, uint16_t brokerPort = DEFAULT_BROKER_PORT_SECURE_AUTH);
+
 
     #ifdef BOARD_HAS_SECRET_KEY
     inline void setBoardId        (String const device_id) { setDeviceId(device_id); }
@@ -188,6 +190,8 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
     bool _ask_user_before_executing_ota;
     onOTARequestCallbackFunc _get_ota_confirmation;
 #endif /* OTA_ENABLED */
+
+    int begin(Client & client, bool const enable_watchdog = true, String brokerAddress = DEFAULT_BROKER_ADDRESS_SECURE_AUTH, uint16_t brokerPort = DEFAULT_BROKER_PORT_SECURE_AUTH);
 
     inline String getTopic_deviceout() { return String("/a/d/" + getDeviceId() + "/e/o");}
     inline String getTopic_devicein () { return String("/a/d/" + getDeviceId() + "/e/i");}
