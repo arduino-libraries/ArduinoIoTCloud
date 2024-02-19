@@ -92,27 +92,12 @@ void ArduinoIoTCloudLPWAN::printDebugInfo()
   DEBUG_INFO("Thing ID: %s", getThingId().c_str());
 }
 
-Property& ArduinoIoTCloudLPWAN::addInternalPropertyReal(Property& property, String name, int tag, Permission const permission)
+Property& ArduinoIoTCloudLPWAN::addInternalPropertyReal(Property& property, String name, int tag, Permission const permission, long seconds, void(*fn)(void), float minDelta, void(*synFn)(Property & property))
 {
-  return addPropertyToContainer(_thing_property_container, property, name, permission, tag);
-}
-
-void ArduinoIoTCloudLPWAN::addInternalPropertyReal(Property& property, String name, int tag, permissionType permission_type, long seconds, void(*fn)(void), float minDelta, void(*synFn)(Property & property))
-{
-  Permission permission = Permission::ReadWrite;
-  if (permission_type == READ) {
-    permission = Permission::Read;
-  } else if (permission_type == WRITE) {
-    permission = Permission::Write;
-  } else {
-    permission = Permission::ReadWrite;
-  }
-
   if (seconds == ON_CHANGE) {
-    addPropertyToContainer(_thing_property_container, property, name, permission, tag).publishOnChange(minDelta, Property::DEFAULT_MIN_TIME_BETWEEN_UPDATES_MILLIS).onUpdate(fn).onSync(synFn);
-  } else {
-    addPropertyToContainer(_thing_property_container, property, name, permission, tag).publishEvery(seconds).onUpdate(fn).onSync(synFn);
-  }
+    return addPropertyToContainer(_thing_property_container, property, name, permission, tag).publishOnChange(minDelta, Property::DEFAULT_MIN_TIME_BETWEEN_UPDATES_MILLIS).onUpdate(fn).onSync(synFn);
+  } 
+  return addPropertyToContainer(_thing_property_container, property, name, permission, tag).publishEvery(seconds).onUpdate(fn).onSync(synFn);
 }
 
 void ArduinoIoTCloudLPWAN::push()

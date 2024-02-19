@@ -122,8 +122,7 @@ class ArduinoIoTCloudClass
     Property& addPropertyReal(unsigned int& property, String name, int tag, Permission const permission);
     Property& addPropertyReal(String& property, String name, int tag, Permission const permission);
 
-    virtual void addInternalPropertyReal(Property& property, String name, int tag, permissionType permission_type = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, float minDelta = 0.0f, void(*synFn)(Property & property) = CLOUD_WINS) = 0;
-    virtual Property& addInternalPropertyReal(Property& property, String name, int tag, Permission const permission) = 0;
+    virtual Property&  addInternalPropertyReal(Property& property, String name, int tag, Permission const permission, long seconds = ON_CHANGE, void(*fn)(void) = NULL, float minDelta = 0.0f, void(*synFn)(Property & property) = CLOUD_WINS) = 0;
 
     void execCloudEventCallback(ArduinoIoTCloudEvent const event);
 
@@ -137,8 +136,6 @@ class ArduinoIoTCloudClass
     String _lib_version;
 
   private:
-
-    void addPropertyRealInternal(Property& property, String name, int tag, permissionType permission_type = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, float minDelta = 0.0f, void(*synFn)(Property & property) = CLOUD_WINS);
 
     String _device_id;
     OnCloudEventCallback _cloud_event_callback[3];
