@@ -126,56 +126,66 @@ Property& ArduinoIoTCloudClass::addPropertyReal(Property& property, String name,
 /* The following methods are deprecated but still used for non-LoRa boards */
 void ArduinoIoTCloudClass::addPropertyReal(bool& property, String name, permissionType permission_type, long seconds, void(*fn)(void), float minDelta, void(*synFn)(Property & property))
 {
-  addPropertyReal(property, name, -1, permission_type, seconds, fn, minDelta, synFn);
+  Property* p = new CloudWrapperBool(property);
+  addPropertyRealInternal(*p, name, -1, permission_type, seconds, fn, minDelta, synFn);
 }
 void ArduinoIoTCloudClass::addPropertyReal(float& property, String name, permissionType permission_type, long seconds, void(*fn)(void), float minDelta, void(*synFn)(Property & property))
 {
-  addPropertyReal(property, name, -1, permission_type, seconds, fn, minDelta, synFn);
+  Property* p = new CloudWrapperFloat(property);
+  addPropertyRealInternal(*p, name, -1, permission_type, seconds, fn, minDelta, synFn);
 }
 void ArduinoIoTCloudClass::addPropertyReal(int& property, String name, permissionType permission_type, long seconds, void(*fn)(void), float minDelta, void(*synFn)(Property & property))
 {
-  addPropertyReal(property, name, -1, permission_type, seconds, fn, minDelta, synFn);
+  Property* p = new CloudWrapperInt(property);
+  addPropertyRealInternal(*p, name, -1, permission_type, seconds, fn, minDelta, synFn);
 }
 void ArduinoIoTCloudClass::addPropertyReal(unsigned int& property, String name, permissionType permission_type, long seconds, void(*fn)(void), float minDelta, void(*synFn)(Property & property))
 {
-  addPropertyReal(property, name, -1, permission_type, seconds, fn, minDelta, synFn);
+  Property* p = new CloudWrapperUnsignedInt(property);
+  addPropertyRealInternal(*p, name, -1, permission_type, seconds, fn, minDelta, synFn);
 }
 void ArduinoIoTCloudClass::addPropertyReal(String& property, String name, permissionType permission_type, long seconds, void(*fn)(void), float minDelta, void(*synFn)(Property & property))
 {
-  addPropertyReal(property, name, -1, permission_type, seconds, fn, minDelta, synFn);
+  Property* p = new CloudWrapperString(property);
+  addPropertyRealInternal(*p, name, -1, permission_type, seconds, fn, minDelta, synFn);
 }
 void ArduinoIoTCloudClass::addPropertyReal(Property& property, String name, permissionType permission_type, long seconds, void(*fn)(void), float minDelta, void(*synFn)(Property & property))
 {
-  addPropertyReal(property, name, -1, permission_type, seconds, fn, minDelta, synFn);
+  addPropertyRealInternal(property, name, -1, permission_type, seconds, fn, minDelta, synFn);
 }
 
 /* The following methods are deprecated but still used for both LoRa and non-LoRa boards */
 void ArduinoIoTCloudClass::addPropertyReal(bool& property, String name, int tag, permissionType permission_type, long seconds, void(*fn)(void), float minDelta, void(*synFn)(Property & property))
 {
   Property* p = new CloudWrapperBool(property);
-  addPropertyReal(*p, name, tag, permission_type, seconds, fn, minDelta, synFn);
+  addPropertyRealInternal(*p, name, tag, permission_type, seconds, fn, minDelta, synFn);
 }
 void ArduinoIoTCloudClass::addPropertyReal(float& property, String name, int tag, permissionType permission_type, long seconds, void(*fn)(void), float minDelta, void(*synFn)(Property & property))
 {
   Property* p = new CloudWrapperFloat(property);
-  addPropertyReal(*p, name, tag, permission_type, seconds, fn, minDelta, synFn);
+  addPropertyRealInternal(*p, name, tag, permission_type, seconds, fn, minDelta, synFn);
 }
 void ArduinoIoTCloudClass::addPropertyReal(int& property, String name, int tag, permissionType permission_type, long seconds, void(*fn)(void), float minDelta, void(*synFn)(Property & property))
 {
   Property* p = new CloudWrapperInt(property);
-  addPropertyReal(*p, name, tag, permission_type, seconds, fn, minDelta, synFn);
+  addPropertyRealInternal(*p, name, tag, permission_type, seconds, fn, minDelta, synFn);
 }
 void ArduinoIoTCloudClass::addPropertyReal(unsigned int& property, String name, int tag, permissionType permission_type, long seconds, void(*fn)(void), float minDelta, void(*synFn)(Property & property))
 {
   Property* p = new CloudWrapperUnsignedInt(property);
-  addPropertyReal(*p, name, tag, permission_type, seconds, fn, minDelta, synFn);
+  addPropertyRealInternal(*p, name, tag, permission_type, seconds, fn, minDelta, synFn);
 }
 void ArduinoIoTCloudClass::addPropertyReal(String& property, String name, int tag, permissionType permission_type, long seconds, void(*fn)(void), float minDelta, void(*synFn)(Property & property))
 {
   Property* p = new CloudWrapperString(property);
-  addPropertyReal(*p, name, tag, permission_type, seconds, fn, minDelta, synFn);
+  addPropertyRealInternal(*p, name, tag, permission_type, seconds, fn, minDelta, synFn);
 }
 void ArduinoIoTCloudClass::addPropertyReal(Property& property, String name, int tag, permissionType permission_type, long seconds, void(*fn)(void), float minDelta, void(*synFn)(Property & property))
+{
+  addPropertyRealInternal(property, name, tag, permission_type, seconds, fn, minDelta, synFn);
+}
+
+void ArduinoIoTCloudClass::addPropertyRealInternal(Property& property, String name, int tag, permissionType permission_type, long seconds, void(*fn)(void), float minDelta, void(*synFn)(Property & property))
 {
   Permission permission = Permission::ReadWrite;
   if (permission_type == READ) {
