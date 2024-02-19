@@ -39,20 +39,14 @@ class ArduinoIoTCloudLPWAN : public ArduinoIoTCloudClass
     virtual void update        () override;
     virtual int  connected     () override;
     virtual void printDebugInfo() override;
-    virtual void     setThingId (String const thing_id)  override;
-    virtual String & getThingId ()                       override;
-    virtual bool    deviceNotAttached()                 override;
-    virtual void     setThingIdOutdatedFlag()            override;
-    virtual void     clrThingIdOutdatedFlag()            override;
-    virtual bool     getThingIdOutdatedFlag()            override;
 
-    inline void     setThingIdOutdatedFlag()            { _thing_id_outdated = true ; }
-    inline void     clrThingIdOutdatedFlag()            { _thing_id_outdated = false ; }
-    inline bool     getThingIdOutdatedFlag()            { return _thing_id_outdated; }
+    virtual inline void     setThingIdOutdatedFlag()            { _thing_id_outdated = true ; }
+    virtual inline void     clrThingIdOutdatedFlag()            { _thing_id_outdated = false ; }
+    virtual inline bool     getThingIdOutdatedFlag()            { return _thing_id_outdated; }
 
-    inline void     setThingId (String const thing_id)  { _thing_id = thing_id; };
-    inline String &  getThingId ()                       { return _thing_id; };
-    inline bool     deviceNotAttached()                 { return _thing_id == ""; }
+    virtual inline void     setThingId (String const thing_id)  { _thing_id = thing_id; };
+    virtual inline String &  getThingId ()                       { return _thing_id; };
+    virtual inline bool     deviceNotAttached()                 { return _thing_id == ""; }
 
     int begin(ConnectionHandler& connection, bool retry = false);
 
@@ -64,6 +58,11 @@ class ArduinoIoTCloudLPWAN : public ArduinoIoTCloudClass
     inline void setMaxRetry     (int val)  { _maxNumRetry = val; }
     inline void setIntervalRetry(long val) { _intervalRetry = val; }
 
+    virtual void addInternalPropertyReal(Property& property, String name, int tag, permissionType permission_type = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, float minDelta = 0.0f, void(*synFn)(Property & property) = CLOUD_WINS) override;
+    virtual Property& addInternalPropertyReal(Property& property, String name, int tag, Permission const permission) override;
+
+    virtual void push() override;
+    virtual bool setTimestamp(String const & prop_name, unsigned long const timestamp) override;
 
   private:
 
