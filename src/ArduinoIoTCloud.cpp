@@ -160,15 +160,7 @@ void ArduinoIoTCloudClass::addPropertyReal(String& property, String name, int ta
 }
 void ArduinoIoTCloudClass::addPropertyReal(Property& property, String name, int tag, permissionType permission_type, long seconds, void(*fn)(void), float minDelta, void(*synFn)(Property & property))
 {
-  Permission permission = Permission::ReadWrite;
-  if (permission_type == READ) {
-    permission = Permission::Read;
-  } else if (permission_type == WRITE) {
-    permission = Permission::Write;
-  } else {
-    permission = Permission::ReadWrite;
-  }
-  addInternalPropertyReal(property, name, tag, permission, seconds, fn, minDelta, synFn);
+  addInternalPropertyReal(property, name, tag, permission_type, seconds, fn, minDelta, synFn);
 }
 
 void ArduinoIoTCloudClass::execCloudEventCallback(ArduinoIoTCloudEvent const event)

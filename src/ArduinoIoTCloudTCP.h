@@ -87,7 +87,8 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
     virtual void     clrThingIdOutdatedFlag()            override;
     virtual bool     getThingIdOutdatedFlag()            override;
 
-    virtual Property& addInternalPropertyReal(Property& property, String name, int tag, Permission const permission, long seconds = ON_CHANGE, void(*fn)(void) = NULL, float minDelta = 0.0f, void(*synFn)(Property & property) = CLOUD_WINS) override;
+    virtual void addInternalPropertyReal(Property& property, String name, int tag, permissionType permission_type = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, float minDelta = 0.0f, void(*synFn)(Property & property) = CLOUD_WINS) override;
+    virtual Property& addInternalPropertyReal(Property& property, String name, int tag, Permission const permission) override;
 
     virtual void push() override;
     virtual bool setTimestamp(String const & prop_name, unsigned long const timestamp) override;

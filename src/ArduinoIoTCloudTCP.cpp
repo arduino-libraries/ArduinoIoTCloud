@@ -244,8 +244,21 @@ int ArduinoIoTCloudTCP::begin(bool const enable_watchdog, String brokerAddress, 
   return 1;
 }
 
-Property& ArduinoIoTCloudTCP::addInternalPropertyReal(Property& property, String name, int tag, Permission const permission, long seconds, void(*fn)(void), float minDelta, void(*synFn)(Property & property))
+Property& ArduinoIoTCloudTCP::addInternalPropertyReal(Property& property, String name, int tag, Permission const permission)
 {
+  return _arduinoCloudThing.addPropertyReal(property, name, tag, permission);
+}
+
+void ArduinoIoTCloudTCP::addInternalPropertyReal(Property& property, String name, int tag, permissionType permission_type, long seconds, void(*fn)(void), float minDelta, void(*synFn)(Property & property))
+{
+  Permission permission = Permission::ReadWrite;
+  if (permission_type == READ) {
+    permission = Permission::Read;
+  } else if (permission_type == WRITE) {
+    permission = Permission::Write;
+  } else {
+    permission = Permission::ReadWrite;
+  }
   _arduinoCloudThing.addPropertyReal(property, name, tag, permission).publishOnChange(minDelta, Property::DEFAULT_MIN_TIME_BETWEEN_UPDATES_MILLIS).onUpdate(fn).onSync(synFn);
 }
 

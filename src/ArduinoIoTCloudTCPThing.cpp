@@ -105,12 +105,27 @@ int ArduinoIoTCloudTCPThing::connected()
   return _mqttClient->connected();
 }
 
-Property&  ArduinoIoTCloudTCPThing::addPropertyReal(Property& property, String name, int tag, Permission const permission, long seconds, void(*fn)(void), float minDelta, void(*synFn)(Property & property))
+Property& ArduinoIoTCloudTCPThing::addPropertyReal(Property& property, String name, int tag, Permission const permission)
 {
-  if (seconds == ON_CHANGE) {
-    return addPropertyToContainer(_thing_property_container, property, name, permission, tag).publishOnChange(minDelta, Property::DEFAULT_MIN_TIME_BETWEEN_UPDATES_MILLIS).onUpdate(fn).onSync(synFn);
+  return addPropertyToContainer(_thing_property_container, property, name, permission, tag);
+}
+
+void ArduinoIoTCloudTCPThing::addPropertyReal(Property& property, String name, int tag, permissionType permission_type, long seconds, void(*fn)(void), float minDelta, void(*synFn)(Property & property))
+{
+  Permission permission = Permission::ReadWrite;
+  if (permission_type == READ) {
+    permission = Permission::Read;
+  } else if (permission_type == WRITE) {
+    permission = Permission::Write;
+  } else {
+    permission = Permission::ReadWrite;
   }
-  return addPropertyToContainer(_thing_property_container, property, name, permission, tag).publishEvery(seconds).onUpdate(fn).onSync(synFn);
+
+  if (seconds == ON_CHANGE) {
+    addPropertyToContainer(_thing_property_container, property, name, permission, tag).publishOnChange(minDelta, Property::DEFAULT_MIN_TIME_BETWEEN_UPDATES_MILLIS).onUpdate(fn).onSync(synFn);
+  } else {
+    addPropertyToContainer(_thing_property_container, property, name, permission, tag).publishEvery(seconds).onUpdate(fn).onSync(synFn);
+  }
 }
 
 void ArduinoIoTCloudTCPThing::push()

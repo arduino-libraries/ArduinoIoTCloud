@@ -52,7 +52,8 @@ class ArduinoIoTCloudTCPThing
     int connected();
     void updateTimezoneInfo();
 
-    Property& addPropertyReal(Property& property, String name, int tag, Permission const permission, long seconds = ON_CHANGE, void(*fn)(void) = NULL, float minDelta = 0.0f, void(*synFn)(Property & property) = CLOUD_WINS);
+    void addPropertyReal(Property& property, String name, int tag, permissionType permission_type = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, float minDelta = 0.0f, void(*synFn)(Property & property) = CLOUD_WINS) __attribute__((deprecated("Use addProperty(property, Permission::ReadWrite) instead.")));
+    Property& addPropertyReal(Property& property, String name, int tag, Permission const permission);
     
     void push();
     bool setTimestamp(String const & prop_name, unsigned long const timestamp);
