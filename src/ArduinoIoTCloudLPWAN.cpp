@@ -61,7 +61,7 @@ ArduinoIoTCloudLPWAN::ArduinoIoTCloudLPWAN()
 
 int ArduinoIoTCloudLPWAN::connected()
 {
-  return (_connection->getStatus() == NetworkConnectionState::CONNECTED) ? 1 : 0;
+  return (_connection->check() == NetworkConnectionState::CONNECTED) ? 1 : 0;
 }
 
 int ArduinoIoTCloudLPWAN::begin(ConnectionHandler& connection, bool retry)
