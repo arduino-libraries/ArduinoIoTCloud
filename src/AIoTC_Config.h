@@ -18,6 +18,8 @@
 #ifndef ARDUINO_AIOTC_CONFIG_H_
 #define ARDUINO_AIOTC_CONFIG_H_
 
+#include <ArduinoECCX08Config.h>
+
 /******************************************************************************
  * USER CONFIGURABLE DEFINES
  ******************************************************************************/
