@@ -98,9 +98,7 @@ ArduinoIoTCloudTCP::ArduinoIoTCloudTCP()
 , _arduinoCloudThing()
 , _deviceTopicOut("")
 , _deviceTopicIn("")
-, _shadowTopicOut("")
 , _shadowTopicIn("")
-, _dataTopicOut("")
 , _dataTopicIn("")
 #if OTA_ENABLED
 , _ota_cap{false}
@@ -604,9 +602,7 @@ int ArduinoIoTCloudTCP::write(String const topic, byte const data[], int const l
 
 void ArduinoIoTCloudTCP::updateThingTopics()
 {
-  _shadowTopicOut = getTopic_shadowout();
   _shadowTopicIn  = getTopic_shadowin();
-  _dataTopicOut   = getTopic_dataout();
   _dataTopicIn    = getTopic_datain();
 
   clrThingIdOutdatedFlag();

@@ -128,11 +128,9 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
       SyncTime,
       ConnectMqttBroker,
       SendDeviceProperties,
+      CheckDeviceConfig,
       SubscribeDeviceTopic,
       WaitDeviceConfig,
-      CheckDeviceConfig,
-      SubscribeThingTopics,
-      RequestLastValues,
       Connected,
       Disconnect,
     };
@@ -184,9 +182,7 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
 
     String _deviceTopicOut;
     String _deviceTopicIn;
-    String _shadowTopicOut;
     String _shadowTopicIn;
-    String _dataTopicOut;
     String _dataTopicIn;
 
 #if OTA_ENABLED
