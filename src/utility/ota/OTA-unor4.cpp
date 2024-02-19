@@ -92,14 +92,14 @@ static int unor4_codeFlashClose(flash_lp_instance_ctrl_t * ctrl)
 
 int unor4_onOTARequest(char const * ota_url)
 {
-  OTAUpdate::Error ota_err = OTAUpdate::Error::None;
+  int ota_err = static_cast<int>(OTAUpdate::Error::None);
   OTAUpdate ota;
 
   /* Initialize the board for OTA handling. */
-  if ((ota_err = ota.begin("/update.bin")) != OTAUpdate::Error::None)
+  if ((ota_err = static_cast<int>(ota.begin("/update.bin"))) != static_cast<int>(OTAUpdate::Error::None))
   {
-    DEBUG_ERROR("OTAUpdate::begin() failed with %d", static_cast<int>(ota_err));
-    return static_cast<int>(ota_err);
+    DEBUG_ERROR("OTAUpdate::begin() failed with %d", ota_err);
+    return ota_err;
   }
 
   /* Download the OTA file from the web storage location. */
@@ -109,23 +109,23 @@ int unor4_onOTARequest(char const * ota_url)
     DEBUG_ERROR("OTAUpdate::download() failed with %d", ota_download);
     return ota_download;
   }
-  DEBUG_VERBOSE("OTAUpdate::download() %d bytes downloaded", static_cast<int>(ota_download));
+  DEBUG_VERBOSE("OTAUpdate::download() %d bytes downloaded", ota_download);
 
   /* Verify update integrity */
-  if ((ota_err = ota.verify()) != OTAUpdate::Error::None)
+  if ((ota_err = static_cast<int>(ota.verify())) != static_cast<int>(OTAUpdate::Error::None))
   {
-    DEBUG_ERROR("OTAUpdate::verify() failed with %d", static_cast<int>(ota_err));
-    return static_cast<int>(ota_err);
+    DEBUG_ERROR("OTAUpdate::verify() failed with %d", ota_err);
+    return ota_err;
   }
 
   /* Store update size and write OTA magin number */
   unor4_setOTASize(ota_download);
 
   /* Flash new firmware */
-  if ((ota_err = ota.update("/update.bin")) != OTAUpdate::Error::None)
+  if ((ota_err = static_cast<int>(ota.update("/update.bin"))) != static_cast<int>(OTAUpdate::Error::None))
   {
-    DEBUG_ERROR("OTAUpdate::update() failed with %d", static_cast<int>(ota_err));
-    return static_cast<int>(ota_err);
+    DEBUG_ERROR("OTAUpdate::update() failed with %d", ota_err);
+    return ota_err;
   }
 
   return static_cast<int>(OTAUpdate::Error::None);
