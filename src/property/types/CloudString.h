@@ -52,6 +52,9 @@ class CloudString : public Property {
     virtual bool isDifferentFromCloud() {
       return _value != _cloud_value;
     }
+    virtual String & getValue() {
+      return _value;
+    }
     virtual void fromCloudToLocal() {
       _value = _cloud_value;
     }

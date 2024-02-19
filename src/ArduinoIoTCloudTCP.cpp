@@ -60,16 +60,6 @@ unsigned long getTime()
   return ArduinoCloud.getInternalTime();
 }
 
-void updateTimezoneInfo()
-{
-  ArduinoCloud.updateInternalTimezoneInfo();
-}
-
-void setThingIdOutdated()
-{
-  ArduinoCloud.setThingIdOutdatedFlag();
-}
-
 /******************************************************************************
    CTOR/DTOR
  ******************************************************************************/
@@ -203,11 +193,11 @@ int ArduinoIoTCloudTCP::begin(bool const enable_watchdog, String brokerAddress, 
   p = new CloudWrapperBool(_ota_req);
   addPropertyToContainer(_device_property_container, *p, "OTA_REQ", Permission::ReadWrite, -1);
 #endif /* OTA_ENABLED */
-  p = new CloudWrapperString(_thing_id);
-  addPropertyToContainer(_device_property_container, *p, "thing_id", Permission::ReadWrite, -1).onUpdate(setThingIdOutdated);
 
-  addPropertyReal(_tz_offset, "tz_offset", Permission::ReadWrite).onSync(CLOUD_WINS).onUpdate(updateTimezoneInfo);
-  addPropertyReal(_tz_dst_until, "tz_dst_until", Permission::ReadWrite).onSync(CLOUD_WINS).onUpdate(updateTimezoneInfo);
+  addPropertyToContainer(_device_property_container, _thing_id, "thing_id", Permission::Read, -1);
+
+  addPropertyToContainer(_thing_property_container, _tz_offset, "tz_offset", Permission::Read, -1);
+  addPropertyToContainer(_thing_property_container, _tz_dst_until, "tz_dst_until", Permission::Read, -1);
 
 #if OTA_ENABLED
   _ota_cap = OTA::isCapable();
@@ -389,7 +379,7 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_WaitDeviceConfig()
     return State::Disconnect;
   }
 
-  if (getThingIdOutdatedFlag())
+  if(_thing_id.isDifferentFromCloud())
   {
     return State::CheckDeviceConfig;
   }
@@ -425,7 +415,7 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_CheckDeviceConfig()
 
   updateThingTopics();
 
-  if (deviceNotAttached())
+  if (_thing_id.getValue().length() == 0)
   {
     /* Configuration received but device not attached. Wait: 40s */
     unsigned long attach_retry_delay = (1 << _last_device_attach_cnt) * AIOT_CONFIG_DEVICE_TOPIC_SUBSCRIBE_RETRY_DELAY_ms;
@@ -448,7 +438,7 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_SubscribeThingTopics()
     return State::Disconnect;
   }
 
-  if (getThingIdOutdatedFlag())
+  if (_thing_id.isDifferentFromCloud())
   {
     return State::CheckDeviceConfig;
   }
@@ -504,7 +494,7 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_RequestLastValues()
     return State::Disconnect;
   }
 
-  if (getThingIdOutdatedFlag())
+  if (_thing_id.isDifferentFromCloud())
   {
     return State::CheckDeviceConfig;
   }
@@ -547,7 +537,7 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_Connected()
   /* We are connected so let's to our stuff here. */
   else
   {
-    if (getThingIdOutdatedFlag())
+    if (_thing_id.isDifferentFromCloud())
     {
       return State::CheckDeviceConfig;
     }
@@ -599,13 +589,26 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_Connected()
 
 #endif /* OTA_ENABLED */
 
+    /* Configure Time service with timezone data:
+    * _tz_offset [offset + dst]
+    * _tz_dst_until [posix timestamp until _tz_offset is valid]
+    */
+    if (_tz_offset.isDifferentFromCloud() || _tz_dst_until.isDifferentFromCloud()) {
+      _tz_offset.fromCloudToLocal();
+      _tz_dst_until.fromCloudToLocal();
+      _time_service.setTimeZoneData(_tz_offset, _tz_dst_until);
+    }
+
     /* Check if any properties need encoding and send them to
     * the cloud if necessary.
     */
     sendThingPropertiesToCloud();
 
+    /* Check if stored timezone data needs to be updated and
+    * if data is expired issue a LastValue request to the cloud.
+    */
     unsigned long const internal_posix_time = _time_service.getTime();
-    if(internal_posix_time < _tz_dst_until) {
+    if (internal_posix_time < _tz_dst_until) {
       return State::Connected;
     } else {
       return State::RequestLastValues;
@@ -653,7 +656,6 @@ void ArduinoIoTCloudTCP::handleMessage(int length)
   {
     DEBUG_VERBOSE("ArduinoIoTCloudTCP::%s [%d] last values received", __FUNCTION__, millis());
     CBORDecoder::decode(_thing_property_container, (uint8_t*)bytes, length, true);
-    _time_service.setTimeZoneData(_tz_offset, _tz_dst_until);
     execCloudEventCallback(ArduinoIoTCloudEvent::SYNC);
     _last_sync_request_cnt = 0;
     _last_sync_request_tick = 0;
@@ -741,12 +743,12 @@ int ArduinoIoTCloudTCP::write(String const topic, byte const data[], int const l
 
 void ArduinoIoTCloudTCP::updateThingTopics()
 {
+  _thing_id.fromCloudToLocal();
+
   _shadowTopicOut = getTopic_shadowout();
   _shadowTopicIn  = getTopic_shadowin();
   _dataTopicOut   = getTopic_dataout();
   _dataTopicIn    = getTopic_datain();
-
-  clrThingIdOutdatedFlag();
 }
 
 /******************************************************************************

@@ -114,16 +114,22 @@ void updateProperty(PropertyContainer & prop_cont, String propertyName, unsigned
 {
   Property * property = getProperty(prop_cont, propertyName);
 
-  if (property && property->isWriteableByCloud())
+  if (property )
   {
+    /* Update _cloud_value */
     property->setLastCloudChangeTimestamp(cloudChangeEventTime);
     property->setAttributesFromCloud(map_data_list);
-    if (is_sync_message) {
-      property->execCallbackOnSync();
-    } else {
-      property->fromCloudToLocal();
-      property->execCallbackOnChange();
-      property->provideEcho();
+
+    /* Update _value */
+    if (property->isWriteableByCloud())
+    {
+      if (is_sync_message) {
+        property->execCallbackOnSync();
+      } else {
+        property->fromCloudToLocal();
+        property->execCallbackOnChange();
+        property->provideEcho();
+      }
     }
   }
 }
