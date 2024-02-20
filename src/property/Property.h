@@ -125,6 +125,10 @@ enum class UpdatePolicy {
   OnChange, TimeInterval, OnDemand
 };
 
+enum class WritePolicy {
+  Auto, Manual
+};
+
 typedef void(*UpdateCallbackFunc)(void);
 typedef unsigned long(*GetTimeCallbackFunc)();
 class Property;
@@ -147,6 +151,8 @@ class Property
     Property & publishEvery(unsigned long const seconds);
     Property & publishOnDemand();
     Property & encodeTimestamp();
+    Property & writeOnChange();
+    Property & writeOnDemand();
 
     inline String name() const {
       return _name;
@@ -159,6 +165,9 @@ class Property
     }
     inline bool   isWriteableByCloud() const {
       return (_permission == Permission::Write) || (_permission == Permission::ReadWrite);
+    }
+    inline bool   isWritableOnChange() const {
+      return _write_policy == WritePolicy::Auto;
     }
 
     void setTimestamp(unsigned long const timestamp);
@@ -209,6 +218,7 @@ class Property
 
   private:
     Permission         _permission;
+    WritePolicy        _write_policy;
     GetTimeCallbackFunc _get_time_func;
     UpdateCallbackFunc _update_callback_func;
     OnSyncCallbackFunc _on_sync_callback_func;
@@ -219,7 +229,7 @@ class Property
                        _has_been_appended_but_not_sended;
     /* Variables used for UpdatePolicy::TimeInterval */
     unsigned long      _last_updated_millis,
-             _update_interval_millis;
+                       _update_interval_millis;
     /* Variables used for reconnection sync*/
     unsigned long      _last_local_change_timestamp;
     unsigned long      _last_cloud_change_timestamp;
