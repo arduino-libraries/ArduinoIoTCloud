@@ -53,17 +53,16 @@ unsigned long getTime()
   return ArduinoCloud.getInternalTime();
 }
 
-void updateTimezoneInfo()
-{
-  ArduinoCloud.updateInternalTimezoneInfo();
-}
-
 /******************************************************************************
    CTOR/DTOR
  ******************************************************************************/
 
 ArduinoIoTCloudTCP::ArduinoIoTCloudTCP()
 : _state{State::ConnectPhy}
+, _tz_offset{0}
+, _tz_offset_property{nullptr}
+, _tz_dst_until{0}
+, _tz_dst_until_property{nullptr}
 , _next_connection_attempt_tick{0}
 , _last_connection_attempt_cnt{0}
 , _next_device_subscribe_attempt_tick{0}
@@ -214,9 +213,10 @@ int ArduinoIoTCloudTCP::begin(bool const enable_watchdog, String brokerAddress, 
 #endif /* OTA_ENABLED */
   p = new CloudWrapperString(_thing_id);
   _thing_id_property = &addPropertyToContainer(_device_property_container, *p, "thing_id", Permission::ReadWrite, -1).writeOnDemand();
-
-  addPropertyReal(_tz_offset, "tz_offset", Permission::ReadWrite).onSync(CLOUD_WINS).onUpdate(updateTimezoneInfo);
-  addPropertyReal(_tz_dst_until, "tz_dst_until", Permission::ReadWrite).onSync(CLOUD_WINS).onUpdate(updateTimezoneInfo);
+  p = new CloudWrapperInt(_tz_offset);
+  _tz_offset_property = &addPropertyToContainer(_thing_property_container, *p, "tz_offset", Permission::ReadWrite, -1).writeOnDemand();
+  p = new CloudWrapperUnsignedInt(_tz_dst_until);
+  _tz_dst_until_property = &addPropertyToContainer(_thing_property_container, *p, "tz_dst_until", Permission::ReadWrite, -1).writeOnDemand();
 
 #if OTA_ENABLED
   _ota_cap = OTA::isCapable();
@@ -584,13 +584,23 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_Connected()
       _mqtt_data_request_retransmit = false;
     }
 
+    /* Configure Time service with timezone data:
+    * _tz_offset [offset + dst]
+    * _tz_dst_until [posix timestamp until _tz_offset is valid]
+    */
+    if (_tz_offset_property->isDifferentFromCloud() || _tz_dst_until_property->isDifferentFromCloud()) {
+      _tz_offset_property->fromCloudToLocal();
+      _tz_dst_until_property->fromCloudToLocal();
+      _time_service.setTimeZoneData(_tz_offset, _tz_dst_until);
+    }
+
     /* Check if any properties need encoding and send them to
     * the cloud if necessary.
     */
     sendThingPropertiesToCloud();
 
     unsigned long const internal_posix_time = _time_service.getTime();
-    if(internal_posix_time < _tz_dst_until) {
+    if (internal_posix_time < _tz_dst_until) {
       return State::Connected;
     } else {
       return State::RequestLastValues;
