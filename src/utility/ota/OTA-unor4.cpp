@@ -42,6 +42,8 @@
 #define OTA_MAGIC (*((volatile uint16_t *) &R_SYSTEM->VBTBKR[4]))
 #define OTA_SIZE  (*((volatile uint32_t *) &R_SYSTEM->VBTBKR[6]))
 
+#define UNO_WIFI_R4_OTA_ERROR_BASE  (-400)
+
 /******************************************************************************
  * FUNCTION DEFINITION
  ******************************************************************************/
@@ -99,7 +101,7 @@ int unor4_onOTARequest(char const * ota_url)
   if ((ota_err = ota.begin("/update.bin")) != OTAUpdate::Error::None)
   {
     DEBUG_ERROR("OTAUpdate::begin() failed with %d", static_cast<int>(ota_err));
-    return static_cast<int>(ota_err);
+    return (UNO_WIFI_R4_OTA_ERROR_BASE + static_cast<int>(ota_err));
   }
 
   /* Download the OTA file from the web storage location. */
@@ -107,7 +109,7 @@ int unor4_onOTARequest(char const * ota_url)
   if (ota_download <= 0)
   {
     DEBUG_ERROR("OTAUpdate::download() failed with %d", ota_download);
-    return ota_download;
+    return (UNO_WIFI_R4_OTA_ERROR_BASE + ota_download);
   }
   DEBUG_VERBOSE("OTAUpdate::download() %d bytes downloaded", static_cast<int>(ota_download));
 
@@ -115,7 +117,7 @@ int unor4_onOTARequest(char const * ota_url)
   if ((ota_err = ota.verify()) != OTAUpdate::Error::None)
   {
     DEBUG_ERROR("OTAUpdate::verify() failed with %d", static_cast<int>(ota_err));
-    return static_cast<int>(ota_err);
+    return (UNO_WIFI_R4_OTA_ERROR_BASE + static_cast<int>(ota_err));
   }
 
   /* Store update size and write OTA magin number */
@@ -125,7 +127,7 @@ int unor4_onOTARequest(char const * ota_url)
   if ((ota_err = ota.update("/update.bin")) != OTAUpdate::Error::None)
   {
     DEBUG_ERROR("OTAUpdate::update() failed with %d", static_cast<int>(ota_err));
-    return static_cast<int>(ota_err);
+    return (UNO_WIFI_R4_OTA_ERROR_BASE + static_cast<int>(ota_err));
   }
 
   return static_cast<int>(OTAUpdate::Error::None);
