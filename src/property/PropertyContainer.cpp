@@ -121,7 +121,9 @@ void updateProperty(PropertyContainer & prop_cont, String propertyName, unsigned
     if (is_sync_message) {
       property->execCallbackOnSync();
     } else {
-      property->fromCloudToLocal();
+      if (property->isWritableOnChange()) {
+        property->fromCloudToLocal();
+      }
       property->execCallbackOnChange();
       property->provideEcho();
     }

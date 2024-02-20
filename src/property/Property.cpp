@@ -29,6 +29,7 @@ Property::Property()
 , _min_delta_property{0.0f}
 , _min_time_between_updates_millis{DEFAULT_MIN_TIME_BETWEEN_UPDATES_MILLIS}
 , _permission{Permission::Read}
+, _write_policy{WritePolicy::Auto}
 , _get_time_func{nullptr}
 , _update_callback_func{nullptr}
 , _on_sync_callback_func{nullptr}
@@ -99,6 +100,18 @@ Property & Property::publishOnDemand() {
 Property & Property::encodeTimestamp()
 {
   _encode_timestamp = true;
+  return (*this);
+}
+
+Property & Property::writeOnChange()
+{
+  _write_policy = WritePolicy::Auto;
+  return (*this);
+}
+
+Property & Property::writeOnDemand()
+{
+  _write_policy = WritePolicy::Manual;
   return (*this);
 }
 
