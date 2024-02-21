@@ -12,8 +12,12 @@ on:
       - "examples/**"
       - "src/**"
 
+env:
+  # It's convenient to set variables for values used multiple times in the workflow.
+  SKETCHES_REPORTS_PATH: sketches-reports
+
 jobs:
-  build:
+  compile:
     runs-on: ubuntu-latest
 
     env:
@@ -31,7 +35,6 @@ jobs:
         - examples/ArduinoIoTCloud-Callbacks
         - examples/ArduinoIoTCloud-Schedule
         - examples/utility/ArduinoIoTCloud_Travis_CI
-      SKETCHES_REPORTS_PATH: sketches-reports
 
     strategy:
       fail-fast: false
@@ -292,9 +295,28 @@ jobs:
           google-key-file: ${{ secrets.GOOGLE_KEY_FILE }}
           spreadsheet-id: 1I6NZkpZpf8KugBkE92adB1Z3_b7ZepOpCdYTOigJpN4
 
+      # This step is needed to pass the size data to the report job.
       - name: Save memory usage change report as artifact
         if: github.event_name == 'pull_request'
         uses: actions/upload-artifact@v4
         with:
           name: sketches-report-${{ matrix.board.artifact-name-suffix }}
           path: ${{ env.SKETCHES_REPORTS_PATH }}
+
+  # When using a matrix to compile for multiple boards, it's necessary to use a separate job for the deltas report
+  report:
+    needs: compile # Wait for the compile job to finish to get the data for the report
+    if: github.event_name == 'pull_request' # Only run the job when the workflow is triggered by a pull request
+    runs-on: ubuntu-latest
+
+    steps:
+      # This step is needed to get the size data produced by the compile jobs
+      - name: Download sketches reports artifacts
+        uses: actions/download-artifact@v4
+        with:
+          # All workflow artifacts will be downloaded to this location.
+          path: ${{ env.SKETCHES_REPORTS_PATH }}
+
+      - uses: arduino/report-size-deltas@v1
+        with:
+          sketches-reports-source: ${{ env.SKETCHES_REPORTS_PATH }}
