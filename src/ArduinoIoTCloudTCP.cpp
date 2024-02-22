@@ -564,7 +564,7 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_Connected()
     /* Retransmit data in case there was a lost transaction due
     * to phy layer or MQTT connectivity loss.
     */
-    if(_mqtt_data_request_retransmit && (_mqtt_data_len > 0)) {
+    if (_mqtt_data_request_retransmit && (_mqtt_data_len > 0)) {
       write(_dataTopicOut, _mqtt_data_buf, _mqtt_data_len);
       _mqtt_data_request_retransmit = false;
     }
