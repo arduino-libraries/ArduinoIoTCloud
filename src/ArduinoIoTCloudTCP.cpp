@@ -271,6 +271,12 @@ void ArduinoIoTCloudTCP::update()
   }
   _state = next_state;
 
+#if OTA_ENABLED
+  if (_state > State::SubscribeDeviceTopic && _state <= State::Connected) {
+    handle_OTARequest();
+  }
+#endif /* OTA_ENABLED */
+
   /* This watchdog feed is actually needed only by the RP2040 Connect because its
    * maximum watchdog window is 8389 ms; despite this we feed it for all 
    * supported ARCH to keep code aligned.
@@ -569,36 +575,6 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_Connected()
       _mqtt_data_request_retransmit = false;
     }
 
-#if OTA_ENABLED
-    /* Request a OTA download if the hidden property
-     * OTA request has been set.
-     */
-
-    if (_ota_req)
-    {
-      bool const ota_execution_allowed_by_user = (_get_ota_confirmation != nullptr && _get_ota_confirmation());
-      bool const perform_ota_now = ota_execution_allowed_by_user || !_ask_user_before_executing_ota;
-      if (perform_ota_now) {
-        /* Clear the error flag. */
-        _ota_error = static_cast<int>(OTAError::None);
-        /* Clear the request flag. */
-        _ota_req = false;
-        /* Transmit the cleared request flags to the cloud. */
-        sendDevicePropertyToCloud("OTA_REQ");
-        /* Call member function to handle OTA request. */
-        _ota_error = OTA::onRequest(_ota_url, _connection->getInterface());
-        /* If something fails send the OTA error to the cloud */
-        sendDevicePropertyToCloud("OTA_ERROR");
-      }
-    }
-
-    /* Check if we have received the OTA_URL property and provide
-    * echo to the cloud.
-    */
-    sendDevicePropertyToCloud("OTA_URL");
-
-#endif /* OTA_ENABLED */
-
     /* Check if any properties need encoding and send them to
     * the cloud if necessary.
     */
@@ -612,6 +588,37 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_Connected()
     }
   }
 }
+
+#if OTA_ENABLED
+void ArduinoIoTCloudTCP::handle_OTARequest() {
+  /* Request a OTA download if the hidden property
+  * OTA request has been set.
+  */
+
+  if (_ota_req)
+  {
+    bool const ota_execution_allowed_by_user = (_get_ota_confirmation != nullptr && _get_ota_confirmation());
+    bool const perform_ota_now = ota_execution_allowed_by_user || !_ask_user_before_executing_ota;
+    if (perform_ota_now) {
+      /* Clear the error flag. */
+      _ota_error = static_cast<int>(OTAError::None);
+      /* Clear the request flag. */
+      _ota_req = false;
+      /* Transmit the cleared request flags to the cloud. */
+      sendDevicePropertyToCloud("OTA_REQ");
+      /* Call member function to handle OTA request. */
+      _ota_error = OTA::onRequest(_ota_url, _connection->getInterface());
+      /* If something fails send the OTA error to the cloud */
+      sendDevicePropertyToCloud("OTA_ERROR");
+    }
+  }
+
+  /* Check if we have received the OTA_URL property and provide
+  * echo to the cloud.
+  */
+  sendDevicePropertyToCloud("OTA_URL");
+}
+#endif /* OTA_ENABLED */
 
 ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_Disconnect()
 {
