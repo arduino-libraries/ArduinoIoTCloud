@@ -100,6 +100,7 @@ jobs:
               # Install samd platform via Boards Manager
               - name: arduino:samd
             libraries: |
+              - name: ArduinoBearSSL
               - name: ArduinoECCX08
               - name: RTCZero
               - name: WiFi101
@@ -114,6 +115,7 @@ jobs:
               - name: arduino:samd
               - name: arduino:mbed_nano
             libraries: |
+              - name: ArduinoBearSSL
               - name: ArduinoECCX08
               - name: RTCZero
               - name: WiFiNINA
@@ -141,6 +143,7 @@ jobs:
               # Install samd platform via Boards Manager
               - name: arduino:samd
             libraries: |
+              - name: ArduinoBearSSL
               - name: ArduinoECCX08
               - name: RTCZero
               - name: MKRGSM
@@ -154,6 +157,7 @@ jobs:
               # Install samd platform via Boards Manager
               - name: arduino:samd
             libraries: |
+              - name: ArduinoBearSSL
               - name: ArduinoECCX08
               - name: RTCZero
               - name: MKRNB
@@ -167,6 +171,7 @@ jobs:
               # Install mbed_portenta platform via Boards Manager
               - name: arduino:mbed_portenta
             libraries: |
+              - name: ArduinoBearSSL
               - name: ArduinoECCX08
               - name: Arduino_Portenta_OTA
             sketch-paths: |
@@ -179,6 +184,7 @@ jobs:
               # Install mbed_nicla platform via Boards Manager
               - name: arduino:mbed_nicla
             libraries: |
+              - name: ArduinoBearSSL
               - name: Arduino_Portenta_OTA
             sketch-paths: |
               - examples/ArduinoIoTCloud-DeferredOTA
@@ -190,6 +196,7 @@ jobs:
               # Install mbed_opta platform via Boards Manager
               - name: arduino:mbed_opta
             libraries: |
+              - name: ArduinoBearSSL
               - name: ArduinoECCX08
               - name: Arduino_Portenta_OTA
             sketch-paths: |
@@ -202,6 +209,7 @@ jobs:
               # Install mbed_giga platform via Boards Manager
               - name: arduino:mbed_giga
             libraries: |
+              - name: ArduinoBearSSL
               - name: ArduinoECCX08
               - name: Arduino_Portenta_OTA
             sketch-paths: |
@@ -213,6 +221,8 @@ jobs:
             platforms: |
               # Install renesas_portenta platform via Boards Manager
               - name: arduino:renesas_portenta
+            libraries: |
+              - name: ArduinoBearSSL
             sketch-paths: |
               - examples/utility/Provisioning
           # UNO R4 WiFi
@@ -221,6 +231,8 @@ jobs:
             platforms: |
               # Install renesas_uno platform via Boards Manager
               - name: arduino:renesas_uno
+            libraries: |
+              - name: ArduinoBearSSL
           # Nano ESP32
           - board:
               type: arduino_esp32
@@ -228,6 +240,7 @@ jobs:
               # Install arduino_esp32 platform via Boards Manager
               - name: arduino:esp32
             libraries: |
+              - name: ArduinoBearSSL
               - name: Arduino_ESP32_OTA
             sketch-paths: |
               - examples/ArduinoIoTCloud-DeferredOTA
@@ -256,6 +269,7 @@ jobs:
               - name: esp32:esp32
                 source-url: https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json
             libraries: |
+              - name: ArduinoBearSSL
               - name: Arduino_ESP32_OTA
             sketch-paths: |
               - examples/ArduinoIoTCloud-DeferredOTA

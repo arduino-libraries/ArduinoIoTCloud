@@ -75,11 +75,12 @@ int CryptoUtil::buildCSR(ArduinoIoTCloudCertClass & cert, const CryptoSlot keySl
   }
 
   /* compute CSR SHA256 */
-  SHA256 sha256;
+  SHA256Class sha256;
   byte sha256buf[CRYPTO_SHA256_BUFFER_LENGTH];
-  sha256.begin();
-  sha256.update(cert.bytes(), cert.length());
-  sha256.finalize(sha256buf);
+  sha256.beginHash();
+  sha256.write(cert.bytes(), cert.length());
+  sha256.endHash();
+  sha256.readBytes(sha256buf, CRYPTO_SHA256_BUFFER_LENGTH);
 
   if (!_crypto.ecSign(static_cast<int>(keySlot), sha256buf, signature)) {
     return 0;

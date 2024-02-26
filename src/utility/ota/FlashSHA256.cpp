@@ -24,7 +24,7 @@
 
 #include "FlashSHA256.h"
 
-#include "../../tls/utility/SHA256.h"
+#include <SHA256.h>
 
 #include <Arduino_DebugUtils.h>
 
@@ -38,11 +38,11 @@
 
 String FlashSHA256::calc(uint32_t const start_addr, uint32_t const max_flash_size)
 {
-  SHA256  sha256;
+  SHA256Class  sha256;
   uint8_t chunk     [FLASH_READ_CHUNK_SIZE],
           next_chunk[FLASH_READ_CHUNK_SIZE];
 
-  sha256.begin();
+  sha256.beginHash();
 
   /* Read the first two chunks of flash. */
   uint32_t flash_addr = start_addr;
@@ -75,7 +75,7 @@ String FlashSHA256::calc(uint32_t const start_addr, uint32_t const max_flash_siz
           break;
       }
       /* Update with the remaining bytes. */
-      sha256.update(chunk, valid_bytes_in_chunk);
+      sha256.write(chunk, valid_bytes_in_chunk);
       bytes_read += valid_bytes_in_chunk;
       break;
     }
@@ -83,7 +83,7 @@ String FlashSHA256::calc(uint32_t const start_addr, uint32_t const max_flash_siz
     /* We've read a normal segment with the next segment not containing
      * any erased elements, just update the SHA256 hash calculation.
      */
-    sha256.update(chunk, FLASH_READ_CHUNK_SIZE);
+    sha256.write(chunk, FLASH_READ_CHUNK_SIZE);
     bytes_read += FLASH_READ_CHUNK_SIZE;
 
     /* Copy next_chunk to chunk. */
@@ -91,11 +91,12 @@ String FlashSHA256::calc(uint32_t const start_addr, uint32_t const max_flash_siz
   }
 
   /* Retrieve the final hash string. */
-  uint8_t sha256_hash[SHA256::HASH_SIZE] = {0};
-  sha256.finalize(sha256_hash);
+  uint8_t sha256_hash[SHA256_DIGEST_SIZE] = {0};
+  sha256.endHash();
+  sha256.readBytes(sha256_hash, SHA256_DIGEST_SIZE);
   String sha256_str;
   std::for_each(sha256_hash,
-                sha256_hash + SHA256::HASH_SIZE,
+                sha256_hash + SHA256_DIGEST_SIZE,
                 [&sha256_str](uint8_t const elem)
                 {
                   char buf[4];

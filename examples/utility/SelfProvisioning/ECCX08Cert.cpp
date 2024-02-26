@@ -22,7 +22,7 @@
 #include <ArduinoIoTCloud.h>
 #include <ArduinoECCX08.h>
 #include "ECCX08Cert.h"
-#include "tls/utility/SHA256.h"
+#include <SHA256.h>
 
 /******************************************************************************
  * DEFINE
@@ -188,13 +188,14 @@ String ECCX08CertClass::endCSR() {
   *out++ = 0xa0;
   *out++ = 0x00;
 
-  SHA256 sha256;
-  byte csrInfoSha256[64];
+  SHA256Class sha256;
+  byte csrInfoSha256[SHA256_DIGEST_SIZE];
   byte signature[64];
 
-  sha256.begin();
-  sha256.update(csrInfo, csrInfoHeaderLen + csrInfoLen);
-  sha256.finalize(csrInfoSha256);
+  sha256.beginHash();
+  sha256.write(csrInfo, csrInfoHeaderLen + csrInfoLen);
+  sha256.endHash();
+  sha256.readBytes(csrInfoSha256, SHA256_DIGEST_SIZE);
 
   if (!ECCX08.ecSign(_keySlot, csrInfoSha256, signature)) {
     return "";
