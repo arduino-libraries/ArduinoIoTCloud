@@ -143,6 +143,11 @@ int ArduinoIoTCloudTCP::begin(bool const enable_watchdog, String brokerAddress, 
     if (!_crypto.begin())
     {
       DEBUG_ERROR("_crypto.begin() failed.");
+#if defined(ARDUINO_UNOWIFIR4)
+      if (String(WiFi.firmwareVersion()) < String("0.4.1")) {
+        DEBUG_ERROR("ArduinoIoTCloudTCP::%s In order to read device certificate, WiFi firmware needs to be >= 0.4.1, current %s", __FUNCTION__, WiFi.firmwareVersion());
+      }
+#endif
       return 0;
     }
     if (!SElementArduinoCloudDeviceId::read(_crypto, getDeviceId(), SElementArduinoCloudSlot::DeviceId))
