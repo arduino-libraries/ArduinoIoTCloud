@@ -143,7 +143,7 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
 #endif
 
 #if defined(BOARD_HAS_SECURE_ELEMENT)
-    SecureElement _crypto;
+    SecureElement _selement;
   #if !defined(BOARD_HAS_OFFLOADED_ECCX08)
     ECP256Certificate _cert;
   #endif

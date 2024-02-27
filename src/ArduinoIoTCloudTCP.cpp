@@ -140,9 +140,9 @@ int ArduinoIoTCloudTCP::begin(bool const enable_watchdog, String brokerAddress, 
   {
 #endif
 #if defined(BOARD_HAS_SECURE_ELEMENT)
-    if (!_crypto.begin())
+    if (!_selement.begin())
     {
-      DEBUG_ERROR("_crypto.begin() failed.");
+      DEBUG_ERROR("_selement.begin() failed.");
 #if defined(ARDUINO_UNOWIFIR4)
       if (String(WiFi.firmwareVersion()) < String("0.4.1")) {
         DEBUG_ERROR("ArduinoIoTCloudTCP::%s In order to read device certificate, WiFi firmware needs to be >= 0.4.1, current %s", __FUNCTION__, WiFi.firmwareVersion());
@@ -150,13 +150,13 @@ int ArduinoIoTCloudTCP::begin(bool const enable_watchdog, String brokerAddress, 
 #endif
       return 0;
     }
-    if (!SElementArduinoCloudDeviceId::read(_crypto, getDeviceId(), SElementArduinoCloudSlot::DeviceId))
+    if (!SElementArduinoCloudDeviceId::read(_selement, getDeviceId(), SElementArduinoCloudSlot::DeviceId))
     {
-      DEBUG_ERROR("_crypto.readDeviceId(...) failed.");
+      DEBUG_ERROR("_selement.readDeviceId(...) failed.");
       return 0;
     }
   #if !defined(BOARD_HAS_OFFLOADED_ECCX08)
-    if (!SElementArduinoCloudCertificate::read(_crypto, _cert, SElementArduinoCloudSlot::CompressedCertificate))
+    if (!SElementArduinoCloudCertificate::read(_selement, _cert, SElementArduinoCloudSlot::CompressedCertificate))
     {
       DEBUG_ERROR("Cryptography certificate reconstruction failure.");
       return 0;
