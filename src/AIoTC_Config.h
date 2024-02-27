@@ -137,6 +137,7 @@
  * CONSTANTS
  ******************************************************************************/
 
+#define AIOT_CONFIG_INTERVAL_RETRY_DELAY_ms                       (10000UL)
 #define AIOT_CONFIG_RECONNECTION_RETRY_DELAY_ms                    (1000UL)
 #define AIOT_CONFIG_MAX_RECONNECTION_RETRY_DELAY_ms               (32000UL)
 #define AIOT_CONFIG_DEVICE_TOPIC_SUBSCRIBE_RETRY_DELAY_ms        (5*1000UL)

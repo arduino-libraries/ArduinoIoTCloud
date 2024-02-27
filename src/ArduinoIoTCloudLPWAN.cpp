@@ -50,7 +50,7 @@ ArduinoIoTCloudLPWAN::ArduinoIoTCloudLPWAN()
 : _state{State::ConnectPhy}
 , _retryEnable{false}
 , _maxNumRetry{5}
-, _intervalRetry{10000}
+, _intervalRetry{AIOT_CONFIG_INTERVAL_RETRY_DELAY_ms}
 {
 
 }
