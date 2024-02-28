@@ -56,6 +56,8 @@ public:
    */
   static unsigned long getTimeFromString(const String& input);
 
+  static bool isTimeValid(unsigned long const time);
+
 private:
 
   ConnectionHandler * _con_hdl;
@@ -74,7 +76,6 @@ private:
   void initRTC();
   void setRTC(unsigned long time);
   unsigned long getRTC();
-  static bool isTimeValid(unsigned long const time);
   static bool isTimeZoneOffsetValid(long const offset);
 
 };
