@@ -1,0 +1,4 @@
+#if defined(ARDUINO_NANO_RP2040_CONNECT) && OTA_ENABLED
+#include "OTANanoRP2040.h"
+
+#endif // defined(ARDUINO_NANO_RP2040_CONNECT) && OTA_ENABLED

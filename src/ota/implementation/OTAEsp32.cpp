@@ -1,0 +1,3 @@
+#if defined(ARDUINO_ARCH_ESP32) && OTA_ENABLED
+
+#endif // defined(ARDUINO_ARCH_ESP32) && OTA_ENABLED
