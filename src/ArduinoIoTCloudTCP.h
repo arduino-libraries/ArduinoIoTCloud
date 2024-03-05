@@ -150,7 +150,7 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
 #endif
 
 #if defined(BOARD_HAS_OFFLOADED_ECCX08)
-    WiFiSSLClient _sslClient;
+    WiFiBearSSLClient _sslClient;
 #elif defined(BOARD_HAS_ECCX08)
     BearSSLClient _sslClient;
 #elif defined(ARDUINO_PORTENTA_C33)
