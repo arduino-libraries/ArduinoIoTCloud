@@ -24,23 +24,16 @@
 #ifdef HAS_TCP
 #include <ArduinoIoTCloudTCP.h>
 
+#if defined(BOARD_HAS_SECRET_KEY)
+  #include "tls/AIoTCUPCert.h"
+#endif
+
 #ifdef BOARD_HAS_ECCX08
   #include "tls/BearSSLTrustAnchors.h"
-  #include "tls/utility/CryptoUtil.h"
 #endif
 
-#ifdef BOARD_HAS_SE050
+#if defined(BOARD_HAS_SE050) || defined(BOARD_HAS_SOFTSE)
   #include "tls/AIoTCSSCert.h"
-  #include "tls/utility/CryptoUtil.h"
-#endif
-
-#ifdef BOARD_HAS_OFFLOADED_ECCX08
-  #include <ArduinoECCX08.h>
-  #include "tls/utility/CryptoUtil.h"
-#endif
-
-#ifdef BOARD_HAS_SECRET_KEY
-  #include "tls/AIoTCUPCert.h"
 #endif
 
 #if OTA_ENABLED
@@ -90,9 +83,9 @@ ArduinoIoTCloudTCP::ArduinoIoTCloudTCP()
 #ifdef BOARD_HAS_ECCX08
 , _sslClient(nullptr, ArduinoIoTCloudTrustAnchor, ArduinoIoTCloudTrustAnchor_NUM, getTime)
 #endif
-  #ifdef BOARD_HAS_SECRET_KEY
+#ifdef BOARD_HAS_SECRET_KEY
 , _password("")
-  #endif
+#endif
 , _mqttClient{nullptr}
 , _deviceTopicOut("")
 , _deviceTopicIn("")
@@ -122,7 +115,11 @@ int ArduinoIoTCloudTCP::begin(ConnectionHandler & connection, bool const enable_
 {
   _connection = &connection;
   _brokerAddress = brokerAddress;
+#ifdef BOARD_HAS_SECRET_KEY
+  _brokerPort = _password.length() ? DEFAULT_BROKER_PORT_USER_PASS_AUTH : brokerPort;
+#else
   _brokerPort = brokerPort;
+#endif
   _time_service.begin(&connection);
   return begin(enable_watchdog, _brokerAddress, _brokerPort);
 }
@@ -137,48 +134,65 @@ int ArduinoIoTCloudTCP::begin(bool const enable_watchdog, String brokerAddress, 
   DEBUG_VERBOSE("SHA256: HASH(%d) = %s", strlen(_ota_img_sha256.c_str()), _ota_img_sha256.c_str());
 #endif /* OTA_ENABLED */
 
-#if defined(BOARD_HAS_ECCX08) || defined(BOARD_HAS_OFFLOADED_ECCX08) || defined(BOARD_HAS_SE050)
-  if (!_crypto.begin())
+#if defined(BOARD_HAS_SECRET_KEY)
+  /* If board is not configured for username and password login */
+  if(!_password.length())
   {
-    DEBUG_ERROR("_crypto.begin() failed.");
-    return 0;
-  }
-  if (!_crypto.readDeviceId(getDeviceId(), CryptoSlot::DeviceId))
-  {
-    DEBUG_ERROR("_crypto.readDeviceId(...) failed.");
-    return 0;
+#endif
+#if defined(BOARD_HAS_SECURE_ELEMENT)
+    if (!_selement.begin())
+    {
+      DEBUG_ERROR("ArduinoIoTCloudTCP::%s could not initialize secure element.", __FUNCTION__);
+#if defined(ARDUINO_UNOWIFIR4)
+      if (String(WiFi.firmwareVersion()) < String("0.4.1")) {
+        DEBUG_ERROR("ArduinoIoTCloudTCP::%s In order to read device certificate, WiFi firmware needs to be >= 0.4.1, current %s", __FUNCTION__, WiFi.firmwareVersion());
+      }
+#endif
+      return 0;
+    }
+    if (!SElementArduinoCloudDeviceId::read(_selement, getDeviceId(), SElementArduinoCloudSlot::DeviceId))
+    {
+      DEBUG_ERROR("ArduinoIoTCloudTCP::%s could not read device id.", __FUNCTION__);
+      return 0;
+    }
+  #if !defined(BOARD_HAS_OFFLOADED_ECCX08)
+    if (!SElementArduinoCloudCertificate::read(_selement, _cert, SElementArduinoCloudSlot::CompressedCertificate))
+    {
+      DEBUG_ERROR("ArduinoIoTCloudTCP::%s could not read device certificate.", __FUNCTION__);
+      return 0;
+    }
+    _sslClient.setEccSlot(static_cast<int>(SElementArduinoCloudSlot::Key), _cert.bytes(), _cert.length());
+  #endif
+#endif
+#if defined(BOARD_HAS_SECRET_KEY)
   }
 #endif
 
-#if defined(BOARD_HAS_ECCX08) || defined(BOARD_HAS_SE050)
-  if (!_crypto.readCert(_cert, CryptoSlot::CompressedCertificate))
-  {
-    DEBUG_ERROR("Cryptography certificate reconstruction failure.");
-    return 0;
-  }
-  _sslClient.setEccSlot(static_cast<int>(CryptoSlot::Key), _cert.bytes(), _cert.length());
-#endif
+#if defined(BOARD_HAS_OFFLOADED_ECCX08)
 
-#if defined(BOARD_HAS_ECCX08)
+#elif defined(BOARD_HAS_ECCX08)
   _sslClient.setClient(_connection->getClient());
 #elif defined(ARDUINO_PORTENTA_C33)
   _sslClient.setClient(_connection->getClient());
   _sslClient.setCACert(AIoTSSCert);
-#elif defined(BOARD_HAS_SE050)
+#elif defined(ARDUINO_NICLA_VISION)
   _sslClient.appendCustomCACert(AIoTSSCert);
-#elif defined(BOARD_ESP)
-  #if defined(ARDUINO_ARCH_ESP8266)
-  _sslClient.setInsecure();
-  #else
-  _sslClient.setCACertBundle(x509_crt_bundle);
-  #endif
 #elif defined(ARDUINO_EDGE_CONTROL)
   _sslClient.appendCustomCACert(AIoTUPCert);
+#elif defined(ARDUINO_UNOR4_WIFI)
+
+#elif defined(ARDUINO_ARCH_ESP32)
+  _sslClient.setCACertBundle(x509_crt_bundle);
+#elif defined(ARDUINO_ARCH_ESP8266)
+  _sslClient.setInsecure();
 #endif
 
   _mqttClient.setClient(_sslClient);
 #ifdef BOARD_HAS_SECRET_KEY
-  _mqttClient.setUsernamePassword(getDeviceId(), _password);
+  if(_password.length())
+  {
+    _mqttClient.setUsernamePassword(getDeviceId(), _password);
+  }
 #endif
   _mqttClient.onMessage(ArduinoIoTCloudTCP::onMessage);
   _mqttClient.setKeepAliveInterval(30 * 1000);

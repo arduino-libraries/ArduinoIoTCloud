@@ -118,9 +118,19 @@
   #define BOARD_STM32H7
 #endif
 
-#if defined(ARDUINO_UNOR4_WIFI) || defined(ARDUINO_EDGE_CONTROL)
+#if defined(ARDUINO_EDGE_CONTROL)
   #define BOARD_HAS_SECRET_KEY
   #define HAS_TCP
+#endif
+
+#if defined(ARDUINO_UNOR4_WIFI)
+  #define BOARD_HAS_SOFTSE
+  #define BOARD_HAS_SECRET_KEY
+  #define HAS_TCP
+#endif
+
+#if defined(BOARD_HAS_SOFTSE) || defined(BOARD_HAS_OFFLOADED_ECCX08) || defined(BOARD_HAS_ECCX08) || defined(BOARD_HAS_SE050)
+  #define BOARD_HAS_SECURE_ELEMENT
 #endif
 
 /******************************************************************************

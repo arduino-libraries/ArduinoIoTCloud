@@ -24,7 +24,7 @@
  ******************************************************************************/
 
 #include <AIoTC_Config.h>
-#ifdef ARDUINO_ARCH_ESP32
+#if defined(ARDUINO_ARCH_ESP32) || defined(ARDUINO_UNOR4_WIFI)
 
 /******************************************************************************
  * CONSTANTS
