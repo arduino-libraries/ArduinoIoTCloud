@@ -36,6 +36,7 @@ class Color {
     Color(float h, float s, float b): hue(h), sat(s), bri(b) {
       setColorHSB(h, s, b);
     }
+    Color(const Color& r) : hue(r.hue), sat(r.sat), bri(r.bri) {}
 
     bool setColorHSB(float h, float s, float b) {
       if (h < 0 || h > 360 || s < 0 || s > 100 || b < 0 || b > 100) {

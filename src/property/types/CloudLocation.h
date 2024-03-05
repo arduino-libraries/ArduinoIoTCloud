@@ -37,6 +37,7 @@ class Location {
     float lat,
           lon;
     Location(float lat, float lon) : lat(lat), lon(lon) {}
+    Location(const Location& r) : lat(r.lat), lon(r.lon) {}
     Location& operator=(Location& aLocation) {
       lat = aLocation.lat;
       lon = aLocation.lon;

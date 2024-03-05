@@ -25,6 +25,10 @@
 #ifndef CBOR_H
 #define CBOR_H
 
+#ifdef __AVR_ARCH__
+#  include "cbor_avr.h"
+#endif
+
 #ifndef assert
 #include <assert.h>
 #endif

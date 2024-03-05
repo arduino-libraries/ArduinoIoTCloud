@@ -17,9 +17,9 @@
 SCENARIO("An Arduino cloud property is published on value change", "[ArduinoCloudThing::publishOnChange]")
 {
   PropertyContainer property_container;
-    
-  CloudInt       test  = 10;
-  int const DELTA = 6;
+
+  CloudInt<int> test  = 10;
+  int const     DELTA = 6;
 
   addPropertyToContainer(property_container, test, "test", Permission::ReadWrite).publishOnChange(DELTA,0);
 
