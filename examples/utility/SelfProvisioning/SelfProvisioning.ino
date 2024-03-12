@@ -81,7 +81,7 @@ void setup() {
 
     // Connect to WPA/WPA2 network:
     status = WiFi.begin(ssid, pass);
-    delay(10000);
+    delay(3000);
   }
 
   Serial.print("SSID: ");
