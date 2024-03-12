@@ -16,9 +16,10 @@
 */
 
 #include "arduino_secrets.h"
-#include "ECCX08TLSConfig.h"
-#include "ECCX08Cert.h"
-#include <ArduinoECCX08.h>
+#include <Arduino_SecureElement.h>
+#include <utility/SElementCSR.h>
+#include <utility/SElementArduinoCloud.h>
+#include <utility/SElementArduinoCloudCertificate.h>
 #include <Arduino_JSON.h>
 #include <WiFiNINA.h>
 
@@ -29,10 +30,6 @@
 #define SERIAL_NUMBER_WORD_3  *(volatile uint32_t*)(0x0080A048)
 
 const bool DEBUG = true;
-const int keySlot                                   = 0;
-const int compressedCertSlot                        = 10;
-const int serialNumberAndAuthorityKeyIdentifierSlot = 11;
-const int deviceIdSlot                              = 12;
 
 char ssid[] = SECRET_SSID;
 char pass[] = SECRET_PASS;
@@ -67,7 +64,7 @@ char server[] = "api2.arduino.cc";  // server address
 WiFiSSLClient client;
 int status = WL_IDLE_STATUS;
 
-ECCX08CertClass ECCX08Cert;
+SecureElement secureElement;
 
 void setup() {
   Serial.begin(9600);
@@ -94,31 +91,31 @@ void setup() {
   Serial.print("IP Address: ");
   Serial.println(ip);
 
-  while (!ECCX08.begin()) {
-    Serial.println("No ECCX08 present!");
+  while (!secureElement.begin()) {
+    Serial.println("No secureElement present!");
     delay(100);
   }
 
-  if (!ECCX08.locked()) {
+  if (!secureElement.locked()) {
 
-    if (!ECCX08.writeConfiguration(DEFAULT_ECCX08_TLS_CONFIG)) {
-      Serial.println("Writing ECCX08 configuration failed!");
+    if (!secureElement.writeConfiguration()) {
+      Serial.println("Writing secureElement configuration failed!");
       Serial.println("Stopping Provisioning");
       while (1);
     }
 
-    if (!ECCX08.lock()) {
-      Serial.println("Locking ECCX08 configuration failed!");
+    if (!secureElement.lock()) {
+      Serial.println("Locking secureElement configuration failed!");
       Serial.println("Stopping Provisioning");
       while (1);
     }
 
-    Serial.println("ECCX08 locked successfully");
+    Serial.println("secureElement locked successfully");
     Serial.println();
   }
 
   //Random number for device name
-  board_name += String(ECCX08.random(65535));
+  board_name += String(secureElement.random(65535));
   
   uint32_t BoardUniqueID[4];
   BoardUniqueID[0] = SERIAL_NUMBER_WORD_0;
@@ -155,18 +152,26 @@ void setup() {
   
   delay(2000);
 
-  while (!ECCX08Cert.beginCSR(keySlot, true)) {
+  ECP256Certificate Certificate;
+
+  while (!Certificate.begin()) {
     Serial.println("Error starting CSR generation!");
-    delay(2000);
+    while (1);
   }
 
-  ECCX08Cert.setSubjectCommonName(deviceId);
+  Certificate.setSubjectCommonName(deviceId);
 
-  String csr = ECCX08Cert.endCSR();
-
-  while (!csr) {
+  if (!SElementCSR::build(secureElement, Certificate, static_cast<int>(SElementArduinoCloudSlot::Key), true)) {
     Serial.println("Error generating CSR!");
-    delay(2000);
+    while (1);
+  }
+
+  String csr = Certificate.getCSRPEM();
+
+  if (!csr) {
+    /* WARNING: This string is parsed from IoTCloud frontend */
+    Serial.println("Error generating CSR!");
+    while (1);
   }
   
   Serial.println("Generated CSR is:");
@@ -206,42 +211,37 @@ void setup() {
   hexStringToBytes(authorityKeyIdentifier, authorityKeyIdentifierBytes, sizeof(authorityKeyIdentifierBytes));
   hexStringToBytes(signature, signatureBytes, sizeof(signatureBytes));
 
-  if (!ECCX08.writeSlot(deviceIdSlot, deviceIdBytes, sizeof(deviceIdBytes))) {
+  if (!secureElement.writeSlot(static_cast<int>(SElementArduinoCloudSlot::DeviceId), deviceIdBytes, sizeof(deviceIdBytes))) {
     Serial.println("Error storing device id!");
     while (1);
   }
 
-  if (!ECCX08Cert.beginStorage(compressedCertSlot, serialNumberAndAuthorityKeyIdentifierSlot)) {
-    Serial.println("Error starting ECCX08 storage!");
+  if (!Certificate.begin()) {
+    Serial.println("Error starting secureElement storage!");
     while (1);
   }
 
-  ECCX08Cert.setSignature(signatureBytes);
-  ECCX08Cert.setAuthorityKeyIdentifier(authorityKeyIdentifierBytes);
-  ECCX08Cert.setSerialNumber(serialNumberBytes);
-  ECCX08Cert.setIssueYear(issueYear.toInt());
-  ECCX08Cert.setIssueMonth(issueMonth.toInt());
-  ECCX08Cert.setIssueDay(issueDay.toInt());
-  ECCX08Cert.setIssueHour(issueHour.toInt());
-  ECCX08Cert.setExpireYears(expireYears.toInt());
+  Certificate.setSubjectCommonName(deviceId);
+  Certificate.setIssuerCountryName("US");
+  Certificate.setIssuerOrganizationName("Arduino LLC US");
+  Certificate.setIssuerOrganizationalUnitName("IT");
+  Certificate.setIssuerCommonName("Arduino");
+  Certificate.setSignature(signatureBytes, sizeof(signatureBytes));
+  Certificate.setAuthorityKeyId(authorityKeyIdentifierBytes, sizeof(authorityKeyIdentifierBytes));
+  Certificate.setSerialNumber(serialNumberBytes, sizeof(serialNumberBytes));
+  Certificate.setIssueYear(issueYear.toInt());
+  Certificate.setIssueMonth(issueMonth.toInt());
+  Certificate.setIssueDay(issueDay.toInt());
+  Certificate.setIssueHour(issueHour.toInt());
+  Certificate.setExpireYears(expireYears.toInt());
 
-  if (!ECCX08Cert.endStorage()) {
-    Serial.println("Error storing ECCX08 compressed cert!");
+  if (!SElementArduinoCloudCertificate::build(secureElement, Certificate, static_cast<int>(SElementArduinoCloudSlot::Key))) {
+    Serial.println("Error building secureElement compressed cert!");
     while (1);
   }
 
-  if (!ECCX08Cert.beginReconstruction(keySlot, compressedCertSlot, serialNumberAndAuthorityKeyIdentifierSlot)) {
-    Serial.println("Error starting ECCX08 cert reconstruction!");
-    while (1);
-  }
-
-  ECCX08Cert.setIssuerCountryName("US");
-  ECCX08Cert.setIssuerOrganizationName("Arduino LLC US");
-  ECCX08Cert.setIssuerOrganizationalUnitName("IT");
-  ECCX08Cert.setIssuerCommonName("Arduino");
-
-  if (!ECCX08Cert.endReconstruction()) {
-    Serial.println("Error reconstructing ECCX08 compressed cert!");
+  if (!SElementArduinoCloudCertificate::write(secureElement, Certificate, SElementArduinoCloudSlot::CompressedCertificate)) {
+    Serial.println("Error storing cert!");
     while (1);
   }
 
@@ -251,8 +251,8 @@ void setup() {
 
   Serial.println("Compressed cert = ");
 
-  const byte* certData = ECCX08Cert.bytes();
-  int certLength = ECCX08Cert.length();
+  const byte* certData = Certificate.bytes();
+  int certLength = Certificate.length();
 
   for (int i = 0; i < certLength; i++) {
     byte b = certData[i];
