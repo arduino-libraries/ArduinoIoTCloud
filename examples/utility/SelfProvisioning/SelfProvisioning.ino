@@ -466,19 +466,20 @@ void ArduinoCertificate(String user_token, String DeviceUuid, String csr) {
   JSONVar myObject = JSON.parse(certResponse);
   String certZip = JSON.stringify(myObject["compressed"]);
   JSONVar myCert = JSON.parse(certZip);
-  if (myCert.hasOwnProperty("not_before")) {
+  if (myCert.hasOwnProperty("not_before") &&
+      myCert.hasOwnProperty("serial") &&
+      myCert.hasOwnProperty("authority_key_identifier") &&
+      myCert.hasOwnProperty("signature_asn1_x") &&
+      myCert.hasOwnProperty("signature_asn1_x")) {
     not_before += (const char*) myCert["not_before"];
-  }
-  if (myCert.hasOwnProperty("serial")) {
     serialNumber += (const char*) myCert["serial"];
-  }
-  if (myCert.hasOwnProperty("authority_key_identifier")) {
     authorityKeyIdentifier += (const char*) myCert["authority_key_identifier"];
-  }
-  if (myCert.hasOwnProperty("signature_asn1_x")) {
     signature += (const char*) myCert["signature_asn1_x"];
-  }
-  if (myCert.hasOwnProperty("signature_asn1_y")) {
     signature += (const char*) myCert["signature_asn1_y"];
+  } else {
+    Serial.println("Error parsing cloud certificate");
+    while (1) {
+      ;
+    }
   }
 }
