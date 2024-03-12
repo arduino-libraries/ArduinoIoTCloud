@@ -463,7 +463,8 @@ void ArduinoCertificate(String user_token, String DeviceUuid, String csr) {
     }
     intIndex++;
   }
-  JSONVar myObject = JSON.parse(certResponse);
+  char* p = strstr(certResponse, "{");
+  JSONVar myObject = JSON.parse(p);
   String certZip = JSON.stringify(myObject["compressed"]);
   JSONVar myCert = JSON.parse(certZip);
   if (myCert.hasOwnProperty("not_before") &&
