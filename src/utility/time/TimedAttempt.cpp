@@ -53,7 +53,7 @@ unsigned long TimedAttempt::retry() {
 
 unsigned long TimedAttempt::reload() {
   unsigned long retryDelay = (1 << _retryCount) * _minDelay;
-  retryDelay = min(retryDelay, _maxDelay);
+  _retryDelay = min(retryDelay, _maxDelay);
   _nextRetryTick = millis() + retryDelay;
   return retryDelay;
 }
