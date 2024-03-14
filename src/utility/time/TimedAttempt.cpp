@@ -73,3 +73,7 @@ bool TimedAttempt::isExpired() {
 unsigned int TimedAttempt::getRetryCount() {
   return _retryCount;
 }
+
+unsigned int TimedAttempt::getWaitTime() {
+  return _retryDelay;
+}
