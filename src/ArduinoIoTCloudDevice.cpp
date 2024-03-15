@@ -135,7 +135,6 @@ ArduinoCloudDevice::State ArduinoCloudDevice::handleConnected() {
     }
     return State::SendCapabilities;
   }
-
   return State::Connected;
 }
 

@@ -36,24 +36,11 @@
   #endif
 #endif
 
-#if defined(BOARD_HAS_OFFLOADED_ECCX08)
-  #include "WiFiSSLClient.h"
-#elif defined(BOARD_HAS_ECCX08)
-  #include "tls/BearSSLClient.h"
-#elif defined(ARDUINO_PORTENTA_C33)
-  #include <SSLClient.h>
-#elif defined(ARDUINO_NICLA_VISION)
-  #include <WiFiSSLSE050Client.h>
-#elif defined(ARDUINO_EDGE_CONTROL)
-  #include <GSMSSLClient.h>
-#elif defined(ARDUINO_UNOR4_WIFI)
-  #include <WiFiSSLClient.h>
-#elif defined(BOARD_ESP)
-  #include <WiFiClientSecure.h>
-#endif
+#include <tls/utility/TLSClientMqtt.h>
+#include <tls/utility/TLSClientOta.h>
 
 #if OTA_ENABLED
-#include <utility/ota/OTA.h>
+#include <ota/OTA.h>
 #endif
 
 #include "cbor/MessageDecoder.h"
@@ -107,9 +94,13 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
      */
     void onOTARequestCb(onOTARequestCallbackFunc cb) {
       _get_ota_confirmation = cb;
-      _ask_user_before_executing_ota = true;
+
+      if(_get_ota_confirmation) {
+        _ota.setOtaPolicies(OTACloudProcessInterface::ApprovalRequired);
+      } else {
+        _ota.setOtaPolicies(OTACloudProcessInterface::None);
+      }
     }
-    void  handle_OTARequest();
 #endif
 
   private:
@@ -147,43 +138,20 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
   #endif
 #endif
 
-#if defined(BOARD_HAS_OFFLOADED_ECCX08)
-    WiFiBearSSLClient _sslClient;
-#elif defined(BOARD_HAS_ECCX08)
-    BearSSLClient _sslClient;
-#elif defined(ARDUINO_PORTENTA_C33)
-    SSLClient _sslClient;
-#elif defined(ARDUINO_NICLA_VISION)
-    WiFiSSLSE050Client _sslClient;
-#elif defined(ARDUINO_EDGE_CONTROL)
-    GSMSSLClient _sslClient;
-#elif defined(ARDUINO_UNOR4_WIFI)
-    WiFiSSLClient _sslClient;
-#elif defined(BOARD_ESP)
-    WiFiClientSecure _sslClient;
-#endif
-
+    TLSClientMqtt _brokerClient;
     MqttClient _mqttClient;
 
-    String _deviceTopicOut;
-    String _deviceTopicIn;
     String _messageTopicOut;
     String _messageTopicIn;
     String _dataTopicOut;
     String _dataTopicIn;
 
+
 #if OTA_ENABLED
-    bool _ota_cap;
-    int _ota_error;
-    String _ota_img_sha256;
-    String _ota_url;
-    bool _ota_req;
-    bool _ask_user_before_executing_ota;
+    TLSClientOta _otaClient;
+    ArduinoCloudOTA _ota;
     onOTARequestCallbackFunc _get_ota_confirmation;
 #endif /* OTA_ENABLED */
-
-    inline String getTopic_deviceout() { return String("/a/d/" + getDeviceId() + "/e/o");}
-    inline String getTopic_devicein () { return String("/a/d/" + getDeviceId() + "/e/i");}
 
     inline String getTopic_messageout() { return String("/a/d/" + getDeviceId() + "/c/up");}
     inline String getTopic_messagein () { return String("/a/d/" + getDeviceId() + "/c/dw");}
@@ -206,9 +174,6 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
     void detachThing();
     int write(String const topic, byte const data[], int const length);
 
-#if OTA_ENABLED
-    void sendDevicePropertyToCloud(String const name);
-#endif
 };
 
 /******************************************************************************
