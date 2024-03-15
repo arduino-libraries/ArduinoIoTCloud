@@ -22,22 +22,11 @@
 #include <AIoTC_Config.h>
 
 #ifdef HAS_TCP
+
 #include <ArduinoIoTCloudTCP.h>
 
-#if defined(BOARD_HAS_SECRET_KEY)
-  #include "tls/AIoTCUPCert.h"
-#endif
-
-#ifdef BOARD_HAS_ECCX08
-  #include "tls/BearSSLTrustAnchors.h"
-#endif
-
-#if defined(BOARD_HAS_SE050) || defined(BOARD_HAS_SOFTSE)
-  #include "tls/AIoTCSSCert.h"
-#endif
-
 #if OTA_ENABLED
-  #include "utility/ota/OTA.h"
+  #include "ota/OTA.h"
 #endif
 
 #include <algorithm>
@@ -67,26 +56,16 @@ ArduinoIoTCloudTCP::ArduinoIoTCloudTCP()
 , _mqtt_data_buf{0}
 , _mqtt_data_len{0}
 , _mqtt_data_request_retransmit{false}
-#ifdef BOARD_HAS_ECCX08
-, _sslClient(nullptr, ArduinoIoTCloudTrustAnchor, ArduinoIoTCloudTrustAnchor_NUM, getTime)
-#endif
 #ifdef BOARD_HAS_SECRET_KEY
 , _password("")
 #endif
 , _mqttClient{nullptr}
-, _deviceTopicOut("")
-, _deviceTopicIn("")
 , _messageTopicOut("")
 , _messageTopicIn("")
 , _dataTopicOut("")
 , _dataTopicIn("")
 #if OTA_ENABLED
-, _ota_cap{false}
-, _ota_error{static_cast<int>(OTAError::None)}
-, _ota_img_sha256{"Inv."}
-, _ota_url{""}
-, _ota_req{false}
-, _ask_user_before_executing_ota{false}
+, _ota(&_message_stream)
 , _get_ota_confirmation{nullptr}
 #endif /* OTA_ENABLED */
 {
@@ -107,8 +86,16 @@ int ArduinoIoTCloudTCP::begin(ConnectionHandler & connection, bool const enable_
   _brokerPort = brokerPort;
 #endif
 
+  /* Setup broker TLS client */
+  _brokerClient.begin(connection);
+
+#if  OTA_ENABLED
+  /* Setup OTA TLS client */
+  _otaClient.begin(connection);
+#endif
+
   /* Setup TimeService */
-  _time_service.begin(&connection);
+  _time_service.begin(_connection);
 
   /* Setup retry timers */
   _connection_attempt.begin(AIOT_CONFIG_RECONNECTION_RETRY_DELAY_ms, AIOT_CONFIG_MAX_RECONNECTION_RETRY_DELAY_ms);
@@ -148,33 +135,19 @@ int ArduinoIoTCloudTCP::begin(bool const enable_watchdog, String brokerAddress, 
       DEBUG_ERROR("ArduinoIoTCloudTCP::%s could not read device certificate.", __FUNCTION__);
       return 0;
     }
-    _sslClient.setEccSlot(static_cast<int>(SElementArduinoCloudSlot::Key), _cert.bytes(), _cert.length());
+    _brokerClient.setEccSlot(static_cast<int>(SElementArduinoCloudSlot::Key), _cert.bytes(), _cert.length());
+    #if  OTA_ENABLED
+    _otaClient.setEccSlot(static_cast<int>(SElementArduinoCloudSlot::Key), _cert.bytes(), _cert.length());
+    #endif
   #endif
 #endif
+
 #if defined(BOARD_HAS_SECRET_KEY)
   }
 #endif
 
-#if defined(BOARD_HAS_OFFLOADED_ECCX08)
+  _mqttClient.setClient(_brokerClient);
 
-#elif defined(BOARD_HAS_ECCX08)
-  _sslClient.setClient(_connection->getClient());
-#elif defined(ARDUINO_PORTENTA_C33)
-  _sslClient.setClient(_connection->getClient());
-  _sslClient.setCACert(AIoTSSCert);
-#elif defined(ARDUINO_NICLA_VISION)
-  _sslClient.appendCustomCACert(AIoTSSCert);
-#elif defined(ARDUINO_EDGE_CONTROL)
-  _sslClient.appendCustomCACert(AIoTUPCert);
-#elif defined(ARDUINO_UNOR4_WIFI)
-
-#elif defined(ARDUINO_ARCH_ESP32)
-  _sslClient.setCACertBundle(x509_crt_bundle);
-#elif defined(ARDUINO_ARCH_ESP8266)
-  _sslClient.setInsecure();
-#endif
-
-  _mqttClient.setClient(_sslClient);
 #ifdef BOARD_HAS_SECRET_KEY
   if(_password.length())
   {
@@ -187,32 +160,19 @@ int ArduinoIoTCloudTCP::begin(bool const enable_watchdog, String brokerAddress, 
   _mqttClient.setConnectionTimeout(1500);
   _mqttClient.setId(getDeviceId().c_str());
 
-  _deviceTopicOut = getTopic_deviceout();
-  _deviceTopicIn  = getTopic_devicein();
-  _messageTopicIn = getTopic_messagein();
   _messageTopicOut = getTopic_messageout();
+  _messageTopicIn  = getTopic_messagein();
 
   _thing.begin();
   _device.begin();
 
-#if  OTA_ENABLED
-  Property* p;
-  p = new CloudWrapperBool(_ota_cap);
-  addPropertyToContainer(_device.getPropertyContainer(), *p, "OTA_CAP", Permission::Read, -1);
-  p = new CloudWrapperInt(_ota_error);
-  addPropertyToContainer(_device.getPropertyContainer(), *p, "OTA_ERROR", Permission::Read, -1);
-  p = new CloudWrapperString(_ota_img_sha256);
-  addPropertyToContainer(_device.getPropertyContainer(), *p, "OTA_SHA256", Permission::Read, -1);
-  p = new CloudWrapperString(_ota_url);
-  addPropertyToContainer(_device.getPropertyContainer(), *p, "OTA_URL", Permission::ReadWrite, -1);
-  p = new CloudWrapperBool(_ota_req);
-  addPropertyToContainer(_device.getPropertyContainer(), *p, "OTA_REQ", Permission::ReadWrite, -1);
+#if OTA_ENABLED && !defined(OFFLOADED_DOWNLOAD)
+  _ota.setClient(&_otaClient);
+#endif // OTA_ENABLED && !defined(OFFLOADED_DOWNLOAD)
 
-  _ota_cap = OTA::isCapable();
-
-  _ota_img_sha256 = OTA::getImageSHA256();
-  DEBUG_VERBOSE("SHA256: HASH(%d) = %s", strlen(_ota_img_sha256.c_str()), _ota_img_sha256.c_str());
-#endif // OTA_ENABLED
+#if OTA_ENABLED && defined(OTA_BASIC_AUTH)
+  _ota.setAuthentication(getDeviceId().c_str(), _password.c_str());
+#endif // OTA_ENABLED && !defined(OFFLOADED_DOWNLOAD) && defined(OTA_BASIC_AUTH)
 
 #ifdef BOARD_HAS_OFFLOADED_ECCX08
   if (String(WiFi.firmwareVersion()) < String("1.4.4")) {
@@ -323,9 +283,6 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_ConnectMqttBroker()
     /* Subscribe to message topic to receive commands */
     _mqttClient.subscribe(_messageTopicIn);
 
-    /* Temoporarly subscribe to device topic to receive OTA properties */
-    _mqttClient.subscribe(_deviceTopicIn);
-
     /* Reconfigure timers for next state */
     _connection_attempt.begin(AIOT_CONFIG_DEVICE_TOPIC_SUBSCRIBE_RETRY_DELAY_ms, AIOT_CONFIG_MAX_DEVICE_TOPIC_SUBSCRIBE_RETRY_DELAY_ms);
 
@@ -360,50 +317,24 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_Connected()
   /* Call CloudDevice process to get configuration */
   _device.update();
 
+#if  OTA_ENABLED
+  if(_get_ota_confirmation != nullptr &&
+      _ota.getState() == OTACloudProcessInterface::State::OtaAvailable &&
+      _get_ota_confirmation()) {
+    _ota.approveOta();
+  }
+
+  _ota.update();
+#endif // OTA_ENABLED
+
+
   if (_device.isAttached()) {
     /* Call CloudThing process to synchronize properties */
     _thing.update();
   }
 
-#if OTA_ENABLED
-  if (_device.connected()) {
-    handle_OTARequest();
-  }
-#endif /* OTA_ENABLED */
-
   return State::Connected;
 }
-
-#if OTA_ENABLED
-void ArduinoIoTCloudTCP::handle_OTARequest() {
-  /* Request a OTA download if the hidden property
-  * OTA request has been set.
-  */
-
-  if (_ota_req)
-  {
-    bool const ota_execution_allowed_by_user = (_get_ota_confirmation != nullptr && _get_ota_confirmation());
-    bool const perform_ota_now = ota_execution_allowed_by_user || !_ask_user_before_executing_ota;
-    if (perform_ota_now) {
-      /* Clear the error flag. */
-      _ota_error = static_cast<int>(OTAError::None);
-      /* Clear the request flag. */
-      _ota_req = false;
-      /* Transmit the cleared request flags to the cloud. */
-      sendDevicePropertyToCloud("OTA_REQ");
-      /* Call member function to handle OTA request. */
-      _ota_error = OTA::onRequest(_ota_url, _connection->getInterface());
-      /* If something fails send the OTA error to the cloud */
-      sendDevicePropertyToCloud("OTA_ERROR");
-    }
-  }
-
-  /* Check if we have received the OTA_URL property and provide
-  * echo to the cloud.
-  */
-  sendDevicePropertyToCloud("OTA_URL");
-}
-#endif /* OTA_ENABLED */
 
 ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_Disconnect()
 {
@@ -439,11 +370,6 @@ void ArduinoIoTCloudTCP::handleMessage(int length)
 
   for (int i = 0; i < length; i++) {
     bytes[i] = _mqttClient.read();
-  }
-
-  /* Topic for OTA properties and device configuration */
-  if (_deviceTopicIn == topic) {
-    CBORDecoder::decode(_device.getPropertyContainer(), (uint8_t*)bytes, length);
   }
 
   /* Topic for user input data */
@@ -505,6 +431,14 @@ void ArduinoIoTCloudTCP::handleMessage(int length)
         }
         break;
 
+#if OTA_ENABLED
+        case CommandId::OtaUpdateCmdDownId:
+        {
+          DEBUG_VERBOSE("ArduinoIoTCloudTCP::%s [%d] ota update received", __FUNCTION__, millis());
+          _ota.handleMessage((Message*)&command);
+        }
+#endif
+
         default:
         break;
       }
@@ -524,14 +458,6 @@ void ArduinoIoTCloudTCP::sendMessage(Message * msg)
                                           _thing.getPropertyContainer(),
                                           _thing.getPropertyContainerIndex());
       break;
-
-#if OTA_ENABLED
-    case DeviceBeginCmdId:
-      sendDevicePropertyToCloud("OTA_CAP");
-      sendDevicePropertyToCloud("OTA_ERROR");
-      sendDevicePropertyToCloud("OTA_SHA256");
-      break;
-#endif
 
     default:
       break;
@@ -564,21 +490,6 @@ void ArduinoIoTCloudTCP::sendPropertyContainerToCloud(String const topic, Proper
     }
   }
 }
-
-#if OTA_ENABLED
-void ArduinoIoTCloudTCP::sendDevicePropertyToCloud(String const name)
-{
-  PropertyContainer temp_device_property_container;
-  unsigned int last_device_property_index = 0;
-
-  Property* p = getProperty(this->_device.getPropertyContainer(), name);
-  if(p != nullptr)
-  {
-    addPropertyToContainer(temp_device_property_container, *p, p->name(), p->isWriteableByCloud() ? Permission::ReadWrite : Permission::Read);
-    sendPropertyContainerToCloud(_deviceTopicOut, temp_device_property_container, last_device_property_index);
-  }
-}
-#endif
 
 void ArduinoIoTCloudTCP::attachThing()
 {
