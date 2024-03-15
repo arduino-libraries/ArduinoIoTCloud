@@ -1,6 +1,5 @@
 #include <ArduinoIoTCloud.h>
 #include <Arduino_ConnectionHandler.h>
-
 #include "arduino_secrets.h"
 
 #if !(defined(BOARD_HAS_WIFI) || defined(BOARD_HAS_GSM) || defined(BOARD_HAS_LORA) || \

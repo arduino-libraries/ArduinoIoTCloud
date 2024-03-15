@@ -26,9 +26,6 @@
    - https://github.com/arduino-libraries/ArduinoIoTCloud#what
 */
 
-#include <ArduinoIoTCloud.h>
-
-#include "arduino_secrets.h"
 #include "thingProperties.h"
 
 void setup() {
