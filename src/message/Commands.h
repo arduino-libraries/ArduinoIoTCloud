@@ -18,10 +18,20 @@
 #include <stddef.h>
 
 /******************************************************************************
- * TYPEDEF
+ * DEFINE
  ******************************************************************************/
 
-enum CommandId : uint16_t {
+#define THING_ID_SIZE               37
+#define SHA256_SIZE                 32
+#define URL_SIZE                   256
+#define ID_SIZE                     16
+#define MAX_LIB_VERSION_SIZE        10
+
+/******************************************************************************
+    TYPEDEF
+ ******************************************************************************/
+
+enum CommandId: uint32_t {
 
   /* Device commands */
   DeviceBeginCmdId,
@@ -39,6 +49,15 @@ enum CommandId : uint16_t {
   /* Generic commands */
   ResetCmdId,
 
+  /* OTA commands */
+  OtaBeginUpId,
+  OtaProgressCmdUpId,
+  OtaUpdateCmdDownId,
+
+  /* Timezone commands */
+  TimezoneCommandUpId,
+  TimezoneCommandDownId,
+
   /* Unknown command id */
   UnknownCmdId
 };
@@ -48,3 +67,83 @@ struct Command {
 };
 
 typedef Command Message;
+
+struct DeviceBeginCmd {
+  Command c;
+  struct {
+    char lib_version[MAX_LIB_VERSION_SIZE];
+  } params;
+};
+
+struct ThingBeginCmd {
+  Command c;
+  struct {
+    char thing_id[THING_ID_SIZE];
+  } params;
+};
+
+struct ThingUpdateCmd {
+  Command c;
+  struct {
+    char thing_id[THING_ID_SIZE];
+  } params;
+};
+
+struct LastValuesBeginCmd {
+  Command c;
+};
+
+struct LastValuesUpdateCmd {
+  Command c;
+  struct {
+    uint8_t * last_values;
+    size_t length;
+  } params;
+};
+
+struct OtaBeginUp {
+  Command c;
+  struct {
+    uint8_t sha [SHA256_SIZE];
+  } params;
+};
+
+struct OtaProgressCmdUp {
+  Command c;
+  struct {
+    uint8_t  id[ID_SIZE];
+    uint8_t  state;
+    int32_t  state_data;
+    uint64_t time;
+  } params;
+};
+
+struct OtaUpdateCmdDown {
+  Command c;
+  struct {
+    uint8_t id[ID_SIZE];
+    char    url[URL_SIZE];
+    uint8_t initialSha256[SHA256_SIZE];
+    uint8_t finalSha256[SHA256_SIZE];
+  } params;
+};
+
+struct TimezoneCommandUp {
+    Command c;
+};
+
+struct TimezoneCommandDown {
+  Command c;
+  struct {
+    int32_t offset;
+    uint32_t until;
+  } params;
+};
+
+union CommandDown {
+  struct Command                  c;
+  struct OtaUpdateCmdDown         otaUpdateCmdDown;
+  struct ThingUpdateCmd           thingUpdateCmd;
+  struct LastValuesUpdateCmd      lastValuesUpdateCmd;
+  struct TimezoneCommandDown      timezoneCommandDown;
+};
