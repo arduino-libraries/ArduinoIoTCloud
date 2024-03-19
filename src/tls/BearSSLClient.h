@@ -48,11 +48,14 @@ class BearSSLClient : public Client {
 public:
 
   BearSSLClient(Client* client, const br_x509_trust_anchor* myTAs, int myNumTAs, GetTimeCallbackFunc func);
+  BearSSLClient();
   virtual ~BearSSLClient();
 
 
   inline void setClient(Client& client) { _client = &client; }
-
+  inline void setProfile(void(*client_init_function)(br_ssl_client_context *cc, br_x509_minimal_context *xc, const br_x509_trust_anchor *trust_anchors, size_t trustrust_anchorst_anchors_num)) { _br_ssl_client_init_function = client_init_function; }
+  inline void setTrustAnchors(const br_x509_trust_anchor* myTAs, int myNumTAs) { _TAs = myTAs; _numTAs = myNumTAs; }
+  inline void onGetTime(GetTimeCallbackFunc callback) { _get_time_func = callback;}
 
   virtual int connect(IPAddress ip, uint16_t port);
   virtual int connect(const char* host, uint16_t port);
@@ -103,6 +106,8 @@ private:
   unsigned char _ibuf[BEAR_SSL_CLIENT_IBUF_SIZE];
   unsigned char _obuf[BEAR_SSL_CLIENT_OBUF_SIZE];
   br_sslio_context _ioc;
+
+  void (*_br_ssl_client_init_function)(br_ssl_client_context *cc, br_x509_minimal_context *xc, const br_x509_trust_anchor *trust_anchors, size_t trust_anchors_num);
 };
 
 #endif /* #ifdef BOARD_HAS_ECCX08 */

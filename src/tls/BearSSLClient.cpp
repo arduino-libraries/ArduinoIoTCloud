@@ -34,11 +34,20 @@
 
 #include "BearSSLClient.h"
 
-extern "C" void aiotc_client_profile_init(br_ssl_client_context *cc, br_x509_minimal_context *xc, const br_x509_trust_anchor *trust_anchors, size_t trust_anchors_num);
-
-
 bool BearSSLClient::_sslio_closing = false;
 
+BearSSLClient::BearSSLClient() :
+  _noSNI(false),
+  _get_time_func(nullptr)
+{
+  _ecKey.curve = 0;
+  _ecKey.x = NULL;
+  _ecKey.xlen = 0;
+
+  _ecCert.data = NULL;
+  _ecCert.data_len = 0;
+  _ecCertDynamic = false;
+}
 
 BearSSLClient::BearSSLClient(Client* client, const br_x509_trust_anchor* myTAs, int myNumTAs, GetTimeCallbackFunc func) :
   _client(client),
@@ -266,8 +275,8 @@ int BearSSLClient::connectSSL(const char* host)
   /* Ensure this flag is cleared so we don't terminate a just starting connection. */
   _sslio_closing = false;
 
-  // initialize client context with all necessary algorithms and hardcoded trust anchors.
-  aiotc_client_profile_init(&_sc, &_xc, _TAs, _numTAs);
+  // initialize client context with enabled algorithms and trust anchors
+  _br_ssl_client_init_function(&_sc, &_xc, _TAs, _numTAs);
 
   br_ssl_engine_set_buffers_bidi(&_sc.eng, _ibuf, sizeof(_ibuf), _obuf, sizeof(_obuf));
 
@@ -278,7 +287,7 @@ int BearSSLClient::connectSSL(const char* host)
     // ECC508 random success, add custom ECDSA vfry and EC sign
     br_ssl_engine_set_ecdsa(&_sc.eng, eccX08_vrfy_asn1);
     br_x509_minimal_set_ecdsa(&_xc, br_ssl_engine_get_ec(&_sc.eng), br_ssl_engine_get_ecdsa(&_sc.eng));
-    
+
     // enable client auth using the ECCX08
     if (_ecCert.data_len && _ecKey.xlen) {
       br_ssl_client_set_single_ec(&_sc, &_ecCert, 1, &_ecKey, BR_KEYTYPE_KEYX | BR_KEYTYPE_SIGN, BR_KEYTYPE_EC, br_ec_get_default(), eccX08_sign_asn1);
