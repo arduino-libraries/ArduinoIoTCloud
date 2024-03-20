@@ -102,12 +102,12 @@ ArduinoCloudDevice::State ArduinoCloudDevice::handleInit() {
 
 ArduinoCloudDevice::State ArduinoCloudDevice::handleSendCapabilities() {
   /* Sends device capabilities message */
-  Message message = { DeviceBeginCmdId };
-  deliver(&message);
+  DeviceBeginCmd deviceBegin = { DeviceBeginCmdId, AIOT_CONFIG_LIB_VERSION };
+  deliver(reinterpret_cast<Message*>(&deviceBegin));
 
   /* Subscribe to device topic to request */
-  message = { ThingBeginCmdId };
-  deliver(&message);
+  ThingBeginCmd thingBegin = { ThingBeginCmdId };
+  deliver(reinterpret_cast<Message*>(&thingBegin));
 
   /* No device configuration received. Wait: 4s -> 8s -> 16s -> 32s -> 32s ...*/
   _attachAttempt.retry();
