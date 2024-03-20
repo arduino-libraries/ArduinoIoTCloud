@@ -39,7 +39,7 @@ bool ask_user_via_serial() {
   if (Serial.available()) {
     char c = Serial.read();
     if (c == 'y' || c == 'Y') {
-      return true;  
+      return true;
     }
   }
   return false;
