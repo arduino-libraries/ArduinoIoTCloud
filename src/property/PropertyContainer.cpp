@@ -95,7 +95,7 @@ void requestUpdateForAllProperties(PropertyContainer & prop_cont)
 
 void updateTimestampOnLocallyChangedProperties(PropertyContainer & prop_cont)
 {
-  /* This function updates the timestamps on the primitive properties 
+  /* This function updates the timestamps on the primitive properties
    * that have been modified locally since last cloud synchronization
    */
   std::for_each(prop_cont.begin(),
