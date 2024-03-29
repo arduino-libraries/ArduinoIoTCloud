@@ -8,7 +8,7 @@
 
   You don't need any specific Properties to be created in order to demonstrate these functionalities.
   Simply create a new Thing and give it 1 arbitrary Property.
-  Remember that the Thing ID needs to be configured in thingProperties.h 
+  Remember that the Thing ID needs to be configured in thingProperties.h
   These events can be very useful in particular cases, for instance to disable a peripheral
   or a connected sensor/actuator when no data connection is available, as well as to perform
   specific operations on connection or right after properties values are synchronised.
@@ -31,7 +31,7 @@
 void setup() {
   /* Initialize serial and wait up to 5 seconds for port to open */
   Serial.begin(9600);
-  for(unsigned long const serialBeginTime = millis(); !Serial && (millis() - serialBeginTime > 5000); ) { }
+  for(unsigned long const serialBeginTime = millis(); !Serial && (millis() - serialBeginTime <= 5000); ) { }
 
   /* This function takes care of connecting your sketch variables to the ArduinoIoTCloud object */
   initProperties();

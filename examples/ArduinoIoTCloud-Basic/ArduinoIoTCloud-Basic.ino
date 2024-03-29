@@ -23,7 +23,7 @@ static int const LED_BUILTIN = 2;
 void setup() {
   /* Initialize serial and wait up to 5 seconds for port to open */
   Serial.begin(9600);
-  for(unsigned long const serialBeginTime = millis(); !Serial && (millis() - serialBeginTime > 5000); ) { }
+  for(unsigned long const serialBeginTime = millis(); !Serial && (millis() - serialBeginTime <= 5000); ) { }
 
   /* Configure LED pin as an output */
   pinMode(LED_BUILTIN, OUTPUT);
