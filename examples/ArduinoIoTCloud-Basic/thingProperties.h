@@ -27,9 +27,9 @@ void initProperties() {
   ArduinoCloud.addProperty(potentiometer, Permission::Read).publishOnChange(10);
   ArduinoCloud.addProperty(seconds, Permission::Read).publishOnChange(1);
 #elif defined(BOARD_HAS_LORA)
-  ArduinoCloud.addProperty(led, 1, READWRITE, ON_CHANGE, onLedChange);
-  ArduinoCloud.addProperty(potentiometer, 2, READ, ON_CHANGE);
-  ArduinoCloud.addProperty(seconds, 3, READ, 5 * MINUTES);
+  ArduinoCloud.addProperty(led, 1, Permission::ReadWrite).onUpdate(onLedChange);
+  ArduinoCloud.addProperty(potentiometer, 2, Permission::Read).publishOnChange(10);
+  ArduinoCloud.addProperty(seconds, 3, Permission::Read).publishEvery(5 * MINUTES);
 #endif
 }
 
