@@ -15,7 +15,7 @@ static int const LED_BUILTIN = 2;
 void setup() {
   /* Initialize the serial port and wait up to 5 seconds for a connection */
   Serial.begin(9600);
-  for(unsigned long const serialBeginTime = millis(); !Serial && (millis() - serialBeginTime > 5000); ) { }
+  for(unsigned long const serialBeginTime = millis(); !Serial && (millis() - serialBeginTime <= 5000); ) { }
 
   /* Configure LED pin as an output */
   pinMode(LED_BUILTIN, OUTPUT);

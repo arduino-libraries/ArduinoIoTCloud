@@ -18,7 +18,7 @@ void setup() {
 
   Serial.begin(9600);
   unsigned long serialBeginTime = millis();
-  while (!Serial && (millis() - serialBeginTime > 5000));
+  while (!Serial && (millis() - serialBeginTime <= 5000));
 
   Serial.println("Starting Arduino IoT Cloud Example");
 
