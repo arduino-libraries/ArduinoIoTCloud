@@ -15,6 +15,10 @@
   #define BOARD_ID "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
 #endif
 
+#if defined(BOARD_HAS_LORA)
+  #define THING_ID "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+#endif
+
 /******************************************************************************
    GLOBAL CONSTANTS
  ******************************************************************************/
@@ -114,6 +118,7 @@ void initProperties() {
 
 #elif defined(BOARD_HAS_LORA)
 void initProperties() {
+  ArduinoCloud.setThingId(THING_ID);
 
   ArduinoCloud.addProperty(bool_property_1,  1,   READWRITE, 1 * SECONDS);
   ArduinoCloud.addProperty(int_property_1,   2,   READ,      2 * MINUTES);
