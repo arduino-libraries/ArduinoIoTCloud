@@ -23,12 +23,6 @@
 #include <Arduino_JSON.h>
 #include <WiFiNINA.h>
 
-// from section 10.3.3 of the SAMD datasheet
-#define SERIAL_NUMBER_WORD_0  *(volatile uint32_t*)(0x0080A00C)
-#define SERIAL_NUMBER_WORD_1  *(volatile uint32_t*)(0x0080A040)
-#define SERIAL_NUMBER_WORD_2  *(volatile uint32_t*)(0x0080A044)
-#define SERIAL_NUMBER_WORD_3  *(volatile uint32_t*)(0x0080A048)
-
 const bool DEBUG = true;
 
 char ssid[] = SECRET_SSID;
@@ -116,31 +110,12 @@ void setup() {
 
   //Random number for device name
   board_name += String(secureElement.random(65535));
-  
-  uint32_t BoardUniqueID[4];
-  BoardUniqueID[0] = SERIAL_NUMBER_WORD_0;
-  BoardUniqueID[1] = SERIAL_NUMBER_WORD_1;
-  BoardUniqueID[2] = SERIAL_NUMBER_WORD_2;
-  BoardUniqueID[3] = SERIAL_NUMBER_WORD_3;
-  uint8_t bid[32];
-  for (int i = 0; i < 4; i++)
-  {
-    bid[i*4+0] = (uint8_t)(BoardUniqueID[i] >> 24);
-    bid[i*4+1] = (uint8_t)(BoardUniqueID[i] >> 16);
-    bid[i*4+2] = (uint8_t)(BoardUniqueID[i] >> 8);
-    bid[i*4+3] = (uint8_t)(BoardUniqueID[i] >> 0);
-  }
-
-  for (size_t i = 0; i < 16; i++) {
-    if (bid[i] < 16) {
-      ArduinoID += String(0, HEX);
-    }
-    ArduinoID += String(bid[i], HEX);
-  }
-  ArduinoID.toUpperCase();
-
   Serial.print("Device Name: ");
   Serial.println(board_name);
+  //Board Serial Number
+  ArduinoID = ArduinoSerialNumber();
+  Serial.print("SN: ");
+  Serial.println(ArduinoID);
   // Create Arduino Token
   ArduinoToken(client_id, secret_id);
   Serial.print("Bearer Token: ");
@@ -312,6 +287,44 @@ void hexStringToBytes(String& in, byte out[], int length) {
 
     out[outLength++] = (highByte << 4) | (lowByte & 0xF);
   }
+}
+
+#ifdef ARDUINO_ARCH_SAMD
+
+static void utox8(uint32_t val, uint8_t* s) {
+  for (int i = 0; i < 16; i=i+2) {
+    int d = val & 0XF;
+    val = (val >> 4);
+
+    s[15 - i -1] = d > 9 ? 'A' + d - 10 : '0' + d;
+    s[15 - i] = '\0';
+  }
+}
+
+uint8_t getUniqueSerialNumber(uint8_t* name) {
+  utox8(*(volatile uint32_t*)(0x0080A00C), &name[0]);
+  utox8(*(volatile uint32_t*)(0x0080A040), &name[16]);
+  utox8(*(volatile uint32_t*)(0x0080A044), &name[32]);
+  utox8(*(volatile uint32_t*)(0x0080A048), &name[48]);
+  return 64;
+}
+
+#endif
+
+String ArduinoSerialNumber() {
+
+  uint8_t uniqueSerialNumber[64 + 1] = {0};
+  char BoardUniqueID[32 + 1] = {0};
+
+  int uniqueSerialNumberLength = getUniqueSerialNumber(uniqueSerialNumber);
+  for(int i = 0, k = 0; i < uniqueSerialNumberLength; i = i+2, k++) {
+    BoardUniqueID[k] = uniqueSerialNumber[i];
+  }
+
+  String serialNumber = String(BoardUniqueID);
+  serialNumber.toUpperCase();
+  return serialNumber;
+
 }
 
 void ArduinoToken(String client_id, String client_secret) {
