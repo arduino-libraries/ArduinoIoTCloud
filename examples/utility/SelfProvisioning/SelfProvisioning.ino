@@ -36,6 +36,9 @@ char secret_id[] = SECRET_SECRET_ID;
 #elif defined(ARDUINO_SAMD_MKRWIFI1010)
     char board_type[] = "mkrwifi1010"; // MKR WiFi 1010
     char board_fqbn[] = "arduino:samd:mkrwifi1010"; // MKR WiFi 1010
+#elif defined(ARDUINO_NANO_RP2040_CONNECT)
+    char board_type[] = "nanorp2040connect"; // Nano RP2040 Connect
+    char board_fqbn[] = "arduino:mbed_nano:nanorp2040connect"; // Nano RP2040 Connect
 #else
     char board_type[] = "nonina"; // Not supported boards
     char board_fqbn[] = "";
