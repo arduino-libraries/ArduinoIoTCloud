@@ -127,6 +127,12 @@ void setup() {
   
   delay(2000);
 
+  // Configure WiFi firmware version
+  String fv = WiFi.firmwareVersion();
+  WiFiFirmwareVersion(fv, deviceId, Arduino_Token);
+  Serial.print("WiFi Firmware Version: ");
+  Serial.println(fv);
+
   ECP256Certificate Certificate;
 
   while (!Certificate.begin()) {
@@ -325,6 +331,28 @@ String ArduinoSerialNumber() {
   serialNumber.toUpperCase();
   return serialNumber;
 
+}
+
+void WiFiFirmwareVersion(String fv, String deviceId, String token) {
+  Serial.println("Configuring WiFi firmware version...");
+  String PostData = "{\"wifi_fw_version\":\"";
+  PostData += fv;
+  PostData += "\"}";
+
+  if (client.connect(server, 443)) {
+    client.print("POST /iot/v2/devices/");
+    client.print(deviceId);
+    client.println(" HTTP/1.1");
+    client.println("Host: api2.arduino.cc");
+    client.println("Connection: close");
+    client.println("Content-Type: application/json;charset=UTF-8");
+    client.print("Authorization: Bearer ");
+    client.println(token);
+    client.print("Content-Length: ");
+    client.println(PostData.length());
+    client.println();
+    client.println(PostData);
+  }
 }
 
 void ArduinoToken(String client_id, String client_secret) {
