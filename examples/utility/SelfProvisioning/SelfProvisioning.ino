@@ -57,6 +57,15 @@ char secret_id[] = SECRET_SECRET_ID;
     #include <WiFi.h>
     char board_type[] = "opta"; // Opta
     char board_fqbn[] = "arduino:mbed_opta:opta"; // Opta
+#elif defined(ARDUINO_PORTENTA_C33)
+    #include <WiFiC3.h>
+    #include <WiFiSSLClient.h>
+    char board_type[] = "portenta_c33"; // Portenta C33
+    char board_fqbn[] = "arduino:renesas_portenta:portenta_c33"; // Portenta C33
+#elif defined(ARDUINO_UNOR4_WIFI)
+    #include <WiFiS3.h>
+    char board_type[] = "unor4wifi"; // UNO R4 WiFi
+    char board_fqbn[] = "arduino:renesas_uno:unor4wifi"; // UNO R4 WiFI
 #else
     char board_type[] = "unsupported"; // Not supported boards
     char board_fqbn[] = "";
@@ -316,7 +325,7 @@ void hexStringToBytes(String& in, byte out[], int length) {
   }
 }
 
-#ifdef ARDUINO_ARCH_SAMD
+#if defined(ARDUINO_ARCH_SAMD) || defined(ARDUINO_ARCH_RENESAS)
 
 static void utox8(uint32_t val, uint8_t* s) {
   for (int i = 0; i < 16; i=i+2) {
@@ -327,6 +336,9 @@ static void utox8(uint32_t val, uint8_t* s) {
     s[15 - i] = '\0';
   }
 }
+#endif
+
+#ifdef ARDUINO_ARCH_SAMD
 
 uint8_t getUniqueSerialNumber(uint8_t* name) {
   utox8(*(volatile uint32_t*)(0x0080A00C), &name[0]);
@@ -336,6 +348,17 @@ uint8_t getUniqueSerialNumber(uint8_t* name) {
   return 64;
 }
 
+#endif
+
+#ifdef ARDUINO_ARCH_RENESAS
+uint8_t getUniqueSerialNumber(uint8_t* name) {
+  const bsp_unique_id_t* t = R_BSP_UniqueIdGet();
+  utox8(t->unique_id_words[0], &name[0]);
+  utox8(t->unique_id_words[1], &name[16]);
+  utox8(t->unique_id_words[2], &name[32]);
+  utox8(t->unique_id_words[3], &name[48]);
+  return 64;
+}
 #endif
 
 String ArduinoSerialNumber() {
