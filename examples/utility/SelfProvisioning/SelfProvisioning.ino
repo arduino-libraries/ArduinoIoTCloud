@@ -21,7 +21,6 @@
 #include <utility/SElementArduinoCloud.h>
 #include <utility/SElementArduinoCloudCertificate.h>
 #include <Arduino_JSON.h>
-#include <WiFiNINA.h>
 
 const bool DEBUG = true;
 
@@ -31,16 +30,35 @@ char client_id[] = SECRET_CLIENT_ID;
 char secret_id[] = SECRET_SECRET_ID;
 
 #if defined(ARDUINO_SAMD_NANO_33_IOT)
+    #include <WiFiNINA.h>
     char board_type[] = "nano_33_iot"; // Nano 33 IoT
     char board_fqbn[] = "arduino:samd:nano_33_iot"; // Nano 33 IoT
 #elif defined(ARDUINO_SAMD_MKRWIFI1010)
+    #include <WiFiNINA.h>
     char board_type[] = "mkrwifi1010"; // MKR WiFi 1010
     char board_fqbn[] = "arduino:samd:mkrwifi1010"; // MKR WiFi 1010
 #elif defined(ARDUINO_NANO_RP2040_CONNECT)
+    #include <WiFiNINA.h>
     char board_type[] = "nanorp2040connect"; // Nano RP2040 Connect
     char board_fqbn[] = "arduino:mbed_nano:nanorp2040connect"; // Nano RP2040 Connect
+#elif defined(ARDUINO_PORTENTA_H7_M7)
+    #include <WiFi.h>
+    char board_type[] = "envie_m7"; // Portenta H7
+    char board_fqbn[] = "arduino:mbed_portenta:envie_m7"; // Portenta H7
+#elif defined(ARDUINO_NICLA_VISION)
+    #include <WiFi.h>
+    char board_type[] = "nicla_vision"; // Nicla Vision
+    char board_fqbn[] = "arduino:mbed_nicla:nicla_vision"; // Nicla Vision
+#elif defined(ARDUINO_GIGA)
+    #include <WiFi.h>
+    char board_type[] = "giga"; // Giga R1 WiFi
+    char board_fqbn[] = "arduino:mbed_giga:giga"; // Giga R1 WiFi
+#elif defined(ARDUINO_OPTA)
+    #include <WiFi.h>
+    char board_type[] = "opta"; // Opta
+    char board_fqbn[] = "arduino:mbed_opta:opta"; // Opta
 #else
-    char board_type[] = "nonina"; // Not supported boards
+    char board_type[] = "unsupported"; // Not supported boards
     char board_fqbn[] = "";
 #endif
 
@@ -67,7 +85,7 @@ void setup() {
   Serial.begin(9600);
   while (!Serial);
 
-  if (board_type == "nonina") {
+  if (board_type == "unsupported") {
     Serial.println("Sorry, this sketch only works on Nano 33 IoT and MKR 1010 WiFi");
     while (1) { ; }
   }
@@ -356,6 +374,7 @@ void WiFiFirmwareVersion(String fv, String deviceId, String token) {
     client.println();
     client.println(PostData);
   }
+  client.stop();
 }
 
 void ArduinoToken(String client_id, String client_secret) {
@@ -398,12 +417,14 @@ void ArduinoToken(String client_id, String client_secret) {
     if (tokenResponse[intIndex] == -1) {
       break;
     }
+    delay(1);
     intIndex++;
   }
   JSONVar myObject = JSON.parse(tokenResponse);
   if (myObject.hasOwnProperty("access_token")) {
     Arduino_Token += (const char*) myObject["access_token"];
   }
+  client.stop();
 }
 
 void BoardUuid(String board_name, String board_type, String board_fqbn, String board_serial, String user_token) {
@@ -432,7 +453,8 @@ void BoardUuid(String board_name, String board_type, String board_fqbn, String b
   }
 
   while (!client.available()) {
-    ;
+    Serial.println("No client");
+    delay(2000);
   }
 
   char endOfHeaders[] = "\r\n\r\n";
@@ -451,12 +473,14 @@ void BoardUuid(String board_name, String board_type, String board_fqbn, String b
     if (deviceResponse[intIndex] == -1) {
       break;
     }
+    delay(1);
     intIndex++;
   }
   JSONVar myObject = JSON.parse(deviceResponse);
   if (myObject.hasOwnProperty("id")) {
     deviceId += (const char*) myObject["id"];
   }
+  client.stop();
 }
 
 void ArduinoCertificate(String user_token, String DeviceUuid, String csr) {
@@ -505,6 +529,7 @@ void ArduinoCertificate(String user_token, String DeviceUuid, String csr) {
     if (certResponse[intIndex] == -1) {
       break;
     }
+    delay(1);
     intIndex++;
   }
   char* p = strstr(certResponse, "{");
