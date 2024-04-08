@@ -41,6 +41,7 @@ set(TEST_SRCS
   src/test_publishOnChangeRateLimit.cpp
   src/test_readOnly.cpp
   src/test_writeOnly.cpp
+  src/test_writeOnDemand.cpp
 )
 
 set(TEST_UTIL_SRCS
