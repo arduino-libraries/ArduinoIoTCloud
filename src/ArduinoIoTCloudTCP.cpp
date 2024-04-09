@@ -60,6 +60,9 @@ unsigned long getTime()
 ArduinoIoTCloudTCP::ArduinoIoTCloudTCP()
 : _state{State::ConnectPhy}
 , _connection_attempt(0,0)
+, _device_property_container{0}
+, _thing_property_container{0}
+, _last_checked_property_index{0}
 , _tz_offset{0}
 , _tz_offset_property{nullptr}
 , _tz_dst_until{0}

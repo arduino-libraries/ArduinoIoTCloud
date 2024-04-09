@@ -105,7 +105,7 @@ class ArduinoIoTCloudClass
 
 #define addProperty( v, ...) addPropertyReal(v, #v, __VA_ARGS__)
 
-    /* The following methods are used for non-LoRa boards which can use the 
+    /* The following methods are used for non-LoRa boards which can use the
      * name of the property to identify a given property within a CBOR message.
      */
 
@@ -146,9 +146,6 @@ class ArduinoIoTCloudClass
   protected:
 
     ConnectionHandler * _connection;
-    PropertyContainer _device_property_container;
-    PropertyContainer _thing_property_container;
-    unsigned int _last_checked_property_index;
     TimeServiceClass & _time_service;
     String _thing_id;
     Property * _thing_id_property;
@@ -158,8 +155,9 @@ class ArduinoIoTCloudClass
 
   private:
 
-    void addPropertyRealInternal(Property& property, String name, int tag, permissionType permission_type = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, float minDelta = 0.0f, void(*synFn)(Property & property) = CLOUD_WINS);
+    virtual PropertyContainer &getThingPropertyContainer() = 0;
 
+    void addPropertyRealInternal(Property& property, String name, int tag, permissionType permission_type = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, float minDelta = 0.0f, void(*synFn)(Property & property) = CLOUD_WINS);
     String _device_id;
     OnCloudEventCallback _cloud_event_callback[3];
 };

@@ -51,6 +51,8 @@ ArduinoIoTCloudLPWAN::ArduinoIoTCloudLPWAN()
 , _retryEnable{false}
 , _maxNumRetry{5}
 , _intervalRetry{1000}
+, _thing_property_container{0}
+, _last_checked_property_index{0}
 {
 
 }
