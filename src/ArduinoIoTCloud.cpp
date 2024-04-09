@@ -34,7 +34,6 @@ ArduinoIoTCloudClass::ArduinoIoTCloudClass()
 , _lib_version{AIOT_CONFIG_LIB_VERSION}
 , _device_id{""}
 , _cloud_event_callback{nullptr}
-, _thing_id_outdated{false}
 {
 
 }

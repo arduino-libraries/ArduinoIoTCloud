@@ -162,7 +162,6 @@ class ArduinoIoTCloudClass
 
     String _device_id;
     OnCloudEventCallback _cloud_event_callback[3];
-    bool _thing_id_outdated;
 };
 
 #ifdef HAS_TCP
