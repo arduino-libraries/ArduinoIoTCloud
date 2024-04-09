@@ -49,6 +49,8 @@ class ArduinoIoTCloudLPWAN : public ArduinoIoTCloudClass
     inline void setMaxRetry     (int val)  { _maxNumRetry = val; }
     inline void setIntervalRetry(long val) { _intervalRetry = val; }
 
+    inline PropertyContainer &getThingPropertyContainer() { return _thing_property_container; }
+
 
   private:
 
@@ -63,6 +65,9 @@ class ArduinoIoTCloudLPWAN : public ArduinoIoTCloudClass
     bool _retryEnable;
     int _maxNumRetry;
     long _intervalRetry;
+
+    PropertyContainer _thing_property_container;
+    unsigned int _last_checked_property_index;
 
     State handle_ConnectPhy();
     State handle_SyncTime();
