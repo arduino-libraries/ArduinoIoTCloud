@@ -29,7 +29,6 @@ ArduinoIoTCloudClass::ArduinoIoTCloudClass()
 : _connection{nullptr}
 , _time_service(TimeService)
 , _thing_id{""}
-, _thing_id_property{nullptr}
 , _lib_version{AIOT_CONFIG_LIB_VERSION}
 , _device_id{""}
 , _cloud_event_callback{nullptr}
