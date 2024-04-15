@@ -101,11 +101,11 @@ String portenta_h7_getOTAImageSHA256()
    * communicated to the bootloader, that is by writing to the non-volatile
    * storage registers of the RTC.
    */
-  SHA256         sha256;
+  SHA256Class    sha256;
   uint32_t const app_start = 0x8040000;
   uint32_t const app_size  = HAL_RTCEx_BKUPRead(&RTCHandle, RTC_BKP_DR3);
 
-  sha256.begin();
+  sha256.beginHash();
   uint32_t b = 0;
   uint32_t bytes_read = 0; for(uint32_t a = app_start;
                                bytes_read < app_size;
@@ -114,11 +114,13 @@ String portenta_h7_getOTAImageSHA256()
     /* Read the next chunk of memory. */
     memcpy(&b, reinterpret_cast<const void *>(a), sizeof(b));
     /* Feed it to SHA256. */
-    sha256.update(reinterpret_cast<uint8_t *>(&b), sizeof(b));
+    sha256.write(reinterpret_cast<uint8_t *>(&b), sizeof(b));
   }
+  sha256.endHash();
   /* Retrieve the final hash string. */
   uint8_t sha256_hash[SHA256_DIGEST_SIZE] = {0};
-  sha256.finalize(sha256_hash);
+  sha256.readBytes(sha256_hash, SHA256_DIGEST_SIZE);
+
   String sha256_str;
   std::for_each(sha256_hash,
                 sha256_hash + SHA256_DIGEST_SIZE,
