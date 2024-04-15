@@ -31,10 +31,10 @@
 #define ARDUINO_BEARSSL_DISABLE_KEY_DECODER
 
 /* If uncommented profile should be configured using client.setProfile(...) */
-#define ARDUINO_BEARSSL_DISABLE_FULL_CLIENT_PROFILE
+//#define ARDUINO_BEARSSL_DISABLE_FULL_CLIENT_PROFILE
 
 /* If uncommented TA should be configured via constructor */
-#define ARDUINO_BEARSSL_DISABLE_BUILTIN_TRUST_ANCHORS
+//#define ARDUINO_BEARSSL_DISABLE_BUILTIN_TRUST_ANCHORS
 
 #define BEAR_SSL_CLIENT_CHAIN_SIZE 1
 
