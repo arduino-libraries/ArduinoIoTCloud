@@ -26,6 +26,7 @@
 #include <ArduinoIoTCloud.h>
 #include <ArduinoMqttClient.h>
 #include <ArduinoIoTCloudThing.h>
+#include <ArduinoIoTCloudDevice.h>
 
 #if defined(BOARD_HAS_SECURE_ELEMENT)
   #include <Arduino_SecureElement.h>
@@ -49,6 +50,10 @@
   #include <WiFiSSLClient.h>
 #elif defined(BOARD_ESP)
   #include <WiFiClientSecure.h>
+#endif
+
+#if OTA_ENABLED
+#include <utility/ota/OTA.h>
 #endif
 
 /******************************************************************************
@@ -101,8 +106,7 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
       _get_ota_confirmation = cb;
       _ask_user_before_executing_ota = true;
     }
-
-    void handle_OTARequest();
+    void  handle_OTARequest();
 #endif
 
   private:
@@ -113,10 +117,6 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
       ConnectPhy,
       SyncTime,
       ConnectMqttBroker,
-      SendDeviceProperties,
-      SubscribeDeviceTopic,
-      CheckDeviceConfig,
-      SubscribeThingTopics,
       Connected,
       Disconnect,
     };
@@ -126,7 +126,7 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
     MessageStream _message_stream;
     ArduinoCloudThing _thing;
     Property * _thing_id_property;
-    PropertyContainer _device_property_container;
+    ArduinoCloudDevice _device;
 
     String _brokerAddress;
     uint16_t _brokerPort;
@@ -190,10 +190,6 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
     State handle_ConnectPhy();
     State handle_SyncTime();
     State handle_ConnectMqttBroker();
-    State handle_SendDeviceProperties();
-    State handle_CheckDeviceConfig();
-    State handle_SubscribeDeviceTopic();
-    State handle_SubscribeThingTopics();
     State handle_Connected();
     State handle_Disconnect();
 
@@ -204,13 +200,15 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
     void sendThingPropertiesToCloud();
     void sendDevicePropertiesToCloud();
     void requestLastValue();
+    void requestThingId();
+    void attachThing();
+    void detachThing();
     int write(String const topic, byte const data[], int const length);
 
 #if OTA_ENABLED
     void sendDevicePropertyToCloud(String const name);
 #endif
 
-    void updateThingTopics();
 };
 
 /******************************************************************************
