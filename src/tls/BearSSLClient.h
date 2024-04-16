@@ -100,6 +100,11 @@ private:
   br_x509_certificate _ecCert;
   bool _ecCertDynamic;
 
+  /* FIXME By introducing _sslio_closing we are overriding the correct behaviour of SSL protocol
+   *       where the client is require to correctly close the ssl session. In the way we use it
+   *       we are blocking bearssl from sending any data on the underlying level, this fix requires
+   *       further investigation in the bearssl code
+   */
   bool _sslio_closing;
   br_ssl_client_context _sc;
   br_x509_minimal_context _xc;
