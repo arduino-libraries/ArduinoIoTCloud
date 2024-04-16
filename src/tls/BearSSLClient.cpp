@@ -196,7 +196,7 @@ uint8_t BearSSLClient::connected()
 
 BearSSLClient::operator bool()
 {
-  return (*_client);  
+  return (*_client);
 }
 
 void BearSSLClient::setInsecure(SNI insecure)
@@ -353,7 +353,7 @@ int BearSSLClient::clientRead(void *ctx, unsigned char *buf, size_t len)
 #ifdef DEBUGSERIAL
   DEBUGSERIAL.print("BearSSLClient::clientRead - ");
   DEBUGSERIAL.print(result);
-  DEBUGSERIAL.print(" - ");  
+  DEBUGSERIAL.print(" - ");
   for (size_t i = 0; i < result; i++) {
     byte b = buf[i];
 
