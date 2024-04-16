@@ -100,7 +100,7 @@ private:
   br_x509_certificate _ecCert;
   bool _ecCertDynamic;
 
-  static bool _sslio_closing;
+  bool _sslio_closing;
   br_ssl_client_context _sc;
   br_x509_minimal_context _xc;
   unsigned char _ibuf[BEAR_SSL_CLIENT_IBUF_SIZE];

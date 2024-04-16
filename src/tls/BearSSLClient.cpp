@@ -34,13 +34,12 @@
 
 #include "BearSSLClient.h"
 
-bool BearSSLClient::_sslio_closing = false;
-
 extern "C" void aiotc_client_profile_init(br_ssl_client_context *cc, br_x509_minimal_context *xc, const br_x509_trust_anchor *trust_anchors, size_t trust_anchors_num);
 
 BearSSLClient::BearSSLClient() :
   _noSNI(false),
-  _get_time_func(nullptr)
+  _get_time_func(nullptr),
+  _sslio_closing(false)
 {
   _ecKey.curve = 0;
   _ecKey.x = NULL;
@@ -172,7 +171,7 @@ void BearSSLClient::stop()
 {
   if (_client->connected()) {
     if ((br_ssl_engine_current_state(&_sc.eng) & BR_SSL_CLOSED) == 0) {
-      BearSSLClient::_sslio_closing = true;
+      _sslio_closing = true;
       br_sslio_close(&_ioc);
     }
 
@@ -314,7 +313,7 @@ int BearSSLClient::connectSSL(const char* host)
   br_x509_minimal_set_time(&_xc, days, sec);
 
   // use our own socket I/O operations
-  br_sslio_init(&_ioc, &_sc.eng, BearSSLClient::clientRead, _client, BearSSLClient::clientWrite, _client);
+  br_sslio_init(&_ioc, &_sc.eng, BearSSLClient::clientRead, this, BearSSLClient::clientWrite, this);
 
   br_sslio_flush(&_ioc);
 
@@ -335,11 +334,12 @@ int BearSSLClient::connectSSL(const char* host)
 
 int BearSSLClient::clientRead(void *ctx, unsigned char *buf, size_t len)
 {
-  if (BearSSLClient::_sslio_closing) {
+  BearSSLClient* bc = (BearSSLClient*)ctx;
+  Client* c = bc->_client;
+
+  if(bc->_sslio_closing) {
     return -1;
   }
-
-  Client* c = (Client*)ctx;
 
   if (!c->connected()) {
     return -1;
@@ -370,11 +370,12 @@ int BearSSLClient::clientRead(void *ctx, unsigned char *buf, size_t len)
 
 int BearSSLClient::clientWrite(void *ctx, const unsigned char *buf, size_t len)
 {
-  if (BearSSLClient::_sslio_closing) {
+  BearSSLClient* bc = (BearSSLClient*)ctx;
+  Client* c = bc->_client;
+
+  if(bc->_sslio_closing) {
     return -1;
   }
-
-  Client* c = (Client*)ctx;
 
 #ifdef DEBUGSERIAL
   DEBUGSERIAL.print("BearSSLClient::clientWrite - ");
