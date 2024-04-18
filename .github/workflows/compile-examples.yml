@@ -170,7 +170,6 @@ jobs:
               - name: arduino:mbed_portenta
             libraries: |
               - name: ArduinoECCX08
-              - name: Arduino_Portenta_OTA
             sketch-paths: |
               - examples/ArduinoIoTCloud-DeferredOTA
               - examples/utility/Provisioning
@@ -181,7 +180,6 @@ jobs:
               # Install mbed_nicla platform via Boards Manager
               - name: arduino:mbed_nicla
             libraries: |
-              - name: Arduino_Portenta_OTA
             sketch-paths: |
               - examples/ArduinoIoTCloud-DeferredOTA
               - examples/utility/Provisioning
@@ -193,7 +191,6 @@ jobs:
               - name: arduino:mbed_opta
             libraries: |
               - name: ArduinoECCX08
-              - name: Arduino_Portenta_OTA
             sketch-paths: |
               - examples/ArduinoIoTCloud-DeferredOTA
               - examples/utility/Provisioning
@@ -205,7 +202,6 @@ jobs:
               - name: arduino:mbed_giga
             libraries: |
               - name: ArduinoECCX08
-              - name: Arduino_Portenta_OTA
             sketch-paths: |
               - examples/ArduinoIoTCloud-DeferredOTA
               - examples/utility/Provisioning
@@ -229,8 +225,6 @@ jobs:
             platforms: |
               # Install arduino_esp32 platform via Boards Manager
               - name: arduino:esp32
-            libraries: |
-              - name: Arduino_ESP32_OTA
             sketch-paths: |
               - examples/ArduinoIoTCloud-DeferredOTA
           # Edge Control
@@ -257,8 +251,6 @@ jobs:
               # Install ESP32 platform via Boards Manager
               - name: esp32:esp32
                 source-url: https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json
-            libraries: |
-              - name: Arduino_ESP32_OTA
             sketch-paths: |
               - examples/ArduinoIoTCloud-DeferredOTA
 
