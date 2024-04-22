@@ -24,7 +24,7 @@ void initProperties() {
 }
 
 #if defined(BOARD_HAS_WIFI)
-  WiFiConnectionHandler ArduinoIoTPreferredConnection(SECRET_SSID, SECRET_PASS);
+  WiFiConnectionHandler ArduinoIoTPreferredConnection(SECRET_WIFI_SSID, SECRET_WIFI_PASS);
 #elif defined(BOARD_HAS_ETHERNET)
   /* DHCP mode */
   //EthernetConnectionHandler ArduinoIoTPreferredConnection;
