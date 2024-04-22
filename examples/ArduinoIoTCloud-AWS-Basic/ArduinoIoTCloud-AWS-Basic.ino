@@ -22,7 +22,6 @@ unsigned long connectMillis = 0;
 void setup() {
   /* Initialize serial and wait up to 5 seconds for port to open */
   Serial.begin(9600);
-  while(!Serial);
 
   /* Configure LED pin as an output */
   pinMode(LED_BUILTIN, OUTPUT);
