@@ -4,8 +4,8 @@
  * https://github.com/arduino-libraries/ArduinoIoTCloud/#what
  */
 #if defined(BOARD_HAS_WIFI)
-  #define SECRET_SSID "YOUR_WIFI_NETWORK_NAME"
-  #define SECRET_PASS "YOUR_WIFI_PASSWORD"
+  #define SECRET_WIFI_SSID "YOUR_WIFI_NETWORK_NAME"
+  #define SECRET_WIFI_PASS "YOUR_WIFI_PASSWORD"
 #endif
 
 /* ESP8266 ESP32*/
