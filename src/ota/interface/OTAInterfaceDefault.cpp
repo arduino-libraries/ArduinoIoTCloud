@@ -91,20 +91,24 @@ OTACloudProcessInterface::State OTADefaultCloudProcessInterface::startOTA() {
 OTACloudProcessInterface::State OTADefaultCloudProcessInterface::fetch() {
   OTACloudProcessInterface::State res = Fetch;
   int http_res = 0;
+  uint32_t start = millis();
 
-  if(http_client->available() == 0) {
-    goto exit;
-  }
+  do {
+    if(http_client->available() == 0) {
+      goto exit;
+    }
 
-  http_res = http_client->read(context->buffer, context->buf_len);
+    http_res = http_client->read(context->buffer, context->buf_len);
 
-  if(http_res < 0) {
-    DEBUG_VERBOSE("OTA ERROR: Download read error %d", http_res);
-    res = OtaDownloadFail;
-    goto exit;
-  }
+    if(http_res < 0) {
+      DEBUG_VERBOSE("OTA ERROR: Download read error %d", http_res);
+      res = OtaDownloadFail;
+      goto exit;
+    }
 
-  parseOta(context->buffer, http_res);
+    parseOta(context->buffer, http_res);
+  } while((context->downloadState == OtaDownloadFile || context->downloadState == OtaDownloadHeader) &&
+    millis() - start < downloadTime);
 
   // TODO verify that the information present in the ota header match the info in context
   if(context->downloadState == OtaDownloadCompleted) {
