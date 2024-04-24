@@ -24,7 +24,7 @@
  ******************************************************************************/
 
 #include <AIoTC_Config.h>
-#if defined(ARDUINO_ARCH_ESP32) || defined(ARDUINO_UNOR4_WIFI)
+#if defined(ARDUINO_ARCH_ESP32)
 
 /******************************************************************************
  * CONSTANTS
