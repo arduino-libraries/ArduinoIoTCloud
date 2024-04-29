@@ -65,6 +65,7 @@ private:
 
   // Message specific decoders
   ArrayParserState decodeThingUpdateCmd(CborValue * param, Message * message);
+  ArrayParserState decodeThingDetachCmd(CborValue * param, Message * message);
   ArrayParserState decodeTimezoneCommandDown(CborValue * param, Message * message);
   ArrayParserState decodeLastValuesUpdateCmd(CborValue * param, Message * message);
   ArrayParserState decodeOtaUpdateCmdDown(CborValue * param, Message * message);
