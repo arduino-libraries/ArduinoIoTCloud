@@ -50,6 +50,35 @@ SCENARIO("Test the decoding of command messages") {
   }
 
   /****************************************************************************/
+  WHEN("Decode the ThingDetachCmdDown message")
+  {
+    CommandDown command;
+    /*
+      DA 00011000                             # tag(69632)
+        81                                    # array(1)
+            78 24                             # text(36)
+              65343439346435352D383732612D346664322D393634362D393266383739343933393463 # "e4494d55-872a-4fd2-9646-92f87949394c"
+    */
+    uint8_t const payload[] = {0xDA, 0x00, 0x01, 0x10, 0x00, 0x81, 0x78, 0x24,
+                               0x65, 0x34, 0x34, 0x39, 0x34, 0x64, 0x35, 0x35,
+                               0x2D, 0x38, 0x37, 0x32, 0x61, 0x2D, 0x34, 0x66,
+                               0x64, 0x32, 0x2D, 0x39, 0x36, 0x34, 0x36, 0x2D,
+                               0x39, 0x32, 0x66, 0x38, 0x37, 0x39, 0x34, 0x39,
+                               0x33, 0x39, 0x34, 0x63};
+
+    size_t payload_length = sizeof(payload) / sizeof(uint8_t);
+    CBORMessageDecoder decoder;
+      Decoder::Status err =  decoder.decode((Message*)&command, payload, payload_length);
+    const char *thingIdToMatch = "e4494d55-872a-4fd2-9646-92f87949394c";
+
+    THEN("The decode is successful") {
+      REQUIRE(err == Decoder::Status::Complete);
+      REQUIRE(strcmp(command.thingDetachCmd.params.thing_id, thingIdToMatch) == 0);
+      REQUIRE(command.c.id == ThingDetachCmdId);
+    }
+  }
+
+   /************************************************************************************/
 
   WHEN("Decode the ThingUpdateCmdId message containing a number instead of a string")
   {
