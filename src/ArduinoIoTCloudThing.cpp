@@ -69,13 +69,19 @@ void ArduinoCloudThing::update() {
   }
 
   /* Handle external events */
-  switch (_command) {
+  switch (_command.c.id) {
     case LastValuesUpdateCmdId:
       if (_state == State::RequestLastValues) {
         DEBUG_VERBOSE("CloudThing::%s Thing is synced", __FUNCTION__);
         nextState = State::Connected;
       }
       break;
+
+    /* We have received a timezone update */
+    case TimezoneCommandDownId:
+      TimeService.setTimeZoneData(_command.timezoneCommandDown.params.offset,
+                                  _command.timezoneCommandDown.params.until);
+    break;
 
     /* We have received a reset command */
     case ResetCmdId:
@@ -86,7 +92,7 @@ void ArduinoCloudThing::update() {
       break;
   }
 
-  _command = UnknownCmdId;
+  _command.c.id = UnknownCmdId;
   _state = nextState;
 }
 
@@ -95,9 +101,9 @@ int ArduinoCloudThing::connected() {
 }
 
 void ArduinoCloudThing::handleMessage(Message* m) {
-  _command = UnknownCmdId;
+  _command.c.id = UnknownCmdId;
   if (m != nullptr) {
-    _command = m->id;
+    memcpy(&_command, m, sizeof(CommandDown));
   }
 }
 
