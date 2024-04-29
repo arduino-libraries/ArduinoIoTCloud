@@ -31,6 +31,7 @@ enum CBORCommandTag: uint64_t {
   // Commands DOWN
   CBOROtaUpdateCmdDown    = 0x010100,
   CBORThingUpdateCmd      = 0x010400,
+  CBORThingDetachCmd      = 0x011000,
   CBORLastValuesUpdate    = 0x010600,
   CBORTimezoneCommandDown = 0x010900,
 

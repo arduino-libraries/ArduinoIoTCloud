@@ -37,6 +37,7 @@ enum CommandId: uint32_t {
   DeviceBeginCmdId,
   ThingBeginCmdId,
   ThingUpdateCmdId,
+  ThingDetachCmdId,
   DeviceRegisteredCmdId,
   DeviceAttachedCmdId,
   DeviceDetachedCmdId,
@@ -83,6 +84,13 @@ struct ThingBeginCmd {
 };
 
 struct ThingUpdateCmd {
+  Command c;
+  struct {
+    char thing_id[THING_ID_SIZE];
+  } params;
+};
+
+struct ThingDetachCmd {
   Command c;
   struct {
     char thing_id[THING_ID_SIZE];
@@ -144,6 +152,7 @@ union CommandDown {
   struct Command                  c;
   struct OtaUpdateCmdDown         otaUpdateCmdDown;
   struct ThingUpdateCmd           thingUpdateCmd;
+  struct ThingDetachCmd           thingDetachCmd;
   struct LastValuesUpdateCmd      lastValuesUpdateCmd;
   struct TimezoneCommandDown      timezoneCommandDown;
 };

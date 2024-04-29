@@ -36,6 +36,8 @@ CommandId toCommandId(CBORCommandTag tag) {
     return CommandId::OtaUpdateCmdDownId;
   case CBORCommandTag::CBORThingUpdateCmd:
     return CommandId::ThingUpdateCmdId;
+  case CBORCommandTag::CBORThingDetachCmd:
+    return CommandId::ThingDetachCmdId;
   case CBORCommandTag::CBORLastValuesUpdate:
     return CommandId::LastValuesUpdateCmdId;
   case CBORCommandTag::CBORTimezoneCommandDown:
@@ -63,6 +65,8 @@ CBORCommandTag toCBORCommandTag(CommandId id) {
     return CBORCommandTag::CBOROtaUpdateCmdDown;
   case CommandId::ThingUpdateCmdId:
     return CBORCommandTag::CBORThingUpdateCmd;
+  case CommandId::ThingDetachCmdId:
+    return CBORCommandTag::CBORThingDetachCmd;
   case CommandId::LastValuesUpdateCmdId:
     return CBORCommandTag::CBORLastValuesUpdate;
   case CommandId::TimezoneCommandDownId:
