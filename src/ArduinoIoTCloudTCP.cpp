@@ -421,6 +421,13 @@ void ArduinoIoTCloudTCP::handleMessage(int length)
         }
         break;
 
+        case CommandId::TimezoneCommandDownId:
+        {
+          DEBUG_VERBOSE("ArduinoIoTCloudTCP::%s [%d] timezone update received", __FUNCTION__, millis());
+          _thing.handleMessage((Message*)&command);
+        }
+        break;
+
         case CommandId::LastValuesUpdateCmdId:
         {
           DEBUG_VERBOSE("ArduinoIoTCloudTCP::%s [%d] last values received", __FUNCTION__, millis());
