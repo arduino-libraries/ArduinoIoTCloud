@@ -304,6 +304,24 @@ SCENARIO("Test the encoding of command messages") {
 
   /****************************************************************************/
 
+  WHEN("Encode the ThingDetachCmd message")
+  {
+    ThingDetachCmd command;
+    command.c.id = CommandId::ThingDetachCmdId;
+
+    uint8_t buffer[512];
+    size_t bytes_encoded = sizeof(buffer);
+
+    CBORMessageEncoder encoder;
+    Encoder::Status err = encoder.encode((Message*)&command, buffer, bytes_encoded);
+
+    THEN("The encoding is unsuccessful - ThingDetachCmd is not supported") {
+      REQUIRE(err == Encoder::Status::Error);
+    }
+  }
+
+  /****************************************************************************/
+
   WHEN("Encode a message with unknown command Id")
   {
     OtaUpdateCmdDown command;
