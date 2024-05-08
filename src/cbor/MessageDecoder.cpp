@@ -177,6 +177,7 @@ CBORMessageDecoder::ArrayParserState CBORMessageDecoder::decodeLastValuesUpdateC
 }
 
 CBORMessageDecoder::ArrayParserState CBORMessageDecoder::decodeOtaUpdateCmdDown(CborValue * param, Message * message) {
+  CborError error = CborNoError;
   OtaUpdateCmdDown * ota = (OtaUpdateCmdDown *) message;
 
   // Message is composed 4 parameters: id, url, initialSha, finalSha
@@ -184,27 +185,21 @@ CBORMessageDecoder::ArrayParserState CBORMessageDecoder::decodeOtaUpdateCmdDown(
     return ArrayParserState::Error;
   }
 
-  if (cbor_value_advance(param) != CborNoError) {
+  error = cbor_value_advance(param);
+
+  if ((error != CborNoError) || !copyCBORStringToArray(param, ota->params.url, sizeof(ota->params.url))) {
     return ArrayParserState::Error;
   }
 
-  if (!copyCBORStringToArray(param, ota->params.url, sizeof(ota->params.url))) {
+  error = cbor_value_advance(param);
+
+  if ((error != CborNoError) || !copyCBORByteToArray(param, ota->params.initialSha256, sizeof(ota->params.initialSha256))) {
     return ArrayParserState::Error;
   }
 
-  if (cbor_value_advance(param) != CborNoError) {
-    return ArrayParserState::Error;
-  }
+  error = cbor_value_advance(param);
 
-  if (!copyCBORByteToArray(param, ota->params.initialSha256, sizeof(ota->params.initialSha256))) {
-    return ArrayParserState::Error;
-  }
-
-  if (cbor_value_advance(param) != CborNoError) {
-    return ArrayParserState::Error;
-  }
-
-  if (!copyCBORByteToArray(param, ota->params.finalSha256, sizeof(ota->params.finalSha256))) {
+  if ((error != CborNoError) || !copyCBORByteToArray(param, ota->params.finalSha256, sizeof(ota->params.finalSha256))) {
     return ArrayParserState::Error;
   }
 
