@@ -148,7 +148,6 @@ class ArduinoIoTCloudClass
     ConnectionHandler * _connection;
     TimeServiceClass & _time_service;
     String _thing_id;
-    Property * _thing_id_property;
     String _lib_version;
 
     void execCloudEventCallback(ArduinoIoTCloudEvent const event);
