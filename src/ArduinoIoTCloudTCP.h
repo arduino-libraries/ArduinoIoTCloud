@@ -25,6 +25,7 @@
 #include <AIoTC_Config.h>
 #include <ArduinoIoTCloud.h>
 #include <ArduinoMqttClient.h>
+#include <utility/time/TimedAttempt.h>
 
 #if defined(BOARD_HAS_SECURE_ELEMENT)
   #include <Arduino_SecureElement.h>
@@ -113,7 +114,6 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
       ConnectMqttBroker,
       SendDeviceProperties,
       SubscribeDeviceTopic,
-      WaitDeviceConfig,
       CheckDeviceConfig,
       SubscribeThingTopics,
       RequestLastValues,
@@ -122,21 +122,13 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
     };
 
     State _state;
+    TimedAttempt _connection_attempt;
 
     int _tz_offset;
     Property * _tz_offset_property;
     unsigned int _tz_dst_until;
     Property * _tz_dst_until_property;
 
-    unsigned long _next_connection_attempt_tick;
-    unsigned int _last_connection_attempt_cnt;
-    unsigned long _next_device_subscribe_attempt_tick;
-    unsigned int _last_device_subscribe_cnt;
-    unsigned int _last_device_attach_cnt;
-    unsigned long _last_sync_request_tick;
-    unsigned int _last_sync_request_cnt;
-    unsigned long _last_subscribe_request_tick;
-    unsigned int  _last_subscribe_request_cnt;
     String _brokerAddress;
     uint16_t _brokerPort;
     uint8_t _mqtt_data_buf[MQTT_TRANSMIT_BUFFER_SIZE];
@@ -179,8 +171,6 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
     String _dataTopicOut;
     String _dataTopicIn;
 
-    bool _deviceSubscribedToThing;
-
 #if OTA_ENABLED
     bool _ota_cap;
     int _ota_error;
@@ -202,7 +192,6 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
     State handle_SyncTime();
     State handle_ConnectMqttBroker();
     State handle_SendDeviceProperties();
-    State handle_WaitDeviceConfig();
     State handle_CheckDeviceConfig();
     State handle_SubscribeDeviceTopic();
     State handle_SubscribeThingTopics();
