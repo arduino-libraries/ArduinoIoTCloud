@@ -27,7 +27,6 @@
 
 ArduinoIoTCloudClass::ArduinoIoTCloudClass()
 : _connection{nullptr}
-, _last_checked_property_index{0}
 , _time_service(TimeService)
 , _thing_id{""}
 , _thing_id_property{nullptr}
@@ -44,12 +43,12 @@ ArduinoIoTCloudClass::ArduinoIoTCloudClass()
 
 void ArduinoIoTCloudClass::push()
 {
-  requestUpdateForAllProperties(_thing_property_container);
+  requestUpdateForAllProperties(getThingPropertyContainer());
 }
 
 bool ArduinoIoTCloudClass::setTimestamp(String const & prop_name, unsigned long const timestamp)
 {
-  Property * p = getProperty(_thing_property_container, prop_name);
+  Property * p = getProperty(getThingPropertyContainer(), prop_name);
 
   if (p == nullptr)
     return false;
@@ -118,7 +117,7 @@ Property& ArduinoIoTCloudClass::addPropertyReal(String& property, String name, i
 }
 Property& ArduinoIoTCloudClass::addPropertyReal(Property& property, String name, int tag, Permission const permission)
 {
-  return addPropertyToContainer(_thing_property_container, property, name, permission, tag);
+  return addPropertyToContainer(getThingPropertyContainer(), property, name, permission, tag);
 }
 
 /* The following methods are deprecated but still used for non-LoRa boards */
@@ -195,9 +194,9 @@ void ArduinoIoTCloudClass::addPropertyRealInternal(Property& property, String na
   }
 
   if (seconds == ON_CHANGE) {
-    addPropertyToContainer(_thing_property_container, property, name, permission, tag).publishOnChange(minDelta, Property::DEFAULT_MIN_TIME_BETWEEN_UPDATES_MILLIS).onUpdate(fn).onSync(synFn);
+    addPropertyToContainer(getThingPropertyContainer(), property, name, permission, tag).publishOnChange(minDelta, Property::DEFAULT_MIN_TIME_BETWEEN_UPDATES_MILLIS).onUpdate(fn).onSync(synFn);
   } else {
-    addPropertyToContainer(_thing_property_container, property, name, permission, tag).publishEvery(seconds).onUpdate(fn).onSync(synFn);
+    addPropertyToContainer(getThingPropertyContainer(), property, name, permission, tag).publishEvery(seconds).onUpdate(fn).onSync(synFn);
   }
 }
 
