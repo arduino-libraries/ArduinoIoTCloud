@@ -26,6 +26,8 @@ ArduinoCloudDevice::ArduinoCloudDevice(MessageStream *ms)
 : CloudProcess(ms),
 _state{State::Init},
 _attachAttempt(0, 0),
+_propertyContainer(),
+_propertyContainerIndex(0),
 _attached(false),
 _registered(false) {
 }
