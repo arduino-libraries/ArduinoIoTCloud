@@ -413,6 +413,7 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_Disconnect()
   _thing.handleMessage(&message);
   _device.handleMessage(&message);
 
+  _thing_id = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx";
   DEBUG_INFO("Disconnected from Arduino IoT Cloud");
   execCloudEventCallback(ArduinoIoTCloudEvent::DISCONNECT);
 
@@ -444,22 +445,20 @@ void ArduinoIoTCloudTCP::handleMessage(int length)
     if (_thing_id_property->isDifferentFromCloud()) {
       _thing_id_property->fromCloudToLocal();
 
-      Message message;
-      /* If we are attached we need first to detach */
-      if (_device.isAttached()) {
-        detachThing();
-        message = { DeviceDetachedCmdId };
-      }
-      /* If received thing id is valid attach to the new thing */
-      if (_thing_id.length()) {
-        attachThing();
-        message = { DeviceAttachedCmdId };
-      } else {
+      if (!_thing_id.length()) {
         /* Send message to device state machine to inform we have received a null thing-id */
         _thing_id = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx";
+        Message message;
         message = { DeviceRegisteredCmdId };
+        _device.handleMessage(&message);
+      } else {
+        if (_device.isAttached()) {
+          detachThing();
+        }
+        if (!_device.isAttached()) {
+          attachThing();
+        }
       }
-      _device.handleMessage(&message);
     }
   }
 
@@ -592,6 +591,7 @@ void ArduinoIoTCloudTCP::attachThing()
   if (!_mqttClient.subscribe(_dataTopicIn)) {
     DEBUG_ERROR("ArduinoIoTCloudTCP::%s could not subscribe to %s", __FUNCTION__, _dataTopicIn.c_str());
     DEBUG_ERROR("Check your thing configuration, and press the reset button on your board.");
+    _thing_id = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx";
     return;
   }
 
@@ -600,8 +600,13 @@ void ArduinoIoTCloudTCP::attachThing()
   if (!_mqttClient.subscribe(_shadowTopicIn)) {
     DEBUG_ERROR("ArduinoIoTCloudTCP::%s could not subscribe to %s", __FUNCTION__, _shadowTopicIn.c_str());
     DEBUG_ERROR("Check your thing configuration, and press the reset button on your board.");
+    _thing_id = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx";
     return;
   }
+
+  Message message;
+  message = { DeviceAttachedCmdId };
+  _device.handleMessage(&message);
 
   DEBUG_INFO("Connected to Arduino IoT Cloud");
   DEBUG_INFO("Thing ID: %s", getThingId().c_str());
@@ -620,6 +625,11 @@ void ArduinoIoTCloudTCP::detachThing()
     return;
   }
 
+  Message message;
+  message = { DeviceDetachedCmdId };
+  _device.handleMessage(&message);
+
+  _thing_id = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx";
   DEBUG_INFO("Disconnected from Arduino IoT Cloud");
   execCloudEventCallback(ArduinoIoTCloudEvent::DISCONNECT);
 }
