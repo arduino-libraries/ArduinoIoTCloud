@@ -29,7 +29,7 @@ ArduinoCloudThing::ArduinoCloudThing(MessageStream* ms)
 : CloudProcess(ms),
 _state{State::Init},
 _syncAttempt(0, 0),
-_propertyContainer(0),
+_propertyContainer(),
 _propertyContainerIndex(0),
 _utcOffset(0),
 _utcOffsetProperty(nullptr),
