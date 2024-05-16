@@ -331,7 +331,7 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_ConnectMqttBroker()
   /* Can't connect to the broker. Wait: 2s -> 4s -> 8s -> 16s -> 32s -> 32s ... */
   _connection_attempt.retry();
 
-  DEBUG_ERROR("ArduinoIoTCloudTCP::%s could not connect to %s:%d", __FUNCTION__, _brokerAddress.c_str(), _brokerPort);
+  DEBUG_ERROR("ArduinoIoTCloudTCP::%s could not connect to %s:%d Error: %d", __FUNCTION__, _brokerAddress.c_str(), _brokerPort, _mqttClient.connectError());
   DEBUG_VERBOSE("ArduinoIoTCloudTCP::%s %d next connection attempt in %d ms", __FUNCTION__, _connection_attempt.getRetryCount(), _connection_attempt.getWaitTime());
   /* Go back to ConnectPhy and retry to get time from network (invalid time for SSL handshake?)*/
   return State::ConnectPhy;
