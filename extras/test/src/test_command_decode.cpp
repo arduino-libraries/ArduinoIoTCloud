@@ -123,7 +123,7 @@ SCENARIO("Test the decoding of command messages") {
 
   /****************************************************************************/
 
-  WHEN("Decode the SetTimezoneCommand message")
+  WHEN("Decode the TimezoneCommandDown message")
   {
     CommandDown command;
 

@@ -242,7 +242,7 @@ SCENARIO("Test the encoding of command messages") {
 
   /****************************************************************************/
 
-  WHEN("Encode the SetTimezoneCommand message")
+  WHEN("Encode the TimezoneCommandDown message")
   {
     TimezoneCommandDown command;
     command.c.id = CommandId::TimezoneCommandDownId;
