@@ -83,6 +83,8 @@ OTACloudProcessInterface::State STM32H7OTACloudProcess::flashOTA() {
     return OtaStorageOpenFail;
   }
 
+  storageClean();
+
   // this sets the registries in RTC to load the firmware from the storage selected at the next reboot
   STM32H747::writeBackupRegister(RTCBackup::DR0, 0x07AA);
   STM32H747::writeBackupRegister(RTCBackup::DR1, storage);
@@ -113,7 +115,9 @@ void STM32H7OTACloudProcess::storageClean() {
   DEBUG_VERBOSE(F("storage clean"));
 
   if(decompressed != nullptr) {
-    fclose(decompressed);
+    int res = fclose(decompressed);
+    DEBUG_VERBOSE("error on fclose %d", res);
+
     decompressed = nullptr;
   }
 
