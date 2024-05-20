@@ -65,7 +65,7 @@
 #endif
 
 #ifdef ARDUINO_SAMD_MKRGSM1400
-  #define OTA_STORAGE_SSU         (1)
+  #define OTA_STORAGE_SSU         (1) // OTA_STORAGE_SSU is not implemented yet in OTASamd
 #else
   #define OTA_STORAGE_SSU         (0)
 #endif
@@ -80,7 +80,7 @@
   #define OTA_STORAGE_ESP         (1)
 #endif
 
-#if (OTA_STORAGE_SFU || OTA_STORAGE_SSU || OTA_STORAGE_SNU || OTA_STORAGE_PORTENTA_QSPI || OTA_STORAGE_ESP)
+#if (OTA_STORAGE_SFU || OTA_STORAGE_SNU || OTA_STORAGE_PORTENTA_QSPI || OTA_STORAGE_ESP)
   #define OTA_ENABLED             (1)
 #else
   #define OTA_ENABLED             (0)

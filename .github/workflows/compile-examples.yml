@@ -22,6 +22,7 @@ jobs:
         # Install the ArduinoIoTCloud library from the repository
         - source-path: ./
         - name: Arduino_ConnectionHandler
+        - name: ArduinoHttpClient
         - name: Arduino_DebugUtils
         - name: ArduinoMqttClient
         - name: Arduino_SecureElement
