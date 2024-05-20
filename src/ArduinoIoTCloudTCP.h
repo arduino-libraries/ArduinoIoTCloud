@@ -56,6 +56,9 @@
 #include <utility/ota/OTA.h>
 #endif
 
+#include "cbor/MessageDecoder.h"
+#include "cbor/MessageEncoder.h"
+
 /******************************************************************************
    CONSTANTS
  ******************************************************************************/
@@ -125,7 +128,6 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
     TimedAttempt _connection_attempt;
     MessageStream _message_stream;
     ArduinoCloudThing _thing;
-    Property * _thing_id_property;
     ArduinoCloudDevice _device;
 
     String _brokerAddress;
@@ -165,8 +167,8 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
 
     String _deviceTopicOut;
     String _deviceTopicIn;
-    String _shadowTopicOut;
-    String _shadowTopicIn;
+    String _messageTopicOut;
+    String _messageTopicIn;
     String _dataTopicOut;
     String _dataTopicIn;
 
@@ -182,8 +184,10 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
 
     inline String getTopic_deviceout() { return String("/a/d/" + getDeviceId() + "/e/o");}
     inline String getTopic_devicein () { return String("/a/d/" + getDeviceId() + "/e/i");}
-    inline String getTopic_shadowout() { return ( getThingId().length() == 0) ? String("") : String("/a/t/" + getThingId() + "/shadow/o"); }
-    inline String getTopic_shadowin () { return ( getThingId().length() == 0) ? String("") : String("/a/t/" + getThingId() + "/shadow/i"); }
+
+    inline String getTopic_messageout() { return String("/a/d/" + getDeviceId() + "/c/up");}
+    inline String getTopic_messagein () { return String("/a/d/" + getDeviceId() + "/c/dw");}
+
     inline String getTopic_dataout  () { return ( getThingId().length() == 0) ? String("") : String("/a/t/" + getThingId() + "/e/o"); }
     inline String getTopic_datain   () { return ( getThingId().length() == 0) ? String("") : String("/a/t/" + getThingId() + "/e/i"); }
 
@@ -197,18 +201,14 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
     void handleMessage(int length);
     void sendMessage(Message * msg);
     void sendPropertyContainerToCloud(String const topic, PropertyContainer & property_container, unsigned int & current_property_index);
-    void sendThingPropertiesToCloud();
-    void sendDevicePropertiesToCloud();
-    void requestLastValue();
-    void requestThingId();
-    void attachThing();
+
+    void attachThing(String thingId);
     void detachThing();
     int write(String const topic, byte const data[], int const length);
 
 #if OTA_ENABLED
     void sendDevicePropertyToCloud(String const name);
 #endif
-
 };
 
 /******************************************************************************
