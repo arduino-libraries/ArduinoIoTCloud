@@ -130,6 +130,17 @@ CBORMessageDecoder::ArrayParserState CBORMessageDecoder::decodeThingUpdateCmd(Cb
   return ArrayParserState::LeaveArray;
 }
 
+CBORMessageDecoder::ArrayParserState CBORMessageDecoder::decodeThingDetachCmd(CborValue * param, Message * message) {
+  ThingDetachCmd * thingCommand = (ThingDetachCmd *) message;
+
+  // Message is composed of a single parameter, a string (thing_id)
+  if (!copyCBORStringToArray(param, thingCommand->params.thing_id, sizeof(thingCommand->params.thing_id))) {
+    return ArrayParserState::Error;
+  }
+
+  return ArrayParserState::LeaveArray;
+}
+
 CBORMessageDecoder::ArrayParserState CBORMessageDecoder::decodeTimezoneCommandDown(CborValue * param, Message * message) {
   TimezoneCommandDown * setTz = (TimezoneCommandDown *) message;
 
@@ -212,6 +223,9 @@ CBORMessageDecoder::ArrayParserState CBORMessageDecoder::handle_Param(CborValue 
   {
   case CommandId::ThingUpdateCmdId:
     return CBORMessageDecoder::decodeThingUpdateCmd(param, message);
+
+  case CommandId::ThingDetachCmdId:
+    return CBORMessageDecoder::decodeThingDetachCmd(param, message);
 
   case CommandId::TimezoneCommandDownId:
     return CBORMessageDecoder::decodeTimezoneCommandDown(param, message);

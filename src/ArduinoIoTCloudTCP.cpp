@@ -410,6 +410,24 @@ void ArduinoIoTCloudTCP::handleMessage(int length)
         }
         break;
 
+        case CommandId::ThingDetachCmdId:
+        {
+          if (!_device.isAttached() || _thing_id != String(command.thingDetachCmd.params.thing_id)) {
+            DEBUG_VERBOSE("ArduinoIoTCloudTCP::%s [%d] thing detach rejected", __FUNCTION__, millis());
+          }
+
+          DEBUG_VERBOSE("ArduinoIoTCloudTCP::%s [%d] thing detach received", __FUNCTION__, millis());
+          detachThing();
+        }
+        break;
+
+        case CommandId::TimezoneCommandDownId:
+        {
+          DEBUG_VERBOSE("ArduinoIoTCloudTCP::%s [%d] timezone update received", __FUNCTION__, millis());
+          _thing.handleMessage((Message*)&command);
+        }
+        break;
+
         case CommandId::LastValuesUpdateCmdId:
         {
           DEBUG_VERBOSE("ArduinoIoTCloudTCP::%s [%d] last values received", __FUNCTION__, millis());

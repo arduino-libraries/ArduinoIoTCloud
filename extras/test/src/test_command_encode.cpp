@@ -242,7 +242,7 @@ SCENARIO("Test the encoding of command messages") {
 
   /****************************************************************************/
 
-  WHEN("Encode the SetTimezoneCommand message")
+  WHEN("Encode the TimezoneCommandDown message")
   {
     TimezoneCommandDown command;
     command.c.id = CommandId::TimezoneCommandDownId;
@@ -298,6 +298,24 @@ SCENARIO("Test the encoding of command messages") {
     Encoder::Status err = encoder.encode((Message*)&command, buffer, bytes_encoded);
 
     THEN("The encoding is unsuccessful - OtaUpdateCmdDown is not supported") {
+      REQUIRE(err == Encoder::Status::Error);
+    }
+  }
+
+  /****************************************************************************/
+
+  WHEN("Encode the ThingDetachCmd message")
+  {
+    ThingDetachCmd command;
+    command.c.id = CommandId::ThingDetachCmdId;
+
+    uint8_t buffer[512];
+    size_t bytes_encoded = sizeof(buffer);
+
+    CBORMessageEncoder encoder;
+    Encoder::Status err = encoder.encode((Message*)&command, buffer, bytes_encoded);
+
+    THEN("The encoding is unsuccessful - ThingDetachCmd is not supported") {
       REQUIRE(err == Encoder::Status::Error);
     }
   }
