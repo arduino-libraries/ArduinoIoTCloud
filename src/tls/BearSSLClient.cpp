@@ -36,16 +36,27 @@
 
 extern "C" void aiotc_client_profile_init(br_ssl_client_context *cc, br_x509_minimal_context *xc, const br_x509_trust_anchor *trust_anchors, size_t trust_anchors_num);
 
+BearSSLClient::BearSSLClient() :
+  _noSNI(false),
+  _get_time_func(nullptr),
+  _sslio_closing(false)
+{
+  _ecKey.curve = 0;
+  _ecKey.x = NULL;
+  _ecKey.xlen = 0;
 
-bool BearSSLClient::_sslio_closing = false;
-
+  _ecCert.data = NULL;
+  _ecCert.data_len = 0;
+  _ecCertDynamic = false;
+}
 
 BearSSLClient::BearSSLClient(Client* client, const br_x509_trust_anchor* myTAs, int myNumTAs, GetTimeCallbackFunc func) :
   _client(client),
   _TAs(myTAs),
   _numTAs(myNumTAs),
   _noSNI(false),
-  _get_time_func(func)
+  _get_time_func(func),
+  _br_ssl_client_init_function(aiotc_client_profile_init)
 {
   assert(_get_time_func != nullptr);
 
@@ -160,7 +171,7 @@ void BearSSLClient::stop()
 {
   if (_client->connected()) {
     if ((br_ssl_engine_current_state(&_sc.eng) & BR_SSL_CLOSED) == 0) {
-      BearSSLClient::_sslio_closing = true;
+      _sslio_closing = true;
       br_sslio_close(&_ioc);
     }
 
@@ -185,7 +196,7 @@ uint8_t BearSSLClient::connected()
 
 BearSSLClient::operator bool()
 {
-  return (*_client);  
+  return (*_client);
 }
 
 void BearSSLClient::setInsecure(SNI insecure)
@@ -266,8 +277,8 @@ int BearSSLClient::connectSSL(const char* host)
   /* Ensure this flag is cleared so we don't terminate a just starting connection. */
   _sslio_closing = false;
 
-  // initialize client context with all necessary algorithms and hardcoded trust anchors.
-  aiotc_client_profile_init(&_sc, &_xc, _TAs, _numTAs);
+  // initialize client context with enabled algorithms and trust anchors
+  _br_ssl_client_init_function(&_sc, &_xc, _TAs, _numTAs);
 
   br_ssl_engine_set_buffers_bidi(&_sc.eng, _ibuf, sizeof(_ibuf), _obuf, sizeof(_obuf));
 
@@ -278,7 +289,7 @@ int BearSSLClient::connectSSL(const char* host)
     // ECC508 random success, add custom ECDSA vfry and EC sign
     br_ssl_engine_set_ecdsa(&_sc.eng, eccX08_vrfy_asn1);
     br_x509_minimal_set_ecdsa(&_xc, br_ssl_engine_get_ec(&_sc.eng), br_ssl_engine_get_ecdsa(&_sc.eng));
-    
+
     // enable client auth using the ECCX08
     if (_ecCert.data_len && _ecKey.xlen) {
       br_ssl_client_set_single_ec(&_sc, &_ecCert, 1, &_ecKey, BR_KEYTYPE_KEYX | BR_KEYTYPE_SIGN, BR_KEYTYPE_EC, br_ec_get_default(), eccX08_sign_asn1);
@@ -302,7 +313,7 @@ int BearSSLClient::connectSSL(const char* host)
   br_x509_minimal_set_time(&_xc, days, sec);
 
   // use our own socket I/O operations
-  br_sslio_init(&_ioc, &_sc.eng, BearSSLClient::clientRead, _client, BearSSLClient::clientWrite, _client);
+  br_sslio_init(&_ioc, &_sc.eng, BearSSLClient::clientRead, this, BearSSLClient::clientWrite, this);
 
   br_sslio_flush(&_ioc);
 
@@ -323,11 +334,12 @@ int BearSSLClient::connectSSL(const char* host)
 
 int BearSSLClient::clientRead(void *ctx, unsigned char *buf, size_t len)
 {
-  if (BearSSLClient::_sslio_closing) {
+  BearSSLClient* bc = (BearSSLClient*)ctx;
+  Client* c = bc->_client;
+
+  if(bc->_sslio_closing) {
     return -1;
   }
-
-  Client* c = (Client*)ctx;
 
   if (!c->connected()) {
     return -1;
@@ -341,7 +353,7 @@ int BearSSLClient::clientRead(void *ctx, unsigned char *buf, size_t len)
 #ifdef DEBUGSERIAL
   DEBUGSERIAL.print("BearSSLClient::clientRead - ");
   DEBUGSERIAL.print(result);
-  DEBUGSERIAL.print(" - ");  
+  DEBUGSERIAL.print(" - ");
   for (size_t i = 0; i < result; i++) {
     byte b = buf[i];
 
@@ -358,11 +370,12 @@ int BearSSLClient::clientRead(void *ctx, unsigned char *buf, size_t len)
 
 int BearSSLClient::clientWrite(void *ctx, const unsigned char *buf, size_t len)
 {
-  if (BearSSLClient::_sslio_closing) {
+  BearSSLClient* bc = (BearSSLClient*)ctx;
+  Client* c = bc->_client;
+
+  if(bc->_sslio_closing) {
     return -1;
   }
-
-  Client* c = (Client*)ctx;
 
 #ifdef DEBUGSERIAL
   DEBUGSERIAL.print("BearSSLClient::clientWrite - ");

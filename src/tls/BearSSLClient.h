@@ -48,11 +48,14 @@ class BearSSLClient : public Client {
 public:
 
   BearSSLClient(Client* client, const br_x509_trust_anchor* myTAs, int myNumTAs, GetTimeCallbackFunc func);
+  BearSSLClient();
   virtual ~BearSSLClient();
 
 
   inline void setClient(Client& client) { _client = &client; }
-
+  inline void setProfile(void(*client_init_function)(br_ssl_client_context *cc, br_x509_minimal_context *xc, const br_x509_trust_anchor *trust_anchors, size_t trustrust_anchorst_anchors_num)) { _br_ssl_client_init_function = client_init_function; }
+  inline void setTrustAnchors(const br_x509_trust_anchor* myTAs, int myNumTAs) { _TAs = myTAs; _numTAs = myNumTAs; }
+  inline void onGetTime(GetTimeCallbackFunc callback) { _get_time_func = callback;}
 
   virtual int connect(IPAddress ip, uint16_t port);
   virtual int connect(const char* host, uint16_t port);
@@ -97,12 +100,19 @@ private:
   br_x509_certificate _ecCert;
   bool _ecCertDynamic;
 
-  static bool _sslio_closing;
+  /* FIXME By introducing _sslio_closing we are overriding the correct behaviour of SSL protocol
+   *       where the client is require to correctly close the ssl session. In the way we use it
+   *       we are blocking bearssl from sending any data on the underlying level, this fix requires
+   *       further investigation in the bearssl code
+   */
+  bool _sslio_closing;
   br_ssl_client_context _sc;
   br_x509_minimal_context _xc;
   unsigned char _ibuf[BEAR_SSL_CLIENT_IBUF_SIZE];
   unsigned char _obuf[BEAR_SSL_CLIENT_OBUF_SIZE];
   br_sslio_context _ioc;
+
+  void (*_br_ssl_client_init_function)(br_ssl_client_context *cc, br_x509_minimal_context *xc, const br_x509_trust_anchor *trust_anchors, size_t trust_anchors_num);
 };
 
 #endif /* #ifdef BOARD_HAS_ECCX08 */
