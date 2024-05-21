@@ -18,7 +18,7 @@
 
 #if OTA_ENABLED
 #include "../OTATypes.h"
-#include "tls/utility/SHA256.h"
+#include <SHA256.h>
 
 #include <interfaces/CloudProcess.h>
 #include <Arduino_DebugUtils.h>
@@ -156,10 +156,10 @@ protected:
   virtual bool appFlashClose() = 0;
 
   // sha256 is going to be used in the ota process for validation, avoid calculating it twice
-  uint8_t sha256[SHA256::HASH_SIZE];
+  uint8_t sha256[SHA256_DIGEST_SIZE];
 
   // calculateSHA256 method is overridable for platforms that do not support access through pointer to program memory
-  virtual void calculateSHA256(SHA256&); // FIXME return error
+  virtual void calculateSHA256(SHA256Class&); // FIXME return error
 private:
   void clean();
 
