@@ -15,9 +15,36 @@
 */
 
 #include "thingProperties.h"
+#include "aws_secrets.h"
+
+Client& getDefaultClient() {
+  switch(ArduinoIoTPreferredConnection.getInterface()) {
+    
+#ifdef BOARD_HAS_WIFI
+    case NetworkAdapter::WIFI:
+    static WiFiClient client;
+    return client;
+#endif
+
+#ifdef BOARD_HAS_ETHERNET
+    case NetworkAdapter::ETHERNET:
+    static EthernetClient client;
+    return client;
+#endif
+
+    default:
+    Serial.println("Error: could not create default AWS client");
+    break;
+  }
+
+  
+}
 
 unsigned long publishMillis = 0;
 unsigned long connectMillis = 0;
+
+BearSSLClient sslClientAWS(getDefaultClient());
+MqttClient mqttClientAWS(sslClientAWS);
 
 void setup() {
   /* Initialize serial and wait up to 5 seconds for port to open */
@@ -55,9 +82,9 @@ void loop() {
     return;
   }
 
-  if (AWSIoTPreferredConnection.check() != NetworkConnectionState::CONNECTED) {
-    return;
-  }
+  //if (AWSIoTPreferredConnection.check() != NetworkConnectionState::CONNECTED) {
+  //  return;
+  //}
 
   if (!mqttClientAWS.connected()) {
     if (millis() - connectMillis > 5000) {
