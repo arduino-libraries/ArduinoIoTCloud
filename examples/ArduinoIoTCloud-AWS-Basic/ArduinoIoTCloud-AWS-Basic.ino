@@ -82,10 +82,6 @@ void loop() {
     return;
   }
 
-  //if (AWSIoTPreferredConnection.check() != NetworkConnectionState::CONNECTED) {
-  //  return;
-  //}
-
   if (!mqttClientAWS.connected()) {
     if (millis() - connectMillis > 5000) {
       connectMillis = millis();
