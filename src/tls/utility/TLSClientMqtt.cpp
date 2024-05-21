@@ -46,7 +46,7 @@ void TLSClientMqtt::begin(ConnectionHandler & connection, ArduinoIoTAuthenticati
   setClient(connection.getClient());
   setProfile(aiotc_client_profile_init);
   setTrustAnchors(ArduinoIoTCloudTrustAnchor, ArduinoIoTCloudTrustAnchor_NUM);
-  onGetTime(getTime);
+  ArduinoBearSSL.onGetTime(getTime);
 #elif defined(ARDUINO_PORTENTA_C33)
   (void)authMode;
   setClient(connection.getClient());
