@@ -24,11 +24,8 @@
 
 #ifdef BOARD_HAS_ECCX08
   #include "tls/BearSSLTrustAnchors.h"
+  #include "tls/BearSSLClientProfile.h"
   extern "C" {
-  void aiotc_client_profile_init(br_ssl_client_context *cc,
-                                 br_x509_minimal_context *xc,
-                                 const br_x509_trust_anchor *trust_anchors,
-                                 size_t trust_anchors_num);
   unsigned long getTime();
   }
 #endif
