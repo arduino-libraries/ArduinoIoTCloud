@@ -14,14 +14,14 @@ Client& getDefaultClient() {
 
 #ifdef BOARD_HAS_WIFI
     case NetworkAdapter::WIFI:
-    static WiFiClient client;
-    return client;
+    static WiFiClient wclient;
+    return wclient;
 #endif
 
 #ifdef BOARD_HAS_ETHERNET
     case NetworkAdapter::ETHERNET:
-    static EthernetClient client;
-    return client;
+    static EthernetClient eclient;
+    return eclient;
 #endif
 
     default:
