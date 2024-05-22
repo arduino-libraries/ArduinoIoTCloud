@@ -1,3 +1,4 @@
+#include "arduino_secrets.h"
 /*
   This sketch demonstrates how to exchange data between your board and the Arduino IoT Cloud.
 
