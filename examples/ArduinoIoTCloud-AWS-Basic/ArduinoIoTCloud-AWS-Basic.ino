@@ -1,15 +1,6 @@
 #include "arduino_secrets.h"
 /*
-  This sketch demonstrates how to exchange data between your board and the Arduino IoT Cloud.
-
-  * Connect a potentiometer (or other analog sensor) to A0.
-  * When the potentiometer (or sensor) value changes the data is sent to the Cloud.
-  * When you flip the switch in the Cloud dashboard the onboard LED lights gets turned ON or OFF.
-
-  IMPORTANT:
-  This sketch works with WiFi, GSM, NB, Ethernet and Lora enabled boards supported by Arduino IoT Cloud.
-  On a LoRa board, if it is configured as a class A device (default and preferred option),
-  values from Cloud dashboard are received only after a value is sent to Cloud.
+  This sketch demonstrates how to connect to ArduinoIoTCloud and AWS IoT core.
 
   The full list of compatible boards can be found here:
    - https://github.com/arduino-libraries/ArduinoIoTCloud#what
@@ -20,7 +11,7 @@
 
 Client& getDefaultClient() {
   switch(ArduinoIoTPreferredConnection.getInterface()) {
-    
+
 #ifdef BOARD_HAS_WIFI
     case NetworkAdapter::WIFI:
     static WiFiClient client;
@@ -37,8 +28,6 @@ Client& getDefaultClient() {
     Serial.println("Error: could not create default AWS client");
     break;
   }
-
-  
 }
 
 unsigned long publishMillis = 0;

@@ -19,4 +19,3 @@ void initProperties() {
 }
 
 WiFiConnectionHandler ArduinoIoTPreferredConnection(SECRET_SSID, SECRET_OPTIONAL_PASS);
-  
