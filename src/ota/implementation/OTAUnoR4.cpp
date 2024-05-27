@@ -45,29 +45,59 @@ OTACloudProcessInterface::State UNOR4OTACloudProcess::startOTA() {
     return convertUnor4ErrorToState(ota_err);
   }
 
+  String fv = WiFi.firmwareVersion();
+  if(fv >= "0.5.0") {
+    assert(context == nullptr);
+    context = new Context;
+
+    context->downloadSize = ota.startDownload(OTACloudProcessInterface::context->url,UPDATE_FILE_NAME);
+    context->lastReportTime = millis();
+  }
+
   return Fetch;
 }
 
 OTACloudProcessInterface::State UNOR4OTACloudProcess::fetch() {
   int ota_err = OTAUpdate::OTA_ERROR_NONE;
 
-  int const ota_download = ota.download(this->context->url,UPDATE_FILE_NAME);
-  if (ota_download <= 0) {
-    DEBUG_VERBOSE("OTAUpdate::download() failed with %d", ota_download);
-    return convertUnor4ErrorToState(ota_download);
+  String fv = WiFi.firmwareVersion();
+  if(fv >= "0.5.0") {
+    auto progress = ota.downloadProgress();
+
+    if((millis() - context->lastReportTime) > 5000) { // Report the download progress each X millisecond
+      DEBUG_VERBOSE("OTA Download Progress %d/%d", progress, context->downloadSize);
+
+      reportStatus(progress);
+      context->lastReportTime = millis();
+    }
+
+    if(progress < context->downloadSize) {
+      return Fetch;
+    } else if(progress > context->downloadSize) {
+      return OtaDownloadFail;
+    } else {
+      return FlashOTA;
+    }
+  } else {
+    int const ota_download = ota.download(OTACloudProcessInterface::context->url,UPDATE_FILE_NAME);
+    if (ota_download <= 0) {
+      DEBUG_VERBOSE("OTAUpdate::download() failed with %d", ota_download);
+      return convertUnor4ErrorToState(ota_download);
+    }
+
+    DEBUG_VERBOSE("OTAUpdate::download() %d bytes downloaded", ota_download);
+
+    return FlashOTA;
   }
-  DEBUG_VERBOSE("OTAUpdate::download() %d bytes downloaded", ota_download);
+}
+
+OTACloudProcessInterface::State UNOR4OTACloudProcess::flashOTA() {
+  int ota_err = OTAUpdate::OTA_ERROR_NONE;
 
   if ((ota_err = ota.verify()) != OTAUpdate::OTA_ERROR_NONE) {
     DEBUG_VERBOSE("OTAUpdate::verify() failed with %d", ota_err);
     return convertUnor4ErrorToState(ota_err);
   }
-
-  return FlashOTA;
-}
-
-OTACloudProcessInterface::State UNOR4OTACloudProcess::flashOTA() {
-  int ota_err = OTAUpdate::OTA_ERROR_NONE;
 
   /* Flash new firmware */
   if ((ota_err = ota.update(UPDATE_FILE_NAME)) != OTAUpdate::OTA_ERROR_NONE) { // This reboots the MCU
@@ -80,6 +110,10 @@ OTACloudProcessInterface::State UNOR4OTACloudProcess::reboot() {
 }
 
 void UNOR4OTACloudProcess::reset() {
+  if(context != nullptr) {
+    delete context;
+    context = nullptr;
+  }
 }
 
 bool UNOR4OTACloudProcess::isOtaCapable() {

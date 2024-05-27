@@ -49,4 +49,9 @@ public:
 
   OTAUpdate ota;
   static const char UPDATE_FILE_NAME[];
+
+  struct Context {
+    uint32_t downloadSize;
+    uint32_t lastReportTime;
+  } *context;
 };
