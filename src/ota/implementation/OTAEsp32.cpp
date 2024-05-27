@@ -89,10 +89,6 @@ void ESP32OTACloudProcess::calculateSHA256(SHA256& sha256_calc) {
   sha256_calc.begin();
 
   uint8_t b[SPI_FLASH_SEC_SIZE];
-  if(b == nullptr) {
-    DEBUG_VERBOSE("ESP32::SHA256 Not enough memory to allocate buffer");
-    return; // TODO error reporting
-  }
 
   uint32_t       read_bytes = 0;
   uint32_t const app_size   = ESP.getSketchSize();
