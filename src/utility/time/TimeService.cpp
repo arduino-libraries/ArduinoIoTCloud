@@ -281,7 +281,7 @@ bool TimeServiceClass::connected()
   if(_con_hdl == nullptr) {
     return false;
   } else {
-    return _con_hdl->getStatus() == NetworkConnectionState::CONNECTED;
+    return _con_hdl->check() == NetworkConnectionState::CONNECTED;
   }
 }
 
