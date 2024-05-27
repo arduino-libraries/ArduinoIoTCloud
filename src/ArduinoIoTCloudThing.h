@@ -51,7 +51,7 @@ private:
   };
 
   State _state;
-  CommandDown _command;
+  CommandId _command;
   TimedAttempt _syncAttempt;
   PropertyContainer _propertyContainer;
   unsigned int _propertyContainerIndex;

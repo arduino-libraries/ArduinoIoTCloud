@@ -69,7 +69,7 @@ void ArduinoCloudThing::update() {
   }
 
   /* Handle external events */
-  switch (_command.c.id) {
+  switch (_command) {
     case LastValuesUpdateCmdId:
       if (_state == State::RequestLastValues) {
         DEBUG_VERBOSE("CloudThing::%s Thing is synced", __FUNCTION__);
@@ -79,8 +79,7 @@ void ArduinoCloudThing::update() {
 
     /* We have received a timezone update */
     case TimezoneCommandDownId:
-      TimeService.setTimeZoneData(_command.timezoneCommandDown.params.offset,
-                                  _command.timezoneCommandDown.params.until);
+      TimeService.setTimeZoneData(_utcOffset, _utcOffsetExpireTime);
     break;
 
     /* We have received a reset command */
@@ -92,7 +91,7 @@ void ArduinoCloudThing::update() {
       break;
   }
 
-  _command.c.id = UnknownCmdId;
+  _command = UnknownCmdId;
   _state = nextState;
 }
 
@@ -101,9 +100,13 @@ int ArduinoCloudThing::connected() {
 }
 
 void ArduinoCloudThing::handleMessage(Message* m) {
-  _command.c.id = UnknownCmdId;
+  _command = UnknownCmdId;
   if (m != nullptr) {
-    memcpy(&_command, m, sizeof(CommandDown));
+    _command = m->id;
+    if (_command == TimezoneCommandDownId) {
+      _utcOffset = reinterpret_cast<TimezoneCommandDown*>(m)->params.offset;
+      _utcOffsetExpireTime = reinterpret_cast<TimezoneCommandDown*>(m)->params.until;
+    }
   }
 }
 
