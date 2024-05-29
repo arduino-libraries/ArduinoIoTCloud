@@ -35,10 +35,9 @@ OTACloudProcessInterface::State OTADefaultCloudProcessInterface::startOTA() {
   context = new Context(
     OTACloudProcessInterface::context->url,
     [this](uint8_t c) {
-      // int res =
-        this->writeFlash(&c, 1);
-
-      // TODO report error in write flash, throw it?
+        if (this->writeFlash(&c, 1) != 1) {
+          this->context->writeError = true;
+        }
     }
   );
 
@@ -107,6 +106,12 @@ OTACloudProcessInterface::State OTADefaultCloudProcessInterface::fetch() {
     }
 
     parseOta(context->buffer, http_res);
+
+    if(context->writeError) {
+      DEBUG_VERBOSE("OTA ERROR: File write error");
+      res = ErrorWriteUpdateFileFail;
+      goto exit;
+    }
   } while((context->downloadState == OtaDownloadFile || context->downloadState == OtaDownloadHeader) &&
     millis() - start < downloadTime);
 
@@ -234,6 +239,7 @@ OTADefaultCloudProcessInterface::Context::Context(
     , headerCopiedBytes(0)
     , downloadedSize(0)
     , lastReportTime(0)
+    , writeError(false)
     , decoder(putc) { }
 
 static const uint32_t crc_table[256] = {
