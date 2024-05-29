@@ -79,9 +79,6 @@ private:
   mbed::BlockDevice* _bd;
   mbed::FATFileSystem* _fs;
 
-  mbed::MBRBlockDevice* cert_bd_qspi;
-  mbed::FATFileSystem*  cert_fs_qspi;
-
   const portenta::StorageType storage=portenta::QSPI_FLASH_FATFS_MBR;
   const uint32_t data_offset=2;
 
