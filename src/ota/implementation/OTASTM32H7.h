@@ -78,7 +78,6 @@ private:
   mbed::BlockDevice* _bd;
   mbed::FATFileSystem* _fs;
 
-  const STM32H747OTA::StorageType storage=STM32H747OTA::QSPI_FLASH_FATFS_MBR;
   const uint32_t data_offset=2;
 
   static const char UPDATE_FILE_NAME[];
