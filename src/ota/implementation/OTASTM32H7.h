@@ -26,6 +26,8 @@ namespace STM32H747OTA {
   static const uint32_t constexpr STORAGE_TYPE = ((1 << 2) | (1 << 5) | (1 << 7));
   /* Default OTA partition */
   static const uint32_t constexpr PARTITION = 2;
+  /* OTA Magic number */
+  static const uint32_t constexpr MAGIC = 0x07AA;
 }
 
 class STM32H7OTACloudProcess: public OTADefaultCloudProcessInterface {

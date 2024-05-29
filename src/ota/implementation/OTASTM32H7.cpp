@@ -83,7 +83,7 @@ OTACloudProcessInterface::State STM32H7OTACloudProcess::flashOTA() {
   storageClean();
 
   // this sets the registries in RTC to load the firmware from the storage selected at the next reboot
-  STM32H747::writeBackupRegister(RTCBackup::DR0, 0x07AA);
+  STM32H747::writeBackupRegister(RTCBackup::DR0, STM32H747OTA::MAGIC);
   STM32H747::writeBackupRegister(RTCBackup::DR1, STM32H747OTA::STORAGE_TYPE);
   STM32H747::writeBackupRegister(RTCBackup::DR2, STM32H747OTA::PARTITION);
   STM32H747::writeBackupRegister(RTCBackup::DR3, _program_length);
