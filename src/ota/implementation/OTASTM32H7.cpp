@@ -13,15 +13,14 @@
 #include "OTASTM32H7.h"
 #include <STM32H747_System.h>
 
-const char STM32H7OTACloudProcess::UPDATE_FILE_NAME[] = "/fs/UPDATE.BIN";
-
 STM32H7OTACloudProcess::STM32H7OTACloudProcess(MessageStream *ms, Client* client)
 : OTADefaultCloudProcessInterface(ms, client)
 , decompressed(nullptr)
 , _bd_raw_qspi(nullptr)
 , _program_length(0)
 , _bd(nullptr)
-, _fs(nullptr) {
+, _fs(nullptr)
+, _filename("/" + String(STM32H747OTA::FOLDER) + "/" + String(STM32H747OTA::NAME)) {
 
 }
 
@@ -60,9 +59,9 @@ OTACloudProcessInterface::State STM32H7OTACloudProcess::startOTA() {
   }
 
   // this could be useless, since we are writing over it
-  remove(UPDATE_FILE_NAME);
+  remove(_filename.c_str());
 
-  decompressed = fopen(UPDATE_FILE_NAME, "wb");
+  decompressed = fopen(_filename.c_str(), "wb");
 
   // start the download if the setup for ota storage is successful
   return OTADefaultCloudProcessInterface::startOTA();
@@ -101,7 +100,7 @@ OTACloudProcessInterface::State STM32H7OTACloudProcess::reboot() {
 void STM32H7OTACloudProcess::reset() {
   OTADefaultCloudProcessInterface::reset();
 
-  remove(UPDATE_FILE_NAME);
+  remove(_filename.c_str());
 
   storageClean();
 }
@@ -152,7 +151,7 @@ bool STM32H7OTACloudProcess::storageInit() {
   }
 
   _bd = new mbed::MBRBlockDevice(_bd_raw_qspi, STM32H747OTA::PARTITION);
-  _fs = new mbed::FATFileSystem("fs");
+  _fs = new mbed::FATFileSystem(STM32H747OTA::FOLDER);
   err_mount = _fs->mount(_bd);
 
   if (!err_mount) {
@@ -165,16 +164,17 @@ bool STM32H7OTACloudProcess::storageInit() {
 bool STM32H7OTACloudProcess::findProgramLength(uint32_t & program_length) {
   DIR * dir = NULL;
   struct dirent * entry = NULL;
+  String dirName = "/" + String(STM32H747OTA::FOLDER);
   bool found = false;
 
-  if ((dir = opendir("/fs")) == NULL) {
+  if ((dir = opendir(dirName.c_str())) == NULL) {
     return false;
   }
 
   while ((entry = readdir(dir)) != NULL) {
-    if (strcmp(entry->d_name, "UPDATE.BIN") == 0) { // FIXME use constants
+    if (strcmp(entry->d_name, STM32H747OTA::NAME) == 0) {
       struct stat stat_buf;
-      stat("/fs/UPDATE.BIN", &stat_buf);
+      stat(_filename.c_str(), &stat_buf);
       program_length = stat_buf.st_size;
       found = true;
     }

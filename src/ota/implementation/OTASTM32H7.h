@@ -28,6 +28,10 @@ namespace STM32H747OTA {
   static const uint32_t constexpr PARTITION = 2;
   /* OTA Magic number */
   static const uint32_t constexpr MAGIC = 0x07AA;
+  /* OTA download folder name */
+  static const char constexpr FOLDER[] = "ota";
+  /* OTA update filename */
+  static const char constexpr NAME[] = "UPDATE.BIN";
 }
 
 class STM32H7OTACloudProcess: public OTADefaultCloudProcessInterface {
@@ -70,5 +74,5 @@ private:
   mbed::BlockDevice* _bd;
   mbed::FATFileSystem* _fs;
 
-  static const char UPDATE_FILE_NAME[];
+  String _filename;
 };
