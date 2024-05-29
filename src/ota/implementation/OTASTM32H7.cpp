@@ -13,8 +13,6 @@
 #include "OTASTM32H7.h"
 #include <STM32H747_System.h>
 
-static bool findProgramLength(DIR * dir, uint32_t & program_length);
-
 const char STM32H7OTACloudProcess::UPDATE_FILE_NAME[] = "/fs/UPDATE.BIN";
 
 STM32H7OTACloudProcess::STM32H7OTACloudProcess(MessageStream *ms, Client* client)
@@ -76,7 +74,7 @@ OTACloudProcessInterface::State STM32H7OTACloudProcess::flashOTA() {
   decompressed = nullptr;
 
   /* Schedule the firmware update. */
-  if(!storageOpen()) {
+  if(!findProgramLength(_program_length)) {
     return OtaStorageOpenFail;
   }
 
@@ -164,33 +162,25 @@ bool STM32H7OTACloudProcess::storageInit() {
   return false;
 }
 
-bool STM32H7OTACloudProcess::storageOpen() {
+bool STM32H7OTACloudProcess::findProgramLength(uint32_t & program_length) {
   DIR * dir = NULL;
-  if ((dir = opendir("/fs")) != NULL)
-  {
-    if (findProgramLength(dir, _program_length))
-    {
-      closedir(dir);
-      return true;
-    }
-    closedir(dir);
+  struct dirent * entry = NULL;
+  bool found = false;
+
+  if ((dir = opendir("/fs")) == NULL) {
+    return false;
   }
 
-  return false;
-}
-
-bool findProgramLength(DIR * dir, uint32_t & program_length) {
-  struct dirent * entry = NULL;
   while ((entry = readdir(dir)) != NULL) {
     if (strcmp(entry->d_name, "UPDATE.BIN") == 0) { // FIXME use constants
       struct stat stat_buf;
       stat("/fs/UPDATE.BIN", &stat_buf);
       program_length = stat_buf.st_size;
-      return true;
+      found = true;
     }
   }
-
-  return false;
+  closedir(dir);
+  return found;
 }
 
 extern uint32_t __etext;

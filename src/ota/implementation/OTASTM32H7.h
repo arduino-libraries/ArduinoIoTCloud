@@ -60,8 +60,7 @@ protected:
   bool appFlashClose() { return true; };
 private:
   bool storageInit();
-  bool storageOpen();
-
+  bool findProgramLength(uint32_t & program_length);
   void storageClean();
 
   FILE* decompressed;
