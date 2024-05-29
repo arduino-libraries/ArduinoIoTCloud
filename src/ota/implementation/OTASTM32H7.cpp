@@ -11,8 +11,6 @@
 #include "AIoTC_Config.h"
 #if defined(BOARD_STM32H7) && OTA_ENABLED
 #include "OTASTM32H7.h"
-
-#include "utility/watchdog/Watchdog.h"
 #include <STM32H747_System.h>
 
 static bool findProgramLength(DIR * dir, uint32_t & program_length);
@@ -44,7 +42,6 @@ OTACloudProcessInterface::State STM32H7OTACloudProcess::resume(Message* msg) {
 
 void STM32H7OTACloudProcess::update() {
   OTADefaultCloudProcessInterface::update();
-  watchdog_reset(); // FIXME this should npot be performed here
 }
 
 int STM32H7OTACloudProcess::writeFlash(uint8_t* const buffer, size_t len) {
