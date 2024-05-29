@@ -21,20 +21,9 @@
 #include "WiFi.h" /* WiFi from ArduinoCore-mbed */
 #include <SocketHelpers.h>
 
-#define APOTA_QSPI_FLASH_FLAG         (1 << 2)
-#define APOTA_SDCARD_FLAG             (1 << 3)
-#define APOTA_RAW_FLAG                (1 << 4)
-#define APOTA_FATFS_FLAG              (1 << 5)
-#define APOTA_LITTLEFS_FLAG           (1 << 6)
-#define APOTA_MBR_FLAG                (1 << 7)
-
 namespace STM32H747OTA {
-  enum StorageType {
-      QSPI_FLASH_FATFS        = APOTA_QSPI_FLASH_FLAG | APOTA_FATFS_FLAG,
-      QSPI_FLASH_FATFS_MBR    = APOTA_QSPI_FLASH_FLAG | APOTA_FATFS_FLAG | APOTA_MBR_FLAG,
-      SD_FATFS                = APOTA_SDCARD_FLAG | APOTA_FATFS_FLAG,
-      SD_FATFS_MBR            = APOTA_SDCARD_FLAG | APOTA_FATFS_FLAG | APOTA_MBR_FLAG,
-  };
+  /* External QSPI flash + MBR + FatFs */
+  static const uint32_t constexpr STORAGE_TYPE = ((1 << 2) | (1 << 5) | (1 << 7));
 }
 
 class STM32H7OTACloudProcess: public OTADefaultCloudProcessInterface {
