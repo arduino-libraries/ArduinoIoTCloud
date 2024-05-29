@@ -28,7 +28,7 @@
 #define APOTA_LITTLEFS_FLAG           (1 << 6)
 #define APOTA_MBR_FLAG                (1 << 7)
 
-namespace portenta {
+namespace STM32H747OTA {
   enum StorageType {
       QSPI_FLASH_FATFS        = APOTA_QSPI_FLASH_FLAG | APOTA_FATFS_FLAG,
       QSPI_FLASH_FATFS_MBR    = APOTA_QSPI_FLASH_FLAG | APOTA_FATFS_FLAG | APOTA_MBR_FLAG,
@@ -78,7 +78,7 @@ private:
   mbed::BlockDevice* _bd;
   mbed::FATFileSystem* _fs;
 
-  const portenta::StorageType storage=portenta::QSPI_FLASH_FATFS_MBR;
+  const STM32H747OTA::StorageType storage=STM32H747OTA::QSPI_FLASH_FATFS_MBR;
   const uint32_t data_offset=2;
 
   static const char UPDATE_FILE_NAME[];
