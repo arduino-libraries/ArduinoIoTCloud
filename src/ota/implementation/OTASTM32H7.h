@@ -72,7 +72,6 @@ private:
   void storageClean();
 
   FILE* decompressed;
-  // static const char UPDATE_FILE_NAME[];
   mbed::BlockDevice* _bd_raw_qspi;
   uint32_t _program_length;
 

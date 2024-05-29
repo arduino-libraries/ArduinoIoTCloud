@@ -198,14 +198,12 @@ bool findProgramLength(DIR * dir, uint32_t & program_length) {
   return false;
 }
 
-// extern uint32_t __stext = ~0;
 extern uint32_t __etext;
 extern uint32_t _sdata;
 extern uint32_t _edata;
 
 void* STM32H7OTACloudProcess::appStartAddress() {
   return (void*)0x8040000;
-  // return &__stext;
 }
 
 uint32_t STM32H7OTACloudProcess::appSize() {
