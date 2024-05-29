@@ -94,7 +94,9 @@ OTACloudProcessInterface::State OTADefaultCloudProcessInterface::fetch() {
 
   do {
     if(http_client->available() == 0) {
-      goto exit;
+      /* Avoid tight loop and allow yield */
+      delay(1);
+      continue;
     }
 
     http_res = http_client->read(context->buffer, context->buf_len);
