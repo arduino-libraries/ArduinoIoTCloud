@@ -85,7 +85,7 @@ OTACloudProcessInterface::State STM32H7OTACloudProcess::flashOTA() {
   // this sets the registries in RTC to load the firmware from the storage selected at the next reboot
   STM32H747::writeBackupRegister(RTCBackup::DR0, 0x07AA);
   STM32H747::writeBackupRegister(RTCBackup::DR1, STM32H747OTA::STORAGE_TYPE);
-  STM32H747::writeBackupRegister(RTCBackup::DR2, data_offset);
+  STM32H747::writeBackupRegister(RTCBackup::DR2, STM32H747OTA::PARTITION);
   STM32H747::writeBackupRegister(RTCBackup::DR3, _program_length);
 
   return Reboot;
@@ -153,7 +153,7 @@ bool STM32H7OTACloudProcess::storageInit() {
     }
   }
 
-  _bd = new mbed::MBRBlockDevice(_bd_raw_qspi, data_offset);
+  _bd = new mbed::MBRBlockDevice(_bd_raw_qspi, STM32H747OTA::PARTITION);
   _fs = new mbed::FATFileSystem("fs");
   err_mount = _fs->mount(_bd);
 

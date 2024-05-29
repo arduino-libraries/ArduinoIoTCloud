@@ -24,6 +24,8 @@
 namespace STM32H747OTA {
   /* External QSPI flash + MBR + FatFs */
   static const uint32_t constexpr STORAGE_TYPE = ((1 << 2) | (1 << 5) | (1 << 7));
+  /* Default OTA partition */
+  static const uint32_t constexpr PARTITION = 2;
 }
 
 class STM32H7OTACloudProcess: public OTADefaultCloudProcessInterface {
@@ -66,8 +68,6 @@ private:
 
   mbed::BlockDevice* _bd;
   mbed::FATFileSystem* _fs;
-
-  const uint32_t data_offset=2;
 
   static const char UPDATE_FILE_NAME[];
 };
