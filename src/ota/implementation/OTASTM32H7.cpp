@@ -153,14 +153,9 @@ bool STM32H7OTACloudProcess::storageInit() {
     }
   }
 
-  if (storage == portenta::QSPI_FLASH_FATFS) {
-    _fs = new mbed::FATFileSystem("fs");
-    err_mount = _fs->mount(_bd_raw_qspi);
-  } else if (storage == portenta::QSPI_FLASH_FATFS_MBR) {
-    _bd = new mbed::MBRBlockDevice(_bd_raw_qspi, data_offset);
-    _fs = new mbed::FATFileSystem("fs");
-    err_mount = _fs->mount(_bd);
-  }
+  _bd = new mbed::MBRBlockDevice(_bd_raw_qspi, data_offset);
+  _fs = new mbed::FATFileSystem("fs");
+  err_mount = _fs->mount(_bd);
 
   if (!err_mount) {
     return true;
