@@ -69,7 +69,6 @@ private:
 
   FILE* decompressed;
   mbed::BlockDevice* _bd_raw_qspi;
-  uint32_t _program_length;
 
   mbed::BlockDevice* _bd;
   mbed::FATFileSystem* _fs;

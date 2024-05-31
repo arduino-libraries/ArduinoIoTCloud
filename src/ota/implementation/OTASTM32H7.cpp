@@ -17,7 +17,6 @@ STM32H7OTACloudProcess::STM32H7OTACloudProcess(MessageStream *ms, Client* client
 : OTADefaultCloudProcessInterface(ms, client)
 , decompressed(nullptr)
 , _bd_raw_qspi(nullptr)
-, _program_length(0)
 , _bd(nullptr)
 , _fs(nullptr)
 , _filename("/" + String(STM32H747OTA::FOLDER) + "/" + String(STM32H747OTA::NAME)) {
@@ -72,8 +71,10 @@ OTACloudProcessInterface::State STM32H7OTACloudProcess::flashOTA() {
   fclose(decompressed);
   decompressed = nullptr;
 
+  uint32_t updateLength = 0;
+
   /* Schedule the firmware update. */
-  if(!findProgramLength(_program_length)) {
+  if(!findProgramLength(updateLength)) {
     return OtaStorageOpenFail;
   }
 
@@ -83,7 +84,7 @@ OTACloudProcessInterface::State STM32H7OTACloudProcess::flashOTA() {
   STM32H747::writeBackupRegister(RTCBackup::DR0, STM32H747OTA::MAGIC);
   STM32H747::writeBackupRegister(RTCBackup::DR1, STM32H747OTA::STORAGE_TYPE);
   STM32H747::writeBackupRegister(RTCBackup::DR2, STM32H747OTA::PARTITION);
-  STM32H747::writeBackupRegister(RTCBackup::DR3, _program_length);
+  STM32H747::writeBackupRegister(RTCBackup::DR3, updateLength);
 
   return Reboot;
 }
