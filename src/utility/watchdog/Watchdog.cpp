@@ -131,21 +131,6 @@ static void mbed_watchdog_enable_network_feed(NetworkAdapter ni)
 #endif
   }
 }
-
-void mbed_watchdog_trigger_reset()
-{
-  watchdog_config_t cfg;
-  cfg.timeout_ms = 1;
-
-  if (hal_watchdog_init(&cfg) == WATCHDOG_STATUS_OK) {
-    is_watchdog_enabled = true;
-    while(1){}
-  }
-  else {
-    DEBUG_WARNING("%s: watchdog could not be reconfigured", __FUNCTION__);
-  }
-
-}
 #endif /* ARDUINO_ARCH_MBED */
 
 #if defined (ARDUINO_ARCH_SAMD) || defined (ARDUINO_ARCH_MBED)

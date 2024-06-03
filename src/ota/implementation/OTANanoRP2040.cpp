@@ -83,8 +83,6 @@ OTACloudProcessInterface::State NANO_RP2040OTACloudProcess::flashOTA() {
 }
 
 OTACloudProcessInterface::State NANO_RP2040OTACloudProcess::reboot() {
-  mbed_watchdog_trigger_reset();
-  /* If watchdog is enabled we should not reach this point */
   NVIC_SystemReset();
 
   return Resume; // This won't ever be reached

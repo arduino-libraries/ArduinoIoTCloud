@@ -34,8 +34,4 @@ void watchdog_reset();
 void watchdog_enable_network_feed(NetworkAdapter ni);
 #endif /* (ARDUINO_ARCH_SAMD) || (ARDUINO_ARCH_MBED) */
 
-#ifdef ARDUINO_ARCH_MBED
-void mbed_watchdog_trigger_reset();
-#endif /* ARDUINO_ARCH_MBED */
-
 #endif /* ARDUINO_AIOTC_UTILITY_WATCHDOG_H_ */
