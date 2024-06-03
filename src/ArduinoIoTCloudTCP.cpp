@@ -273,6 +273,7 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_SyncTime()
     return State::ConnectMqttBroker;
   }
 
+  DEBUG_ERROR("ArduinoIoTCloudTCP::%s could not get valid time. Retrying now.", __FUNCTION__);
   return State::ConnectPhy;
 }
 
