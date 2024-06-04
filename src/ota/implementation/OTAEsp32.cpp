@@ -12,6 +12,11 @@
 #if defined(ARDUINO_ARCH_ESP32) && OTA_ENABLED
 #include "OTAEsp32.h"
 #include <esp_ota_ops.h>
+#if defined __has_include
+  #if __has_include(<spi_flash_mmap.h>)
+    #include <spi_flash_mmap.h>
+  #endif
+#endif
 #include <Update.h>
 
 ESP32OTACloudProcess::ESP32OTACloudProcess(MessageStream *ms, Client* client)
