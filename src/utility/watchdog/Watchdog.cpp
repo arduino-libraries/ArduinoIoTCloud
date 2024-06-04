@@ -33,7 +33,7 @@
 #endif /* ARDUINO_ARCH_SAMD */
 
 #ifdef ARDUINO_ARCH_MBED
-#  include <watchdog_api.h>
+#  include <drivers/Watchdog.h>
 #  define PORTENTA_H7_WATCHDOG_MAX_TIMEOUT_ms  (32760)
 #  define NANO_RP2040_WATCHDOG_MAX_TIMEOUT_ms  (8389)
 #  define EDGE_CONTROL_WATCHDOG_MAX_TIMEOUT_ms (65536)
@@ -42,7 +42,7 @@
 /******************************************************************************
  * GLOBAL VARIABLES
  ******************************************************************************/
-#if defined(ARDUINO_ARCH_SAMD) || defined(ARDUINO_ARCH_MBED)
+#if defined(ARDUINO_ARCH_SAMD)
 static bool is_watchdog_enabled = false;
 #endif
 
@@ -96,18 +96,15 @@ static void mbed_watchdog_enable()
 # error "You need to define the maximum possible timeout for this architecture."
 #endif
 
-  if (hal_watchdog_init(&cfg) == WATCHDOG_STATUS_OK) {
-    is_watchdog_enabled = true;
-  }
-  else {
+  if (!mbed::Watchdog::get_instance().start(cfg.timeout_ms)) {
     DEBUG_WARNING("%s: watchdog could not be enabled", __FUNCTION__);
   }
 }
 
 static void mbed_watchdog_reset()
 {
-  if (is_watchdog_enabled) {
-    hal_watchdog_kick();
+  if (mbed::Watchdog::get_instance().is_running()) {
+    mbed::Watchdog::get_instance().kick();
   }
 }
 
@@ -130,21 +127,6 @@ static void mbed_watchdog_enable_network_feed(NetworkAdapter ni)
     GSM.setFeedWatchdogFunc(watchdog_reset);
 #endif
   }
-}
-
-void mbed_watchdog_trigger_reset()
-{
-  watchdog_config_t cfg;
-  cfg.timeout_ms = 1;
-
-  if (hal_watchdog_init(&cfg) == WATCHDOG_STATUS_OK) {
-    is_watchdog_enabled = true;
-    while(1){}
-  }
-  else {
-    DEBUG_WARNING("%s: watchdog could not be reconfigured", __FUNCTION__);
-  }
-
 }
 #endif /* ARDUINO_ARCH_MBED */
 
