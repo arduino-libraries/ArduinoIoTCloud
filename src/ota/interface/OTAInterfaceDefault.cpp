@@ -93,6 +93,11 @@ OTACloudProcessInterface::State OTADefaultCloudProcessInterface::fetch() {
   uint32_t start = millis();
 
   do {
+    if(!http_client->connected()) {
+      res = OtaDownloadFail;
+      goto exit;
+    }
+
     if(http_client->available() == 0) {
       /* Avoid tight loop and allow yield */
       delay(1);
