@@ -62,6 +62,9 @@ OTACloudProcessInterface::State STM32H7OTACloudProcess::startOTA() {
 
   decompressed = fopen(_filename.c_str(), "wb");
 
+  if(decompressed == nullptr) {
+    return ErrorOpenUpdateFileFail;
+  }
   // start the download if the setup for ota storage is successful
   return OTADefaultCloudProcessInterface::startOTA();
 }
