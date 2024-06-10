@@ -170,6 +170,7 @@ jobs:
               - name: arduino:mbed_portenta
             libraries: |
               - name: ArduinoECCX08
+              - name: Arduino_Cellular
             sketch-paths: |
               - examples/ArduinoIoTCloud-DeferredOTA
               - examples/utility/Provisioning
@@ -211,6 +212,8 @@ jobs:
             platforms: |
               # Install renesas_portenta platform via Boards Manager
               - name: arduino:renesas_portenta
+            libraries: |
+              - name: Arduino_Cellular
             sketch-paths: |
               - examples/utility/Provisioning
           # UNO R4 WiFi
