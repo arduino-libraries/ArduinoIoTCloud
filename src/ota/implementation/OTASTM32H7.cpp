@@ -11,21 +11,15 @@
 #include "AIoTC_Config.h"
 #if defined(BOARD_STM32H7) && OTA_ENABLED
 #include "OTASTM32H7.h"
-
-#include "utility/watchdog/Watchdog.h"
 #include <STM32H747_System.h>
-
-static bool findProgramLength(DIR * dir, uint32_t & program_length);
-
-const char STM32H7OTACloudProcess::UPDATE_FILE_NAME[] = "/fs/UPDATE.BIN";
 
 STM32H7OTACloudProcess::STM32H7OTACloudProcess(MessageStream *ms, Client* client)
 : OTADefaultCloudProcessInterface(ms, client)
 , decompressed(nullptr)
 , _bd_raw_qspi(nullptr)
-, _program_length(0)
 , _bd(nullptr)
-, _fs(nullptr) {
+, _fs(nullptr)
+, _filename("/" + String(STM32H747OTA::FOLDER) + "/" + String(STM32H747OTA::NAME)) {
 
 }
 
@@ -44,7 +38,6 @@ OTACloudProcessInterface::State STM32H7OTACloudProcess::resume(Message* msg) {
 
 void STM32H7OTACloudProcess::update() {
   OTADefaultCloudProcessInterface::update();
-  watchdog_reset(); // FIXME this should npot be performed here
 }
 
 int STM32H7OTACloudProcess::writeFlash(uint8_t* const buffer, size_t len) {
@@ -65,10 +58,13 @@ OTACloudProcessInterface::State STM32H7OTACloudProcess::startOTA() {
   }
 
   // this could be useless, since we are writing over it
-  remove(UPDATE_FILE_NAME);
+  remove(_filename.c_str());
 
-  decompressed = fopen(UPDATE_FILE_NAME, "wb");
+  decompressed = fopen(_filename.c_str(), "wb");
 
+  if(decompressed == nullptr) {
+    return ErrorOpenUpdateFileFail;
+  }
   // start the download if the setup for ota storage is successful
   return OTADefaultCloudProcessInterface::startOTA();
 }
@@ -78,18 +74,20 @@ OTACloudProcessInterface::State STM32H7OTACloudProcess::flashOTA() {
   fclose(decompressed);
   decompressed = nullptr;
 
+  uint32_t updateLength = 0;
+
   /* Schedule the firmware update. */
-  if(!storageOpen()) {
+  if(!findProgramLength(updateLength)) {
     return OtaStorageOpenFail;
   }
 
   storageClean();
 
   // this sets the registries in RTC to load the firmware from the storage selected at the next reboot
-  STM32H747::writeBackupRegister(RTCBackup::DR0, 0x07AA);
-  STM32H747::writeBackupRegister(RTCBackup::DR1, storage);
-  STM32H747::writeBackupRegister(RTCBackup::DR2, data_offset);
-  STM32H747::writeBackupRegister(RTCBackup::DR3, _program_length);
+  STM32H747::writeBackupRegister(RTCBackup::DR0, STM32H747OTA::MAGIC);
+  STM32H747::writeBackupRegister(RTCBackup::DR1, STM32H747OTA::STORAGE_TYPE);
+  STM32H747::writeBackupRegister(RTCBackup::DR2, STM32H747OTA::PARTITION);
+  STM32H747::writeBackupRegister(RTCBackup::DR3, updateLength);
 
   return Reboot;
 }
@@ -106,7 +104,7 @@ OTACloudProcessInterface::State STM32H7OTACloudProcess::reboot() {
 void STM32H7OTACloudProcess::reset() {
   OTADefaultCloudProcessInterface::reset();
 
-  remove(UPDATE_FILE_NAME);
+  remove(_filename.c_str());
 
   storageClean();
 }
@@ -156,14 +154,9 @@ bool STM32H7OTACloudProcess::storageInit() {
     }
   }
 
-  if (storage == portenta::QSPI_FLASH_FATFS) {
-    _fs = new mbed::FATFileSystem("fs");
-    err_mount = _fs->mount(_bd_raw_qspi);
-  } else if (storage == portenta::QSPI_FLASH_FATFS_MBR) {
-    _bd = new mbed::MBRBlockDevice(_bd_raw_qspi, data_offset);
-    _fs = new mbed::FATFileSystem("fs");
-    err_mount = _fs->mount(_bd);
-  }
+  _bd = new mbed::MBRBlockDevice(_bd_raw_qspi, STM32H747OTA::PARTITION);
+  _fs = new mbed::FATFileSystem(STM32H747OTA::FOLDER);
+  err_mount = _fs->mount(_bd);
 
   if (!err_mount) {
     return true;
@@ -172,43 +165,34 @@ bool STM32H7OTACloudProcess::storageInit() {
   return false;
 }
 
-bool STM32H7OTACloudProcess::storageOpen() {
+bool STM32H7OTACloudProcess::findProgramLength(uint32_t & program_length) {
   DIR * dir = NULL;
-  if ((dir = opendir("/fs")) != NULL)
-  {
-    if (findProgramLength(dir, _program_length))
-    {
-      closedir(dir);
-      return true;
-    }
-    closedir(dir);
-  }
-
-  return false;
-}
-
-bool findProgramLength(DIR * dir, uint32_t & program_length) {
   struct dirent * entry = NULL;
-  while ((entry = readdir(dir)) != NULL) {
-    if (strcmp(entry->d_name, "UPDATE.BIN") == 0) { // FIXME use constants
-      struct stat stat_buf;
-      stat("/fs/UPDATE.BIN", &stat_buf);
-      program_length = stat_buf.st_size;
-      return true;
-    }
+  String dirName = "/" + String(STM32H747OTA::FOLDER);
+  bool found = false;
+
+  if ((dir = opendir(dirName.c_str())) == NULL) {
+    return false;
   }
 
-  return false;
+  while ((entry = readdir(dir)) != NULL) {
+    if (strcmp(entry->d_name, STM32H747OTA::NAME) == 0) {
+      struct stat stat_buf;
+      stat(_filename.c_str(), &stat_buf);
+      program_length = stat_buf.st_size;
+      found = true;
+    }
+  }
+  closedir(dir);
+  return found;
 }
 
-// extern uint32_t __stext = ~0;
 extern uint32_t __etext;
 extern uint32_t _sdata;
 extern uint32_t _edata;
 
 void* STM32H7OTACloudProcess::appStartAddress() {
   return (void*)0x8040000;
-  // return &__stext;
 }
 
 uint32_t STM32H7OTACloudProcess::appSize() {

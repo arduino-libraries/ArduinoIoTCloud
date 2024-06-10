@@ -21,20 +21,17 @@
 #include "WiFi.h" /* WiFi from ArduinoCore-mbed */
 #include <SocketHelpers.h>
 
-#define APOTA_QSPI_FLASH_FLAG         (1 << 2)
-#define APOTA_SDCARD_FLAG             (1 << 3)
-#define APOTA_RAW_FLAG                (1 << 4)
-#define APOTA_FATFS_FLAG              (1 << 5)
-#define APOTA_LITTLEFS_FLAG           (1 << 6)
-#define APOTA_MBR_FLAG                (1 << 7)
-
-namespace portenta {
-  enum StorageType {
-      QSPI_FLASH_FATFS        = APOTA_QSPI_FLASH_FLAG | APOTA_FATFS_FLAG,
-      QSPI_FLASH_FATFS_MBR    = APOTA_QSPI_FLASH_FLAG | APOTA_FATFS_FLAG | APOTA_MBR_FLAG,
-      SD_FATFS                = APOTA_SDCARD_FLAG | APOTA_FATFS_FLAG,
-      SD_FATFS_MBR            = APOTA_SDCARD_FLAG | APOTA_FATFS_FLAG | APOTA_MBR_FLAG,
-  };
+namespace STM32H747OTA {
+  /* External QSPI flash + MBR + FatFs */
+  static const uint32_t constexpr STORAGE_TYPE = ((1 << 2) | (1 << 5) | (1 << 7));
+  /* Default OTA partition */
+  static const uint32_t constexpr PARTITION = 2;
+  /* OTA Magic number */
+  static const uint32_t constexpr MAGIC = 0x07AA;
+  /* OTA download folder name */
+  static const char constexpr FOLDER[] = "ota";
+  /* OTA update filename */
+  static const char constexpr NAME[] = "UPDATE.BIN";
 }
 
 class STM32H7OTACloudProcess: public OTADefaultCloudProcessInterface {
@@ -67,23 +64,14 @@ protected:
   bool appFlashClose() { return true; };
 private:
   bool storageInit();
-  bool storageOpen();
-
+  bool findProgramLength(uint32_t & program_length);
   void storageClean();
 
   FILE* decompressed;
-  // static const char UPDATE_FILE_NAME[];
   mbed::BlockDevice* _bd_raw_qspi;
-  uint32_t _program_length;
 
   mbed::BlockDevice* _bd;
   mbed::FATFileSystem* _fs;
 
-  mbed::MBRBlockDevice* cert_bd_qspi;
-  mbed::FATFileSystem*  cert_fs_qspi;
-
-  const portenta::StorageType storage=portenta::QSPI_FLASH_FATFS_MBR;
-  const uint32_t data_offset=2;
-
-  static const char UPDATE_FILE_NAME[];
+  String _filename;
 };
