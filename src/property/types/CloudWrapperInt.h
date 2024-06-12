@@ -22,6 +22,8 @@
    INCLUDE
  ******************************************************************************/
 
+#include <stdint.h>
+
 #include <Arduino.h>
 #include "CloudWrapperBase.h"
 
@@ -29,15 +31,16 @@
    CLASS DECLARATION
  ******************************************************************************/
 
+template <typename T>
 class CloudWrapperInt : public CloudWrapperBase {
   private:
-    int  &_primitive_value,
-         _cloud_value,
-         _local_value;
+    T  &_primitive_value,
+        _cloud_value,
+        _local_value;
   public:
-    CloudWrapperInt(int& v) : _primitive_value(v), _cloud_value(v), _local_value(v) {}
+    CloudWrapperInt(T& v) : _primitive_value(v), _cloud_value(v), _local_value(v) {}
     virtual bool isDifferentFromCloud() {
-      return _primitive_value != _cloud_value && (abs(_primitive_value - _cloud_value) >= Property::_min_delta_property);
+      return _primitive_value != _cloud_value && ((std::max(_primitive_value , _cloud_value) - std::min(_primitive_value , _cloud_value)) >= Property::_min_delta_property);
     }
     virtual void fromCloudToLocal() {
       _primitive_value = _cloud_value;
@@ -58,6 +61,5 @@ class CloudWrapperInt : public CloudWrapperBase {
       return _primitive_value != _local_value;
     }
 };
-
 
 #endif /* CLOUDWRAPPERINT_H_ */

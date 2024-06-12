@@ -33,7 +33,6 @@
 #include "types/CloudBool.h"
 #include "types/CloudFloat.h"
 #include "types/CloudInt.h"
-#include "types/CloudUnsignedInt.h"
 #include "types/CloudString.h"
 #include "types/CloudLocation.h"
 #include "types/CloudSchedule.h"
@@ -62,36 +61,36 @@ extern "C" unsigned long getTime();
 
 typedef std::list<Property *> PropertyContainer;
 
-typedef CloudFloat CloudEnergy;
-typedef CloudFloat CloudForce;
-typedef CloudFloat CloudTemperature;
-typedef CloudFloat CloudPower;
+typedef CloudFloat CloudAcceleration;
+typedef CloudFloat CloudAngle;
+typedef CloudFloat CloudArea;
+typedef CloudFloat CloudCapacitance;
+typedef CloudInt<int32_t> CloudCounter;
+typedef CloudFloat CloudDataRate;
 typedef CloudFloat CloudElectricCurrent;
 typedef CloudFloat CloudElectricPotential;
 typedef CloudFloat CloudElectricResistance;
-typedef CloudFloat CloudCapacitance;
-typedef CloudUnsignedInt CloudTime;
-typedef CloudFloat CloudFrequency;
-typedef CloudFloat CloudDataRate;
-typedef CloudFloat CloudHeartRate;
-typedef CloudInt   CloudCounter;
-typedef CloudFloat CloudAcceleration;
-typedef CloudFloat CloudArea;
-typedef CloudFloat CloudLength;
-typedef CloudFloat CloudVelocity;
-typedef CloudFloat CloudMass;
-typedef CloudFloat CloudVolume;
+typedef CloudFloat CloudEnergy;
 typedef CloudFloat CloudFlowRate;
-typedef CloudFloat CloudAngle;
+typedef CloudFloat CloudForce;
+typedef CloudFloat CloudFrequency;
+typedef CloudFloat CloudHeartRate;
 typedef CloudFloat CloudIlluminance;
-typedef CloudFloat CloudLuminousFlux;
-typedef CloudFloat CloudLuminance;
-typedef CloudFloat CloudLuminousIntensity;
+typedef CloudInt<int32_t> CloudInformationContent;
+typedef CloudFloat CloudLength;
 typedef CloudFloat CloudLogarithmicQuantity;
-typedef CloudFloat CloudPressure;
-typedef CloudInt   CloudInformationContent;
+typedef CloudFloat CloudLuminance;
+typedef CloudFloat CloudLuminousFlux;
+typedef CloudFloat CloudLuminousIntensity;
+typedef CloudFloat CloudMass;
 typedef CloudFloat CloudPercentage;
+typedef CloudFloat CloudPower;
+typedef CloudFloat CloudPressure;
 typedef CloudFloat CloudRelativeHumidity;
+typedef CloudFloat CloudTemperature;
+typedef CloudInt<uint32_t> CloudTime;
+typedef CloudFloat CloudVelocity;
+typedef CloudFloat CloudVolume;
 
 /******************************************************************************
    FUNCTION DECLARATION
@@ -104,10 +103,8 @@ Property & addPropertyToContainer(PropertyContainer & prop_cont,
                                   int propertyIdentifier = -1,
                                   GetTimeCallbackFunc func = getTime);
 
-  
 Property * getProperty(PropertyContainer & prop_cont, String const & name);
 Property * getProperty(PropertyContainer & prop_cont, int const identifier);
-
 
 void updateTimestampOnLocallyChangedProperties(PropertyContainer & prop_cont);
 void requestUpdateForAllProperties(PropertyContainer & prop_cont);

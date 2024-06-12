@@ -34,10 +34,10 @@
 
 #include <unistd.h>
 
+#include "compilersupport_p.h"
+
 typedef ssize_t RetType;
 typedef size_t LenType;
-
-#include "compilersupport_p.h"
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wpedantic"

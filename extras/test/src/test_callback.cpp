@@ -41,8 +41,8 @@ void externalCallbackV2()
 SCENARIO("A callback is registered via 'onUpdate' to be called on property change", "[ArduinoCloudThing::decode]")
 {
   PropertyContainer property_container;
-    
-  CloudInt test = 10;
+
+  CloudInt<int> test = 10;
   addPropertyToContainer(property_container, test, "test", Permission::ReadWrite).onUpdate(externalCallbackV2);
 
   /* [{0: "test", 2: 7}] = 81 A2 00 64 74 65 73 74 02 07 */

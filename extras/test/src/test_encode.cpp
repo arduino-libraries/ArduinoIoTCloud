@@ -57,12 +57,28 @@ SCENARIO("Arduino Cloud Properties are encoded", "[ArduinoCloudThing::encode-1]"
 
   /************************************************************************************/
 
-  WHEN("A 'int' property is added")
+  WHEN("An 'int16' property is added")
   {
     PropertyContainer property_container;
     cbor::encode(property_container);
 
-    CloudInt int_test = 123;
+    CloudInt<int16_t> int_test = 123;
+    addPropertyToContainer(property_container, int_test, "test", Permission::ReadWrite);
+
+    /* [{0: "test", 2: 123}] = 9F A2 00 64 74 65 73 74 02 18 7B FF */
+    std::vector<uint8_t> const expected = {0x9F, 0xA2, 0x00, 0x64, 0x74, 0x65, 0x73, 0x74, 0x02, 0x18, 0x7B, 0xFF};
+    std::vector<uint8_t> const actual = cbor::encode(property_container);
+    REQUIRE(actual == expected);
+  }
+
+  /************************************************************************************/
+
+  WHEN("An 'int32' property is added")
+  {
+    PropertyContainer property_container;
+    cbor::encode(property_container);
+
+    CloudInt<int32_t> int_test = 123;
     addPropertyToContainer(property_container, int_test, "test", Permission::ReadWrite);
 
     /* [{0: "test", 2: 123}] = 9F A2 00 64 74 65 73 74 02 18 7B FF */
@@ -343,11 +359,11 @@ SCENARIO("Arduino Cloud Properties are encoded", "[ArduinoCloudThing::encode-1]"
   WHEN("Multiple properties are added")
   {
     PropertyContainer property_container;
-        
-    CloudInt    int_test = 1;
-    CloudBool   bool_test = false;
-    CloudFloat  float_test = 2.0f;
-    CloudString str_test;
+
+    CloudInt<int> int_test = 1;
+    CloudBool     bool_test = false;
+    CloudFloat    float_test = 2.0f;
+    CloudString   str_test;
     str_test = "str_test";
 
     addPropertyToContainer(property_container, int_test,   "int_test",   Permission::ReadWrite);
@@ -368,14 +384,14 @@ SCENARIO("Arduino Cloud Properties are encoded", "[ArduinoCloudThing::encode-1]"
   WHEN("Multiple primitive properties are added")
   {
     PropertyContainer property_container;
-        
+
     int    int_test = 1;
     bool   bool_test = false;
     float  float_test = 2.0f;
     String str_test;
     str_test = "str_test";
 
-    std::unique_ptr<Property> i(new CloudWrapperInt(int_test));
+    std::unique_ptr<Property> i(new CloudWrapperInt<int>(int_test));
     std::unique_ptr<Property> b(new CloudWrapperBool(bool_test));
     std::unique_ptr<Property> f(new CloudWrapperFloat(float_test));
     std::unique_ptr<Property> s(new CloudWrapperString(str_test));
@@ -448,17 +464,17 @@ SCENARIO("Arduino Cloud Properties are encoded", "[ArduinoCloudThing::encode-1]"
   {
     PropertyContainer property_container;
 
-    CloudInt int_0; int_0 = 1000000;
-    CloudInt int_1; int_1 = 1000001;
-    CloudInt int_2; int_2 = 1000002;
-    CloudInt int_3; int_3 = 1000003;
-    CloudInt int_4; int_4 = 1000004;
-    CloudInt int_5; int_5 = 1000005;
-    CloudInt int_6; int_6 = 1000006;
-    CloudInt int_7; int_7 = 1000007;
-    CloudInt int_8; int_8 = 1000008;
-    CloudInt int_9; int_9 = 1000009;
-    CloudInt int_A; int_A = 1000010;
+    CloudInt<int> int_0; int_0 = 1000000;
+    CloudInt<int> int_1; int_1 = 1000001;
+    CloudInt<int> int_2; int_2 = 1000002;
+    CloudInt<int> int_3; int_3 = 1000003;
+    CloudInt<int> int_4; int_4 = 1000004;
+    CloudInt<int> int_5; int_5 = 1000005;
+    CloudInt<int> int_6; int_6 = 1000006;
+    CloudInt<int> int_7; int_7 = 1000007;
+    CloudInt<int> int_8; int_8 = 1000008;
+    CloudInt<int> int_9; int_9 = 1000009;
+    CloudInt<int> int_A; int_A = 1000010;
     CloudSchedule schedule = CloudSchedule(1633305600, 1633651200, 600, 1140850708);
 
     addPropertyToContainer(property_container, int_0, "int_value_0", Permission::ReadWrite);
@@ -515,5 +531,4 @@ SCENARIO("Arduino Cloud Properties are encoded", "[ArduinoCloudThing::encode-1]"
     std::vector<uint8_t> const actual_1 = cbor::encode(property_container);
     REQUIRE(actual_1 == expected_1);
   }
-
 }
