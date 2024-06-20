@@ -90,17 +90,72 @@ void NTPUtils::sendNTPpacket(UDP & udp)
   udp.endPacket();
 }
 
+#ifdef NTP_USE_RANDOM_PORT
 int NTPUtils::getRandomPort(int const min_port, int const max_port)
 {
-#if defined (BOARD_HAS_ECCX08)
-  return ECCX08.random(min_port, max_port);
-#elif defined (ARDUINO_ARCH_ESP8266) || (ARDUINO_ARCH_ESP32)
+#if defined (ARDUINO_ARCH_ESP8266) || (ARDUINO_ARCH_ESP32) || \
+            (ARDUINO_ARCH_RENESAS) || (ARDUINO_ARCH_MBED)
   /* Uses HW Random Number Generator */
-  return random(min_port, max_port);
+#elif defined (ARDUINO_ARCH_SAMD)
+  /* Use ADC to generate a seed */
+  randomSeed(adcSeed());
 #else
   randomSeed(analogRead(0));
-  return random(min_port, max_port);
 #endif
+  return random(min_port, max_port);
 }
 
-#endif /* #ifndef HAS_LORA */
+#if defined (ARDUINO_ARCH_SAMD)
+unsigned long NTPUtils::adcSeed()
+{
+  uint32_t seed = 0;
+  uint32_t bitCount = 0;
+  uint16_t sampctlr = ADC->SAMPCTRL.reg;
+
+  // Use lowest sampling time
+  ADC->SAMPCTRL.reg  = 0;
+  // Enable ADC
+  ADC->CTRLA.bit.ENABLE = 1;
+  while (ADC->STATUS.bit.SYNCBUSY == 1);
+  do {
+    uint16_t adcReading;
+    // Start ADC conversion
+    ADC->SWTRIG.bit.START = 1;
+    // Wait until ADC conversion is done
+    while (!(ADC->INTFLAG.bit.RESRDY));
+    while (ADC->STATUS.bit.SYNCBUSY == 1);
+    // Get result
+    adcReading = ADC->RESULT.reg;
+    // Clear result ready flag
+    ADC->INTFLAG.reg = ADC_INTFLAG_RESRDY;
+    while (ADC->STATUS.bit.SYNCBUSY == 1);
+    // Take least significant bit
+    uint8_t b0 = adcReading & 0x0001;
+    ADC->SWTRIG.bit.START = 1;
+    // Wait until ADC conversion is done
+    while (!(ADC->INTFLAG.bit.RESRDY));
+    while (ADC->STATUS.bit.SYNCBUSY == 1);
+    // Get result
+    adcReading = ADC->RESULT.reg;
+    // Clear result ready flag
+    ADC->INTFLAG.reg = ADC_INTFLAG_RESRDY;
+    while (ADC->STATUS.bit.SYNCBUSY == 1);
+    // Take least significant nibble
+    uint8_t b1 = adcReading & 0x0001;
+    if (b0 == b1) {
+     continue;
+    }
+    seed |= b0 << bitCount;
+    bitCount++;
+  } while(bitCount < 32);
+  // Disable ADC
+  ADC->CTRLA.bit.ENABLE = 0;
+  // restore original sampling time
+  ADC->SAMPCTRL.reg = sampctlr;
+  return seed;
+}
+#endif /* ARDUINO_ARCH_SAMD */
+
+#endif /* NTP_USE_RANDOM_PORT */
+
+#endif /* !HAS_LORA */
