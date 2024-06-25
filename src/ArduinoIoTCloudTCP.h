@@ -148,7 +148,7 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
 
 
 #if OTA_ENABLED
-    TLSClientOta _otaClient;
+    TLSClientOta _otaTLSClient;
     ArduinoCloudOTA _ota;
     onOTARequestCallbackFunc _get_ota_confirmation;
 #endif /* OTA_ENABLED */
