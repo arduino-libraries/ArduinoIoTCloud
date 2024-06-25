@@ -33,12 +33,7 @@ void initProperties() {
 #endif
 }
 
-#if defined(BOARD_HAS_ETHERNET)
-  /* DHCP mode */
-  //EthernetConnectionHandler ArduinoIoTPreferredConnection;
-  /* Manual mode. It will fallback in DHCP mode if SECRET_OPTIONAL_IP is invalid or equal to "0.0.0.0" */
-  EthernetConnectionHandler ArduinoIoTPreferredConnection(SECRET_OPTIONAL_IP, SECRET_OPTIONAL_DNS, SECRET_OPTIONAL_GATEWAY, SECRET_OPTIONAL_NETMASK);
-#elif defined(BOARD_HAS_WIFI)
+#if defined(BOARD_HAS_WIFI)
   WiFiConnectionHandler ArduinoIoTPreferredConnection(SECRET_WIFI_SSID, SECRET_WIFI_PASS);
 #elif defined(BOARD_HAS_GSM)
   GSMConnectionHandler ArduinoIoTPreferredConnection(SECRET_PIN, SECRET_APN, SECRET_LOGIN, SECRET_PASS);
@@ -48,4 +43,9 @@ void initProperties() {
   NBConnectionHandler ArduinoIoTPreferredConnection(SECRET_PIN, SECRET_APN, SECRET_LOGIN, SECRET_PASS);
 #elif defined(BOARD_HAS_CATM1_NBIOT)
   CatM1ConnectionHandler ArduinoIoTPreferredConnection(SECRET_PIN, SECRET_APN, SECRET_LOGIN, SECRET_PASS);
+#elif defined(BOARD_HAS_ETHERNET)
+  /* DHCP mode */
+  //EthernetConnectionHandler ArduinoIoTPreferredConnection;
+  /* Manual mode. It will fallback in DHCP mode if SECRET_OPTIONAL_IP is invalid or equal to "0.0.0.0" */
+  EthernetConnectionHandler ArduinoIoTPreferredConnection(SECRET_OPTIONAL_IP, SECRET_OPTIONAL_DNS, SECRET_OPTIONAL_GATEWAY, SECRET_OPTIONAL_NETMASK);
 #endif
