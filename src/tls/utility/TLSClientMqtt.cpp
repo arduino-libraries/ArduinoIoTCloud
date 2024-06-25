@@ -58,6 +58,7 @@ void TLSClientMqtt::begin(ConnectionHandler & connection) {
    * also present in older firmware revisions
    * https://github.com/arduino/uno-r4-wifi-usb-bridge/blob/f09ca94fdcab845b8368d4435fdac9f6999d21d2/certificates/certificates.pem#L852
    */
+  (void)connection;
 #elif defined(ARDUINO_ARCH_ESP32)
   setCACertBundle(x509_crt_bundle);
 #elif defined(ARDUINO_ARCH_ESP8266)
