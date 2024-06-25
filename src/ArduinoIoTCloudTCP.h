@@ -75,6 +75,7 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
     virtual void printDebugInfo() override;
 
     int begin(ConnectionHandler & connection, bool const enable_watchdog = true, String brokerAddress = DEFAULT_BROKER_ADDRESS_SECURE_AUTH, uint16_t brokerPort = DEFAULT_BROKER_PORT_SECURE_AUTH);
+    int begin(Client * mqttClient, Client * otaClient, bool const enable_watchdog = true, String brokerAddress = DEFAULT_BROKER_ADDRESS_SECURE_AUTH, uint16_t brokerPort = DEFAULT_BROKER_PORT_SECURE_AUTH);
 
     #ifdef BOARD_HAS_SECRET_KEY
     inline void setBoardId        (String const device_id) { setDeviceId(device_id); }
@@ -138,7 +139,7 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
   #endif
 #endif
 
-    TLSClientBroker _brokerTLSClient;
+    Client * _brokerTLSClient;
     MqttClient _mqttClient;
 
     String _messageTopicOut;
@@ -148,7 +149,7 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
 
 
 #if OTA_ENABLED
-    TLSClientOta _otaTLSClient;
+    Client * _otaTLSClient;
     ArduinoCloudOTA _ota;
     onOTARequestCallbackFunc _get_ota_confirmation;
 #endif /* OTA_ENABLED */
