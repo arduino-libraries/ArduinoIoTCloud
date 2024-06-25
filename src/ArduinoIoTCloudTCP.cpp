@@ -102,6 +102,52 @@ int ArduinoIoTCloudTCP::begin(ConnectionHandler & connection, bool const enable_
   return begin(enable_watchdog, _brokerAddress, _brokerPort);
 }
 
+void ArduinoIoTCloudTCP::update()
+{
+  /* Feed the watchdog. If any of the functions called below
+   * get stuck than we can at least reset and recover.
+   */
+#if defined (ARDUINO_ARCH_SAMD) || defined (ARDUINO_ARCH_MBED)
+  watchdog_reset();
+#endif
+
+  /* Run through the state machine. */
+  State next_state = _state;
+  switch (_state)
+  {
+  case State::ConnectPhy:           next_state = handle_ConnectPhy();           break;
+  case State::SyncTime:             next_state = handle_SyncTime();             break;
+  case State::ConnectMqttBroker:    next_state = handle_ConnectMqttBroker();    break;
+  case State::Connected:            next_state = handle_Connected();            break;
+  case State::Disconnect:           next_state = handle_Disconnect();           break;
+  }
+  _state = next_state;
+
+  /* This watchdog feed is actually needed only by the RP2040 Connect because its
+   * maximum watchdog window is 8389 ms; despite this we feed it for all
+   * supported ARCH to keep code aligned.
+   */
+#if defined (ARDUINO_ARCH_SAMD) || defined (ARDUINO_ARCH_MBED)
+  watchdog_reset();
+#endif
+}
+
+int ArduinoIoTCloudTCP::connected()
+{
+  return _mqttClient.connected();
+}
+
+void ArduinoIoTCloudTCP::printDebugInfo()
+{
+  DEBUG_INFO("***** Arduino IoT Cloud - configuration info *****");
+  DEBUG_INFO("Device ID: %s", getDeviceId().c_str());
+  DEBUG_INFO("MQTT Broker: %s:%d", _brokerAddress.c_str(), _brokerPort);
+}
+
+/******************************************************************************
+ * PRIVATE MEMBER FUNCTIONS
+ ******************************************************************************/
+
 int ArduinoIoTCloudTCP::begin(bool const enable_watchdog, String brokerAddress, uint16_t brokerPort)
 {
   _brokerAddress = brokerAddress;
@@ -203,52 +249,6 @@ int ArduinoIoTCloudTCP::begin(bool const enable_watchdog, String brokerAddress, 
 
   return 1;
 }
-
-void ArduinoIoTCloudTCP::update()
-{
-  /* Feed the watchdog. If any of the functions called below
-   * get stuck than we can at least reset and recover.
-   */
-#if defined (ARDUINO_ARCH_SAMD) || defined (ARDUINO_ARCH_MBED)
-  watchdog_reset();
-#endif
-
-  /* Run through the state machine. */
-  State next_state = _state;
-  switch (_state)
-  {
-  case State::ConnectPhy:           next_state = handle_ConnectPhy();           break;
-  case State::SyncTime:             next_state = handle_SyncTime();             break;
-  case State::ConnectMqttBroker:    next_state = handle_ConnectMqttBroker();    break;
-  case State::Connected:            next_state = handle_Connected();            break;
-  case State::Disconnect:           next_state = handle_Disconnect();           break;
-  }
-  _state = next_state;
-
-  /* This watchdog feed is actually needed only by the RP2040 Connect because its
-   * maximum watchdog window is 8389 ms; despite this we feed it for all
-   * supported ARCH to keep code aligned.
-   */
-#if defined (ARDUINO_ARCH_SAMD) || defined (ARDUINO_ARCH_MBED)
-  watchdog_reset();
-#endif
-}
-
-int ArduinoIoTCloudTCP::connected()
-{
-  return _mqttClient.connected();
-}
-
-void ArduinoIoTCloudTCP::printDebugInfo()
-{
-  DEBUG_INFO("***** Arduino IoT Cloud - configuration info *****");
-  DEBUG_INFO("Device ID: %s", getDeviceId().c_str());
-  DEBUG_INFO("MQTT Broker: %s:%d", _brokerAddress.c_str(), _brokerPort);
-}
-
-/******************************************************************************
- * PRIVATE MEMBER FUNCTIONS
- ******************************************************************************/
 
 ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_ConnectPhy()
 {
