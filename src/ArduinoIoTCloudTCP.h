@@ -36,7 +36,7 @@
   #endif
 #endif
 
-#include <tls/utility/TLSClientMqtt.h>
+#include <tls/utility/TLSClientBroker.h>
 #include <tls/utility/TLSClientOta.h>
 
 #if OTA_ENABLED
@@ -138,7 +138,7 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
   #endif
 #endif
 
-    TLSClientMqtt _brokerTLSClient;
+    TLSClientBroker _brokerTLSClient;
     MqttClient _mqttClient;
 
     String _messageTopicOut;
