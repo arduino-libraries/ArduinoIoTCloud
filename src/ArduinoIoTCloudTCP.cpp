@@ -84,10 +84,12 @@ int ArduinoIoTCloudTCP::begin(ConnectionHandler & connection, bool const enable_
   TLSClientBroker *brokerTLSClient = new TLSClientBroker();
   brokerTLSClient->begin(connection);
 
-#if  OTA_ENABLED
+#if OTA_ENABLED
   /* Setup OTA TLS client */
   TLSClientOta *otaTLSClient = new TLSClientOta();
   otaTLSClient->begin(connection);
+#else
+  Client *otaTLSClient = nullptr;
 #endif
 
 #if defined(BOARD_HAS_SECRET_KEY)
