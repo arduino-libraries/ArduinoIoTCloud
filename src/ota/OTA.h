@@ -50,8 +50,7 @@ using ArduinoCloudOTA = ESP32OTACloudProcess;
 #include "implementation/OTAUnoR4.h"
 using ArduinoCloudOTA = UNOR4OTACloudProcess;
 
-// TODO Check if a macro already exist
-constexpr uint32_t OtaMagicNumber = 0x234110020; // TODO check this value is correct
+constexpr uint32_t OtaMagicNumber = 0x23411002;
 
 #else
 #error "This Board doesn't support OTA"
