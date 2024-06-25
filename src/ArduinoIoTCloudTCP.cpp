@@ -140,7 +140,9 @@ int ArduinoIoTCloudTCP::begin(ConnectionHandler & connection, bool const enable_
 int ArduinoIoTCloudTCP::begin(Client * mqttClient, Client * otaClient, bool const enable_watchdog, String brokerAddress, uint16_t brokerPort)
 {
   _brokerTLSClient = mqttClient;
+#if OTA_ENABLED
   _otaTLSClient = otaClient;
+#endif
 
   /* Setup retry timers */
   _connection_attempt.begin(AIOT_CONFIG_RECONNECTION_RETRY_DELAY_ms, AIOT_CONFIG_MAX_RECONNECTION_RETRY_DELAY_ms);
