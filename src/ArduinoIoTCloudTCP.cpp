@@ -87,7 +87,7 @@ int ArduinoIoTCloudTCP::begin(ConnectionHandler & connection, bool const enable_
 #endif
 
   /* Setup broker TLS client */
-  _brokerClient.begin(connection);
+  _brokerTLSClient.begin(connection);
 
 #if  OTA_ENABLED
   /* Setup OTA TLS client */
@@ -181,7 +181,7 @@ int ArduinoIoTCloudTCP::begin(bool const enable_watchdog, String brokerAddress, 
       DEBUG_ERROR("ArduinoIoTCloudTCP::%s could not read device certificate.", __FUNCTION__);
       return 0;
     }
-    _brokerClient.setEccSlot(static_cast<int>(SElementArduinoCloudSlot::Key), _cert.bytes(), _cert.length());
+    _brokerTLSClient.setEccSlot(static_cast<int>(SElementArduinoCloudSlot::Key), _cert.bytes(), _cert.length());
     #if  OTA_ENABLED
     _otaClient.setEccSlot(static_cast<int>(SElementArduinoCloudSlot::Key), _cert.bytes(), _cert.length());
     #endif
@@ -192,7 +192,7 @@ int ArduinoIoTCloudTCP::begin(bool const enable_watchdog, String brokerAddress, 
   }
 #endif
 
-  _mqttClient.setClient(_brokerClient);
+  _mqttClient.setClient(_brokerTLSClient);
 
 #ifdef BOARD_HAS_SECRET_KEY
   if(_password.length())

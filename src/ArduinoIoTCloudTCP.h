@@ -138,7 +138,7 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
   #endif
 #endif
 
-    TLSClientMqtt _brokerClient;
+    TLSClientMqtt _brokerTLSClient;
     MqttClient _mqttClient;
 
     String _messageTopicOut;
