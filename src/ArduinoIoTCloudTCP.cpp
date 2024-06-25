@@ -91,7 +91,7 @@ int ArduinoIoTCloudTCP::begin(ConnectionHandler & connection, bool const enable_
 
 #if  OTA_ENABLED
   /* Setup OTA TLS client */
-  _otaClient.begin(connection);
+  _otaTLSClient.begin(connection);
 #endif
 
   /* Setup TimeService */
@@ -183,7 +183,7 @@ int ArduinoIoTCloudTCP::begin(bool const enable_watchdog, String brokerAddress, 
     }
     _brokerTLSClient.setEccSlot(static_cast<int>(SElementArduinoCloudSlot::Key), _cert.bytes(), _cert.length());
     #if  OTA_ENABLED
-    _otaClient.setEccSlot(static_cast<int>(SElementArduinoCloudSlot::Key), _cert.bytes(), _cert.length());
+    _otaTLSClient.setEccSlot(static_cast<int>(SElementArduinoCloudSlot::Key), _cert.bytes(), _cert.length());
     #endif
   #endif
 #endif
@@ -213,7 +213,7 @@ int ArduinoIoTCloudTCP::begin(bool const enable_watchdog, String brokerAddress, 
   _device.begin();
 
 #if OTA_ENABLED && !defined(OFFLOADED_DOWNLOAD)
-  _ota.setClient(&_otaClient);
+  _ota.setClient(&_otaTLSClient);
 #endif // OTA_ENABLED && !defined(OFFLOADED_DOWNLOAD)
 
 #if OTA_ENABLED && defined(OTA_BASIC_AUTH)
