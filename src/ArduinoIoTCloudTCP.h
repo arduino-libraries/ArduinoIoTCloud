@@ -36,7 +36,7 @@
   #endif
 #endif
 
-#include <tls/utility/TLSClientMqtt.h>
+#include <tls/utility/TLSClientBroker.h>
 #include <tls/utility/TLSClientOta.h>
 
 #if OTA_ENABLED
@@ -75,7 +75,7 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
     virtual void printDebugInfo() override;
 
     int begin(ConnectionHandler & connection, bool const enable_watchdog = true, String brokerAddress = DEFAULT_BROKER_ADDRESS_SECURE_AUTH, uint16_t brokerPort = DEFAULT_BROKER_PORT_SECURE_AUTH);
-    int begin(bool const enable_watchdog = true, String brokerAddress = DEFAULT_BROKER_ADDRESS_SECURE_AUTH, uint16_t brokerPort = DEFAULT_BROKER_PORT_SECURE_AUTH);
+    int begin(Client * mqttClient, Client * otaClient = nullptr, bool const enable_watchdog = true, String brokerAddress = DEFAULT_BROKER_ADDRESS_SECURE_AUTH, uint16_t brokerPort = DEFAULT_BROKER_PORT_SECURE_AUTH);
 
     #ifdef BOARD_HAS_SECRET_KEY
     inline void setBoardId        (String const device_id) { setDeviceId(device_id); }
@@ -104,6 +104,7 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
 #endif
 
   private:
+    int begin(bool const enable_watchdog = true, String brokerAddress = DEFAULT_BROKER_ADDRESS_SECURE_AUTH, uint16_t brokerPort = DEFAULT_BROKER_PORT_SECURE_AUTH);
     static const int MQTT_TRANSMIT_BUFFER_SIZE = 256;
 
     enum class State
@@ -138,7 +139,7 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
   #endif
 #endif
 
-    TLSClientMqtt _brokerClient;
+    Client * _brokerTLSClient;
     MqttClient _mqttClient;
 
     String _messageTopicOut;
@@ -148,7 +149,7 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
 
 
 #if OTA_ENABLED
-    TLSClientOta _otaClient;
+    Client * _otaTLSClient;
     ArduinoCloudOTA _ota;
     onOTARequestCallbackFunc _get_ota_confirmation;
 #endif /* OTA_ENABLED */
