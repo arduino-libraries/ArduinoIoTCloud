@@ -59,12 +59,14 @@ ArduinoIoTCloudTCP::ArduinoIoTCloudTCP()
 #ifdef BOARD_HAS_SECRET_KEY
 , _password("")
 #endif
+, _brokerTLSClient(nullptr)
 , _mqttClient{nullptr}
 , _messageTopicOut("")
 , _messageTopicIn("")
 , _dataTopicOut("")
 , _dataTopicIn("")
 #if OTA_ENABLED
+, _otaTLSClient(nullptr)
 , _ota(&_message_stream)
 , _get_ota_confirmation{nullptr}
 #endif /* OTA_ENABLED */
