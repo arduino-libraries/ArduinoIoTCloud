@@ -108,11 +108,11 @@ OTACloudProcessInterface::State OTACloudProcessInterface::otaBegin() {
     OtaBeginUpId,
   };
 
-  SHA256 sha256_calc;
+  SHA256Class sha256_calc;
   calculateSHA256(sha256_calc);
 
-  sha256_calc.finalize(sha256);
-  memcpy(msg.params.sha, sha256, SHA256::HASH_SIZE);
+  sha256_calc.endHash();
+  sha256_calc.readBytes(msg.params.sha, SHA256_DIGEST_SIZE);
 
   DEBUG_VERBOSE("calculated SHA256: "
       "0x%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X"
@@ -128,15 +128,15 @@ OTACloudProcessInterface::State OTACloudProcessInterface::otaBegin() {
   return Idle;
 }
 
-void OTACloudProcessInterface::calculateSHA256(SHA256& sha256_calc) {
+void OTACloudProcessInterface::calculateSHA256(SHA256Class& sha256_calc) {
   auto res = appFlashOpen();
   if(!res) {
     // TODO return error
     return;
   }
 
-  sha256_calc.begin();
-  sha256_calc.update(
+  sha256_calc.beginHash();
+  sha256_calc.write(
     reinterpret_cast<const uint8_t*>(appStartAddress()),
     appSize());
   appFlashClose();

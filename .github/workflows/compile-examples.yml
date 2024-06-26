@@ -102,6 +102,7 @@ jobs:
               # Install samd platform via Boards Manager
               - name: arduino:samd
             libraries: |
+              - name: ArduinoBearSSL
               - name: ArduinoECCX08
               - name: RTCZero
               - name: WiFi101
@@ -116,6 +117,7 @@ jobs:
               - name: arduino:samd
               - name: arduino:mbed_nano
             libraries: |
+              - name: ArduinoBearSSL
               - name: ArduinoECCX08
               - name: RTCZero
               - name: WiFiNINA
@@ -143,6 +145,7 @@ jobs:
               # Install samd platform via Boards Manager
               - name: arduino:samd
             libraries: |
+              - name: ArduinoBearSSL
               - name: ArduinoECCX08
               - name: RTCZero
               - name: MKRGSM
@@ -156,6 +159,7 @@ jobs:
               # Install samd platform via Boards Manager
               - name: arduino:samd
             libraries: |
+              - name: ArduinoBearSSL
               - name: ArduinoECCX08
               - name: RTCZero
               - name: MKRNB
@@ -169,6 +173,7 @@ jobs:
               # Install mbed_portenta platform via Boards Manager
               - name: arduino:mbed_portenta
             libraries: |
+              - name: ArduinoBearSSL
               - name: ArduinoECCX08
               - name: Arduino_Cellular
             sketch-paths: |
@@ -191,6 +196,7 @@ jobs:
               # Install mbed_opta platform via Boards Manager
               - name: arduino:mbed_opta
             libraries: |
+              - name: ArduinoBearSSL
               - name: ArduinoECCX08
             sketch-paths: |
               - examples/ArduinoIoTCloud-DeferredOTA
@@ -202,6 +208,7 @@ jobs:
               # Install mbed_giga platform via Boards Manager
               - name: arduino:mbed_giga
             libraries: |
+              - name: ArduinoBearSSL
               - name: ArduinoECCX08
             sketch-paths: |
               - examples/ArduinoIoTCloud-DeferredOTA
