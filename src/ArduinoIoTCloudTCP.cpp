@@ -346,9 +346,14 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_Disconnect()
     _mqttClient.stop();
   }
 
+  // Reset the Thing property container
   Message message = { ResetCmdId };
   _thing.handleMessage(&message);
+  _thing.update();
+
+  // Reset the Device property container
   _device.handleMessage(&message);
+  _device.update();
 
   DEBUG_INFO("Disconnected from Arduino IoT Cloud");
   execCloudEventCallback(ArduinoIoTCloudEvent::DISCONNECT);
