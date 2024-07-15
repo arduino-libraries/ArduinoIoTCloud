@@ -33,8 +33,8 @@ _registered(false) {
 }
 
 void ArduinoCloudDevice::begin() {
-  _attachAttempt.begin(AIOT_CONFIG_DEVICE_TOPIC_SUBSCRIBE_RETRY_DELAY_ms,
-                       AIOT_CONFIG_MAX_DEVICE_TOPIC_SUBSCRIBE_RETRY_DELAY_ms);
+  _attachAttempt.begin(AIOT_CONFIG_THING_ID_REQUEST_RETRY_DELAY_ms,
+                       AIOT_CONFIG_MAX_THING_ID_REQUEST_RETRY_DELAY_ms);
 }
 
 void ArduinoCloudDevice::update() {
@@ -93,8 +93,8 @@ void ArduinoCloudDevice::handleMessage(Message *m) {
 
 ArduinoCloudDevice::State ArduinoCloudDevice::handleInit() {
   /* Reset attempt struct for the nex retry after disconnection */
-  _attachAttempt.begin(AIOT_CONFIG_DEVICE_TOPIC_SUBSCRIBE_RETRY_DELAY_ms,
-                       AIOT_CONFIG_MAX_DEVICE_TOPIC_SUBSCRIBE_RETRY_DELAY_ms);
+  _attachAttempt.begin(AIOT_CONFIG_THING_ID_REQUEST_RETRY_DELAY_ms,
+                       AIOT_CONFIG_MAX_THING_ID_REQUEST_RETRY_DELAY_ms);
 
   _attached = false;
   _registered = false;
@@ -120,7 +120,7 @@ ArduinoCloudDevice::State ArduinoCloudDevice::handleSendCapabilities() {
 
 ArduinoCloudDevice::State ArduinoCloudDevice::handleConnected() {
   /* Max retry than disconnect */
-  if (_attachAttempt.getRetryCount() > AIOT_CONFIG_DEVICE_TOPIC_MAX_RETRY_CNT) {
+  if (_attachAttempt.getRetryCount() > AIOT_CONFIG_THING_ID_REQUEST_MAX_RETRY_CNT) {
     return State::Disconnected;
   }
 
