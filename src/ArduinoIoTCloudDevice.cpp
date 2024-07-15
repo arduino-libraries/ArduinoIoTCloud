@@ -130,8 +130,10 @@ ArduinoCloudDevice::State ArduinoCloudDevice::handleConnected() {
        * counter, but recompute delay.
        * Wait: 4s -> 80s -> 160s -> 320s -> 640s -> 1280s -> 1280s ...
        */
-      _attachAttempt.reconfigure(AIOT_CONFIG_DEVICE_TOPIC_ATTACH_RETRY_DELAY_ms,
-                                 AIOT_CONFIG_MAX_DEVICE_TOPIC_ATTACH_RETRY_DELAY_ms);
+      _attachAttempt.reconfigure(AIOT_CONFIG_THING_ID_REQUEST_RETRY_DELAY_ms *
+                                 AIOT_CONFIG_DEVICE_REGISTERED_RETRY_DELAY_k,
+                                 AIOT_CONFIG_MAX_THING_ID_REQUEST_RETRY_DELAY_ms *
+                                 AIOT_CONFIG_MAX_DEVICE_REGISTERED_RETRY_DELAY_k);
     }
     return State::SendCapabilities;
   }
