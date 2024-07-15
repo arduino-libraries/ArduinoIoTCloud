@@ -142,7 +142,10 @@
  * CONSTANTS
  ******************************************************************************/
 
-#define AIOT_CONFIG_INTERVAL_RETRY_DELAY_ms                       (10000UL)
+#if defined(HAS_LORA)
+  #define AIOT_CONFIG_LPWAN_UPDATE_RETRY_DELAY_ms                 (10000UL)
+#endif
+
 #define AIOT_CONFIG_RECONNECTION_RETRY_DELAY_ms                    (1000UL)
 #define AIOT_CONFIG_MAX_RECONNECTION_RETRY_DELAY_ms               (32000UL)
 #define AIOT_CONFIG_DEVICE_TOPIC_SUBSCRIBE_RETRY_DELAY_ms          (2000UL)
