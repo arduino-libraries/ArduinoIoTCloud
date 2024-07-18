@@ -38,6 +38,19 @@ void ArduinoCloudDevice::begin() {
 }
 
 void ArduinoCloudDevice::update() {
+  handleMessage(nullptr);
+}
+
+int ArduinoCloudDevice::connected() {
+  return _state != State::Disconnected ? 1 : 0;
+}
+
+void ArduinoCloudDevice::handleMessage(Message *m) {
+  _command = UnknownCmdId;
+  if (m != nullptr) {
+    _command = m->id;
+  }
+
   /* Run through the state machine. */
   State nextState = _state;
   switch (_state) {
@@ -78,17 +91,6 @@ void ArduinoCloudDevice::update() {
 
   _command = UnknownCmdId;
   _state = nextState;
-}
-
-int ArduinoCloudDevice::connected() {
-  return _state != State::Disconnected ? 1 : 0;
-}
-
-void ArduinoCloudDevice::handleMessage(Message *m) {
-  _command = UnknownCmdId;
-  if (m != nullptr) {
-    _command = m->id;
-  }
 }
 
 ArduinoCloudDevice::State ArduinoCloudDevice::handleInit() {
