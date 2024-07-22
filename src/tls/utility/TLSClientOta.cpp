@@ -54,6 +54,7 @@ void TLSClientOta::begin(ConnectionHandler &connection) {
   /* AWS Root CAs are configured in uno-r4-wifi-usb-bridge/libraries/Arduino_ESP32_OTA
    * https://github.com/arduino-libraries/Arduino_ESP32_OTA/blob/fc755e7d1d3946232107e2590662ee08d6ccdec4/src/tls/amazon_root_ca.h
    */
+  (void)connection;
 #elif defined(ARDUINO_ARCH_ESP32)
   setCACertBundle(x509_crt_bundle);
 #elif defined(ARDUINO_ARCH_ESP8266)
