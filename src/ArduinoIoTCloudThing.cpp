@@ -59,6 +59,23 @@ void ArduinoCloudThing::begin() {
 }
 
 void ArduinoCloudThing::update() {
+  handleMessage(nullptr);
+}
+
+int ArduinoCloudThing::connected() {
+  return _state > State::Disconnect ? 1 : 0;
+}
+
+void ArduinoCloudThing::handleMessage(Message* m) {
+  _command = UnknownCmdId;
+  if (m != nullptr) {
+    _command = m->id;
+    if (_command == TimezoneCommandDownId) {
+      _utcOffset = reinterpret_cast<TimezoneCommandDown*>(m)->params.offset;
+      _utcOffsetExpireTime = reinterpret_cast<TimezoneCommandDown*>(m)->params.until;
+    }
+  }
+
   /* Run through the state machine. */
   State nextState = _state;
   switch (_state) {
@@ -93,21 +110,6 @@ void ArduinoCloudThing::update() {
 
   _command = UnknownCmdId;
   _state = nextState;
-}
-
-int ArduinoCloudThing::connected() {
-  return _state > State::Disconnect ? 1 : 0;
-}
-
-void ArduinoCloudThing::handleMessage(Message* m) {
-  _command = UnknownCmdId;
-  if (m != nullptr) {
-    _command = m->id;
-    if (_command == TimezoneCommandDownId) {
-      _utcOffset = reinterpret_cast<TimezoneCommandDown*>(m)->params.offset;
-      _utcOffsetExpireTime = reinterpret_cast<TimezoneCommandDown*>(m)->params.until;
-    }
-  }
 }
 
 ArduinoCloudThing::State ArduinoCloudThing::handleInit() {
