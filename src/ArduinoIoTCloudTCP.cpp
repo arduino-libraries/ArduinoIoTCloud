@@ -232,10 +232,6 @@ void ArduinoIoTCloudTCP::update()
 #if defined (ARDUINO_ARCH_SAMD) || defined (ARDUINO_ARCH_MBED)
   watchdog_reset();
 #endif
-
-  /* Check for new data from the MQTT client. */
-  if (_mqttClient.connected())
-    _mqttClient.poll();
 }
 
 int ArduinoIoTCloudTCP::connected()
@@ -303,6 +299,9 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_Connected()
   {
     return State::Disconnect;
   }
+
+  /* Check for new data from the MQTT client. */
+  _mqttClient.poll();
 
   /* Retransmit data in case there was a lost transaction due
    * to phy layer or MQTT connectivity loss.
