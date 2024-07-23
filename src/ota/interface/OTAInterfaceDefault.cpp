@@ -182,7 +182,8 @@ void OTADefaultCloudProcessInterface::parseOta(uint8_t* buffer, size_t buf_len) 
 
       break;
     }
-    case OtaDownloadFile:
+    case OtaDownloadFile: {
+      uint32_t contentLength = http_client->contentLength();
       context->decoder.decompress(cursor, buf_len - (cursor-buffer)); // TODO verify return value
 
       context->calculatedCrc32 = crc_update(
@@ -195,22 +196,23 @@ void OTADefaultCloudProcessInterface::parseOta(uint8_t* buffer, size_t buf_len) 
       context->downloadedSize += (cursor-buffer);
 
       if((millis() - context->lastReportTime) > 10000) { // Report the download progress each X millisecond
-        DEBUG_VERBOSE("OTA Download Progress %d/%d", context->downloadedSize, http_client->contentLength());
+        DEBUG_VERBOSE("OTA Download Progress %d/%d", context->downloadedSize, contentLength);
 
         reportStatus(context->downloadedSize);
         context->lastReportTime = millis();
       }
 
       // TODO there should be no more bytes available when the download is completed
-      if(context->downloadedSize == http_client->contentLength()) {
+      if(context->downloadedSize == contentLength) {
         context->downloadState = OtaDownloadCompleted;
       }
 
-      if(context->downloadedSize > http_client->contentLength()) {
+      if(context->downloadedSize > contentLength) {
         context->downloadState = OtaDownloadError;
       }
       // TODO fail if we exceed a timeout? and available is 0 (client is broken)
       break;
+    }
     case OtaDownloadCompleted:
       return;
     default:
