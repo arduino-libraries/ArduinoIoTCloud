@@ -263,7 +263,8 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_ConnectPhy()
 
 ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_SyncTime()
 {
-  if (TimeServiceClass::isTimeValid(getTime()))
+  /* If available force network time sync when connecting or reconnecting */
+  if (_time_service.sync())
   {
     DEBUG_VERBOSE("ArduinoIoTCloudTCP::%s internal clock configured to posix timestamp %d", __FUNCTION__, getTime());
     return State::ConnectMqttBroker;
