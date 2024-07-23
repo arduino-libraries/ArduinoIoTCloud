@@ -49,4 +49,11 @@ public:
 
   OTAUpdate ota;
   static const char UPDATE_FILE_NAME[];
+
+#if defined(OTA_UPDATE_VERSION) && OTA_UPDATE_VERSION >= 0x00010000
+  struct Context {
+    uint32_t downloadSize;
+    uint32_t lastReportTime;
+  } *context;
+#endif
 };
