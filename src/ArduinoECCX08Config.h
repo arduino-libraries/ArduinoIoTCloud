@@ -18,10 +18,25 @@
 #ifndef ARDUINO_ECCX08_CONFIG_H
 #define ARDUINO_ECCX08_CONFIG_H
 
-#define ECCX08_DISABLE_ASN1
-#define ECCX08_DISABLE_CSR
-#define ECCX08_DISABLE_JWS
-#define ECCX08_DISABLE_SSC
-#define ECCX08_DISABLE_PEM
+
+#if defined __has_include
+  /* Disable ECCX08 SSC if not explicitly included */
+  #if !__has_include (<utility/ECCX08SelfSignedCert.h>)
+     #define ECCX08_DISABLE_ASN1
+     #define ECCX08_DISABLE_SSC
+  #endif
+  /* Disable ECCX08 JWS support if not explicitly included */
+  #if !__has_include (<utility/ECCX08JWS.h>)
+    #define ECCX08_DISABLE_JWS
+  #endif
+  /* Disable ECCX08 CSR support if not explicitly included */
+  #if !__has_include (<utility/ECCX08CSR.h>)
+    #define ECCX08_DISABLE_CSR
+  #endif
+   /* Disable ECCX08 PEM support if not explicitly included */
+  #if !__has_include (<utility/PEMUtils.h>)
+    #define ECCX08_DISABLE_PEM
+  #endif
+#endif
 
 #endif /* ARDUINO_ECCX08_CONFIG_H */
