@@ -34,7 +34,7 @@ public:
 private:
   unsigned long _minDelay;
   unsigned long _maxDelay;
-  unsigned long _nextRetryTick;
+  unsigned long _retryTick;
   unsigned long _retryDelay;
   unsigned int _retryCount;
 };

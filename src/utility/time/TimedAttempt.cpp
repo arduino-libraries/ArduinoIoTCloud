@@ -54,7 +54,7 @@ unsigned long TimedAttempt::retry() {
 unsigned long TimedAttempt::reload() {
   unsigned long retryDelay = (1 << _retryCount) * _minDelay;
   _retryDelay = min(retryDelay, _maxDelay);
-  _nextRetryTick = millis() + _retryDelay;
+  _retryTick = millis();
   return _retryDelay;
 }
 
@@ -67,7 +67,7 @@ bool TimedAttempt::isRetry() {
 }
 
 bool TimedAttempt::isExpired() {
-  return millis() > _nextRetryTick;
+  return millis() - _retryTick > _retryDelay;
 }
 
 unsigned int TimedAttempt::getRetryCount() {
