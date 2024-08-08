@@ -45,6 +45,7 @@ set(TEST_SRCS
   src/test_writeOnly.cpp
   src/test_writeOnDemand.cpp
   src/test_writeOnChange.cpp
+  src/test_TimedAttempt.cpp
 )
 
 set(TEST_UTIL_SRCS
@@ -53,6 +54,7 @@ set(TEST_UTIL_SRCS
 )
 
 set(TEST_DUT_SRCS
+  ../../src/utility/time/TimedAttempt.cpp
   ../../src/property/Property.cpp
   ../../src/property/PropertyContainer.cpp
   ../../src/cbor/CBORDecoder.cpp
@@ -84,7 +86,7 @@ set(TEST_TARGET_SRCS
 
 ##########################################################################
 
-add_compile_definitions(HOST)
+add_compile_definitions(HOST HAS_TCP)
 add_compile_options(-Wall -Wextra -Wpedantic -Werror)
 add_compile_options(-Wno-cast-function-type)
 
