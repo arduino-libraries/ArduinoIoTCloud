@@ -192,8 +192,10 @@ jobs:
               - name: arduino:mbed_opta
             libraries: |
               - name: ArduinoECCX08
+              - name: Blues Wireless Notecard
             sketch-paths: |
               - examples/ArduinoIoTCloud-DeferredOTA
+              - examples/ArduinoIoTCloud-Notecard
               - examples/utility/Provisioning
           # GIGA
           - board:

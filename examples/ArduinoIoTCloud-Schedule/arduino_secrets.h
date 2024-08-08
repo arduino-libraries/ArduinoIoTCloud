@@ -3,7 +3,7 @@
 /* A complete list of supported boards with WiFi is available here:
  * https://github.com/arduino-libraries/ArduinoIoTCloud/#what
  */
-#if defined(BOARD_HAS_WIFI)
+#if defined(USE_NOTECARD) || defined(BOARD_HAS_WIFI)
   #define SECRET_WIFI_SSID "YOUR_WIFI_NETWORK_NAME"
   #define SECRET_WIFI_PASS "YOUR_WIFI_PASSWORD"
 #endif

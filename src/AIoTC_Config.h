@@ -18,6 +18,12 @@
 #ifndef ARDUINO_AIOTC_CONFIG_H_
 #define ARDUINO_AIOTC_CONFIG_H_
 
+#if defined __has_include
+  #if __has_include (<Notecard.h>)
+    #define USE_NOTECARD
+  #endif
+#endif
+
 #include <ArduinoECCX08Config.h>
 
 /******************************************************************************
@@ -51,6 +57,8 @@
 /******************************************************************************
  * AUTOMATICALLY CONFIGURED DEFINES
  ******************************************************************************/
+
+#if !defined(USE_NOTECARD)
 
 #if defined(ARDUINO_SAMD_MKRWIFI1010) || defined(ARDUINO_SAMD_NANO_33_IOT)
   #define OTA_STORAGE_SNU         (1)
@@ -114,11 +122,6 @@
   #define HAS_TCP
 #endif
 
-#if defined(ARDUINO_PORTENTA_H7_M7) || defined(ARDUINO_NICLA_VISION) || defined(ARDUINO_OPTA) || defined(ARDUINO_GIGA)
-  #define BEAR_SSL_CLIENT_IBUF_SIZE (16384 + 325) // Allows download from storage API
-  #define BOARD_STM32H7
-#endif
-
 #if defined(ARDUINO_NANO_RP2040_CONNECT)
   #define BEAR_SSL_CLIENT_IBUF_SIZE (16384 + 325) // Allows download from storage API
 #endif
@@ -138,6 +141,13 @@
   #define BOARD_HAS_SECURE_ELEMENT
 #endif
 
+#endif // USE_NOTECARD
+
+#if defined(ARDUINO_PORTENTA_H7_M7) || defined(ARDUINO_NICLA_VISION) || defined(ARDUINO_OPTA) || defined(ARDUINO_GIGA)
+  #define BEAR_SSL_CLIENT_IBUF_SIZE (16384 + 325) // Allows download from storage API
+  #define BOARD_STM32H7
+#endif
+
 /******************************************************************************
  * CONSTANTS
  ******************************************************************************/
@@ -146,16 +156,23 @@
   #define AIOT_CONFIG_LPWAN_UPDATE_RETRY_DELAY_ms                 (10000UL)
 #endif
 
-#if defined(HAS_TCP)
+#if defined(USE_NOTECARD) || defined(HAS_TCP)
   #define AIOT_CONFIG_RECONNECTION_RETRY_DELAY_ms                  (1000UL)
   #define AIOT_CONFIG_MAX_RECONNECTION_RETRY_DELAY_ms             (32000UL)
 
-  #define AIOT_CONFIG_THING_ID_REQUEST_RETRY_DELAY_ms              (2000UL)
-  #define AIOT_CONFIG_MAX_THING_ID_REQUEST_RETRY_DELAY_ms         (32000UL)
+  #if defined(USE_NOTECARD)
+    // 10x the standard delays for Notecard
+    #define AIOT_CONFIG_THING_ID_REQUEST_RETRY_DELAY_ms             (20000UL)
+    #define AIOT_CONFIG_MAX_THING_ID_REQUEST_RETRY_DELAY_ms        (320000UL)
+  #else
+    #define AIOT_CONFIG_THING_ID_REQUEST_RETRY_DELAY_ms              (2000UL)
+    #define AIOT_CONFIG_MAX_THING_ID_REQUEST_RETRY_DELAY_ms         (32000UL)
+  #endif
+
   #define AIOT_CONFIG_THING_ID_REQUEST_MAX_RETRY_CNT                 (10UL)
 
   #define AIOT_CONFIG_DEVICE_REGISTERED_RETRY_DELAY_k                (10UL)
-  #define AIOT_CONFIG_MAX_DEVICE_REGISTERED_RETRY_DELAY_k             (4UL)
+  #define AIOT_CONFIG_MAX_DEVICE_REGISTERED_RETRY_DELAY_k            (40UL)
 
   #define AIOT_CONFIG_TIMEOUT_FOR_LASTVALUES_SYNC_ms              (30000UL)
   #define AIOT_CONFIG_LASTVALUES_SYNC_MAX_RETRY_CNT                  (10UL)

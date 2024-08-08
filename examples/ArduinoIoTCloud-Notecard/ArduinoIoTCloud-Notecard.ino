@@ -14,11 +14,18 @@
    - https://github.com/arduino-libraries/ArduinoIoTCloud#what
 */
 
+#include <Notecard.h>
 #include "thingProperties.h"
 
 #if !defined(LED_BUILTIN) && !defined(ARDUINO_NANO_ESP32)
 static int const LED_BUILTIN = 2;
 #endif
+
+/*
+ * Choose an interrupt capable pin to reduce polling and improve
+ * the overall responsiveness of the ArduinoIoTCloud library
+ */
+// #define ATTN_PIN 9
 
 void setup() {
   /* Initialize serial and wait up to 5 seconds for port to open */
@@ -35,7 +42,12 @@ void setup() {
   initProperties();
 
   /* Initialize Arduino IoT Cloud library */
+#ifndef ATTN_PIN
   ArduinoCloud.begin(ArduinoIoTPreferredConnection);
+  ArduinoCloud.setNotecardPollInterval(3000);  // default: 1000ms, min: 250ms
+#else
+  ArduinoCloud.begin(ArduinoIoTPreferredConnection, ATTN_PIN);
+#endif
 
   ArduinoCloud.printDebugInfo();
 }

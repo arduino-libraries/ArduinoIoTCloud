@@ -58,6 +58,9 @@ void setup() {
   Serial.begin(9600);
   for(unsigned long const serialBeginTime = millis(); !Serial && (millis() - serialBeginTime <= 5000); ) { }
 
+  /* Specify the level of detail for debug messages */
+  setDebugMessageLevel(DBG_INFO);
+
   /* Configure LED pin as an output */
   pinMode(LED_BUILTIN, OUTPUT);
 
@@ -70,7 +73,6 @@ void setup() {
   /* Setup OTA callback */
   ArduinoCloud.onOTARequestCb(onOTARequestCallback);
 
-  setDebugMessageLevel(DBG_INFO);
   ArduinoCloud.printDebugInfo();
 }
 
