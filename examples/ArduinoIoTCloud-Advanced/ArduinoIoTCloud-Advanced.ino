@@ -2,7 +2,7 @@
   This sketch demonstrates how to use more complex cloud data types such as a colour or coordinates.
 
   IMPORTANT:
-  This sketch works with WiFi, GSM, NB, Ethernet and Lora enabled boards supported by Arduino IoT Cloud.
+  This sketch works with Notecard, WiFi, GSM, NB, Ethernet and Lora enabled boards supported by Arduino IoT Cloud.
   On a LoRa board, if it is configured as a class A device (default and preferred option),
   values from Cloud dashboard are received only after a value is sent to Cloud.
 
@@ -17,13 +17,15 @@ void setup() {
   Serial.begin(9600);
   for(unsigned long const serialBeginTime = millis(); !Serial && (millis() - serialBeginTime <= 5000); ) { }
 
+  /* Specify the level of detail for debug messages */
+  setDebugMessageLevel(DBG_INFO);
+
   /* This function takes care of connecting your sketch variables to the ArduinoIoTCloud object */
   initProperties();
 
   /* Initialize Arduino IoT Cloud library */
   ArduinoCloud.begin(ArduinoIoTPreferredConnection);
 
-  setDebugMessageLevel(DBG_INFO);
   ArduinoCloud.printDebugInfo();
 }
 

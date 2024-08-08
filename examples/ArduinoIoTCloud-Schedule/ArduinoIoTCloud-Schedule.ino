@@ -2,7 +2,7 @@
   This sketch demonstrates how to use the cloud schedule variable type.
 
   IMPORTANT:
-  This sketch works with WiFi, GSM, NB and Ethernet enabled boards supported by Arduino IoT Cloud.
+  This sketch works with Notecard, WiFi, GSM, NB and Ethernet enabled boards supported by Arduino IoT Cloud.
 
 */
 
@@ -17,6 +17,9 @@ void setup() {
   Serial.begin(9600);
   for(unsigned long const serialBeginTime = millis(); !Serial && (millis() - serialBeginTime <= 5000); ) { }
 
+  /* Specify the level of detail for debug messages */
+  setDebugMessageLevel(DBG_INFO);
+
   /* Configure LED pin as an output */
   pinMode(LED_BUILTIN, OUTPUT);
 
@@ -26,7 +29,6 @@ void setup() {
   /* Initialize Arduino IoT Cloud library */
   ArduinoCloud.begin(ArduinoIoTPreferredConnection);
 
-  setDebugMessageLevel(DBG_INFO);
   ArduinoCloud.printDebugInfo();
 
   /* Setup one shot schedule example */

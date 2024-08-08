@@ -18,7 +18,7 @@
   One function per event can be assigned.
 
   IMPORTANT:
-  This sketch works with WiFi, GSM, NB, Ethernet and Lora enabled boards supported by Arduino IoT Cloud.
+  This sketch works with Notecard, WiFi, GSM, NB, Ethernet and Lora enabled boards supported by Arduino IoT Cloud.
   On a LoRa board, if it is configured as a class A device (default and preferred option),
   values from Cloud dashboard are received only after a value is sent to Cloud.
 
@@ -32,6 +32,9 @@ void setup() {
   /* Initialize serial and wait up to 5 seconds for port to open */
   Serial.begin(9600);
   for(unsigned long const serialBeginTime = millis(); !Serial && (millis() - serialBeginTime <= 5000); ) { }
+
+  /* Specify the level of detail for debug messages */
+  setDebugMessageLevel(DBG_INFO);
 
   /* This function takes care of connecting your sketch variables to the ArduinoIoTCloud object */
   initProperties();
@@ -51,7 +54,6 @@ void setup() {
   ArduinoCloud.addCallback(ArduinoIoTCloudEvent::SYNC, doThisOnSync);
   ArduinoCloud.addCallback(ArduinoIoTCloudEvent::DISCONNECT, doThisOnDisconnect);
 
-  setDebugMessageLevel(DBG_INFO);
   ArduinoCloud.printDebugInfo();
 }
 
