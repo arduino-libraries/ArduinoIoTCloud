@@ -56,7 +56,11 @@ void TLSClientOta::begin(ConnectionHandler &connection) {
    */
   (void)connection;
 #elif defined(ARDUINO_ARCH_ESP32)
-  setCACertBundle(x509_crt_bundle);
+  #if (ESP_ARDUINO_VERSION < ESP_ARDUINO_VERSION_VAL(3, 0, 4))
+    setCACertBundle(x509_crt_bundle);
+  #else
+    setCACertBundle(x509_crt_bundle, sizeof(x509_crt_bundle));
+  #endif
 #elif defined(ARDUINO_ARCH_ESP8266)
   setInsecure();
 #endif
