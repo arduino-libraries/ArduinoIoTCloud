@@ -30,12 +30,16 @@ TimedAttempt::TimedAttempt(unsigned long minDelay, unsigned long maxDelay)
 
 void TimedAttempt::begin(unsigned long delay) {
   _retryCount = 0;
+  _retryDelay = 0;
+  _retryTick = 0;
   _minDelay = delay;
   _maxDelay = delay;
 }
 
 void TimedAttempt::begin(unsigned long minDelay, unsigned long maxDelay) {
   _retryCount = 0;
+  _retryDelay = 0;
+  _retryTick = 0;
   _minDelay = minDelay;
   _maxDelay = maxDelay;
 }
