@@ -266,7 +266,7 @@ int ArduinoIoTCloudTCP::begin(bool const enable_watchdog, String brokerAddress, 
 
 ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_ConnectPhy()
 {
-  if (_connection->check() == NetworkConnectionState::CONNECTED)
+  if ((_connection == nullptr) || (_connection->check() == NetworkConnectionState::CONNECTED))
   {
     if (!_connection_attempt.isRetry() || (_connection_attempt.isRetry() && _connection_attempt.isExpired()))
       return State::SyncTime;
