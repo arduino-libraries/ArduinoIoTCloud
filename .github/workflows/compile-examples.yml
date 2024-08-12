@@ -229,6 +229,8 @@ jobs:
             platforms: |
               # Install renesas_uno platform via Boards Manager
               - name: arduino:renesas_uno
+            libraries: |
+              - name: ArduinoBearSSL
           # Nano ESP32
           - board:
               type: arduino_esp32

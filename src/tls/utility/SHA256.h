@@ -23,13 +23,14 @@
  ******************************************************************************/
 #include <AIoTC_Config.h>
 
-#if defined(BOARD_HAS_OFFLOADED_ECCX08) || defined(BOARD_HAS_ECCX08)
+#if defined(BOARD_HAS_OFFLOADED_ECCX08) || defined(BOARD_HAS_ECCX08) || defined(BOARD_HAS_SOFTSE)
   #define HAS_BEARSSL
 #else
   #define HAS_MBEDTLS
 #endif
 
 #if defined(HAS_BEARSSL)
+  #include <ArduinoBearSSL.h>
   #include <bearssl/bearssl_hash.h>
 #else
   #include <mbedtls/sha256.h>
