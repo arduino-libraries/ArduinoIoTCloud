@@ -21,6 +21,8 @@
 
 #include "SHA256.h"
 
+#if OTA_ENABLED
+
 /******************************************************************************
  * STATIC MEMBER DECLARATION
  ******************************************************************************/
@@ -58,3 +60,5 @@ void SHA256::finalize(uint8_t * hash)
   mbedtls_sha256_finish(&_ctx, hash);
 #endif
 }
+
+#endif /* OTA_ENABLED */

@@ -23,6 +23,8 @@
  ******************************************************************************/
 #include <AIoTC_Config.h>
 
+#if OTA_ENABLED
+
 #if defined(BOARD_HAS_OFFLOADED_ECCX08) || defined(BOARD_HAS_ECCX08) || defined(BOARD_HAS_SOFTSE)
   #define HAS_BEARSSL
 #else
@@ -60,5 +62,7 @@ private:
 #endif
 
 };
+
+#endif /* OTA_ENABLED */
 
 #endif /* ARDUINO_TLS_UTILITY_SHA256_H_ */
