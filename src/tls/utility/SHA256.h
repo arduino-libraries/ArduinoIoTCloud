@@ -21,8 +21,19 @@
 /******************************************************************************
  * INCLUDE
  ******************************************************************************/
+#include <AIoTC_Config.h>
 
-#include "../bearssl/bearssl_hash.h"
+#if defined(BOARD_HAS_OFFLOADED_ECCX08) || defined(BOARD_HAS_ECCX08)
+  #define HAS_BEARSSL
+#else
+  #define HAS_MBEDTLS
+#endif
+
+#if defined(HAS_BEARSSL)
+  #include <bearssl/bearssl_hash.h>
+#else
+  #include <mbedtls/sha256.h>
+#endif
 
 /******************************************************************************
  * CLASS DECLARATION
@@ -41,7 +52,11 @@ public:
 
 private:
 
+#if defined(HAS_BEARSSL)
   br_sha256_context _ctx;
+#else
+  mbedtls_sha256_context _ctx;
+#endif
 
 };
 

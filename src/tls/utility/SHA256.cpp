@@ -33,15 +33,28 @@ constexpr size_t SHA256::HASH_SIZE;
 
 void SHA256::begin()
 {
+#if defined(HAS_BEARSSL)
   br_sha256_init(&_ctx);
+#else
+  mbedtls_sha256_init(&_ctx);
+  mbedtls_sha256_starts(&_ctx, 0);
+#endif
 }
 
 void SHA256::update(uint8_t const * data, size_t const len)
 {
+#if defined(HAS_BEARSSL)
   br_sha256_update(&_ctx, data, len);
+#else
+  mbedtls_sha256_update(&_ctx, data, len);
+#endif
 }
 
 void SHA256::finalize(uint8_t * hash)
 {
+#if defined(HAS_BEARSSL)
   br_sha256_out(&_ctx, hash);
+#else
+  mbedtls_sha256_finish(&_ctx, hash);
+#endif
 }
