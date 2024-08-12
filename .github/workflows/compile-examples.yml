@@ -250,9 +250,7 @@ jobs:
               # Install renesas_uno platform via Boards Manager
               - name: arduino:renesas_uno
             libraries: |
-              - name: Blues Wireless Notecard
-            sketch-paths: |
-              - examples/ArduinoIoTCloud-Notecard
+              - name: ArduinoBearSSL
           # Nano ESP32
           - board:
               type: arduino_esp32
