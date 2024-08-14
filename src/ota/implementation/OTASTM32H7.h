@@ -9,7 +9,12 @@
 */
 
 #pragma once
+
+#ifndef HAS_NOTECARD
 #include "ota/interface/OTAInterfaceDefault.h"
+#else
+#include "ota/interface/OTAInterfaceNotecard.h"
+#endif
 
 #include <QSPIFBlockDevice.h>
 
@@ -47,7 +52,7 @@ protected:
   // we are overriding the method of startOTA in order to open the destination file for the ota download
   virtual OTACloudProcessInterface::State startOTA() override;
 
-  // whene the download is correctly finished we set the mcu to use the newly downloaded binary
+  // when the download is correctly finished we set the mcu to use the newly downloaded binary
   virtual OTACloudProcessInterface::State flashOTA() override;
 
   // we reboot the device

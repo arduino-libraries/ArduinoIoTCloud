@@ -10,7 +10,11 @@
 
 #pragma once
 
+#ifndef HAS_NOTECARD
 #include "ota/interface/OTAInterfaceDefault.h"
+#else
+#include "ota/interface/OTAInterfaceNotecard.h"
+#endif
 
 #include "FATFileSystem.h"
 #include "FlashIAPBlockDevice.h"

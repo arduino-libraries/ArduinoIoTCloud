@@ -9,7 +9,7 @@
 */
 #include <AIoTC_Config.h>
 
-#if OTA_ENABLED && ! defined(OFFLOADED_DOWNLOAD)
+#if OTA_ENABLED && ! defined(OFFLOADED_DOWNLOAD) && ! defined(HAS_NOTECARD)
 #include "OTAInterfaceDefault.h"
 #include "../OTA.h"
 
@@ -31,6 +31,8 @@ OTACloudProcessInterface::State OTADefaultCloudProcessInterface::startOTA() {
   assert(client != nullptr);
   assert(OTACloudProcessInterface::context != nullptr);
   assert(context == nullptr);
+
+  DEBUG_DEBUG("OTADefaultCloudProcessInterface::%s initializing download from \"%s\"", __FUNCTION__, OTACloudProcessInterface::context->url);
 
   context = new Context(
     OTACloudProcessInterface::context->url,
@@ -58,27 +60,27 @@ OTACloudProcessInterface::State OTADefaultCloudProcessInterface::startOTA() {
   http_client->endRequest();
 
   if(res == HTTP_ERROR_CONNECTION_FAILED) {
-    DEBUG_VERBOSE("OTA ERROR: http client error connecting to server \"%s:%d\"",
+    DEBUG_ERROR("OTA ERROR: HTTP client error connecting to server \"%s:%d\"",
       context->parsed_url.host(), context->parsed_url.port());
     return ServerConnectErrorFail;
   } else if(res == HTTP_ERROR_TIMED_OUT) {
-    DEBUG_VERBOSE("OTA ERROR: http client timeout \"%s\"", OTACloudProcessInterface::context->url);
+    DEBUG_ERROR("OTA ERROR: HTTP client timeout \"%s\"", OTACloudProcessInterface::context->url);
     return OtaHeaderTimeoutFail;
   } else if(res != HTTP_SUCCESS) {
-    DEBUG_VERBOSE("OTA ERROR: http client returned %d on  get \"%s\"", res, OTACloudProcessInterface::context->url);
+    DEBUG_ERROR("OTA ERROR: HTTP client returned %d on GET \"%s\"", res, OTACloudProcessInterface::context->url);
     return OtaDownloadFail;
   }
 
   int statusCode = http_client->responseStatusCode();
 
   if(statusCode != 200) {
-    DEBUG_VERBOSE("OTA ERROR: get response on \"%s\" returned status %d", OTACloudProcessInterface::context->url, statusCode);
+    DEBUG_ERROR("OTA ERROR: GET response on \"%s\" returned status %d", OTACloudProcessInterface::context->url, statusCode);
     return HttpResponseFail;
   }
 
-  // The following call is required to save the header value , keep it
+  // The following call is required to save the header value (keep it)
   if(http_client->contentLength() == HttpClient::kNoContentLengthHeader) {
-    DEBUG_VERBOSE("OTA ERROR: the response header doesn't contain \"ContentLength\" field");
+    DEBUG_ERROR("OTA ERROR: The response header doesn't contain \"ContentLength\" field");
     return HttpHeaderErrorFail;
   }
 
@@ -107,7 +109,7 @@ OTACloudProcessInterface::State OTADefaultCloudProcessInterface::fetch() {
     http_res = http_client->read(context->buffer, context->buf_len);
 
     if(http_res < 0) {
-      DEBUG_VERBOSE("OTA ERROR: Download read error %d", http_res);
+      DEBUG_ERROR("OTA ERROR: Download read error %d", http_res);
       res = OtaDownloadFail;
       goto exit;
     }
@@ -115,7 +117,7 @@ OTACloudProcessInterface::State OTADefaultCloudProcessInterface::fetch() {
     parseOta(context->buffer, http_res);
 
     if(context->writeError) {
-      DEBUG_VERBOSE("OTA ERROR: File write error");
+      DEBUG_ERROR("OTA ERROR: File write error");
       res = ErrorWriteUpdateFileFail;
       goto exit;
     }
@@ -130,17 +132,17 @@ OTACloudProcessInterface::State OTADefaultCloudProcessInterface::fetch() {
     // validate CRC
     context->calculatedCrc32 ^= 0xFFFFFFFF; // finalize CRC
     if(context->header.header.crc32 == context->calculatedCrc32) {
-      DEBUG_VERBOSE("Ota download completed successfully");
+      DEBUG_DEBUG("OTADefaultCloudProcessInterface::%s OTA download completed successfully", __FUNCTION__);
       res = FlashOTA;
     } else {
       res = OtaHeaderCrcFail;
     }
   } else if(context->downloadState == OtaDownloadError) {
-    DEBUG_VERBOSE("OTA ERROR: OtaDownloadError");
+    DEBUG_ERROR("OTA ERROR: OtaDownloadError");
 
     res = OtaDownloadFail;
   } else if(context->downloadState == OtaDownloadMagicNumberMismatch) {
-    DEBUG_VERBOSE("OTA ERROR: Magic number mismatch");
+    DEBUG_ERROR("OTA ERROR: Magic number mismatch");
     res = OtaHeaderMagicNumberFail;
   }
 
@@ -196,7 +198,7 @@ void OTADefaultCloudProcessInterface::parseOta(uint8_t* buffer, size_t buf_len) 
       context->downloadedSize += (cursor-buffer);
 
       if((millis() - context->lastReportTime) > 10000) { // Report the download progress each X millisecond
-        DEBUG_VERBOSE("OTA Download Progress %d/%d", context->downloadedSize, contentLength);
+        DEBUG_VERBOSE("OTADefaultCloudProcessInterface::%s [%d] OTA Download Progress %d/%d", __FUNCTION__, ::millis(), context->downloadedSize, contentLength);
 
         reportStatus(context->downloadedSize);
         context->lastReportTime = millis();

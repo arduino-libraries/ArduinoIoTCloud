@@ -26,6 +26,7 @@
 /******************************************************************************
  * CLASS DECLARATION
  ******************************************************************************/
+class ConnectionHandler;  // Forward declaration
 
 class OTACloudProcessInterface: public CloudProcess {
 public:
@@ -86,6 +87,7 @@ public:
   virtual void handleMessage(Message*);
   // virtual CloudProcess::State getState();
   // virtual void hook(State s, void* action);
+  inline virtual void setConnection(ConnectionHandler * connection) { (void)connection; }
   virtual void update() { handleMessage(nullptr); }
 
   inline void approveOta()                      { policies |= Approved; }
