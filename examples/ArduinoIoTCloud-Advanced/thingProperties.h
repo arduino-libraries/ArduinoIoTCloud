@@ -2,9 +2,8 @@
 #include <Arduino_ConnectionHandler.h>
 #include "arduino_secrets.h"
 
-#if !(defined(BOARD_HAS_WIFI) || defined(BOARD_HAS_GSM) || defined(BOARD_HAS_LORA) || \
-      defined(BOARD_HAS_NB) || defined(BOARD_HAS_ETHERNET) || defined(BOARD_HAS_CATM1_NBIOT))
-  #error "Please check Arduino IoT Cloud supported boards list: https://github.com/arduino-libraries/ArduinoIoTCloud/#what"
+#if !(defined(HAS_TCP) || defined(HAS_LORA))
+  #error  "Please check Arduino IoT Cloud supported boards list: https://github.com/arduino-libraries/ArduinoIoTCloud/#what"
 #endif
 
 #if defined(BOARD_HAS_SECRET_KEY)
@@ -23,11 +22,11 @@ void initProperties() {
   ArduinoCloud.setBoardId(BOARD_ID);
   ArduinoCloud.setSecretDeviceKey(SECRET_DEVICE_KEY);
 #endif
-#if defined(BOARD_HAS_WIFI) || defined(BOARD_HAS_GSM) || defined(BOARD_HAS_NB) || defined(BOARD_HAS_ETHERNET) || defined(BOARD_HAS_CATM1_NBIOT)
+#if defined(HAS_TCP)
   ArduinoCloud.addProperty(switchButton, Permission::Write).onUpdate(onSwitchButtonChange);
   ArduinoCloud.addProperty(location, Permission::Read).publishOnChange(0.0f);
   ArduinoCloud.addProperty(color, Permission::ReadWrite).onUpdate(onColorChange);
-#elif defined(BOARD_HAS_LORA)
+#elif defined(HAS_LORA)
   ArduinoCloud.addProperty(switchButton, 1, Permission::Write).onUpdate(onSwitchButtonChange);
   ArduinoCloud.addProperty(location, 2, Permission::Read).publishOnChange(0.0f);
   ArduinoCloud.addProperty(color, 3, Permission::ReadWrite).onUpdate(onColorChange);
