@@ -32,6 +32,7 @@
 #endif
 
 #if defined(HAS_BEARSSL)
+  #include <ArduinoBearSSLConfig.h>
   #include <ArduinoBearSSL.h>
   #include <bearssl/bearssl_hash.h>
 #else

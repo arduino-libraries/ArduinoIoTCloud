@@ -19,7 +19,9 @@
 #define ARDUINO_BEARSSL_CONFIG_H_
 
 /* Enabling this define allows the usage of ArduinoBearSSL without crypto chip. */
-//#define ARDUINO_DISABLE_ECCX08
+#if defined(ARDUINO_UNOR4_WIFI)
+  #define ARDUINO_DISABLE_ECCX08
+#endif
 
 /* Enable/Disable global instances*/
 #define ARDUINO_BEARSSL_DISABLE_AES128
