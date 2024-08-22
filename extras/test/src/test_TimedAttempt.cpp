@@ -6,7 +6,7 @@
    INCLUDE
  ******************************************************************************/
 
-#include <catch.hpp>
+#include <catch2/catch_test_macros.hpp>
 
 #include <TimedAttempt.h>
 #include <AIoTC_Config.h>

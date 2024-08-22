@@ -6,6 +6,16 @@ cmake_minimum_required(VERSION 2.8)
 
 project(testArduinoIoTCloud)
 
+Include(FetchContent)
+
+FetchContent_Declare(
+  Catch2
+  GIT_REPOSITORY https://github.com/catchorg/Catch2.git
+  GIT_TAG        v3.4.0
+)
+
+FetchContent_MakeAvailable(Catch2)
+
 ##########################################################################
 
 include_directories(include)
@@ -13,8 +23,6 @@ include_directories(../../src)
 include_directories(../../src/cbor)
 include_directories(../../src/property)
 include_directories(../../src/utility/time)
-include_directories(external/catch/v2.13.10/include)
-include_directories(external/fakeit/v2.0.5/include)
 
 ##########################################################################
 
@@ -99,6 +107,8 @@ add_executable(
   ${TEST_TARGET}
   ${TEST_TARGET_SRCS}
 )
+
+target_link_libraries( ${TEST_TARGET} Catch2WithMain )
 
 ##########################################################################
 

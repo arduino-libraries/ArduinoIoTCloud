@@ -6,7 +6,8 @@
    INCLUDE
  **************************************************************************************/
 
-#include <catch.hpp>
+#include <catch2/catch_test_macros.hpp>
+#include <catch2/catch_approx.hpp>
 
 #include <memory>
 
@@ -26,6 +27,8 @@
 #include "types/automation/CloudSwitch.h"
 #include "types/automation/CloudTemperatureSensor.h"
 #include "types/automation/CloudTelevision.h"
+
+using namespace Catch;
 
 /**************************************************************************************
    TEST CODE

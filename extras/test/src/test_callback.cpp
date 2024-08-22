@@ -6,12 +6,13 @@
    INCLUDE
  **************************************************************************************/
 
-#include <catch.hpp>
+#include <catch2/catch_test_macros.hpp>
 
 #include <util/CBORTestUtil.h>
 #include <CBORDecoder.h>
 #include <PropertyContainer.h>
 #include "types/CloudWrapperBool.h"
+#include <memory>
 
 /**************************************************************************************
    GLOBAL CONSTANTS
