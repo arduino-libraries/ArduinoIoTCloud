@@ -15,6 +15,7 @@ The `ArduinoIoTCloud` library is the central element of the firmware enabling ce
 * **5G**: [`MKR NB 1500`](https://store.arduino.cc/arduino-mkr-nb-1500-1413)
 * **LoRa**: [`MKR WAN 1300/1310`](https://store.arduino.cc/mkr-wan-1310)
 * **Ethernet**: [`Portenta H7`](https://store.arduino.cc/products/portenta-h7) + [`Vision Shield Ethernet`](https://store.arduino.cc/products/arduino-portenta-vision-shield-ethernet), [`Max Carrier`](https://store.arduino.cc/products/portenta-max-carrier), [`Breakout`](https://store.arduino.cc/products/arduino-portenta-breakout), [`Portenta Machine Control`](https://store.arduino.cc/products/arduino-portenta-machine-control), [`OPTA WiFi`](https://store.arduino.cc/products/opta-wifi), [`OPTA RS485`](https://store.arduino.cc/products/opta-rs485), [`OPTA Lite`](https://store.arduino.cc/products/opta-lite), [`Portenta C33`](https://store.arduino.cc/products/portenta-c33) + [`Vision Shield Ethernet`](https://store.arduino.cc/products/arduino-portenta-vision-shield-ethernet)
+* **Notecard**: [Provides Cellular/LoRa/Satellite/Wi-Fi to any modern board/architecture](examples/ArduinoIoTCloud-Notecard/README.md)
 
 ### How?
 1) Register your Arduino IoT Cloud capable board via [Arduino IoT Cloud](https://create.arduino.cc/iot) (Devices Section).
@@ -70,7 +71,7 @@ void onLedChange() {
 
 ### FAQ
 #### Watchdog
-The [1.0.0](https://github.com/arduino-libraries/ArduinoIoTCloud/releases/tag/1.0.0) release of this library adds watchdog functionality to all ATSAMD21G18 based cloud connected boards. A watchdog is simply an electronic timer counting down from a preset start value which, upon reaching zero, triggers a reset of the microcontroller. It can be used to automatically recover from temporary hardware faults or unrecoverable software errors. In order to avoid the watchdog from reaching zero the countdown timer needs to be regularly re-set to its start value. This is happening within `ArduinoCloud.update()` which is periodically called at the start of the `loop()` function. Although the watchdog is automatically enabled it can be disabled by setting the second parameter of `ArduinoCloud.begin(...)` to `false`: 
+The [1.0.0](https://github.com/arduino-libraries/ArduinoIoTCloud/releases/tag/1.0.0) release of this library adds watchdog functionality to all ATSAMD21G18 based cloud connected boards. A watchdog is simply an electronic timer counting down from a preset start value which, upon reaching zero, triggers a reset of the microcontroller. It can be used to automatically recover from temporary hardware faults or unrecoverable software errors. In order to avoid the watchdog from reaching zero the countdown timer needs to be regularly re-set to its start value. This is happening within `ArduinoCloud.update()` which is periodically called at the start of the `loop()` function. Although the watchdog is automatically enabled it can be disabled by setting the second parameter of `ArduinoCloud.begin(...)` to `false`:
 ```C++
 ArduinoCloud.begin(ArduinoIoTPreferredConnection, false).
 ```
@@ -95,5 +96,3 @@ Boards can authenticate to the ArduinoIoTCloud servers using 3 methods:
  * `DEVICE_CERTIFICATE` and `PRIVATE_KEY`. This values are stored inside the board secure element during the device provisioning phase. Boards that are using this method are: [`MKR 1000`](https://store.arduino.cc/arduino-mkr1000-wifi), [`MKR WiFi 1010`](https://store.arduino.cc/arduino-mkr-wifi-1010), [`MKR GSM 1400`](https://store.arduino.cc/arduino-mkr-gsm-1400-1415), [`MKR NB 1500`](https://store.arduino.cc/arduino-mkr-nb-1500-1413), [`Nano 33 IoT`](https://store.arduino.cc/arduino-nano-33-iot), [`Portenta H7`](https://store.arduino.cc/portenta-h7), [`Nano RP2040 Connect`](https://store.arduino.cc/products/arduino-nano-rp2040-connect), [`Nicla Vision`](https://store.arduino.cc/products/nicla-vision), [`OPTA WiFi`](https://store.arduino.cc/products/opta-wifi), [`OPTA RS485`](https://store.arduino.cc/products/opta-rs485), [`OPTA Lite`](https://store.arduino.cc/products/opta-lite), [`GIGA R1 WiFi`](https://store.arduino.cc/products/giga-r1-wifi), [`Portenta C33`](https://store.arduino.cc/products/portenta-c33)
 
  * `APP_EUI` and `APP_KEY`. This values are defined in the `thingProperties.h` file and included in the Sketch. Boards that are using this method are: [`MKR WAN 1300/1310`](https://store.arduino.cc/mkr-wan-1310)
-
- 

@@ -18,7 +18,7 @@
 #ifndef ARDUINO_IOT_CLOUD_RTC_MILLIS_H_
 #define ARDUINO_IOT_CLOUD_RTC_MILLIS_H_
 
-#ifdef ARDUINO_ARCH_ESP8266
+#if defined(HAS_NOTECARD) || defined(ARDUINO_ARCH_ESP8266)
 
 /**************************************************************************************
  * INCLUDE
@@ -45,6 +45,6 @@ private:
 
 };
 
-#endif /* ARDUINO_ARCH_ESP8266 */
+#endif /* HAS_NOTECARD || ARDUINO_ARCH_ESP8266 */
 
 #endif /* ARDUINO_IOT_CLOUD_RTC_MILLIS_H_ */

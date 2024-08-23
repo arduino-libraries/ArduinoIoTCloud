@@ -69,7 +69,7 @@ private:
   unsigned long _sync_interval_ms;
   syncTimeFunctionPtr _sync_func;
 
-#ifdef HAS_TCP
+#if defined(HAS_NOTECARD) || defined(HAS_TCP)
   unsigned long getRemoteTime();
   bool connected();
 #endif
