@@ -10,6 +10,10 @@
   #define BOARD_ID "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
 #endif
 
+#if defined(HAS_LORA)
+  #define THING_ID "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+#endif
+
 void onSwitchButtonChange();
 
 bool switchButton;
@@ -37,6 +41,8 @@ void initProperties() {
   ArduinoCloud.addProperty(yearly, Permission::ReadWrite);
 #elif defined(HAS_LORA)
   ArduinoCloud.addProperty(switchButton, 1, Permission::Write);
+
+  ArduinoCloud.setThingId(THING_ID);
 #endif
 }
 

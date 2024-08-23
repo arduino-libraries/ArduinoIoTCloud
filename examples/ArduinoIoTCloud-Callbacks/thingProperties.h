@@ -10,10 +10,17 @@
   #define BOARD_ID "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
 #endif
 
+#if defined(BOARD_HAS_LORA)
+  #define THING_ID "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+#endif
+
 void initProperties() {
 #if defined(BOARD_HAS_SECRET_KEY)
   ArduinoCloud.setBoardId(BOARD_ID);
   ArduinoCloud.setSecretDeviceKey(SECRET_DEVICE_KEY);
+#endif
+#if defined(BOARD_HAS_LORA)
+  ArduinoCloud.setThingId(THING_ID);
 #endif
 }
 
