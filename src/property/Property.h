@@ -32,7 +32,6 @@
 #undef max
 #undef min
 
-# include <functional>
 #include <list>
 
 #include "../cbor/lib/tinycbor/cbor-lib.h"
@@ -185,19 +184,86 @@ class Property
 
     void updateLocalTimestamp();
     CborError append(CborEncoder * encoder, bool lightPayload);
-    CborError appendAttribute(bool value, String attributeName = "", CborEncoder *encoder = nullptr);
-    CborError appendAttribute(int value, String attributeName = "", CborEncoder *encoder = nullptr);
-    CborError appendAttribute(unsigned int value, String attributeName = "", CborEncoder *encoder = nullptr);
-    CborError appendAttribute(float value, String attributeName = "", CborEncoder *encoder = nullptr);
-    CborError appendAttribute(String value, String attributeName = "", CborEncoder *encoder = nullptr);
-    CborError appendAttributeName(String attributeName, std::function<CborError (CborEncoder& mapEncoder)>f, CborEncoder *encoder);
-    void setAttribute(String attributeName, std::function<void (CborMapData & md)>setValue);
+    template <typename T> CborError appendAttribute(T value, String attributeName = "", CborEncoder *encoder = nullptr) {
+      return appendAttributeName<T>(attributeName, encodeAppendedAttribute<T>, value, encoder);
+    }
+    template <typename T> CborError appendAttributeName(String attributeName, CborError(*appendValue)(CborEncoder& mapEncoder, const T), const T & value, CborEncoder *encoder)
+    {
+      if (attributeName != "") {
+        // when the attribute name string is not empty, the attribute identifier is incremented in order to be encoded in the message if the _lightPayload flag is set
+        _attributeIdentifier++;
+      }
+      CborEncoder mapEncoder;
+      unsigned int num_map_properties = _encode_timestamp ? 3 : 2;
+      CHECK_CBOR(cbor_encoder_create_map(encoder, &mapEncoder, num_map_properties));
+      CHECK_CBOR(cbor_encode_int(&mapEncoder, static_cast<int>(CborIntegerMapKey::Name)));
+
+      // if _lightPayload is true, the property and attribute identifiers will be encoded instead of the property name
+      if (_lightPayload)
+      {
+        // the most significant byte of the identifier to be encoded represent the property identifier
+        int completeIdentifier = _attributeIdentifier * 256;
+        // the least significant byte of the identifier to be encoded represent the attribute identifier
+        completeIdentifier += _identifier;
+        CHECK_CBOR(cbor_encode_int(&mapEncoder, completeIdentifier));
+      }
+      else
+      {
+        String completeName = _name;
+        if (attributeName != "") {
+          completeName += ":" + attributeName;
+        }
+        CHECK_CBOR(cbor_encode_text_stringz(&mapEncoder, completeName.c_str()));
+      }
+      /* Encode the value */
+      CHECK_CBOR(appendValue(mapEncoder, value));
+
+      /* Encode the timestamp if that has been required. */
+      if(_encode_timestamp)
+      {
+        CHECK_CBOR(cbor_encode_int (&mapEncoder, static_cast<int>(CborIntegerMapKey::Time)));
+        CHECK_CBOR(cbor_encode_uint(&mapEncoder, _timestamp));
+      }
+      /* Close the container */
+      CHECK_CBOR(cbor_encoder_close_container(encoder, &mapEncoder));
+      return CborNoError;
+    }
+    template <typename T> void setAttribute(const String attributeName, void(* const setValue)(CborMapData & md, T &), T & value)
+    {
+      if (attributeName != "") {
+        _attributeIdentifier++;
+      }
+
+      std::list<CborMapData>::iterator it = _map_data_list->begin();
+      for (; it != _map_data_list->end(); ++it) {
+        CborMapData & map = *it;
+        if (map.light_payload.isSet() && map.light_payload.get())
+        {
+          // if a light payload is detected, the attribute identifier is retrieved
+          // from the cbor map and the corresponding attribute is updated
+          int attid = map.attribute_identifier.get();
+          if (attid == _attributeIdentifier) {
+            setValue(map, value);
+            return;
+          }
+        }
+        else
+        {
+          // if a normal payload is detected, the name of the attribute to be
+          // updated is extracted directly from the cbor map
+          String an = map.attribute_name.get();
+          if (an == attributeName) {
+            setValue(map, value);
+            return;
+          }
+        }
+      }
+    }
+
+    template <typename T> void setAttribute(T& value, String attributeName = "") {
+      setAttribute<T>(attributeName, setValueAttribute<T>, value);
+    }
     void setAttributesFromCloud(std::list<CborMapData> * map_data_list);
-    void setAttribute(bool& value, String attributeName = "");
-    void setAttribute(int& value, String attributeName = "");
-    void setAttribute(unsigned int& value, String attributeName = "");
-    void setAttribute(float& value, String attributeName = "");
-    void setAttribute(String& value, String attributeName = "");
 
     virtual bool isDifferentFromCloud() = 0;
     virtual void fromCloudToLocal() = 0;
@@ -217,6 +283,18 @@ class Property
     unsigned long      _min_time_between_updates_millis;
 
   private:
+    template <typename T> static CborError encodeAppendedAttribute(CborEncoder & mapEncoder, const T value) {
+      CHECK_CBOR(cbor_encode_int(&mapEncoder, static_cast<int>(CborIntegerMapKey::Value)));
+      CHECK_CBOR(cbor_encode_int(&mapEncoder, value));
+      return CborNoError;
+    }
+
+    template <typename T> static void setValueAttribute(CborMapData & md, T & value) {
+      if (md.val.isSet()) {
+        value = md.val.get();
+      }
+    }
+
     Permission         _permission;
     WritePolicy        _write_policy;
     GetTimeCallbackFunc _get_time_func;
@@ -247,6 +325,45 @@ class Property
     bool               _echo_requested;
     unsigned long      _timestamp;
 };
+
+template <> inline CborError Property::encodeAppendedAttribute<bool>(CborEncoder & mapEncoder, const bool value) {
+  CHECK_CBOR(cbor_encode_int(&mapEncoder, static_cast<int>(CborIntegerMapKey::BooleanValue)));
+  CHECK_CBOR(cbor_encode_boolean(&mapEncoder, value));
+  return CborNoError;
+}
+
+template <> inline CborError Property::encodeAppendedAttribute<float>(CborEncoder & mapEncoder, const float value) {
+  CHECK_CBOR(cbor_encode_int(&mapEncoder, static_cast<int>(CborIntegerMapKey::Value)));
+  CHECK_CBOR(cbor_encode_float(&mapEncoder, value));
+  return CborNoError;
+}
+
+template <> inline CborError Property::encodeAppendedAttribute<String>(CborEncoder & mapEncoder, const String value) {
+  CHECK_CBOR(cbor_encode_int(&mapEncoder, static_cast<int>(CborIntegerMapKey::StringValue)));
+  CHECK_CBOR(cbor_encode_text_stringz(&mapEncoder, value.c_str()));
+  return CborNoError;
+}
+
+template <> inline void Property::setValueAttribute<String>(CborMapData & md, String & value) {
+  if (md.str_val.isSet()) {
+    value = md.str_val.get();
+  }
+}
+
+template <> inline void Property::setValueAttribute<bool>(CborMapData & md, bool & value) {
+  // Manage the case to have boolean values received as integers 0/1
+  if (md.bool_val.isSet()) {
+    value = md.bool_val.get();
+  } else if (md.val.isSet()) {
+    if (md.val.get() == 0) {
+      value = false;
+    } else if (md.val.get() == 1) {
+      value = true;
+    } else {
+      /* This should not happen. Leave the previous value */
+    }
+  }
+}
 
 /******************************************************************************
    PROTOTYPE FREE FUNCTIONs

@@ -22,6 +22,8 @@
    INCLUDE
  ******************************************************************************/
 
+#include <stdint.h>
+
 #include <Arduino.h>
 #include "../../Property.h"
 
@@ -116,7 +118,6 @@ class Television {
     InputValue          inp;
     int                 cha;
 
-
     Television(bool const swi, int const vol, bool const mut, PlaybackCommands const pbc, InputValue const inp, int const cha): swi(swi), vol(vol), mut(mut), pbc(pbc), inp(inp), cha(cha) {
     }
 
@@ -145,7 +146,6 @@ class CloudTelevision : public Property {
     CloudTelevision(bool const swi, int const vol, bool const mut, PlaybackCommands const pbc, InputValue const inp, int const cha) : _value(swi, vol, mut, pbc, inp, cha), _cloud_value(swi, vol, mut, pbc, inp, cha) {}
 
     virtual bool isDifferentFromCloud() {
-
       return _value != _cloud_value;
     }
 
@@ -183,7 +183,7 @@ class CloudTelevision : public Property {
     }
 
     uint8_t getVolume() {
-      return _value.vol;
+      return static_cast<uint8_t>(_value.vol);
     }
 
     void setMute(bool const mut) {

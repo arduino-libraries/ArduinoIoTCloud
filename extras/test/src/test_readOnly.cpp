@@ -20,8 +20,8 @@
 SCENARIO("An Arduino cloud property is marked 'read only'", "[ArduinoCloudThing::decode]")
 {
   PropertyContainer property_container;
-    
-  CloudInt test = 0;
+
+  CloudInt<int> test = 0;
   addPropertyToContainer(property_container, test, "test", Permission::Read);
 
   /* [{0: "test", 2: 7}] = 81 A2 00 64 74 65 73 74 02 07 */

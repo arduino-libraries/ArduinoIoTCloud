@@ -39,7 +39,6 @@
 #include "property/types/CloudWrapperBool.h"
 #include "property/types/CloudWrapperFloat.h"
 #include "property/types/CloudWrapperInt.h"
-#include "property/types/CloudWrapperUnsignedInt.h"
 #include "property/types/CloudWrapperString.h"
 
 #include "utility/time/TimeService.h"
@@ -108,40 +107,73 @@ class ArduinoIoTCloudClass
     /* The following methods are used for non-LoRa boards which can use the
      * name of the property to identify a given property within a CBOR message.
      */
-
-    void addPropertyReal(Property& property, String name, permissionType permission_type = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, float minDelta = 0.0f, void(*synFn)(Property & property) = CLOUD_WINS) __attribute__((deprecated("Use addProperty(property, Permission::ReadWrite) instead.")));
-    void addPropertyReal(bool& property, String name, permissionType permission_type = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, float minDelta = 0.0f, void(*synFn)(Property & property) = CLOUD_WINS) __attribute__((deprecated("Use addProperty(property, Permission::ReadWrite) instead.")));
-    void addPropertyReal(float& property, String name, permissionType permission_type = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, float minDelta = 0.0f, void(*synFn)(Property & property) = CLOUD_WINS) __attribute__((deprecated("Use addProperty(property, Permission::ReadWrite) instead.")));
-    void addPropertyReal(int& property, String name, permissionType permission_type = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, float minDelta = 0.0, void(*synFn)(Property & property) = CLOUD_WINS) __attribute__((deprecated("Use addProperty(property, Permission::ReadWrite) instead.")));
-    void addPropertyReal(unsigned int& property, String name, permissionType permission_type = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, float minDelta = 0.0, void(*synFn)(Property & property) = CLOUD_WINS) __attribute__((deprecated("Use addProperty(property, Permission::ReadWrite) instead.")));
-    void addPropertyReal(String& property, String name, permissionType permission_type = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, float minDelta = 0.0f, void(*synFn)(Property & property) = CLOUD_WINS) __attribute__((deprecated("Use addProperty(property, Permission::ReadWrite) instead.")));
-
-    Property& addPropertyReal(Property& property, String name, Permission const permission);
-    Property& addPropertyReal(bool& property, String name, Permission const permission);
-    Property& addPropertyReal(float& property, String name, Permission const permission);
-    Property& addPropertyReal(int& property, String name, Permission const permission);
-    Property& addPropertyReal(unsigned int& property, String name, Permission const permission);
-    Property& addPropertyReal(String& property, String name, Permission const permission);
+    template <typename T> void addPropertyReal(T& property, String name, permissionType permission_type = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, float minDelta = 0.0f, void(*synFn)(Property & property) = CLOUD_WINS)
+    {
+      addPropertyReal(property, name, -1, permission_type, seconds, fn, minDelta, synFn);
+    }
+    template <typename T> Property& addPropertyReal(T& property, String name, Permission const permission)
+    {
+      return addPropertyReal(property, name, -1, permission);
+    }
 
     /* The following methods are for MKR WAN 1300/1310 LoRa boards since
      * they use a number to identify a given property within a CBOR message.
      * This approach reduces the required amount of data which is of great
      * important when using LoRa.
      */
+    template <typename T> __attribute__((deprecated("Use addProperty(property, Permission::ReadWrite) instead."))) void addPropertyReal(T& property, String name, int tag, permissionType permission_type = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, float minDelta = 0.0f, void(*synFn)(Property & property) = CLOUD_WINS)
+    {
+      Property* p = new CloudWrapperInt<T>(property);
+      addPropertyRealInternal(*p, name, tag, permission_type, seconds, fn, minDelta, synFn);
+    }
+    template <typename T> __attribute__((deprecated("Use addProperty(property, Permission::ReadWrite) instead."))) void addPropertyReal(CloudInt<T>& property, String name, int tag, permissionType permission_type = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, float minDelta = 0.0f, void(*synFn)(Property & property) = CLOUD_WINS)
+    {
+      addPropertyRealInternal(property, name, tag, permission_type, seconds, fn, minDelta, synFn);
+    }
+    __attribute__((deprecated("Use addProperty(property, Permission::ReadWrite) instead."))) void addPropertyReal(String& property, String name, int tag, permissionType permission_type = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, float minDelta = 0.0f, void(*synFn)(Property & property) = CLOUD_WINS);
+    __attribute__((deprecated("Use addProperty(property, Permission::ReadWrite) instead."))) void addPropertyReal(Property& property, String name, int tag, permissionType permission_type = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, float minDelta = 0.0f, void(*synFn)(Property & property) = CLOUD_WINS);
+    __attribute__((deprecated("Use addProperty(property, Permission::ReadWrite) instead."))) void addPropertyReal(CloudBool& property, String name, int tag, permissionType permission_type = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, float minDelta = 0.0f, void(*synFn)(Property & property) = CLOUD_WINS);
+    __attribute__((deprecated("Use addProperty(property, Permission::ReadWrite) instead."))) void addPropertyReal(CloudColor& property, String name, int tag, permissionType permission_type = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, float minDelta = 0.0f, void(*synFn)(Property & property) = CLOUD_WINS);
+    __attribute__((deprecated("Use addProperty(property, Permission::ReadWrite) instead."))) void addPropertyReal(CloudColoredLight& property, String name, int tag, permissionType permission_type = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, float minDelta = 0.0f, void(*synFn)(Property & property) = CLOUD_WINS);
+    __attribute__((deprecated("Use addProperty(property, Permission::ReadWrite) instead."))) void addPropertyReal(CloudContactSensor& property, String name, int tag, permissionType permission_type = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, float minDelta = 0.0f, void(*synFn)(Property & property) = CLOUD_WINS);
+    __attribute__((deprecated("Use addProperty(property, Permission::ReadWrite) instead."))) void addPropertyReal(CloudDimmedLight& property, String name, int tag, permissionType permission_type = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, float minDelta = 0.0f, void(*synFn)(Property & property) = CLOUD_WINS);
+    __attribute__((deprecated("Use addProperty(property, Permission::ReadWrite) instead."))) void addPropertyReal(CloudFloat& property, String name, int tag, permissionType permission_type = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, float minDelta = 0.0f, void(*synFn)(Property & property) = CLOUD_WINS);
+    __attribute__((deprecated("Use addProperty(property, Permission::ReadWrite) instead."))) void addPropertyReal(CloudLight& property, String name, int tag, permissionType permission_type = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, float minDelta = 0.0f, void(*synFn)(Property & property) = CLOUD_WINS);
+    __attribute__((deprecated("Use addProperty(property, Permission::ReadWrite) instead."))) void addPropertyReal(CloudLocation& property, String name, int tag, permissionType permission_type = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, float minDelta = 0.0f, void(*synFn)(Property & property) = CLOUD_WINS);
+    __attribute__((deprecated("Use addProperty(property, Permission::ReadWrite) instead."))) void addPropertyReal(CloudMotionSensor& property, String name, int tag, permissionType permission_type = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, float minDelta = 0.0f, void(*synFn)(Property & property) = CLOUD_WINS);
+    __attribute__((deprecated("Use addProperty(property, Permission::ReadWrite) instead."))) void addPropertyReal(CloudSchedule& property, String name, int tag, permissionType permission_type = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, float minDelta = 0.0f, void(*synFn)(Property & property) = CLOUD_WINS);
+    __attribute__((deprecated("Use addProperty(property, Permission::ReadWrite) instead."))) void addPropertyReal(CloudSmartPlug& property, String name, int tag, permissionType permission_type = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, float minDelta = 0.0f, void(*synFn)(Property & property) = CLOUD_WINS);
+    __attribute__((deprecated("Use addProperty(property, Permission::ReadWrite) instead."))) void addPropertyReal(CloudString& property, String name, int tag, permissionType permission_type = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, float minDelta = 0.0f, void(*synFn)(Property & property) = CLOUD_WINS);
+    __attribute__((deprecated("Use addProperty(property, Permission::ReadWrite) instead."))) void addPropertyReal(CloudSwitch& property, String name, int tag, permissionType permission_type = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, float minDelta = 0.0f, void(*synFn)(Property & property) = CLOUD_WINS);
+    __attribute__((deprecated("Use addProperty(property, Permission::ReadWrite) instead."))) void addPropertyReal(CloudTelevision& property, String name, int tag, permissionType permission_type = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, float minDelta = 0.0f, void(*synFn)(Property & property) = CLOUD_WINS);
+    __attribute__((deprecated("Use addProperty(property, Permission::ReadWrite) instead."))) void addPropertyReal(CloudTemperatureSensor& property, String name, int tag, permissionType permission_type = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, float minDelta = 0.0f, void(*synFn)(Property & property) = CLOUD_WINS);
 
-    void addPropertyReal(Property& property, String name, int tag, permissionType permission_type = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, float minDelta = 0.0f, void(*synFn)(Property & property) = CLOUD_WINS) __attribute__((deprecated("Use addProperty(property, Permission::ReadWrite) instead.")));
-    void addPropertyReal(bool& property, String name, int tag, permissionType permission_type = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, float minDelta = 0.0f, void(*synFn)(Property & property) = CLOUD_WINS) __attribute__((deprecated("Use addProperty(property, Permission::ReadWrite) instead.")));
-    void addPropertyReal(float& property, String name, int tag, permissionType permission_type = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, float minDelta = 0.0f, void(*synFn)(Property & property) = CLOUD_WINS) __attribute__((deprecated("Use addProperty(property, Permission::ReadWrite) instead.")));
-    void addPropertyReal(int& property, String name, int tag, permissionType permission_type = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, float minDelta = 0.0, void(*synFn)(Property & property) = CLOUD_WINS) __attribute__((deprecated("Use addProperty(property, Permission::ReadWrite) instead.")));
-    void addPropertyReal(unsigned int& property, String name, int tag, permissionType permission_type = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, float minDelta = 0.0, void(*synFn)(Property & property) = CLOUD_WINS) __attribute__((deprecated("Use addProperty(property, Permission::ReadWrite) instead.")));
-    void addPropertyReal(String& property, String name, int tag, permissionType permission_type = READWRITE, long seconds = ON_CHANGE, void(*fn)(void) = NULL, float minDelta = 0.0f, void(*synFn)(Property & property) = CLOUD_WINS) __attribute__((deprecated("Use addProperty(property, Permission::ReadWrite) instead.")));
-
-    Property& addPropertyReal(Property& property, String name, int tag, Permission const permission);
-    Property& addPropertyReal(bool& property, String name, int tag, Permission const permission);
-    Property& addPropertyReal(float& property, String name, int tag, Permission const permission);
-    Property& addPropertyReal(int& property, String name, int tag, Permission const permission);
-    Property& addPropertyReal(unsigned int& property, String name, int tag, Permission const permission);
+    template <typename T> Property& addPropertyReal(T& property, String name, int tag, Permission const permission)
+    {
+      Property* p = new CloudWrapperInt<T>(property);
+      return addPropertyToContainer(getThingPropertyContainer(), *p, name, permission, tag);
+    }
+    template <typename T> Property& addPropertyReal(CloudInt<T>& property, String name, int tag, Permission const permission)
+    {
+      return addPropertyToContainer(getThingPropertyContainer(), property, name, permission, tag);
+    }
     Property& addPropertyReal(String& property, String name, int tag, Permission const permission);
+    Property& addPropertyReal(Property& property, String name, int tag, Permission const permission);
+    Property& addPropertyReal(CloudBool& property, String name, int tag, Permission const permission);
+    Property& addPropertyReal(CloudColor& property, String name, int tag, Permission const permission);
+    Property& addPropertyReal(CloudColoredLight& property, String name, int tag, Permission const permission);
+    Property& addPropertyReal(CloudContactSensor& property, String name, int tag, Permission const permission);
+    Property& addPropertyReal(CloudDimmedLight& property, String name, int tag, Permission const permission);
+    Property& addPropertyReal(CloudFloat& property, String name, int tag, Permission const permission);
+    Property& addPropertyReal(CloudLight& property, String name, int tag, Permission const permission);
+    Property& addPropertyReal(CloudLocation& property, String name, int tag, Permission const permission);
+    Property& addPropertyReal(CloudMotionSensor& property, String name, int tag, Permission const permission);
+    Property& addPropertyReal(CloudSchedule& property, String name, int tag, Permission const permission);
+    Property& addPropertyReal(CloudSmartPlug& property, String name, int tag, Permission const permission);
+    Property& addPropertyReal(CloudString& property, String name, int tag, Permission const permission);
+    Property& addPropertyReal(CloudSwitch& property, String name, int tag, Permission const permission);
+    Property& addPropertyReal(CloudTelevision& property, String name, int tag, Permission const permission);
+    Property& addPropertyReal(CloudTemperatureSensor& property, String name, int tag, Permission const permission);
 
   protected:
 

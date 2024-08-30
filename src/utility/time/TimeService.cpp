@@ -19,11 +19,11 @@
  * INCLUDE
  **************************************************************************************/
 
-#include <AIoTC_Config.h>
-
 #include <time.h>
+
 #include "TimeService.h"
 #include "NTPUtils.h"
+#include "AIoTC_Config.h"
 #include "AIoTC_Const.h"
 
 #ifdef ARDUINO_ARCH_SAMD
@@ -112,7 +112,7 @@ TimeServiceClass::TimeServiceClass()
 : _con_hdl(nullptr)
 , _is_rtc_configured(false)
 , _is_tz_configured(false)
-, _timezone_offset(24 * 60 * 60)
+, _timezone_offset(static_cast<long>(24) * 60 * 60)
 , _timezone_dst_until(0)
 , _last_sync_tick(0)
 , _sync_interval_ms(TIMESERVICE_NTP_SYNC_TIMEOUT_ms)
@@ -326,7 +326,7 @@ bool TimeServiceClass::isTimeValid(unsigned long const time)
 bool TimeServiceClass::isTimeZoneOffsetValid(long const offset)
 {
   /* UTC offset can go from +14 to -12 hours */
-  return ((offset < (14 * 60 * 60)) && (offset > (-12 * 60 * 60)));
+  return ((offset < (static_cast<long>(14) * 60 * 60)) && (offset > (static_cast<long>(-12) * 60 * 60)));
 }
 
 void TimeServiceClass::initRTC()

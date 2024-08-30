@@ -17,8 +17,8 @@
 SCENARIO("An Arduino cloud property is published on value change but the update rate is limited", "[ArduinoCloudThing::publishOnChange]")
 {
   PropertyContainer property_container;
-    
-  CloudInt test = 0;
+
+  CloudInt<int> test = 0;
   int const MIN_DELTA = 0;
   unsigned long const MIN_TIME_BETWEEN_UPDATES_ms = 500; /* No updates faster than 500 ms */
 

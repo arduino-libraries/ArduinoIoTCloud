@@ -22,6 +22,8 @@
    INCLUDE
  ******************************************************************************/
 
+#include <stdint.h>
+
 #include <Arduino.h>
 #include "../Property.h"
 
@@ -29,22 +31,22 @@
    CLASS DECLARATION
  ******************************************************************************/
 
-
-
+template <typename T>
 class CloudInt : public Property {
   private:
-    int _value,
-        _cloud_value;
+    T _value,
+      _cloud_value;
   public:
-    CloudInt()                                          {
+    CloudInt() {
       CloudInt(0);
     }
-    CloudInt(int v) : _value(v), _cloud_value(v) {}
-    operator int() const {
+    CloudInt(T v) : _value(v), _cloud_value(v) {}
+    CloudInt(const CloudInt& r) : _value(r._value), _cloud_value(r._cloud_value) {}
+    operator T() const {
       return _value;
     }
     virtual bool isDifferentFromCloud() {
-      return _value != _cloud_value && (abs(_value - _cloud_value) >= Property::_min_delta_property);
+      return _value != _cloud_value && ((std::max(_value , _cloud_value) - std::min(_value , _cloud_value)) >= Property::_min_delta_property);
     }
     virtual void fromCloudToLocal() {
       _value = _cloud_value;
@@ -59,27 +61,27 @@ class CloudInt : public Property {
       setAttribute(_cloud_value, "");
     }
     //modifiers
-    CloudInt& operator=(int v) {
+    CloudInt& operator=(T v) {
       _value = v;
       updateLocalTimestamp();
       return *this;
     }
     CloudInt& operator=(CloudInt v) {
-      return operator=((int)v);
+      return operator=(static_cast<T>(v));
     }
-    CloudInt& operator+=(int v) {
+    CloudInt& operator+=(T v) {
       return operator=(_value += v);
     }
-    CloudInt& operator-=(int v) {
+    CloudInt& operator-=(T v) {
       return operator=(_value -= v);
     }
-    CloudInt& operator*=(int v) {
+    CloudInt& operator*=(T v) {
       return operator=(_value *= v);
     }
-    CloudInt& operator/=(int v) {
+    CloudInt& operator/=(T v) {
       return operator=(_value /= v);
     }
-    CloudInt& operator%=(int v) {
+    CloudInt& operator%=(T v) {
       return operator=(_value %= v);
     }
     CloudInt& operator++() {
@@ -96,19 +98,19 @@ class CloudInt : public Property {
       operator=(_value - 1);
       return CloudInt(_value);
     }
-    CloudInt& operator&=(int v) {
+    CloudInt& operator&=(T v) {
       return operator=(_value &= v);
     }
-    CloudInt& operator|=(int v) {
+    CloudInt& operator|=(T v) {
       return operator=(_value |= v);
     }
-    CloudInt& operator^=(int v) {
+    CloudInt& operator^=(T v) {
       return operator=(_value ^= v);
     }
-    CloudInt& operator<<=(int v) {
+    CloudInt& operator<<=(T v) {
       return operator=(_value <<= v);
     }
-    CloudInt& operator>>=(int v) {
+    CloudInt& operator>>=(T v) {
       return operator=(_value >>= v);
     }
     //accessors
@@ -128,95 +130,93 @@ class CloudInt : public Property {
     friend CloudInt operator+(CloudInt iw, CloudInt v) {
       return iw += v;
     }
-    friend CloudInt operator+(CloudInt iw, int v) {
+    friend CloudInt operator+(CloudInt iw, T v) {
       return iw += v;
     }
-    friend CloudInt operator+(int v, CloudInt iw) {
+    friend CloudInt operator+(T v, CloudInt iw) {
       return CloudInt(v) += iw;
     }
     friend CloudInt operator-(CloudInt iw, CloudInt v) {
       return iw -= v;
     }
-    friend CloudInt operator-(CloudInt iw, int v) {
+    friend CloudInt operator-(CloudInt iw, T v) {
       return iw -= v;
     }
-    friend CloudInt operator-(int v, CloudInt iw) {
+    friend CloudInt operator-(T v, CloudInt iw) {
       return CloudInt(v) -= iw;
     }
     friend CloudInt operator*(CloudInt iw, CloudInt v) {
       return iw *= v;
     }
-    friend CloudInt operator*(CloudInt iw, int v) {
+    friend CloudInt operator*(CloudInt iw, T v) {
       return iw *= v;
     }
-    friend CloudInt operator*(int v, CloudInt iw) {
+    friend CloudInt operator*(T v, CloudInt iw) {
       return CloudInt(v) *= iw;
     }
     friend CloudInt operator/(CloudInt iw, CloudInt v) {
       return iw /= v;
     }
-    friend CloudInt operator/(CloudInt iw, int v) {
+    friend CloudInt operator/(CloudInt iw, T v) {
       return iw /= v;
     }
-    friend CloudInt operator/(int v, CloudInt iw) {
+    friend CloudInt operator/(T v, CloudInt iw) {
       return CloudInt(v) /= iw;
     }
     friend CloudInt operator%(CloudInt iw, CloudInt v) {
       return iw %= v;
     }
-    friend CloudInt operator%(CloudInt iw, int v) {
+    friend CloudInt operator%(CloudInt iw, T v) {
       return iw %= v;
     }
-    friend CloudInt operator%(int v, CloudInt iw) {
+    friend CloudInt operator%(T v, CloudInt iw) {
       return CloudInt(v) %= iw;
     }
     friend CloudInt operator&(CloudInt iw, CloudInt v) {
       return iw &= v;
     }
-    friend CloudInt operator&(CloudInt iw, int v) {
+    friend CloudInt operator&(CloudInt iw, T v) {
       return iw &= v;
     }
-    friend CloudInt operator&(int v, CloudInt iw) {
+    friend CloudInt operator&(T v, CloudInt iw) {
       return CloudInt(v) &= iw;
     }
     friend CloudInt operator|(CloudInt iw, CloudInt v) {
       return iw |= v;
     }
-    friend CloudInt operator|(CloudInt iw, int v) {
+    friend CloudInt operator|(CloudInt iw, T v) {
       return iw |= v;
     }
-    friend CloudInt operator|(int v, CloudInt iw) {
+    friend CloudInt operator|(T v, CloudInt iw) {
       return CloudInt(v) |= iw;
     }
     friend CloudInt operator^(CloudInt iw, CloudInt v) {
       return iw ^= v;
     }
-    friend CloudInt operator^(CloudInt iw, int v) {
+    friend CloudInt operator^(CloudInt iw, T v) {
       return iw ^= v;
     }
-    friend CloudInt operator^(int v, CloudInt iw) {
+    friend CloudInt operator^(T v, CloudInt iw) {
       return CloudInt(v) ^= iw;
     }
     friend CloudInt operator<<(CloudInt iw, CloudInt v) {
       return iw <<= v;
     }
-    friend CloudInt operator<<(CloudInt iw, int v) {
+    friend CloudInt operator<<(CloudInt iw, T v) {
       return iw <<= v;
     }
-    friend CloudInt operator<<(int v, CloudInt iw) {
+    friend CloudInt operator<<(T v, CloudInt iw) {
       return CloudInt(v) <<= iw;
     }
     friend CloudInt operator>>(CloudInt iw, CloudInt v) {
       return iw >>= v;
     }
-    friend CloudInt operator>>(CloudInt iw, int v) {
+    friend CloudInt operator>>(CloudInt iw, T v) {
       return iw >>= v;
     }
-    friend CloudInt operator>>(int v, CloudInt iw) {
+    friend CloudInt operator>>(T v, CloudInt iw) {
       return CloudInt(v) >>= iw;
     }
-
 };
-
 
 #endif /* CLOUDINT_H_ */

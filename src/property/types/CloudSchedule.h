@@ -26,37 +26,38 @@
 #include "../Property.h"
 #include "../../AIoTC_Const.h"
 #include "utility/time/TimeService.h"
+#include <stdint.h>
 #include <time.h>
 
 /******************************************************************************
  * DEFINE
  ******************************************************************************/
-#define SCHEDULE_UNIT_MASK    0xC0000000
+#define SCHEDULE_UNIT_MASK    static_cast<uint32_t>(0xC0000000)
 #define SCHEDULE_UNIT_SHIFT   30
 
-#define SCHEDULE_TYPE_MASK    0x3C000000
+#define SCHEDULE_TYPE_MASK    static_cast<uint32_t>(0x3C000000)
 #define SCHEDULE_TYPE_SHIFT   26
 
-#define SCHEDULE_MONTH_MASK   0x0000FF00
+#define SCHEDULE_MONTH_MASK   static_cast<uint32_t>(0x0000FF00)
 #define SCHEDULE_MONTH_SHIFT  8
 
-#define SCHEDULE_REP_MASK     0x03FFFFFF
-#define SCHEDULE_WEEK_MASK    0x000000FF
-#define SCHEDULE_DAY_MASK     0x000000FF
+#define SCHEDULE_REP_MASK     static_cast<uint32_t>(0x03FFFFFF)
+#define SCHEDULE_WEEK_MASK    static_cast<uint32_t>(0x000000FF)
+#define SCHEDULE_DAY_MASK     static_cast<uint32_t>(0x000000FF)
 
-#define SCHEDULE_ONE_SHOT     0xFFFFFFFF
+#define SCHEDULE_ONE_SHOT     static_cast<uint32_t>(0xFFFFFFFF)
 
 /******************************************************************************
    ENUM
  ******************************************************************************/
-enum class ScheduleUnit : int {
+enum class ScheduleUnit : int32_t {
   Seconds      = 0,
   Minutes      = 1,
   Hours        = 2,
   Days         = 3
 };
 
-enum class ScheduleType : int {
+enum class ScheduleType : int32_t {
   OneShot      = 0,
   FixedDelta   = 1,
   Weekly       = 2,
@@ -64,7 +65,7 @@ enum class ScheduleType : int {
   Yearly       = 4
 };
 
-enum class ScheduleMonth : int {
+enum class ScheduleMonth : int32_t {
   Jan          = 0,
   Feb          = 1,
   Mar          = 2,
@@ -79,7 +80,7 @@ enum class ScheduleMonth : int {
   Dec          = 11
 };
 
-enum class ScheduleWeekDay : int {
+enum class ScheduleWeekDay : int32_t {
   Sun          = 0,
   Mon          = 1,
   Tue          = 2,
@@ -89,7 +90,7 @@ enum class ScheduleWeekDay : int {
   Sat          = 6
 };
 
-enum class ScheduleState : int {
+enum class ScheduleState : int32_t {
   Inactive     = 0,
   Active       = 1
 };
@@ -98,12 +99,12 @@ enum class ScheduleState : int {
  * TYPEDEF
  ******************************************************************************/
 typedef struct ScheduleWeeklyMask {
-  ScheduleState& operator[](ScheduleWeekDay i) { return day[static_cast<int>(i)];}
+  ScheduleState& operator[](ScheduleWeekDay i) { return day[static_cast<int32_t>(i)];}
   ScheduleState day[7];
 }ScheduleWeeklyMask;
 
-typedef unsigned int ScheduleTimeType;
-typedef unsigned int ScheduleConfigurationType;
+typedef uint32_t ScheduleTimeType;
+typedef uint32_t ScheduleConfigurationType;
 
 /******************************************************************************
    CLASS DECLARATION
@@ -112,6 +113,7 @@ class Schedule {
   public:
     ScheduleTimeType frm, to, len, msk;
     Schedule(ScheduleTimeType s, ScheduleTimeType e, ScheduleTimeType d, ScheduleConfigurationType m): frm(s), to(e), len(d), msk(m) {}
+    Schedule(const Schedule& r) : frm(r.frm), to(r.to), len(r.len), msk(r.msk) {}
 
     bool isActive() {
 
@@ -140,10 +142,10 @@ class Schedule {
       return 0;
     }
 
-    static ScheduleConfigurationType createFixedDeltaScheduleConfiguration(ScheduleUnit unit, unsigned int delta) {
-      int temp_unit = static_cast<int>(unit);
-      int temp_type = static_cast<int>(ScheduleType::FixedDelta);
-      unsigned int temp_delta = delta;
+    static ScheduleConfigurationType createFixedDeltaScheduleConfiguration(ScheduleUnit unit, uint32_t delta) {
+      int32_t temp_unit = static_cast<int32_t>(unit);
+      int32_t temp_type = static_cast<int32_t>(ScheduleType::FixedDelta);
+      uint32_t temp_delta = delta;
 
       if (temp_delta > SCHEDULE_REP_MASK) {
         temp_delta = SCHEDULE_REP_MASK;
@@ -152,10 +154,10 @@ class Schedule {
     }
 
     static ScheduleConfigurationType createWeeklyScheduleConfiguration(ScheduleWeeklyMask weekMask) {
-      unsigned int temp_week = 0;
-      int temp_type = static_cast<int>(ScheduleType::Weekly);
+      uint32_t temp_week = 0;
+      int32_t temp_type = static_cast<int32_t>(ScheduleType::Weekly);
 
-      for(int i = 0; i<7; i++) {
+      for(size_t i = 0; i<7; i++) {
         if(weekMask[static_cast<ScheduleWeekDay>(i)] == ScheduleState::Active) {
           temp_week |= 1 << i;
         }
@@ -163,9 +165,9 @@ class Schedule {
       return (temp_type << SCHEDULE_TYPE_SHIFT) | temp_week;
     }
 
-    static ScheduleConfigurationType createMonthlyScheduleConfiguration(int dayOfTheMonth) {
-      int temp_day = dayOfTheMonth;
-      int temp_type = static_cast<int>(ScheduleType::Monthly);
+    static ScheduleConfigurationType createMonthlyScheduleConfiguration(int32_t dayOfTheMonth) {
+      int32_t temp_day = dayOfTheMonth;
+      int32_t temp_type = static_cast<int32_t>(ScheduleType::Monthly);
 
       if(temp_day < 1) {
         temp_day = 1;
@@ -177,10 +179,10 @@ class Schedule {
       return (temp_type << SCHEDULE_TYPE_SHIFT) | temp_day;
     }
 
-    static ScheduleConfigurationType createYearlyScheduleConfiguration(ScheduleMonth month, int dayOfTheMonth) {
-      unsigned int temp_day = createMonthlyScheduleConfiguration(dayOfTheMonth);
-      int temp_month = static_cast<int>(month);
-      int temp_type = static_cast<int>(ScheduleType::Yearly);
+    static ScheduleConfigurationType createYearlyScheduleConfiguration(ScheduleMonth month, int32_t dayOfTheMonth) {
+      uint32_t temp_day = createMonthlyScheduleConfiguration(dayOfTheMonth);
+      int32_t temp_month = static_cast<int32_t>(month);
+      int32_t temp_type = static_cast<int32_t>(ScheduleType::Yearly);
 
       return (temp_type << SCHEDULE_TYPE_SHIFT) | (temp_month << SCHEDULE_MONTH_SHIFT)| temp_day;
     }
@@ -210,19 +212,19 @@ class Schedule {
       return static_cast<ScheduleType>((msk & SCHEDULE_TYPE_MASK) >> SCHEDULE_TYPE_SHIFT);
     }
 
-    unsigned int getScheduleRepetition(ScheduleConfigurationType msk) {
+    uint32_t getScheduleRepetition(ScheduleConfigurationType msk) {
       return (msk & SCHEDULE_REP_MASK);
     }
 
-    unsigned int getScheduleWeekMask(ScheduleConfigurationType msk) {
+    uint32_t getScheduleWeekMask(ScheduleConfigurationType msk) {
       return (msk & SCHEDULE_WEEK_MASK);
     }
 
-    unsigned int getScheduleDay(ScheduleConfigurationType msk) {
+    uint32_t getScheduleDay(ScheduleConfigurationType msk) {
       return (msk & SCHEDULE_DAY_MASK);
     }
 
-    unsigned int getScheduleMonth(ScheduleConfigurationType msk) {
+    uint32_t getScheduleMonth(ScheduleConfigurationType msk) {
       return ((msk & SCHEDULE_MONTH_MASK) >> SCHEDULE_MONTH_SHIFT);
     }
 
@@ -278,21 +280,21 @@ class Schedule {
       }
     }
 
-    unsigned int getCurrentDayMask(time_t time) {
+    uint32_t getCurrentDayMask(time_t time) {
       struct tm * ptm;
       ptm = gmtime (&time);
 
       return 1 << ptm->tm_wday;
     }
 
-    unsigned int getCurrentDay(time_t time) {
+    uint32_t getCurrentDay(time_t time) {
       struct tm * ptm;
       ptm = gmtime (&time);
 
       return ptm->tm_mday;
     }
 
-    unsigned int getCurrentMonth(time_t time) {
+    uint32_t getCurrentMonth(time_t time) {
       struct tm * ptm;
       ptm = gmtime (&time);
 
@@ -318,19 +320,19 @@ class Schedule {
       if(isScheduleFixed(msk) || isScheduleOneShot(msk)) {
         return true;
       }
-      
+
       if(isScheduleWeekly(msk)) {
-        unsigned int currentDayMask = getCurrentDayMask(now);
-        unsigned int scheduleMask = getScheduleWeekMask(msk);
-        
+        uint32_t currentDayMask = getCurrentDayMask(now);
+        uint32_t scheduleMask = getScheduleWeekMask(msk);
+
         if((currentDayMask & scheduleMask) != 0) {
           return true;
         }
       }
 
       if(isScheduleMonthly(msk)) {
-        unsigned int currentDay = getCurrentDay(now);
-        unsigned int scheduleDay = getScheduleDay(msk);
+        uint32_t currentDay = getCurrentDay(now);
+        uint32_t scheduleDay = getScheduleDay(msk);
 
         if(currentDay == scheduleDay) {
           return true;
@@ -338,10 +340,10 @@ class Schedule {
       }
 
       if(isScheduleYearly(msk)) {
-        unsigned int currentDay = getCurrentDay(now);
-        unsigned int scheduleDay = getScheduleDay(msk);
-        unsigned int currentMonth = getCurrentMonth(now);
-        unsigned int scheduleMonth = getScheduleMonth(msk);
+        uint32_t currentDay = getCurrentDay(now);
+        uint32_t scheduleDay = getScheduleDay(msk);
+        uint32_t currentMonth = getCurrentMonth(now);
+        uint32_t scheduleMonth = getScheduleMonth(msk);
 
         if((currentDay == scheduleDay) && (currentMonth == scheduleMonth)) {
           return true;
@@ -382,10 +384,9 @@ class CloudSchedule : public Property {
              _cloud_value;
   public:
     CloudSchedule() : _value(0, 0, 0, 0), _cloud_value(0, 0, 0, 0) {}
-    CloudSchedule(unsigned int frm, unsigned int to, unsigned int len, unsigned int msk) : _value(frm, to, len, msk), _cloud_value(frm, to, len, msk) {}
+    CloudSchedule(uint32_t frm, uint32_t to, uint32_t len, uint32_t msk) : _value(frm, to, len, msk), _cloud_value(frm, to, len, msk) {}
 
     virtual bool isDifferentFromCloud() {
-
       return _value != _cloud_value;
     }
 
@@ -413,9 +414,11 @@ class CloudSchedule : public Property {
     virtual void fromCloudToLocal() {
       _value = _cloud_value;
     }
+
     virtual void fromLocalToCloud() {
       _cloud_value = _value;
     }
+
     virtual CborError appendAttributesToCloud(CborEncoder *encoder) {
       CHECK_CBOR_MULTI(appendAttribute(_value.frm, "frm", encoder));
       CHECK_CBOR_MULTI(appendAttribute(_value.to, "to", encoder));
@@ -423,6 +426,7 @@ class CloudSchedule : public Property {
       CHECK_CBOR_MULTI(appendAttribute(_value.msk, "msk", encoder));
       return CborNoError;
     }
+
     virtual void setAttributesFromCloud() {
       setAttribute(_cloud_value.frm, "frm");
       setAttribute(_cloud_value.to, "to");

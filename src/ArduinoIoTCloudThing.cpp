@@ -20,7 +20,6 @@
 #include "ArduinoIoTCloudThing.h"
 #include "interfaces/CloudProcess.h"
 #include "property/types/CloudWrapperInt.h"
-#include "property/types/CloudWrapperUnsignedInt.h"
 
 /******************************************************************************
  * CTOR/DTOR
@@ -44,13 +43,13 @@ _utcOffsetExpireTimeProperty(nullptr) {
 void ArduinoCloudThing::begin() {
   Property* property;
 
-  property = new CloudWrapperInt(_utcOffset);
+  property = new CloudWrapperInt<int>(_utcOffset);
   _utcOffsetProperty = &addPropertyToContainer(getPropertyContainer(),
                                                *property,
                                                "tz_offset",
                                                Permission::ReadWrite, -1);
   _utcOffsetProperty->writeOnDemand();
-  property = new CloudWrapperUnsignedInt(_utcOffsetExpireTime);
+  property = new CloudWrapperInt<unsigned int>(_utcOffsetExpireTime);
   _utcOffsetExpireTimeProperty = &addPropertyToContainer(getPropertyContainer(),
                                                          *property,
                                                          "tz_dst_until",

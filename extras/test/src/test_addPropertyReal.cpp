@@ -36,17 +36,33 @@ SCENARIO("The same arduino cloud properties are added multiple times", "[Arduino
 
   /**************************************************************************************/
 
-  WHEN("the same int property is added multiple times")
+  WHEN("the same int16 property is added multiple times")
   {
     PropertyContainer property_container;
 
-    CloudInt int_property = 1;
+    CloudInt<int16_t> int16_property = 1;
 
-    Property * int_property_ptr_1 = &addPropertyToContainer(property_container, int_property, "int_property", Permission::ReadWrite);
-    Property * int_property_ptr_2 = &addPropertyToContainer(property_container, int_property, "int_property", Permission::ReadWrite);
+    Property * int16_property_ptr_1 = &addPropertyToContainer(property_container, int16_property, "int16_property", Permission::ReadWrite);
+    Property * int16_property_ptr_2 = &addPropertyToContainer(property_container, int16_property, "int16_property", Permission::ReadWrite);
 
     THEN("No new property is added and the first added property is returned instead of a new one") {
-      REQUIRE(int_property_ptr_1 == int_property_ptr_2);
+      REQUIRE(int16_property_ptr_1 == int16_property_ptr_2);
+    }
+  }
+
+  /**************************************************************************************/
+
+  WHEN("the same int32 property is added multiple times")
+  {
+    PropertyContainer property_container;
+
+    CloudInt<int32_t> int32_property = 1;
+
+    Property * int32_property_ptr_1 = &addPropertyToContainer(property_container, int32_property, "int32_property", Permission::ReadWrite);
+    Property * int32_property_ptr_2 = &addPropertyToContainer(property_container, int32_property, "int32_property", Permission::ReadWrite);
+
+    THEN("No new property is added and the first added property is returned instead of a new one") {
+      REQUIRE(int32_property_ptr_1 == int32_property_ptr_2);
     }
   }
 

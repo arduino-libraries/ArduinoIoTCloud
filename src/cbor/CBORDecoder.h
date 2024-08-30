@@ -23,6 +23,9 @@
  ******************************************************************************/
 
 #include <Arduino.h>
+#ifdef __AVR_ARCH__
+#  include <ArduinoSTL.h> // needed for std::list
+#endif
 
 #undef max
 #undef min
