@@ -2,9 +2,8 @@
 #include <Arduino_ConnectionHandler.h>
 #include "arduino_secrets.h"
 
-#if !(defined(BOARD_HAS_WIFI) || defined(BOARD_HAS_GSM) || defined(BOARD_HAS_LORA) || \
-      defined(BOARD_HAS_NB) || defined(BOARD_HAS_ETHERNET) || defined(BOARD_HAS_CATM1_NBIOT))
-  #error "Please check Arduino IoT Cloud supported boards list: https://github.com/arduino-libraries/ArduinoIoTCloud/#what"
+#if !(defined(HAS_TCP) || defined(HAS_LORA))
+  #error  "Please check Arduino IoT Cloud supported boards list: https://github.com/arduino-libraries/ArduinoIoTCloud/#what"
 #endif
 
 /******************************************************************************
@@ -15,7 +14,7 @@
   #define BOARD_ID "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
 #endif
 
-#if defined(BOARD_HAS_LORA)
+#if defined(HAS_LORA)
   #define THING_ID "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
 #endif
 
@@ -69,6 +68,8 @@ String str_property_8;
   //EthernetConnectionHandler ArduinoIoTPreferredConnection;
   /* Manual mode. It will fallback in DHCP mode if SECRET_OPTIONAL_IP is invalid or equal to "0.0.0.0" */
   EthernetConnectionHandler ArduinoIoTPreferredConnection(SECRET_OPTIONAL_IP, SECRET_OPTIONAL_DNS, SECRET_OPTIONAL_GATEWAY, SECRET_OPTIONAL_NETMASK);
+#elif defined(BOARD_HAS_CELLULAR)
+  CellularConnectionHandler ArduinoIoTPreferredConnection(SECRET_PIN, SECRET_APN, SECRET_LOGIN, SECRET_PASS);
 #endif
 
 /******************************************************************************
@@ -83,7 +84,7 @@ void onStringPropertyChange();
 /******************************************************************************
    FUNCTIONS
  ******************************************************************************/
-#if defined(BOARD_HAS_WIFI) || defined(BOARD_HAS_GSM) || defined (BOARD_HAS_NB) || defined (BOARD_HAS_CATM1_NBIOT)
+#if defined(HAS_TCP)
 void initProperties() {
 #if defined(BOARD_HAS_SECRET_KEY)
   ArduinoCloud.setBoardId(BOARD_ID);
@@ -116,7 +117,7 @@ void initProperties() {
   ArduinoCloud.addProperty(str_property_8, Permission::ReadWrite).publishEvery(1 * SECONDS).onSync(DEVICE_WINS);
 }
 
-#elif defined(BOARD_HAS_LORA)
+#elif defined(HAS_LORA)
 void initProperties() {
   ArduinoCloud.setThingId(THING_ID);
 

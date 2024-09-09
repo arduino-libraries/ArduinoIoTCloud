@@ -14,7 +14,9 @@
 #endif
 
 /* MKR GSM 1400 */ /* MKR NB 1500 */ /* Portenta CAT.M1/NB IoT GNSS Shield */
-#if defined(BOARD_HAS_GSM) || defined(BOARD_HAS_NB) || defined(BOARD_HAS_CATM1_NBIOT)
+/* Portenta H7 and C33 + Portenta Mid Carrier + 4G Module */
+#if defined(BOARD_HAS_GSM) || defined(BOARD_HAS_NB) || \
+    defined(BOARD_HAS_CATM1_NBIOT) || defined(BOARD_HAS_CELLULAR)
   #define SECRET_PIN ""
   #define SECRET_APN ""
   #define SECRET_LOGIN ""
