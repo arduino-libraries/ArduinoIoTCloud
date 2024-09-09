@@ -322,9 +322,10 @@ unsigned long TimeServiceClass::getRemoteTime()
 
 bool TimeServiceClass::isTimeValid(unsigned long const time)
 {
-  // EPOCH_AT_COMPILE_TIME is in local time, 
-  // so we need to subtract the maximum possible timezone offset to make sure we are less then utc time
-  return (time > (EPOCH_AT_COMPILE_TIME - (/*UTC+14*/ 14 * 60 * 60)));
+  /* EPOCH_AT_COMPILE_TIME is in local time, so we need to subtract the maximum
+   * possible timezone offset UTC+14 to make sure we are less then UTC time
+   */
+  return (time > (EPOCH_AT_COMPILE_TIME - (14 * 60 * 60)));
 }
 
 bool TimeServiceClass::isTimeZoneOffsetValid(long const offset)
