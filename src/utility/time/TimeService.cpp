@@ -144,9 +144,17 @@ unsigned long TimeServiceClass::getTime()
     sync();
   }
 
-  /* Read time from RTC */
-  unsigned long utc = getRTC();
-  return isTimeValid(utc) ? utc : EPOCH_AT_COMPILE_TIME;
+  /* Use RTC time if has been configured at least once */
+  if(_last_sync_tick) {
+    return getRTC();
+  }
+
+  /* Return the epoch timestamp at compile time as a last line of defense
+   * trying to connect to the server. Otherwise the certificate expiration
+   * date is wrong and we'll be unable to establish a connection. Schedulers
+   * won't work correctly using this value.
+   */
+  return EPOCH_AT_COMPILE_TIME;
 }
 
 void TimeServiceClass::setTime(unsigned long time)
@@ -158,7 +166,7 @@ bool TimeServiceClass::sync()
 {
   _is_rtc_configured = false;
 
-  unsigned long utc = EPOCH_AT_COMPILE_TIME;
+  unsigned long utc = EPOCH;
   if(_sync_func) {
     utc = _sync_func();
   } else {
@@ -310,12 +318,8 @@ unsigned long TimeServiceClass::getRemoteTime()
     }
   }
 
-  /* Return the epoch timestamp at compile time as a last
-   * line of defense. Otherwise the certificate expiration
-   * date is wrong and we'll be unable to establish a connection
-   * to the server.
-   */
-  return EPOCH_AT_COMPILE_TIME;
+  /* Return known invalid value because we are not connected */
+  return EPOCH;
 }
 
 #endif  /* HAS_NOTECARD || HAS_TCP */
