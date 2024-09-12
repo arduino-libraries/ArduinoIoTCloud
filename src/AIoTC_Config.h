@@ -116,11 +116,13 @@
 
 #if defined(ARDUINO_PORTENTA_H7_M7) || defined(ARDUINO_NICLA_VISION) || defined(ARDUINO_OPTA) || defined(ARDUINO_GIGA)
   #define BEAR_SSL_CLIENT_IBUF_SIZE (16384 + 325) // Allows download from storage API
+  #define BEAR_SSL_CLIENT_OBUF_SIZE (512 + 85)
   #define BOARD_STM32H7
 #endif
 
 #if defined(ARDUINO_NANO_RP2040_CONNECT)
   #define BEAR_SSL_CLIENT_IBUF_SIZE (16384 + 325) // Allows download from storage API
+  #define BEAR_SSL_CLIENT_OBUF_SIZE (512 + 85)
 #endif
 
 #if defined(ARDUINO_EDGE_CONTROL)

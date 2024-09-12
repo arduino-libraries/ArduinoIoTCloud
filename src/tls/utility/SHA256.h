@@ -21,8 +21,23 @@
 /******************************************************************************
  * INCLUDE
  ******************************************************************************/
+#include <AIoTC_Config.h>
 
-#include "../bearssl/bearssl_hash.h"
+#if OTA_ENABLED
+
+#if defined(BOARD_HAS_OFFLOADED_ECCX08) || defined(BOARD_HAS_ECCX08) || defined(BOARD_HAS_SOFTSE)
+  #define HAS_BEARSSL
+#else
+  #define HAS_MBEDTLS
+#endif
+
+#if defined(HAS_BEARSSL)
+  #include <ArduinoBearSSLConfig.h>
+  #include <ArduinoBearSSL.h>
+  #include <bearssl/bearssl_hash.h>
+#else
+  #include <mbedtls/sha256.h>
+#endif
 
 /******************************************************************************
  * CLASS DECLARATION
@@ -41,8 +56,14 @@ public:
 
 private:
 
+#if defined(HAS_BEARSSL)
   br_sha256_context _ctx;
+#else
+  mbedtls_sha256_context _ctx;
+#endif
 
 };
+
+#endif /* OTA_ENABLED */
 
 #endif /* ARDUINO_TLS_UTILITY_SHA256_H_ */
