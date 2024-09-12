@@ -45,7 +45,7 @@ class OTADefaultCloudProcessInterface: public OTACloudProcessInterface {
     OTADefaultCloudProcessInterface(MessageStream *ms, Client* client=nullptr);
     virtual ~OTADefaultCloudProcessInterface();
 
-    inline virtual void setConnection(ConnectionHandler * connection) override { _connection = connection; }
+    inline void setConnection(ConnectionHandler * connection) { _connection = connection; }
 
   protected:
     virtual State startOTA() override;
