@@ -11,7 +11,7 @@
 
 #include <AIoTC_Config.h>
 
-#if OTA_ENABLED && ! defined(OFFLOADED_DOWNLOAD)
+#if OTA_ENABLED && ! defined(OFFLOADED_DOWNLOAD) && ! defined(HAS_NOTECARD)
 #include <Arduino.h>
 
 #include <ArduinoHttpClient.h>
