@@ -141,12 +141,21 @@ unsigned long TimeServiceClass::getTime()
   unsigned long const current_tick = millis();
   bool const is_ntp_sync_timeout = (current_tick - _last_sync_tick) > _sync_interval_ms;
   if(!_is_rtc_configured || is_ntp_sync_timeout) {
+    /* Try to sync time from NTP or connection handler */
     sync();
   }
 
-  /* Read time from RTC */
-  unsigned long utc = getRTC();
-  return isTimeValid(utc) ? utc : EPOCH_AT_COMPILE_TIME;
+  /* Use RTC time if has been configured at least once */
+  if(_last_sync_tick) {
+    return getRTC();
+  }
+
+  /* Return the epoch timestamp at compile time as a last line of defense
+   * trying to connect to the server. Otherwise the certificate expiration
+   * date is wrong and we'll be unable to establish a connection. Schedulers
+   * won't work correctly using this value.
+   */
+  return EPOCH_AT_COMPILE_TIME;
 }
 
 void TimeServiceClass::setTime(unsigned long time)
@@ -158,20 +167,20 @@ bool TimeServiceClass::sync()
 {
   _is_rtc_configured = false;
 
-  unsigned long utc = EPOCH_AT_COMPILE_TIME;
+  unsigned long utc = EPOCH;
   if(_sync_func) {
     utc = _sync_func();
   } else {
 #if defined(HAS_NOTECARD) || defined(HAS_TCP)
     utc = getRemoteTime();
 #elif defined(HAS_LORA)
-    /* Just keep incrementing stored RTC value*/
+    /* Just keep incrementing stored RTC value starting from EPOCH_AT_COMPILE_TIME */
     utc = getRTC();
 #endif
   }
 
   if(isTimeValid(utc)) {
-    DEBUG_DEBUG("TimeServiceClass::%s  Drift: %d RTC value: %u", __FUNCTION__, getRTC() - utc, utc);
+    DEBUG_DEBUG("TimeServiceClass::%s done. Drift: %d RTC value: %u", __FUNCTION__, getRTC() - utc, utc);
     setRTC(utc);
     _last_sync_tick = millis();
     _is_rtc_configured = true;
@@ -299,6 +308,7 @@ unsigned long TimeServiceClass::getRemoteTime()
         return ntp_time;
       }
     }
+    DEBUG_WARNING("TimeServiceClass::%s cannot get time from NTP, fallback on connection handler", __FUNCTION__);
 #endif  /* HAS_TCP */
 
     /* As fallback if NTP request fails try to obtain the
@@ -308,21 +318,21 @@ unsigned long TimeServiceClass::getRemoteTime()
     if(isTimeValid(connection_time)) {
       return connection_time;
     }
+    DEBUG_WARNING("TimeServiceClass::%s cannot get time from connection handler", __FUNCTION__);
   }
 
-  /* Return the epoch timestamp at compile time as a last
-   * line of defense. Otherwise the certificate expiration
-   * date is wrong and we'll be unable to establish a connection
-   * to the server.
-   */
-  return EPOCH_AT_COMPILE_TIME;
+  /* Return known invalid value because we are not connected */
+  return EPOCH;
 }
 
 #endif  /* HAS_NOTECARD || HAS_TCP */
 
 bool TimeServiceClass::isTimeValid(unsigned long const time)
 {
-  return (time > EPOCH_AT_COMPILE_TIME);
+  /* EPOCH_AT_COMPILE_TIME is in local time, so we need to subtract the maximum
+   * possible timezone offset UTC+14 to make sure we are less then UTC time
+   */
+  return (time > (EPOCH_AT_COMPILE_TIME - (14 * 60 * 60)));
 }
 
 bool TimeServiceClass::isTimeZoneOffsetValid(long const offset)
