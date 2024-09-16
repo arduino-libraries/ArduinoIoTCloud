@@ -1,24 +1,30 @@
 /*
-  This sketch demonstrates how to exchange data between your board and the Arduino IoT Cloud.
+  This sketch demonstrates how to exchange data between your board and the
+  Arduino IoT Cloud, while using the Notecard for wireless communication.
 
   * Connect a potentiometer (or other analog sensor) to A0.
   * When the potentiometer (or sensor) value changes the data is sent to the Cloud.
   * When you flip the switch in the Cloud dashboard the onboard LED lights gets turned ON or OFF.
 
   IMPORTANT:
-  This sketch works with WiFi, GSM, NB, Ethernet and Lora enabled boards supported by Arduino IoT Cloud.
-  On a LoRa board, if it is configured as a class A device (default and preferred option),
-  values from Cloud dashboard are received only after a value is sent to Cloud.
+  This sketch works with any Wi-Fi, Cellular, LoRa or Satellite enabled Notecard.
 
   The full list of compatible boards can be found here:
    - https://github.com/arduino-libraries/ArduinoIoTCloud#what
 */
 
+#include <Notecard.h>
 #include "thingProperties.h"
 
 #if !defined(LED_BUILTIN) && !defined(ARDUINO_NANO_ESP32)
 static int const LED_BUILTIN = 2;
 #endif
+
+/*
+ * Choose an interrupt capable pin to reduce polling and improve
+ * the overall responsiveness of the ArduinoIoTCloud library
+ */
+// #define ATTN_PIN 9
 
 void setup() {
   /* Initialize serial and wait up to 5 seconds for port to open */
@@ -41,7 +47,12 @@ void setup() {
   initProperties();
 
   /* Initialize Arduino IoT Cloud library */
+#ifndef ATTN_PIN
   ArduinoCloud.begin(ArduinoIoTPreferredConnection);
+  ArduinoCloud.setNotecardPollingInterval(3000);  // default: 1000ms, min: 250ms
+#else
+  ArduinoCloud.begin(ArduinoIoTPreferredConnection, ATTN_PIN);
+#endif
 
   ArduinoCloud.printDebugInfo();
 }

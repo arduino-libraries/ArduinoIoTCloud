@@ -10,6 +10,10 @@
   #define BOARD_ID "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
 #endif
 
+#if defined(HAS_LORA)
+  #define THING_ID "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+#endif
+
 void onLedChange();
 
 bool led;
@@ -29,6 +33,8 @@ void initProperties() {
   ArduinoCloud.addProperty(led, 1, Permission::ReadWrite).onUpdate(onLedChange);
   ArduinoCloud.addProperty(potentiometer, 2, Permission::Read).publishOnChange(10);
   ArduinoCloud.addProperty(seconds, 3, Permission::Read).publishEvery(5 * MINUTES);
+
+  ArduinoCloud.setThingId(THING_ID);
 #endif
 }
 

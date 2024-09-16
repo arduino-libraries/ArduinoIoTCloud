@@ -15,7 +15,7 @@
 
 #include <AIoTC_Config.h>
 
-#ifdef HAS_TCP
+#if defined(HAS_NOTECARD) || defined(HAS_TCP)
 
 #include "ArduinoIoTCloudThing.h"
 #include "interfaces/CloudProcess.h"
@@ -180,4 +180,4 @@ ArduinoCloudThing::State ArduinoCloudThing::handleDisconnect() {
   return State::Disconnect;
 }
 
-#endif /* HAS_TCP */
+#endif /* HAS_NOTECARD || HAS_TCP */

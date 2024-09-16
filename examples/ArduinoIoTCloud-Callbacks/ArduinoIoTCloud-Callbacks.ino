@@ -33,6 +33,15 @@ void setup() {
   Serial.begin(9600);
   for(unsigned long const serialBeginTime = millis(); !Serial && (millis() - serialBeginTime <= 5000); ) { }
 
+  /* Set the debug message level:
+   * - DBG_ERROR: Only show error messages
+   * - DBG_WARNING: Show warning and error messages
+   * - DBG_INFO: Show info, warning, and error messages
+   * - DBG_DEBUG: Show debug, info, warning, and error messages
+   * - DBG_VERBOSE: Show all messages
+   */
+  setDebugMessageLevel(DBG_INFO);
+
   /* This function takes care of connecting your sketch variables to the ArduinoIoTCloud object */
   initProperties();
 
@@ -51,7 +60,6 @@ void setup() {
   ArduinoCloud.addCallback(ArduinoIoTCloudEvent::SYNC, doThisOnSync);
   ArduinoCloud.addCallback(ArduinoIoTCloudEvent::DISCONNECT, doThisOnDisconnect);
 
-  setDebugMessageLevel(DBG_INFO);
   ArduinoCloud.printDebugInfo();
 }
 

@@ -25,6 +25,8 @@ getThingId	KEYWORD2
 setDeviceId	KEYWORD2
 getDeviceId	KEYWORD2
 getConnection	KEYWORD2
+getInternalTime	KEYWORD2
+getLocalTime	KEYWORD2
 addCallback	KEYWORD2
 addProperty	KEYWORD2
 
@@ -45,6 +47,14 @@ getBrokerAddress	KEYWORD2
 getBrokerPort	KEYWORD2
 setOTAStorage	KEYWORD2
 reconnect	KEYWORD2
+
+# ArduinoIoTCloudNotecard.h
+begin	KEYWORD2
+setNotecardPollingInterval	KEYWORD2
+
+# OTA
+onOTARequestCallbackFunc	KEYWORD2
+onOTARequestCb	KEYWORD2
 
 #######################################
 # Constants (LITERAL1)
