@@ -116,16 +116,27 @@ bool NANO_RP2040OTACloudProcess::isOtaCapable() {
   return true;
 }
 
-// extern void* __stext;
+extern uint32_t __flash_binary_start;
 extern uint32_t __flash_binary_end;
 
+#if defined(UNINITIALIZED_DATA_SECTION)
+extern uint32_t __uninitialized_data_start__;
+extern uint32_t __uninitialized_data_end__;
+#endif
 
 void* NANO_RP2040OTACloudProcess::appStartAddress() {
-  // return &__flash_binary_start;
+#if defined(UNINITIALIZED_DATA_SECTION)
+  return &__flash_binary_start;
+#else
   return (void*)XIP_BASE;
+#endif
 }
 uint32_t NANO_RP2040OTACloudProcess::appSize() {
-  return (&__flash_binary_end - (uint32_t*)appStartAddress())*sizeof(void*);
+#if defined(UNINITIALIZED_DATA_SECTION)
+  return ((&__flash_binary_end - (uint32_t*)appStartAddress()) - (&__uninitialized_data_end__ - &__uninitialized_data_start__)) * sizeof(void*);
+#else
+  return (&__flash_binary_end - (uint32_t*)appStartAddress()) * sizeof(void*);
+#endif
 }
 
 #endif // defined(ARDUINO_NANO_RP2040_CONNECT) && OTA_ENABLED
