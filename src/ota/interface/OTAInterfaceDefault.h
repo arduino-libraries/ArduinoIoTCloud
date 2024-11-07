@@ -73,14 +73,18 @@ protected:
     uint32_t          calculatedCrc32;
     uint32_t          headerCopiedBytes;
     uint32_t          downloadedSize;
-    uint32_t          lastReportTime;
+    bool              printProgress;
+    uint32_t          contentLength;
     bool              writeError;
+
+    uint32_t          downloadedChunkSize;
+    static constexpr size_t maxChunkSize = 1024 * 10;
 
     // LZSS decoder
     LZSSDecoder       decoder;
 
-    const size_t buf_len = 64;
-    uint8_t buffer[64];
+    static constexpr size_t bufLen = 1460;
+    uint8_t buffer[bufLen];
   } *context;
 };
 
