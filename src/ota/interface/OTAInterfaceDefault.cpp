@@ -98,13 +98,14 @@ OTACloudProcessInterface::State OTADefaultCloudProcessInterface::fetch() {
       goto exit;
     }
 
-    if(http_client->available() == 0) {
+    const uint32_t available = http_client->available();
+    if(available == 0) {
       /* Avoid tight loop and allow yield */
       delay(1);
       continue;
     }
 
-    http_res = http_client->read(context->buffer, context->buf_len);
+    http_res = http_client->read(context->buffer, (available > context->buf_len) ? context->buf_len : available);
 
     if(http_res < 0) {
       DEBUG_VERBOSE("OTA ERROR: Download read error %d", http_res);
@@ -159,7 +160,7 @@ void OTADefaultCloudProcessInterface::parseOta(uint8_t* buffer, size_t buf_len) 
   for(uint8_t* cursor=(uint8_t*)buffer; cursor<buffer+buf_len; ) {
     switch(context->downloadState) {
     case OtaDownloadHeader: {
-      uint32_t copied = buf_len < sizeof(context->header.buf) ? buf_len : sizeof(context->header.buf);
+      const uint32_t copied = context->headerCopiedBytes + buf_len < sizeof(context->header.buf) ? buf_len : sizeof(context->header.buf) - context->headerCopiedBytes;
       memcpy(context->header.buf+context->headerCopiedBytes, buffer, copied);
       cursor += copied;
       context->headerCopiedBytes += copied;
@@ -178,22 +179,25 @@ void OTADefaultCloudProcessInterface::parseOta(uint8_t* buffer, size_t buf_len) 
           context->downloadState = OtaDownloadMagicNumberMismatch;
           return;
         }
+        context->downloadedSize += sizeof(context->header.buf);
       }
 
       break;
     }
     case OtaDownloadFile: {
-      uint32_t contentLength = http_client->contentLength();
-      context->decoder.decompress(cursor, buf_len - (cursor-buffer)); // TODO verify return value
+      const uint32_t contentLength = http_client->contentLength();
+      const uint32_t dataLeft = buf_len - (cursor-buffer);
+      context->decoder.decompress(cursor, dataLeft); // TODO verify return value
 
       context->calculatedCrc32 = crc_update(
           context->calculatedCrc32,
           cursor,
-          buf_len - (cursor-buffer)
+          dataLeft
         );
 
-      cursor += buf_len - (cursor-buffer);
-      context->downloadedSize += (cursor-buffer);
+      cursor += dataLeft;
+      context->downloadedSize += dataLeft;
+
 
       if((millis() - context->lastReportTime) > 10000) { // Report the download progress each X millisecond
         DEBUG_VERBOSE("OTA Download Progress %d/%d", context->downloadedSize, contentLength);
