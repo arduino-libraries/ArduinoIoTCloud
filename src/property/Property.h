@@ -35,7 +35,7 @@
 # include <functional>
 #include <list>
 
-#include "../cbor/lib/tinycbor/cbor-lib.h"
+#include <Arduino_TinyCBOR.h>
 
 /******************************************************************************
    CONST
