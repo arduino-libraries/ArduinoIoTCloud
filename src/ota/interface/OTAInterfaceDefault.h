@@ -16,7 +16,7 @@
 
 #include <ArduinoHttpClient.h>
 #include <URLParser.h>
-#include "utility/lzss/lzss.h"
+#include <Arduino_Lzss.h>
 #include "OTAInterface.h"
 
 /**
@@ -77,7 +77,7 @@ protected:
     bool              writeError;
 
     // LZSS decoder
-    LZSSDecoder       decoder;
+    arduino::lzss::Decoder       decoder;
 
     const size_t buf_len = 64;
     uint8_t buffer[64];
