@@ -159,10 +159,10 @@ void OTADefaultCloudProcessInterface::parseOta(uint8_t* buffer, size_t buf_len) 
   for(uint8_t* cursor=(uint8_t*)buffer; cursor<buffer+buf_len; ) {
     switch(context->downloadState) {
     case OtaDownloadHeader: {
-      uint32_t copied = buf_len < sizeof(context->header.buf) ? buf_len : sizeof(context->header.buf);
-      memcpy(context->header.buf+context->headerCopiedBytes, buffer, copied);
-      cursor += copied;
-      context->headerCopiedBytes += copied;
+      const uint32_t headerLeft = context->headerCopiedBytes + buf_len <= sizeof(context->header.buf) ? buf_len : sizeof(context->header.buf) - context->headerCopiedBytes;
+      memcpy(context->header.buf+context->headerCopiedBytes, buffer, headerLeft);
+      cursor += headerLeft;
+      context->headerCopiedBytes += headerLeft;
 
       // when finished go to next state
       if(sizeof(context->header.buf) == context->headerCopiedBytes) {
@@ -178,22 +178,24 @@ void OTADefaultCloudProcessInterface::parseOta(uint8_t* buffer, size_t buf_len) 
           context->downloadState = OtaDownloadMagicNumberMismatch;
           return;
         }
+        context->downloadedSize += sizeof(context->header.buf);
       }
 
       break;
     }
     case OtaDownloadFile: {
-      uint32_t contentLength = http_client->contentLength();
-      context->decoder.decompress(cursor, buf_len - (cursor-buffer)); // TODO verify return value
+      const uint32_t contentLength = http_client->contentLength();
+      const uint32_t dataLeft = buf_len - (cursor-buffer);
+      context->decoder.decompress(cursor, dataLeft); // TODO verify return value
 
       context->calculatedCrc32 = crc_update(
           context->calculatedCrc32,
           cursor,
-          buf_len - (cursor-buffer)
+          dataLeft
         );
 
-      cursor += buf_len - (cursor-buffer);
-      context->downloadedSize += (cursor-buffer);
+      cursor += dataLeft;
+      context->downloadedSize += dataLeft;
 
       if((millis() - context->lastReportTime) > 10000) { // Report the download progress each X millisecond
         DEBUG_VERBOSE("OTA Download Progress %d/%d", context->downloadedSize, contentLength);
