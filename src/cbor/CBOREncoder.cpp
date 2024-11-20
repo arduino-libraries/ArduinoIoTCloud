@@ -26,7 +26,7 @@
 #include <algorithm>
 #include <iterator>
 
-#include "lib/tinycbor/cbor-lib.h"
+#include <Arduino_TinyCBOR.h>
 
 /******************************************************************************
  * PUBLIC MEMBER FUNCTIONS
