@@ -23,7 +23,7 @@
 
 #include "CBOR.h"
 #include "../interfaces/Decoder.h"
-#include "lib/tinycbor/cbor-lib.h"
+#include <Arduino_TinyCBOR.h>
 
 /******************************************************************************
    CLASS DECLARATION
