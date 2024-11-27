@@ -60,40 +60,6 @@
 
 #if !defined(HAS_NOTECARD)
 
-#if defined(ARDUINO_SAMD_MKRWIFI1010) || defined(ARDUINO_SAMD_NANO_33_IOT)
-  #define OTA_STORAGE_SNU         (1)
-#else
-  #define OTA_STORAGE_SNU         (0)
-#endif
-
-#if defined(ARDUINO_NANO_RP2040_CONNECT)
-  #define OTA_STORAGE_SFU         (1)
-#else
-  #define OTA_STORAGE_SFU         (0)
-#endif
-
-#ifdef ARDUINO_SAMD_MKRGSM1400
-  #define OTA_STORAGE_SSU         (1) // OTA_STORAGE_SSU is not implemented yet in OTASamd
-#else
-  #define OTA_STORAGE_SSU         (0)
-#endif
-
-#if defined(ARDUINO_PORTENTA_H7_M7) || defined(ARDUINO_NICLA_VISION) || defined(ARDUINO_OPTA) || defined(ARDUINO_GIGA)
-  #define OTA_STORAGE_PORTENTA_QSPI   (1)
-#else
-  #define OTA_STORAGE_PORTENTA_QSPI   (0)
-#endif
-
-#if defined(ARDUINO_ARCH_ESP32) || defined(ARDUINO_UNOR4_WIFI)
-  #define OTA_STORAGE_ESP         (1)
-#endif
-
-#if (OTA_STORAGE_SFU || OTA_STORAGE_SNU || OTA_STORAGE_PORTENTA_QSPI || OTA_STORAGE_ESP)
-  #define OTA_ENABLED             (1)
-#else
-  #define OTA_ENABLED             (0)
-#endif
-
 #if defined(ARDUINO_SAMD_MKRGSM1400) || defined(ARDUINO_SAMD_MKR1000) ||   \
   defined(ARDUINO_SAMD_MKRNB1500) || defined(ARDUINO_PORTENTA_H7_M7)      ||   \
   defined (ARDUINO_NANO_RP2040_CONNECT) || defined(ARDUINO_OPTA) || \
@@ -141,7 +107,45 @@
   #define BOARD_HAS_SECURE_ELEMENT
 #endif
 
-#endif // HAS_NOTECARD
+#if defined(ARDUINO_SAMD_MKRWIFI1010) || defined(ARDUINO_SAMD_NANO_33_IOT)
+  #define OTA_STORAGE_SNU         (1)
+#else
+  #define OTA_STORAGE_SNU         (0)
+#endif
+
+#if defined(ARDUINO_UNOR4_WIFI)
+  #define OTA_STORAGE_ESP         (1)
+#endif
+
+#ifdef ARDUINO_SAMD_MKRGSM1400
+  #define OTA_STORAGE_SSU         (1) // OTA_STORAGE_SSU is not implemented yet in OTASamd
+#else
+  #define OTA_STORAGE_SSU         (0)
+#endif
+
+#endif // !defined(HAS_NOTECARD)
+
+#if defined(ARDUINO_NANO_RP2040_CONNECT)
+  #define OTA_STORAGE_SFU         (1)
+#else
+  #define OTA_STORAGE_SFU         (0)
+#endif
+
+#if defined(ARDUINO_PORTENTA_H7_M7) || defined(ARDUINO_NICLA_VISION) || defined(ARDUINO_OPTA) || defined(ARDUINO_GIGA)
+  #define OTA_STORAGE_PORTENTA_QSPI   (1)
+#else
+  #define OTA_STORAGE_PORTENTA_QSPI   (0)
+#endif
+
+#if defined(ARDUINO_ARCH_ESP32)
+  #define OTA_STORAGE_ESP         (1)
+#endif
+
+#if (OTA_STORAGE_SFU || OTA_STORAGE_SNU || OTA_STORAGE_PORTENTA_QSPI || OTA_STORAGE_ESP)
+  #define OTA_ENABLED             (1)
+#else
+  #define OTA_ENABLED             (0)
+#endif
 
 #if defined(ARDUINO_PORTENTA_H7_M7) || defined(ARDUINO_NICLA_VISION) || defined(ARDUINO_OPTA) || defined(ARDUINO_GIGA)
   #define BEAR_SSL_CLIENT_IBUF_SIZE (16384 + 325) // Allows download from storage API
