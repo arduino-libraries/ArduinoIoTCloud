@@ -90,6 +90,18 @@ OTACloudProcessInterface::State OTADefaultCloudProcessInterface::startOTA() {
 }
 
 OTACloudProcessInterface::State OTADefaultCloudProcessInterface::fetch() {
+  if(downloadTime > 0) {
+    return fetchTime();
+  } else {
+    return fetchChunk();
+  }
+}
+
+OTACloudProcessInterface::State OTADefaultCloudProcessInterface::fetchChunk() {
+  return OtaDownloadFail;
+}
+
+OTACloudProcessInterface::State OTADefaultCloudProcessInterface::fetchTime() {
   OTACloudProcessInterface::State res = Fetch;
   int http_res = 0;
   uint32_t start = millis();

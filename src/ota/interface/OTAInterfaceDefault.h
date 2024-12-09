@@ -43,6 +43,8 @@ protected:
 
 private:
   void parseOta(uint8_t* buffer, size_t bufLen);
+  State fetchTime();
+  State fetchChunk();
 
   Client*     client;
   HttpClient* http_client;
