@@ -39,6 +39,8 @@ elif board == "ESP32":
     magic_number = 0x45535033.to_bytes(4,byteorder='little')
 elif board == "UNOR4WIFI":
     magic_number = 0x23411002.to_bytes(4,byteorder='little')
+elif board == "PORTENTA_C33":
+    magic_number = 0x23410068.to_bytes(4,byteorder='little')
 else:
     print ("Error,", board, "is not a supported board type")
     sys.exit()
