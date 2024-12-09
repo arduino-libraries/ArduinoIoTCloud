@@ -104,7 +104,7 @@ OTACloudProcessInterface::State OTADefaultCloudProcessInterface::fetch() {
       continue;
     }
 
-    http_res = http_client->read(context->buffer, context->buf_len);
+    http_res = http_client->read(context->buffer, context->bufLen);
 
     if(http_res < 0) {
       DEBUG_VERBOSE("OTA ERROR: Download read error %d", http_res);
@@ -153,13 +153,13 @@ exit:
   return res;
 }
 
-void OTADefaultCloudProcessInterface::parseOta(uint8_t* buffer, size_t buf_len) {
+void OTADefaultCloudProcessInterface::parseOta(uint8_t* buffer, size_t bufLen) {
   assert(context != nullptr); // This should never fail
 
-  for(uint8_t* cursor=(uint8_t*)buffer; cursor<buffer+buf_len; ) {
+  for(uint8_t* cursor=(uint8_t*)buffer; cursor<buffer+bufLen; ) {
     switch(context->downloadState) {
     case OtaDownloadHeader: {
-      const uint32_t headerLeft = context->headerCopiedBytes + buf_len <= sizeof(context->header.buf) ? buf_len : sizeof(context->header.buf) - context->headerCopiedBytes;
+      const uint32_t headerLeft = context->headerCopiedBytes + bufLen <= sizeof(context->header.buf) ? bufLen : sizeof(context->header.buf) - context->headerCopiedBytes;
       memcpy(context->header.buf+context->headerCopiedBytes, buffer, headerLeft);
       cursor += headerLeft;
       context->headerCopiedBytes += headerLeft;
@@ -185,7 +185,7 @@ void OTADefaultCloudProcessInterface::parseOta(uint8_t* buffer, size_t buf_len) 
     }
     case OtaDownloadFile: {
       const uint32_t contentLength = http_client->contentLength();
-      const uint32_t dataLeft = buf_len - (cursor-buffer);
+      const uint32_t dataLeft = bufLen - (cursor-buffer);
       context->decoder.decompress(cursor, dataLeft); // TODO verify return value
 
       context->calculatedCrc32 = crc_update(

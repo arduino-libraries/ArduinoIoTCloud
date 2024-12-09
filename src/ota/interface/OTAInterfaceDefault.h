@@ -42,7 +42,7 @@ protected:
   virtual int writeFlash(uint8_t* const buffer, size_t len) = 0;
 
 private:
-  void parseOta(uint8_t* buffer, size_t buf_len);
+  void parseOta(uint8_t* buffer, size_t bufLen);
 
   Client*     client;
   HttpClient* http_client;
@@ -79,7 +79,7 @@ protected:
     // LZSS decoder
     LZSSDecoder       decoder;
 
-    const size_t buf_len = 64;
+    const size_t bufLen = 64;
     uint8_t buffer[64];
   } *context;
 };
