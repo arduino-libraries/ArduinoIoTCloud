@@ -74,6 +74,7 @@ protected:
     uint32_t          headerCopiedBytes;
     uint32_t          downloadedSize;
     uint32_t          lastReportTime;
+    uint32_t          contentLength;
     bool              writeError;
 
     // LZSS decoder

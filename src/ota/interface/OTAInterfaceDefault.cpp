@@ -76,8 +76,10 @@ OTACloudProcessInterface::State OTADefaultCloudProcessInterface::startOTA() {
     return HttpResponseFail;
   }
 
+  context->contentLength = http_client->contentLength();
+
   // The following call is required to save the header value , keep it
-  if(http_client->contentLength() == HttpClient::kNoContentLengthHeader) {
+  if(context->contentLength == HttpClient::kNoContentLengthHeader) {
     DEBUG_VERBOSE("OTA ERROR: the response header doesn't contain \"ContentLength\" field");
     return HttpHeaderErrorFail;
   }
@@ -184,7 +186,6 @@ void OTADefaultCloudProcessInterface::parseOta(uint8_t* buffer, size_t bufLen) {
       break;
     }
     case OtaDownloadFile: {
-      const uint32_t contentLength = http_client->contentLength();
       const uint32_t dataLeft = bufLen - (cursor-buffer);
       context->decoder.decompress(cursor, dataLeft); // TODO verify return value
 
@@ -198,18 +199,18 @@ void OTADefaultCloudProcessInterface::parseOta(uint8_t* buffer, size_t bufLen) {
       context->downloadedSize += dataLeft;
 
       if((millis() - context->lastReportTime) > 10000) { // Report the download progress each X millisecond
-        DEBUG_VERBOSE("OTA Download Progress %d/%d", context->downloadedSize, contentLength);
+        DEBUG_VERBOSE("OTA Download Progress %d/%d", context->downloadedSize, context->contentLength);
 
         reportStatus(context->downloadedSize);
         context->lastReportTime = millis();
       }
 
       // TODO there should be no more bytes available when the download is completed
-      if(context->downloadedSize == contentLength) {
+      if(context->downloadedSize == context->contentLength) {
         context->downloadState = OtaDownloadCompleted;
       }
 
-      if(context->downloadedSize > contentLength) {
+      if(context->downloadedSize > context->contentLength) {
         context->downloadState = OtaDownloadError;
       }
       // TODO fail if we exceed a timeout? and available is 0 (client is broken)
@@ -250,6 +251,7 @@ OTADefaultCloudProcessInterface::Context::Context(
     , headerCopiedBytes(0)
     , downloadedSize(0)
     , lastReportTime(0)
+    , contentLength(0)
     , writeError(false)
     , decoder(putc) { }
 
