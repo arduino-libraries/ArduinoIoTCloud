@@ -79,6 +79,9 @@ protected:
     uint32_t          contentLength;
     bool              writeError;
 
+    uint32_t          downloadedChunkSize;
+    static constexpr size_t maxChunkSize = 1024 * 10;
+
     // LZSS decoder
     LZSSDecoder       decoder;
 

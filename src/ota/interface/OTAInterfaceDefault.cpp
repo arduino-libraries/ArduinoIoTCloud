@@ -98,7 +98,113 @@ OTACloudProcessInterface::State OTADefaultCloudProcessInterface::fetch() {
 }
 
 OTACloudProcessInterface::State OTADefaultCloudProcessInterface::fetchChunk() {
-  return OtaDownloadFail;
+  OTACloudProcessInterface::State res = Fetch;
+  int http_res = 0;
+  uint32_t start = millis();
+  char range[128] = {0};
+
+  /* stop connected client */
+  http_client->stop();
+
+  /* request chunk */
+  http_client->beginRequest();
+  http_res = http_client->get(context->parsed_url.path());
+
+  if(username != nullptr && password != nullptr) {
+    http_client->sendBasicAuth(username, password);
+  }
+
+  size_t rangeSize = context->downloadedSize + context->maxChunkSize > context->contentLength ? context->contentLength - context->downloadedSize : context->maxChunkSize;
+  sprintf(range, "bytes=%d-%d", context->downloadedSize, context->downloadedSize + rangeSize);
+  DEBUG_VERBOSE("OTA downloading range: %s", range);
+  http_client->sendHeader("Range", range);
+  http_client->endRequest();
+
+  if(http_res == HTTP_ERROR_CONNECTION_FAILED) {
+    DEBUG_VERBOSE("OTA ERROR: http client error connecting to server \"%s:%d\"",
+      context->parsed_url.host(), context->parsed_url.port());
+    return ServerConnectErrorFail;
+  } else if(http_res == HTTP_ERROR_TIMED_OUT) {
+    DEBUG_VERBOSE("OTA ERROR: http client timeout \"%s\"", OTACloudProcessInterface::context->url);
+    return OtaHeaderTimeoutFail;
+  } else if(http_res != HTTP_SUCCESS) {
+    DEBUG_VERBOSE("OTA ERROR: http client returned %d on  get \"%s\"", res, OTACloudProcessInterface::context->url);
+    return OtaDownloadFail;
+  }
+
+  int statusCode = http_client->responseStatusCode();
+
+  if(statusCode != 206) {
+    DEBUG_VERBOSE("OTA ERROR: get response on \"%s\" returned status %d", OTACloudProcessInterface::context->url, statusCode);
+    return HttpResponseFail;
+  }
+
+  http_client->skipResponseHeaders();
+
+  /* download chunk */
+  context->downloadedChunkSize = 0;
+  do {
+    if(!http_client->connected()) {
+      res = OtaDownloadFail;
+      goto exit;
+    }
+
+    if(http_client->available() == 0) {
+      /* Avoid tight loop and allow yield */
+      delay(1);
+      continue;
+    }
+
+    http_res = http_client->read(context->buffer, context->bufLen);
+
+    if(http_res < 0) {
+      DEBUG_VERBOSE("OTA ERROR: Download read error %d", http_res);
+      res = OtaDownloadFail;
+      goto exit;
+    }
+
+    parseOta(context->buffer, http_res);
+
+    if(context->writeError) {
+      DEBUG_VERBOSE("OTA ERROR: File write error");
+      res = ErrorWriteUpdateFileFail;
+      goto exit;
+    }
+
+    context->downloadedChunkSize += http_res;
+
+  } while((context->downloadState == OtaDownloadFile || context->downloadState == OtaDownloadHeader) &&
+          (context->downloadedChunkSize < rangeSize));
+
+  // TODO verify that the information present in the ota header match the info in context
+  if(context->downloadState == OtaDownloadCompleted) {
+    // Verify that the downloaded file size is matching the expected size ??
+    // this could distinguish between consistency of the downloaded bytes and filesize
+
+    // validate CRC
+    context->calculatedCrc32 ^= 0xFFFFFFFF; // finalize CRC
+    if(context->header.header.crc32 == context->calculatedCrc32) {
+      DEBUG_VERBOSE("Ota download completed successfully");
+      res = FlashOTA;
+    } else {
+      res = OtaHeaderCrcFail;
+    }
+  } else if(context->downloadState == OtaDownloadError) {
+    DEBUG_VERBOSE("OTA ERROR: OtaDownloadError");
+
+    res = OtaDownloadFail;
+  } else if(context->downloadState == OtaDownloadMagicNumberMismatch) {
+    DEBUG_VERBOSE("OTA ERROR: Magic number mismatch");
+    res = OtaHeaderMagicNumberFail;
+  }
+
+exit:
+  if(res != Fetch) {
+    http_client->stop(); // close the connection
+    delete http_client;
+    http_client = nullptr;
+  }
+  return res;
 }
 
 OTACloudProcessInterface::State OTADefaultCloudProcessInterface::fetchTime() {
@@ -265,6 +371,7 @@ OTADefaultCloudProcessInterface::Context::Context(
     , lastReportTime(0)
     , contentLength(0)
     , writeError(false)
+    , downloadedChunkSize(0)
     , decoder(putc) { }
 
 static const uint32_t crc_table[256] = {
