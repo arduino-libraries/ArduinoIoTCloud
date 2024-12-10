@@ -35,6 +35,13 @@ public:
     this->password = password;
   }
 
+  enum OTAFetchMode: uint8_t {
+    OtaFetchTime,
+    OtaFetchChunk
+  };
+
+  inline virtual void setFetchMode(OTAFetchMode mode) { this->fetchMode = mode; }
+
 protected:
   State startOTA();
   State fetch();
@@ -50,6 +57,7 @@ private:
   HttpClient* http_client;
 
   const char *username, *password;
+  OTAFetchMode fetchMode;
 
   // The amount of time that each iteration of Fetch has to take at least
   // This mitigate the issues arising from tasks run in main loop that are using all the computing time

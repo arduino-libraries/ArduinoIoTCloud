@@ -20,6 +20,7 @@ OTADefaultCloudProcessInterface::OTADefaultCloudProcessInterface(MessageStream *
 , client(client)
 , http_client(nullptr)
 , username(nullptr), password(nullptr)
+, fetchMode(OtaFetchTime)
 , context(nullptr) {
 }
 
@@ -85,12 +86,13 @@ OTACloudProcessInterface::State OTADefaultCloudProcessInterface::startOTA() {
   }
 
   context->lastReportTime = millis();
+  DEBUG_VERBOSE("OTA file length: %d", context->contentLength);
 
   return Fetch;
 }
 
 OTACloudProcessInterface::State OTADefaultCloudProcessInterface::fetch() {
-  if(downloadTime > 0) {
+  if(fetchMode == OtaFetchTime) {
     return fetchTime();
   } else {
     return fetchChunk();
