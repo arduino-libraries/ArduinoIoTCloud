@@ -50,7 +50,10 @@ OTACloudProcessInterface::State OTADefaultCloudProcessInterface::startOTA() {
   }
 
   // make the http get request
-  requestOta(OtaFetchTime);
+  OTACloudProcessInterface::State res = requestOta(OtaFetchTime);
+  if(res != Fetch) {
+    return res;
+  }
 
   // The following call is required to save the header value , keep it
   context->contentLength = http_client->contentLength();
