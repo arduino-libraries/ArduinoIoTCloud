@@ -50,8 +50,8 @@ protected:
 
 private:
   void parseOta(uint8_t* buffer, size_t bufLen);
-  State fetchTime();
-  State fetchChunk();
+  State requestChunk();
+  bool fetchMore();
 
   Client*     client;
   HttpClient* http_client;
@@ -62,6 +62,8 @@ private:
   // The amount of time that each iteration of Fetch has to take at least
   // This mitigate the issues arising from tasks run in main loop that are using all the computing time
   static constexpr uint32_t downloadTime = 2000;
+
+  static constexpr size_t maxChunkSize = 1024 * 10;
 
   enum OTADownloadState: uint8_t {
     OtaDownloadHeader,
@@ -87,8 +89,8 @@ protected:
     uint32_t          contentLength;
     bool              writeError;
 
+    uint32_t          downloadedChunkStartTime;
     uint32_t          downloadedChunkSize;
-    static constexpr size_t maxChunkSize = 1024 * 10;
 
     // LZSS decoder
     LZSSDecoder       decoder;
