@@ -50,7 +50,7 @@ protected:
 
 private:
   void parseOta(uint8_t* buffer, size_t bufLen);
-  State requestChunk();
+  State requestOta(OTAFetchMode mode);
   bool fetchMore();
 
   Client*     client;

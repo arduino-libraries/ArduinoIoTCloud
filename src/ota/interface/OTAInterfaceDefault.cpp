@@ -42,44 +42,18 @@ OTACloudProcessInterface::State OTADefaultCloudProcessInterface::startOTA() {
     }
   );
 
-  // make the http get request
+  // check url
   if(strcmp(context->parsed_url.schema(), "https") == 0) {
     http_client = new HttpClient(*client, context->parsed_url.host(), context->parsed_url.port());
   } else {
     return UrlParseErrorFail;
   }
 
-  http_client->beginRequest();
-  auto res = http_client->get(context->parsed_url.path());
-
-  if(username != nullptr && password != nullptr) {
-    http_client->sendBasicAuth(username, password);
-  }
-
-  http_client->endRequest();
-
-  if(res == HTTP_ERROR_CONNECTION_FAILED) {
-    DEBUG_VERBOSE("OTA ERROR: http client error connecting to server \"%s:%d\"",
-      context->parsed_url.host(), context->parsed_url.port());
-    return ServerConnectErrorFail;
-  } else if(res == HTTP_ERROR_TIMED_OUT) {
-    DEBUG_VERBOSE("OTA ERROR: http client timeout \"%s\"", OTACloudProcessInterface::context->url);
-    return OtaHeaderTimeoutFail;
-  } else if(res != HTTP_SUCCESS) {
-    DEBUG_VERBOSE("OTA ERROR: http client returned %d on  get \"%s\"", res, OTACloudProcessInterface::context->url);
-    return OtaDownloadFail;
-  }
-
-  int statusCode = http_client->responseStatusCode();
-
-  if(statusCode != 200) {
-    DEBUG_VERBOSE("OTA ERROR: get response on \"%s\" returned status %d", OTACloudProcessInterface::context->url, statusCode);
-    return HttpResponseFail;
-  }
-
-  context->contentLength = http_client->contentLength();
+  // make the http get request
+  requestOta(OtaFetchTime);
 
   // The following call is required to save the header value , keep it
+  context->contentLength = http_client->contentLength();
   if(context->contentLength == HttpClient::kNoContentLengthHeader) {
     DEBUG_VERBOSE("OTA ERROR: the response header doesn't contain \"ContentLength\" field");
     return HttpHeaderErrorFail;
@@ -87,7 +61,6 @@ OTACloudProcessInterface::State OTADefaultCloudProcessInterface::startOTA() {
 
   context->lastReportTime = millis();
   DEBUG_VERBOSE("OTA file length: %d", context->contentLength);
-
   return Fetch;
 }
 
@@ -95,7 +68,7 @@ OTACloudProcessInterface::State OTADefaultCloudProcessInterface::fetch() {
   OTACloudProcessInterface::State res = Fetch;
 
   if(fetchMode == OtaFetchChunk) {
-    res = requestChunk();
+    res = requestOta(OtaFetchChunk);
   }
 
   context->downloadedChunkSize = 0;
@@ -169,10 +142,8 @@ exit:
   return res;
 }
 
-OTACloudProcessInterface::State OTADefaultCloudProcessInterface::requestChunk() {
+OTACloudProcessInterface::State OTADefaultCloudProcessInterface::requestOta(OTAFetchMode mode) {
   int http_res = 0;
-  uint32_t start = millis();
-  char range[128] = {0};
 
   /* stop connected client */
   http_client->stop();
@@ -185,10 +156,14 @@ OTACloudProcessInterface::State OTADefaultCloudProcessInterface::requestChunk() 
     http_client->sendBasicAuth(username, password);
   }
 
-  size_t rangeSize = context->downloadedSize + maxChunkSize > context->contentLength ? context->contentLength - context->downloadedSize : maxChunkSize;
-  sprintf(range, "bytes=%d-%d", context->downloadedSize, context->downloadedSize + rangeSize);
-  DEBUG_VERBOSE("OTA downloading range: %s", range);
-  http_client->sendHeader("Range", range);
+  if(mode == OtaFetchChunk) {
+    char range[128] = {0};
+    size_t rangeSize = context->downloadedSize + maxChunkSize > context->contentLength ? context->contentLength - context->downloadedSize : maxChunkSize;
+    sprintf(range, "bytes=%d-%d", context->downloadedSize, context->downloadedSize + rangeSize);
+    DEBUG_VERBOSE("OTA downloading range: %s", range);
+    http_client->sendHeader("Range", range);
+  }
+
   http_client->endRequest();
 
   if(http_res == HTTP_ERROR_CONNECTION_FAILED) {
@@ -205,7 +180,7 @@ OTACloudProcessInterface::State OTADefaultCloudProcessInterface::requestChunk() 
 
   int statusCode = http_client->responseStatusCode();
 
-  if(statusCode != 206) {
+  if(((mode == OtaFetchChunk) && (statusCode != 206)) || ((mode == OtaFetchTime) && (statusCode != 200))) {
     DEBUG_VERBOSE("OTA ERROR: get response on \"%s\" returned status %d", OTACloudProcessInterface::context->url, statusCode);
     return HttpResponseFail;
   }
