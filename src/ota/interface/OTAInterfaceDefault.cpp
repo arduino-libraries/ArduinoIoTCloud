@@ -55,12 +55,12 @@ OTACloudProcessInterface::State OTADefaultCloudProcessInterface::startOTA() {
   }
 
   // The following call is required to save the header value , keep it
-  context->contentLength = http_client->contentLength();
-  if(context->contentLength == HttpClient::kNoContentLengthHeader) {
+  if(http_client->contentLength() == HttpClient::kNoContentLengthHeader) {
     DEBUG_VERBOSE("OTA ERROR: the response header doesn't contain \"ContentLength\" field");
     return HttpHeaderErrorFail;
   }
 
+  context->contentLength = http_client->contentLength();
   context->lastReportTime = millis();
   DEBUG_VERBOSE("OTA file length: %d", context->contentLength);
   return Fetch;
