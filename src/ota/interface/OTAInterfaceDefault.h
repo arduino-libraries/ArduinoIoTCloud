@@ -35,13 +35,6 @@ public:
     this->password = password;
   }
 
-  enum OTAFetchMode: uint8_t {
-    OtaFetchTime,
-    OtaFetchChunk
-  };
-
-  inline virtual void setFetchMode(OTAFetchMode mode) { this->fetchMode = mode; }
-
 protected:
   State startOTA();
   State fetch();
@@ -50,19 +43,20 @@ protected:
 
 private:
   void parseOta(uint8_t* buffer, size_t bufLen);
-  State requestOta(OTAFetchMode mode);
+  State requestOta(OtaFlags mode = None);
   bool fetchMore();
 
   Client*     client;
   HttpClient* http_client;
 
   const char *username, *password;
-  OTAFetchMode fetchMode;
 
   // The amount of time that each iteration of Fetch has to take at least
   // This mitigate the issues arising from tasks run in main loop that are using all the computing time
   static constexpr uint32_t downloadTime = 2000;
 
+  // The amount of data that each iteration of Fetch has to take at least
+  // This should be enabled setting ChunkDownload OtaFlag to 1 and mitigate some Ota corner cases
   static constexpr size_t maxChunkSize = 1024 * 10;
 
   enum OTADownloadState: uint8_t {

@@ -80,7 +80,8 @@ public:
   enum OtaFlags: uint16_t {
     None              = 0,
     ApprovalRequired  = 1,
-    Approved          = 1<<1
+    Approved          = 1<<1,
+    ChunkDownload     = 1<<2
   };
 
   virtual void handleMessage(Message*);

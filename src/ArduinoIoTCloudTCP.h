@@ -105,9 +105,9 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
     /* Slower but more reliable in some corner cases */
     void setOTAChunkMode(bool enable = true) {
       if(enable) {
-        _ota.setFetchMode(OTADefaultCloudProcessInterface::OtaFetchChunk);
+        _ota.enableOtaPolicy(OTADefaultCloudProcessInterface::ChunkDownload);
       } else {
-        _ota.setFetchMode(OTADefaultCloudProcessInterface::OtaFetchTime);
+        _ota.disableOtaPolicy(OTADefaultCloudProcessInterface::ChunkDownload);
       }
     }
 #endif

@@ -20,7 +20,6 @@ OTADefaultCloudProcessInterface::OTADefaultCloudProcessInterface(MessageStream *
 , client(client)
 , http_client(nullptr)
 , username(nullptr), password(nullptr)
-, fetchMode(OtaFetchTime)
 , context(nullptr) {
 }
 
@@ -50,7 +49,7 @@ OTACloudProcessInterface::State OTADefaultCloudProcessInterface::startOTA() {
   }
 
   // make the http get request
-  OTACloudProcessInterface::State res = requestOta(OtaFetchTime);
+  OTACloudProcessInterface::State res = requestOta();
   if(res != Fetch) {
     return res;
   }
@@ -70,8 +69,8 @@ OTACloudProcessInterface::State OTADefaultCloudProcessInterface::startOTA() {
 OTACloudProcessInterface::State OTADefaultCloudProcessInterface::fetch() {
   OTACloudProcessInterface::State res = Fetch;
 
-  if(fetchMode == OtaFetchChunk) {
-    res = requestOta(OtaFetchChunk);
+  if(getOtaPolicy(ChunkDownload)) {
+    res = requestOta(ChunkDownload);
   }
 
   context->downloadedChunkSize = 0;
@@ -145,7 +144,7 @@ exit:
   return res;
 }
 
-OTACloudProcessInterface::State OTADefaultCloudProcessInterface::requestOta(OTAFetchMode mode) {
+OTACloudProcessInterface::State OTADefaultCloudProcessInterface::requestOta(OtaFlags mode) {
   int http_res = 0;
 
   /* stop connected client */
@@ -159,7 +158,7 @@ OTACloudProcessInterface::State OTADefaultCloudProcessInterface::requestOta(OTAF
     http_client->sendBasicAuth(username, password);
   }
 
-  if(mode == OtaFetchChunk) {
+  if((mode & ChunkDownload) == ChunkDownload) {
     char range[128] = {0};
     size_t rangeSize = context->downloadedSize + maxChunkSize > context->contentLength ? context->contentLength - context->downloadedSize : maxChunkSize;
     sprintf(range, "bytes=%d-%d", context->downloadedSize, context->downloadedSize + rangeSize);
@@ -183,18 +182,18 @@ OTACloudProcessInterface::State OTADefaultCloudProcessInterface::requestOta(OTAF
 
   int statusCode = http_client->responseStatusCode();
 
-  if(((mode == OtaFetchChunk) && (statusCode != 206)) || ((mode == OtaFetchTime) && (statusCode != 200))) {
+  if((((mode & ChunkDownload) == ChunkDownload) && (statusCode != 206)) ||
+     (((mode & ChunkDownload) != ChunkDownload) && (statusCode != 200))) {
     DEBUG_VERBOSE("OTA ERROR: get response on \"%s\" returned status %d", OTACloudProcessInterface::context->url, statusCode);
     return HttpResponseFail;
   }
 
   http_client->skipResponseHeaders();
-
   return Fetch;
 }
 
 bool OTADefaultCloudProcessInterface::fetchMore() {
-  if (fetchMode == OtaFetchChunk) {
+  if (getOtaPolicy(ChunkDownload)) {
     return context->downloadedChunkSize < maxChunkSize;
   } else {
     return (millis() - context->downloadedChunkStartTime) < downloadTime;
