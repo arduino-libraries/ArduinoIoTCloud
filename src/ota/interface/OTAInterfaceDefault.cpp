@@ -161,7 +161,7 @@ OTACloudProcessInterface::State OTADefaultCloudProcessInterface::requestOta(OtaF
   if((mode & ChunkDownload) == ChunkDownload) {
     char range[128] = {0};
     size_t rangeSize = context->downloadedSize + maxChunkSize > context->contentLength ? context->contentLength - context->downloadedSize : maxChunkSize;
-    sprintf(range, "bytes=%lu-%lu", context->downloadedSize, context->downloadedSize + rangeSize);
+    sprintf(range, "bytes=%" PRIu32 "-%" PRIu32, context->downloadedSize, context->downloadedSize + rangeSize);
     DEBUG_VERBOSE("OTA downloading range: %s", range);
     http_client->sendHeader("Range", range);
   }
