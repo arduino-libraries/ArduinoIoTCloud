@@ -89,8 +89,8 @@ protected:
     // LZSS decoder
     LZSSDecoder       decoder;
 
-    const size_t bufLen = 64;
-    uint8_t buffer[64];
+    static constexpr size_t bufLen = 64;
+    uint8_t buffer[bufLen];
   } *context;
 };
 
