@@ -168,9 +168,6 @@ int ArduinoIoTCloudTCP::begin(bool const enable_watchdog, String brokerAddress, 
 
 #if OTA_ENABLED && !defined(OFFLOADED_DOWNLOAD)
   _ota.setClient(&_otaClient);
-  if (_connection->getInterface() == NetworkAdapter::ETHERNET) {
-    _ota.setFetchMode(OTADefaultCloudProcessInterface::OtaFetchChunk);
-  }
 #endif // OTA_ENABLED && !defined(OFFLOADED_DOWNLOAD)
 
 #if OTA_ENABLED && defined(OTA_BASIC_AUTH)
