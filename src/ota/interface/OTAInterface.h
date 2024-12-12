@@ -88,8 +88,12 @@ public:
   // virtual void hook(State s, void* action);
   virtual void update() { handleMessage(nullptr); }
 
-  inline void approveOta()                      { policies |= Approved; }
+  inline void approveOta()                      { this->policies |= Approved; }
   inline void setOtaPolicies(uint16_t policies) { this->policies = policies; }
+
+  inline void enableOtaPolicy(OtaFlags policyFlag)  { this->policies |= policyFlag; }
+  inline void disableOtaPolicy(OtaFlags policyFlag) { this->policies &= ~policyFlag; }
+  inline bool getOtaPolicy(OtaFlags policyFlag)     { return (this->policies & policyFlag) != 0;}
 
   inline State getState() { return state; }
 
