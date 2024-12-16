@@ -167,10 +167,10 @@ OTACloudProcessInterface::State OTACloudProcessInterface::idle(Message* msg) {
 OTACloudProcessInterface::State OTACloudProcessInterface::otaAvailable() {
   // depending on the policy decided on this device the ota process can start immediately
   // or wait for confirmation from the user
-  if((policies & (ApprovalRequired | Approved)) == ApprovalRequired ) {
+  if(getOtaPolicy(ApprovalRequired) && !getOtaPolicy(Approved)) {
     return OtaAvailable;
   } else {
-    policies &= ~Approved;
+    disableOtaPolicy(Approved);
     return StartOTA;
   } // TODO add an abortOTA command? in this case delete the context
 }

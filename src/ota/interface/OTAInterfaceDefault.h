@@ -42,7 +42,9 @@ protected:
   virtual int writeFlash(uint8_t* const buffer, size_t len) = 0;
 
 private:
-  void parseOta(uint8_t* buffer, size_t buf_len);
+  void parseOta(uint8_t* buffer, size_t bufLen);
+  State requestOta(OtaFlags mode = None);
+  bool fetchMore();
 
   Client*     client;
   HttpClient* http_client;
@@ -52,6 +54,10 @@ private:
   // The amount of time that each iteration of Fetch has to take at least
   // This mitigate the issues arising from tasks run in main loop that are using all the computing time
   static constexpr uint32_t downloadTime = 2000;
+
+  // The amount of data that each iteration of Fetch has to take at least
+  // This should be enabled setting ChunkDownload OtaFlag to 1 and mitigate some Ota corner cases
+  static constexpr size_t maxChunkSize = 1024 * 10;
 
   enum OTADownloadState: uint8_t {
     OtaDownloadHeader,
@@ -74,13 +80,17 @@ protected:
     uint32_t          headerCopiedBytes;
     uint32_t          downloadedSize;
     uint32_t          lastReportTime;
+    uint32_t          contentLength;
     bool              writeError;
+
+    uint32_t          downloadedChunkStartTime;
+    uint32_t          downloadedChunkSize;
 
     // LZSS decoder
     LZSSDecoder       decoder;
 
-    const size_t buf_len = 64;
-    uint8_t buffer[64];
+    static constexpr size_t bufLen = 64;
+    uint8_t buffer[bufLen];
   } *context;
 };
 
