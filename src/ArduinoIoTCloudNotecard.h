@@ -19,6 +19,10 @@
 #include "ArduinoIoTCloudThing.h"
 #include "ArduinoIoTCloudDevice.h"
 
+#if OTA_ENABLED
+#include "ota/OTA.h"
+#endif /* OTA_ENABLED */
+
 /******************************************************************************
  * DEFINES
  ******************************************************************************/
@@ -32,6 +36,10 @@
 /******************************************************************************
  * TYPEDEF
  ******************************************************************************/
+
+#if OTA_ENABLED
+typedef bool (*onOTARequestCallbackFunc)(void);
+#endif /* OTA_ENABLED */
 
 /******************************************************************************
  * CLASS DECLARATION
@@ -82,6 +90,22 @@ class ArduinoIoTCloudNotecard : public ArduinoIoTCloudClass
      */
     inline void setNotecardPollingInterval(uint32_t interval_ms) { _notecard_polling_interval_ms = ((interval_ms < 250) ? 250 : interval_ms); }
 
+#if OTA_ENABLED
+    /* The callback is triggered when the OTA is initiated and it gets executed until _ota_req flag is cleared.
+     * It should return true when the OTA can be applied or false otherwise.
+     * See example ArduinoIoTCloud-DeferredOTA.ino
+     */
+    inline void onOTARequestCb(onOTARequestCallbackFunc cb) {
+      _get_ota_confirmation = cb;
+
+      if(_get_ota_confirmation) {
+        _ota.setOtaPolicies(OTACloudProcessInterface::ApprovalRequired);
+      } else {
+        _ota.setOtaPolicies(OTACloudProcessInterface::None);
+      }
+    }
+#endif /* OTA_ENABLED */
+
   private:
 
     enum class State
@@ -103,6 +127,11 @@ class ArduinoIoTCloudNotecard : public ArduinoIoTCloudClass
     uint32_t _notecard_polling_interval_ms;
     int _interrupt_pin;
     volatile bool _data_available;
+
+#if OTA_ENABLED
+    ArduinoCloudOTA _ota;
+    onOTARequestCallbackFunc _get_ota_confirmation;
+#endif /* OTA_ENABLED */
 
     inline virtual PropertyContainer &getThingPropertyContainer() override { return _thing.getPropertyContainer(); }
 

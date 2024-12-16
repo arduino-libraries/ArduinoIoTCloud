@@ -66,6 +66,10 @@ ArduinoIoTCloudNotecard::ArduinoIoTCloudNotecard()
   ,_notecard_polling_interval_ms{DEFAULT_READ_INTERVAL_MS}
   ,_interrupt_pin{-1}
   ,_data_available{false}
+#if OTA_ENABLED
+  ,_ota(&_message_stream)
+  ,_get_ota_confirmation{nullptr}
+#endif
 {
 
 }
@@ -98,6 +102,11 @@ int ArduinoIoTCloudNotecard::begin(ConnectionHandler &connection_, int interrupt
 
   // Begin the Notecard time service
   _time_service.begin(&connection_);
+
+#if OTA_ENABLED
+  // Configure the OTA interface
+  _ota.setConnection(&connection_);
+#endif
 
   // Setup retry timers
   _connection_attempt.begin(AIOT_CONFIG_RECONNECTION_RETRY_DELAY_ms, AIOT_CONFIG_MAX_RECONNECTION_RETRY_DELAY_ms);

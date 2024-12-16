@@ -10,8 +10,9 @@
 
 #pragma once
 
-#include "ota/interface/OTAInterface.h"
 #include <Arduino_DebugUtils.h>
+
+#include "ota/interface/OTAInterface.h"
 
 class SAMDOTACloudProcess: public OTACloudProcessInterface {
 public:
