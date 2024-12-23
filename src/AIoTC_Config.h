@@ -137,6 +137,11 @@
   #define HAS_TCP
 #endif
 
+#if defined(ARDUINO_RASPBERRY_PI_PICO_W)
+  #define BOARD_HAS_SECRET_KEY
+  #define HAS_TCP
+#endif
+
 #if defined(BOARD_HAS_SOFTSE) || defined(BOARD_HAS_OFFLOADED_ECCX08) || defined(BOARD_HAS_ECCX08) || defined(BOARD_HAS_SE050)
   #define BOARD_HAS_SECURE_ELEMENT
 #endif
