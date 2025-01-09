@@ -43,6 +43,13 @@ unsigned long getTime()
   return ArduinoCloud.getInternalTime();
 }
 
+char NOT_AFTER[]        __attribute__((weak)) = "";
+char NOT_BEFORE[]       __attribute__((weak)) = "";
+char SERIAL_NUMBER[]    __attribute__((weak)) = "";
+char AUTHORITY_KEY_ID[] __attribute__((weak)) = "";
+char SIGNATURE[]        __attribute__((weak)) = "";
+
+
 /******************************************************************************
    CTOR/DTOR
  ******************************************************************************/
@@ -58,6 +65,9 @@ ArduinoIoTCloudTCP::ArduinoIoTCloudTCP()
 , _mqtt_data_request_retransmit{false}
 #ifdef BOARD_HAS_SECRET_KEY
 , _password("")
+#endif
+#if defined(BOARD_HAS_SECURE_ELEMENT)
+, _writeOnConnect(false)
 #endif
 , _mqttClient{nullptr}
 , _messageTopicOut("")
@@ -80,11 +90,6 @@ int ArduinoIoTCloudTCP::begin(ConnectionHandler & connection, bool const enable_
 {
   _connection = &connection;
   _brokerAddress = brokerAddress;
-#ifdef BOARD_HAS_SECRET_KEY
-  _brokerPort = _password.length() ? DEFAULT_BROKER_PORT_USER_PASS_AUTH : brokerPort;
-#else
-  _brokerPort = brokerPort;
-#endif
 
   /* Setup broker TLS client */
   _brokerClient.begin(connection);
@@ -94,20 +99,7 @@ int ArduinoIoTCloudTCP::begin(ConnectionHandler & connection, bool const enable_
   _otaClient.begin(connection);
 #endif
 
-  /* Setup TimeService */
-  _time_service.begin(_connection);
-
-  /* Setup retry timers */
-  _connection_attempt.begin(AIOT_CONFIG_RECONNECTION_RETRY_DELAY_ms, AIOT_CONFIG_MAX_RECONNECTION_RETRY_DELAY_ms);
-  return begin(enable_watchdog, _brokerAddress, _brokerPort);
-}
-
-int ArduinoIoTCloudTCP::begin(bool const enable_watchdog, String brokerAddress, uint16_t brokerPort)
-{
-  _brokerAddress = brokerAddress;
-  _brokerPort = brokerPort;
-
-#if defined(BOARD_HAS_SECRET_KEY)
+#if defined (BOARD_HAS_SECRET_KEY)
   /* If board is not configured for username and password login */
   if(!_password.length())
   {
@@ -129,22 +121,62 @@ int ArduinoIoTCloudTCP::begin(bool const enable_watchdog, String brokerAddress, 
       DEBUG_ERROR("ArduinoIoTCloudTCP::%s could not read device id.", __FUNCTION__);
       return 0;
     }
-  #if !defined(BOARD_HAS_OFFLOADED_ECCX08)
+    /* read certificate stored in secure element to compare AUTHORITY_KEY_ID */
     if (!SElementArduinoCloudCertificate::read(_selement, _cert, SElementArduinoCloudSlot::CompressedCertificate))
     {
       DEBUG_ERROR("ArduinoIoTCloudTCP::%s could not read device certificate.", __FUNCTION__);
       return 0;
     }
+    /* check if we need to update and try rebuild */
+    int result = SElementArduinoCloudCertificate::update(_selement, _cert, getDeviceId(), String(NOT_BEFORE), String(NOT_AFTER), String(SERIAL_NUMBER), String(AUTHORITY_KEY_ID), String(SIGNATURE));
+    if (result > 0)
+    {
+      DEBUG_INFO("ArduinoIoTCloudTCP::%s device certificate update request.", __FUNCTION__);
+      _writeOnConnect = true;
+    }
+    else if (result < 0)
+    {
+      DEBUG_ERROR("ArduinoIoTCloudTCP::%s device certificate rebuild error.", __FUNCTION__);
+      /* there was an error trying to rebuild certificate re-read old one */
+      if (!SElementArduinoCloudCertificate::read(_selement, _cert, SElementArduinoCloudSlot::CompressedCertificate))
+      {
+        DEBUG_ERROR("ArduinoIoTCloudTCP::%s could not read device id.", __FUNCTION__);
+        return 0;
+      }
+    }
+    else
+    {
+      DEBUG_VERBOSE("ArduinoIoTCloudTCP::%s device certificate updated.", __FUNCTION__);
+    }
+  #if !defined(BOARD_HAS_OFFLOADED_ECCX08)
     _brokerClient.setEccSlot(static_cast<int>(SElementArduinoCloudSlot::Key), _cert.bytes(), _cert.length());
     #if  OTA_ENABLED
     _otaClient.setEccSlot(static_cast<int>(SElementArduinoCloudSlot::Key), _cert.bytes(), _cert.length());
     #endif
   #endif
+    _brokerPort = (brokerPort == DEFAULT_BROKER_PORT_AUTO) ? mqttPort() : brokerPort;
 #endif
 
 #if defined(BOARD_HAS_SECRET_KEY)
   }
+  else
+  {
+    _brokerPort = (brokerPort == DEFAULT_BROKER_PORT_AUTO) ? DEFAULT_BROKER_PORT_USER_PASS_AUTH : brokerPort;
+  }
 #endif
+
+  /* Setup TimeService */
+  _time_service.begin(_connection);
+
+  /* Setup retry timers */
+  _connection_attempt.begin(AIOT_CONFIG_RECONNECTION_RETRY_DELAY_ms, AIOT_CONFIG_MAX_RECONNECTION_RETRY_DELAY_ms);
+  return begin(enable_watchdog, _brokerAddress, _brokerPort);
+}
+
+int ArduinoIoTCloudTCP::begin(bool const enable_watchdog, String brokerAddress, uint16_t brokerPort)
+{
+  _brokerAddress = brokerAddress;
+  _brokerPort = brokerPort;
 
   _mqttClient.setClient(_brokerClient);
 
@@ -281,6 +313,17 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_ConnectMqttBroker()
     /* Subscribe to message topic to receive commands */
     _mqttClient.subscribe(_messageTopicIn);
 
+#if defined(BOARD_HAS_SECURE_ELEMENT)
+    /* A device certificate update was pending */
+    if (_writeOnConnect)
+    {
+      if (SElementArduinoCloudCertificate::write(_selement, _cert, SElementArduinoCloudSlot::CompressedCertificate))
+      {
+        DEBUG_INFO("ArduinoIoTCloudTCP::%s device certificate update done.", __FUNCTION__);
+        _writeOnConnect = false;
+      }
+    }
+#endif
     DEBUG_VERBOSE("ArduinoIoTCloudTCP::%s connected to %s:%d", __FUNCTION__, _brokerAddress.c_str(), _brokerPort);
     return State::Connected;
   }
@@ -557,6 +600,17 @@ int ArduinoIoTCloudTCP::write(String const topic, byte const data[], int const l
   }
   return 0;
 }
+
+#if defined(BOARD_HAS_SECURE_ELEMENT)
+int ArduinoIoTCloudTCP::mqttPort()
+{
+  if (memcmp(DEPRECATED_BROKER_AUTHORITY_KEY_IDENTIFIER, _cert.authorityKeyIdentifierBytes() , ECP256_CERT_AUTHORITY_KEY_ID_LENGTH) == 0) {
+    return DEPRECATED_BROKER_PORT_SECURE_AUTH;
+  } else {
+    return DEFAULT_BROKER_PORT_SECURE_AUTH;
+  }
+}
+#endif
 
 /******************************************************************************
  * EXTERN DEFINITION
