@@ -43,13 +43,6 @@ unsigned long getTime()
   return ArduinoCloud.getInternalTime();
 }
 
-char NOT_AFTER[]        __attribute__((weak)) = "";
-char NOT_BEFORE[]       __attribute__((weak)) = "";
-char SERIAL_NUMBER[]    __attribute__((weak)) = "";
-char AUTHORITY_KEY_ID[] __attribute__((weak)) = "";
-char SIGNATURE[]        __attribute__((weak)) = "";
-
-
 /******************************************************************************
    CTOR/DTOR
  ******************************************************************************/
@@ -121,32 +114,13 @@ int ArduinoIoTCloudTCP::begin(ConnectionHandler & connection, bool const enable_
       DEBUG_ERROR("ArduinoIoTCloudTCP::%s could not read device id.", __FUNCTION__);
       return 0;
     }
-    /* read certificate stored in secure element to compare AUTHORITY_KEY_ID */
-    if (!SElementArduinoCloudCertificate::read(_selement, _cert, SElementArduinoCloudSlot::CompressedCertificate))
-    {
-      DEBUG_ERROR("ArduinoIoTCloudTCP::%s could not read device certificate.", __FUNCTION__);
-      return 0;
-    }
-    /* check if we need to update and try rebuild */
-    int result = SElementArduinoCloudCertificate::update(_selement, _cert, getDeviceId(), String(NOT_BEFORE), String(NOT_AFTER), String(SERIAL_NUMBER), String(AUTHORITY_KEY_ID), String(SIGNATURE));
-    if (result > 0)
-    {
-      DEBUG_INFO("ArduinoIoTCloudTCP::%s device certificate update request.", __FUNCTION__);
-      _writeOnConnect = true;
-    }
-    else if (result < 0)
-    {
-      DEBUG_ERROR("ArduinoIoTCloudTCP::%s device certificate rebuild error.", __FUNCTION__);
-      /* there was an error trying to rebuild certificate re-read old one */
+    if (!_writeOnConnect) {
+      /* No update pending read certificate stored in secure element */
       if (!SElementArduinoCloudCertificate::read(_selement, _cert, SElementArduinoCloudSlot::CompressedCertificate))
       {
-        DEBUG_ERROR("ArduinoIoTCloudTCP::%s could not read device id.", __FUNCTION__);
+        DEBUG_ERROR("ArduinoIoTCloudTCP::%s could not read device certificate.", __FUNCTION__);
         return 0;
       }
-    }
-    else
-    {
-      DEBUG_VERBOSE("ArduinoIoTCloudTCP::%s device certificate updated.", __FUNCTION__);
     }
   #if !defined(BOARD_HAS_OFFLOADED_ECCX08)
     _brokerClient.setEccSlot(static_cast<int>(SElementArduinoCloudSlot::Key), _cert.bytes(), _cert.length());
@@ -609,6 +583,44 @@ int ArduinoIoTCloudTCP::mqttPort()
   } else {
     return DEFAULT_BROKER_PORT_SECURE_AUTH;
   }
+}
+
+int ArduinoIoTCloudTCP::updateCertificate(String authorityKeyIdentifier, String serialNumber, String notBefore, String notAfter, String signature)
+{
+  if (!_selement.begin())
+  {
+    DEBUG_ERROR("ArduinoIoTCloudTCP::%s could not initialize secure element.", __FUNCTION__);
+#if defined(ARDUINO_UNOWIFIR4)
+    if (String(WiFi.firmwareVersion()) < String("0.4.1")) {
+      DEBUG_ERROR("ArduinoIoTCloudTCP::%s In order to read device certificate, WiFi firmware needs to be >= 0.4.1, current %s", __FUNCTION__, WiFi.firmwareVersion());
+    }
+#endif
+    return 0;
+  }
+  if (!SElementArduinoCloudDeviceId::read(_selement, getDeviceId(), SElementArduinoCloudSlot::DeviceId))
+  {
+    DEBUG_ERROR("ArduinoIoTCloudTCP::%s could not read device id.", __FUNCTION__);
+    return 0;
+  }
+  /* read certificate stored in secure element to compare AUTHORITY_KEY_ID */
+  if (!SElementArduinoCloudCertificate::read(_selement, _cert, SElementArduinoCloudSlot::CompressedCertificate))
+  {
+    DEBUG_ERROR("ArduinoIoTCloudTCP::%s could not read device certificate.", __FUNCTION__);
+    return 0;
+  }
+  /* check if we need to update 0 = equal <0 = error skip rebuild */
+  if(SElementArduinoCloudCertificate::isAuthorityKeyIdDifferent(_cert, authorityKeyIdentifier) <= 0) {
+    DEBUG_INFO("ArduinoIoTCloudTCP::%s request skipped.", __FUNCTION__);
+    return 0;
+  }
+  /* rebuild device certificate */
+  if (SElementArduinoCloudCertificate::rebuild(_selement, _cert, getDeviceId(), notBefore, notAfter, serialNumber, authorityKeyIdentifier, signature))
+  {
+    DEBUG_INFO("ArduinoIoTCloudTCP::%s request started.", __FUNCTION__);
+    _writeOnConnect = true;
+    return 1;
+  }
+  return 0;
 }
 #endif
 
