@@ -617,7 +617,14 @@ int ArduinoIoTCloudTCP::updateCertificate(String authorityKeyIdentifier, String 
   if (SElementArduinoCloudCertificate::rebuild(_selement, _cert, getDeviceId(), notBefore, notAfter, serialNumber, authorityKeyIdentifier, signature))
   {
     DEBUG_INFO("ArduinoIoTCloudTCP::%s request started.", __FUNCTION__);
+#if defined(BOARD_HAS_OFFLOADED_ECCX08)
+    if (SElementArduinoCloudCertificate::write(_selement, _cert, SElementArduinoCloudSlot::CompressedCertificate))
+    {
+      DEBUG_INFO("ArduinoIoTCloudTCP::%s update done.", __FUNCTION__);
+    }
+#else
     _writeOnConnect = true;
+#endif
     return 1;
   }
   return 0;
