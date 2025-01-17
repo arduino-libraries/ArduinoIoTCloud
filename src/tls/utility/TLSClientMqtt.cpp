@@ -62,11 +62,7 @@ void TLSClientMqtt::begin(ConnectionHandler & connection) {
   /* Temporary force CACert to add new CA without rebuilding firmware */
   setCACert(AIoTSSCert);
 #elif defined(ARDUINO_ARCH_ESP32)
-  #if (ESP_ARDUINO_VERSION < ESP_ARDUINO_VERSION_VAL(3, 0, 4))
-    setCACertBundle(x509_crt_bundle);
-  #else
-    setCACertBundle(x509_crt_bundle, sizeof(x509_crt_bundle));
-  #endif
+  setCACert(AIoTUPCert);
 #elif defined(ARDUINO_ARCH_ESP8266)
   setInsecure();
 #endif
