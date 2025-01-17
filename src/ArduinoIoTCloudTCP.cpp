@@ -609,7 +609,7 @@ int ArduinoIoTCloudTCP::updateCertificate(String authorityKeyIdentifier, String 
     return 0;
   }
   /* check if we need to update 0 = equal <0 = error skip rebuild */
-  if(SElementArduinoCloudCertificate::isAuthorityKeyIdDifferent(_cert, authorityKeyIdentifier) <= 0) {
+  if(SElementArduinoCloudCertificate::signatureCompare(_cert.signatureBytes(), signature) <= 0) {
     DEBUG_INFO("ArduinoIoTCloudTCP::%s request skipped.", __FUNCTION__);
     return 0;
   }
