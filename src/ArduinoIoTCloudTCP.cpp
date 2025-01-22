@@ -60,7 +60,7 @@ ArduinoIoTCloudTCP::ArduinoIoTCloudTCP()
 , _password("")
 #endif
 #if defined(BOARD_HAS_SECURE_ELEMENT)
-, _writeOnConnect(false)
+, _writeCertOnConnect(false)
 #endif
 , _mqttClient{nullptr}
 , _messageTopicOut("")
@@ -114,7 +114,7 @@ int ArduinoIoTCloudTCP::begin(ConnectionHandler & connection, bool const enable_
       DEBUG_ERROR("ArduinoIoTCloudTCP::%s could not read device id.", __FUNCTION__);
       return 0;
     }
-    if (!_writeOnConnect) {
+    if (!_writeCertOnConnect) {
       /* No update pending read certificate stored in secure element */
       if (!SElementArduinoCloudCertificate::read(_selement, _cert, SElementArduinoCloudSlot::CompressedCertificate))
       {
@@ -289,12 +289,12 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_ConnectMqttBroker()
 
 #if defined(BOARD_HAS_SECURE_ELEMENT)
     /* A device certificate update was pending */
-    if (_writeOnConnect)
+    if (_writeCertOnConnect)
     {
       if (SElementArduinoCloudCertificate::write(_selement, _cert, SElementArduinoCloudSlot::CompressedCertificate))
       {
         DEBUG_INFO("ArduinoIoTCloudTCP::%s device certificate update done.", __FUNCTION__);
-        _writeOnConnect = false;
+        _writeCertOnConnect = false;
       }
     }
 #endif
@@ -623,7 +623,7 @@ int ArduinoIoTCloudTCP::updateCertificate(String authorityKeyIdentifier, String 
       DEBUG_INFO("ArduinoIoTCloudTCP::%s update done.", __FUNCTION__);
     }
 #else
-    _writeOnConnect = true;
+    _writeCertOnConnect = true;
 #endif
     return 1;
   }

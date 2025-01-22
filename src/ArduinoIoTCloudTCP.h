@@ -150,7 +150,8 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
 #if defined(BOARD_HAS_SECURE_ELEMENT)
     SecureElement _selement;
     ECP256Certificate _cert;
-    bool _writeOnConnect;
+    /* Flag used to store updated device certificate after broker connection has succeeded */
+    bool _writeCertOnConnect;
 #endif
 
     TLSClientMqtt _brokerClient;
