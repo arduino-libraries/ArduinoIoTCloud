@@ -71,6 +71,6 @@ enum class ArduinoIoTAuthenticationMode
 #endif
 
 public:
-  void begin(ConnectionHandler & connection);
+  void begin(ConnectionHandler & connection, ArduinoIoTAuthenticationMode authMode = ArduinoIoTAuthenticationMode::CERTIFICATE);
 
 };
