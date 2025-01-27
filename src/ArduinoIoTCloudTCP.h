@@ -162,6 +162,7 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
     String _dataTopicOut;
     String _dataTopicIn;
 
+    ArduinoIoTAuthenticationMode _authMode;
 
 #if OTA_ENABLED
     TLSClientOta _otaClient;
