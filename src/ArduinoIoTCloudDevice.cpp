@@ -48,7 +48,7 @@ int ArduinoCloudDevice::connected() {
 void ArduinoCloudDevice::handleMessage(Message *m) {
   _command = UnknownCmdId;
   if (m != nullptr) {
-    _command = m->id;
+    _command = static_cast<CommandId>(m->id);
   }
 
   /* Run through the state machine. */
