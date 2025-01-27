@@ -30,19 +30,6 @@
  * CONSTANTS
  ******************************************************************************/
 static const char AIoTSSCert[] =
-/* https://iot.arduino.cc:8883 */
-"-----BEGIN CERTIFICATE-----\n"
-"MIIBzzCCAXSgAwIBAgIUHxAd66fhJecnwaOR4+wNF03tSlkwCgYIKoZIzj0EAwIw\n"
-"RTELMAkGA1UEBhMCVVMxFzAVBgNVBAoTDkFyZHVpbm8gTExDIFVTMQswCQYDVQQL\n"
-"EwJJVDEQMA4GA1UEAxMHQXJkdWlubzAeFw0xODA3MjQwOTQ3MDBaFw00ODA3MTYw\n"
-"OTQ3MDBaMEUxCzAJBgNVBAYTAlVTMRcwFQYDVQQKEw5BcmR1aW5vIExMQyBVUzEL\n"
-"MAkGA1UECxMCSVQxEDAOBgNVBAMTB0FyZHVpbm8wWTATBgcqhkjOPQIBBggqhkjO\n"
-"PQMBBwNCAARtd2xaz2EcfUSYUfJe4QJAd7ecvUmio4xOq16YrIL8aVtEIne0TS6O\n"
-"3ypxwTls1jkUvdlrGEtL7LPV7kKJiVUio0IwQDAOBgNVHQ8BAf8EBAMCAQYwDwYD\n"
-"VR0TAQH/BAUwAwEB/zAdBgNVHQ4EFgQUWz4qa47JsBqoVOY2m4wJ+fzhuYAwCgYI\n"
-"KoZIzj0EAwIDSQAwRgIhAL/T3CNmaLUK3D8NDsNz4grH92CqEA3TIL/hApabawXY\n"
-"AiEA6tnZ2lrNElKXCajtZg/hjWRE/+giFzBP8riar8qOz2w=\n"
-"-----END CERTIFICATE-----\n"
 /* https://iot.arduino.cc:8885 */
 "-----BEGIN CERTIFICATE-----\n"
 "MIIB0DCCAXagAwIBAgIUb62eK/Vv1baaPAaY5DADBUbxB1owCgYIKoZIzj0EAwIw\n"
