@@ -118,7 +118,7 @@ void ArduinoIoTCloudNotecard::printDebugInfo()
 {
   // Print the debug information
   NetworkConnectionState conn_state = _connection->check();
-  DEBUG_INFO("***** Arduino IoT Cloud Notecard - configuration info *****");
+  DEBUG_INFO("***** Arduino IoT Cloud Notecard - %s *****", AIOT_CONFIG_LIB_VERSION);
   DEBUG_INFO("Notecard UID: %s", reinterpret_cast<NotecardConnectionHandler *>(_connection)->getNotecardUid().c_str());
   DEBUG_INFO("Arduino Device ID: %s", getDeviceId().c_str());
   if (NetworkConnectionState::CONNECTED == conn_state)
