@@ -24,6 +24,7 @@
   /*
    * Arduino MKR GSM 1400
    * Arduino MKR NB 1500
+   * Arduino NANO RP 2040
    * Arduino Portenta H7
    * Arduino Giga R1
    * OPTA
