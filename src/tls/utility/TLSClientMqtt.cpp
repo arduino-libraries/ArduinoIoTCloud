@@ -66,7 +66,9 @@ void TLSClientMqtt::begin(ConnectionHandler & connection, ArduinoIoTAuthenticati
    */
   (void)connection;
   /* Temporary force CACert to add new CA without rebuilding firmware */
-  setCACert(AIoTSSCert);
+  if (authMode == ArduinoIoTAuthenticationMode::CERTIFICATE) {
+    setCACert(AIoTSSCert);
+  }
 #elif defined(ARDUINO_ARCH_ESP32)
   (void)authMode;
   setCACert(AIoTUPCert);
