@@ -107,7 +107,7 @@ ArduinoIoTCloudLPWAN::State ArduinoIoTCloudLPWAN::handle_ConnectPhy()
 
 ArduinoIoTCloudLPWAN::State ArduinoIoTCloudLPWAN::handle_SyncTime()
 {
-  DEBUG_VERBOSE("ArduinoIoTCloudLPWAN::%s internal clock configured to posix timestamp %lu", __FUNCTION__, _time_service.getTime());
+  DEBUG_VERBOSE("LPWAN::%s internal clock configured to posix timestamp %lu", __FUNCTION__, _time_service.getTime());
   DEBUG_INFO("Connected to Arduino IoT Cloud");
   return State::Connected;
 }
@@ -116,7 +116,7 @@ ArduinoIoTCloudLPWAN::State ArduinoIoTCloudLPWAN::handle_Connected()
 {
   if (!connected())
   {
-    DEBUG_ERROR("ArduinoIoTCloudLPWAN::%s connection to gateway lost", __FUNCTION__);
+    DEBUG_ERROR("LPWAN::%s connection to gateway lost", __FUNCTION__);
     return State::ConnectPhy;
   }
 
