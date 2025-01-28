@@ -13,6 +13,12 @@
 #include <Arduino_ConnectionHandler.h>
 #include <AIoTC_Config.h>
 
+enum class ArduinoIoTAuthenticationMode
+{
+  PASSWORD,
+  CERTIFICATE
+};
+
 #if defined(BOARD_HAS_OFFLOADED_ECCX08)
   /*
    * Arduino MKR WiFi1010 - WiFi
@@ -24,6 +30,7 @@
   /*
    * Arduino MKR GSM 1400
    * Arduino MKR NB 1500
+   * Arduino NANO RP 2040
    * Arduino Portenta H7
    * Arduino Giga R1
    * OPTA
@@ -64,6 +71,6 @@
 #endif
 
 public:
-  void begin(ConnectionHandler & connection);
+  void begin(ConnectionHandler & connection, ArduinoIoTAuthenticationMode authMode = ArduinoIoTAuthenticationMode::CERTIFICATE);
 
 };

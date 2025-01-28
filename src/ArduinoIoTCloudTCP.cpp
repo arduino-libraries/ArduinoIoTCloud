@@ -84,20 +84,25 @@ int ArduinoIoTCloudTCP::begin(ConnectionHandler & connection, bool const enable_
   _connection = &connection;
   _brokerAddress = brokerAddress;
 
+  ArduinoIoTAuthenticationMode authMode = ArduinoIoTAuthenticationMode::CERTIFICATE;
+#if defined (BOARD_HAS_SECRET_KEY)
+  /* If board supports and sketch is configured for username and password login */
+  if(_password.length()) {
+    authMode = ArduinoIoTAuthenticationMode::PASSWORD;
+  }
+#endif
+
   /* Setup broker TLS client */
-  _brokerClient.begin(connection);
+  _brokerClient.begin(connection, authMode);
 
 #if  OTA_ENABLED
   /* Setup OTA TLS client */
   _otaClient.begin(connection);
 #endif
 
-#if defined (BOARD_HAS_SECRET_KEY)
-  /* If board is not configured for username and password login */
-  if(!_password.length())
+  /* If board is configured for certificate authentication and mTLS */
+  if(authMode == ArduinoIoTAuthenticationMode::CERTIFICATE)
   {
-#endif
-
 #if defined(BOARD_HAS_SECURE_ELEMENT)
     if (!_selement.begin())
     {
@@ -130,14 +135,11 @@ int ArduinoIoTCloudTCP::begin(ConnectionHandler & connection, bool const enable_
   #endif
     _brokerPort = (brokerPort == DEFAULT_BROKER_PORT_AUTO) ? mqttPort() : brokerPort;
 #endif
-
-#if defined(BOARD_HAS_SECRET_KEY)
   }
   else
   {
     _brokerPort = (brokerPort == DEFAULT_BROKER_PORT_AUTO) ? DEFAULT_BROKER_PORT_USER_PASS_AUTH : brokerPort;
   }
-#endif
 
   /* Setup TimeService */
   _time_service.begin(_connection);
