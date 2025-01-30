@@ -12,6 +12,7 @@
 #include <memory>
 
 #include <util/CBORTestUtil.h>
+#include <CborDecoder.h>
 #include <MessageDecoder.h>
 
 /******************************************************************************
