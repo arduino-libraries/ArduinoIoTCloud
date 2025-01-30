@@ -15,61 +15,52 @@
    INCLUDE
  ******************************************************************************/
 
-#include <Arduino.h>
-
-#undef max
-#undef min
-#include <list>
-
-#include "CBOR.h"
-#include "../interfaces/Decoder.h"
-#include <Arduino_TinyCBOR.h>
+#include "./CBOR.h"
+#include <cbor/CborDecoder.h>
+#include "message/Commands.h"
 
 /******************************************************************************
    CLASS DECLARATION
  ******************************************************************************/
 
-class CBORMessageDecoder: public Decoder
-{
+class OtaUpdateCommandDecoder: public CBORMessageDecoderInterface {
 public:
-  CBORMessageDecoder() { }
-  CBORMessageDecoder(CBORMessageDecoder const &) { }
+  OtaUpdateCommandDecoder()
+  : CBORMessageDecoderInterface(CBOROtaUpdateCmdDown, OtaUpdateCmdDownId) {}
+protected:
+  Decoder::Status decode(CborValue* iter, Message *msg) override;
+};
 
-  /* decode a CBOR payload received from the cloud */
-  Decoder::Status decode(Message * msg, uint8_t const * const payload, size_t& length);
+class ThingUpdateCommandDecoder: public CBORMessageDecoderInterface {
+public:
+  ThingUpdateCommandDecoder()
+  : CBORMessageDecoderInterface(CBORThingUpdateCmd, ThingUpdateCmdId) {}
+protected:
+  Decoder::Status decode(CborValue* iter, Message *msg) override;
+};
 
-private:
+class ThingDetachCommandDecoder: public CBORMessageDecoderInterface {
+public:
+  ThingDetachCommandDecoder()
+  : CBORMessageDecoderInterface(CBORThingDetachCmd, ThingDetachCmdId) {}
+protected:
+  Decoder::Status decode(CborValue* iter, Message *msg) override;
+};
 
-  enum class DecoderState {
-    Success,
-    MessageNotSupported,
-    MalformedMessage,
-    Error
-  };
+class LastValuesUpdateCommandDecoder: public CBORMessageDecoderInterface {
+public:
+  LastValuesUpdateCommandDecoder()
+  : CBORMessageDecoderInterface(CBORLastValuesUpdate, LastValuesUpdateCmdId) {}
+protected:
+  Decoder::Status decode(CborValue* iter, Message *msg) override;
+};
 
-  enum class ArrayParserState {
-    EnterArray,
-    ParseParam,
-    LeaveArray,
-    Complete,
-    Error,
-    MessageNotSupported
-  };
-
-  ArrayParserState handle_EnterArray(CborValue * main_iter, CborValue * array_iter);
-  ArrayParserState handle_Param(CborValue * param, Message * message);
-  ArrayParserState handle_LeaveArray(CborValue * main_iter, CborValue * array_iter);
-
-  bool   ifNumericConvertToDouble(CborValue * value_iter, double * numeric_val);
-  double convertCborHalfFloatToDouble(uint16_t const half_val);
-
-  // Message specific decoders
-  ArrayParserState decodeThingUpdateCmd(CborValue * param, Message * message);
-  ArrayParserState decodeThingDetachCmd(CborValue * param, Message * message);
-  ArrayParserState decodeTimezoneCommandDown(CborValue * param, Message * message);
-  ArrayParserState decodeLastValuesUpdateCmd(CborValue * param, Message * message);
-  ArrayParserState decodeOtaUpdateCmdDown(CborValue * param, Message * message);
-
+class TimezoneCommandDownDecoder: public CBORMessageDecoderInterface {
+public:
+  TimezoneCommandDownDecoder()
+  : CBORMessageDecoderInterface(CBORTimezoneCommandDown, TimezoneCommandDownId) {}
+protected:
+  Decoder::Status decode(CborValue* iter, Message *msg) override;
 };
 
 #endif /* ARDUINO_CBOR_MESSAGE_DECODER_H_ */
