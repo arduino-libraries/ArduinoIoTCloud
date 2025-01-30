@@ -1,0 +1,3 @@
+[submodule "extras/test/Arduino_CloudUtils"]
+	path = extras/test/Arduino_CloudUtils
+	url = git@github.com:arduino-libraries/Arduino_CloudUtils.git

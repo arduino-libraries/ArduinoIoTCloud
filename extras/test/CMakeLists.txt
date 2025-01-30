@@ -24,6 +24,10 @@ include_directories(../../src/cbor)
 include_directories(../../src/property)
 include_directories(../../src/utility/time)
 
+include_directories(Arduino_CloudUtils/src/)
+include_directories(Arduino_CloudUtils/src/cbor)
+include_directories(Arduino_CloudUtils/src/interfaces)
+
 ##########################################################################
 
 set(CMAKE_CXX_STANDARD 11)
@@ -69,19 +73,21 @@ set(TEST_DUT_SRCS
   ../../src/cbor/CBOREncoder.cpp
   ../../src/cbor/MessageDecoder.cpp
   ../../src/cbor/MessageEncoder.cpp
-  ../../src/cbor/CBOR.cpp
-  ../../src/cbor/lib/tinycbor/src/cborencoder.c
-  ../../src/cbor/lib/tinycbor/src/cborencoder_close_container_checked.c
-  ../../src/cbor/lib/tinycbor/src/cborerrorstrings.c
-  ../../src/cbor/lib/tinycbor/src/cborparser.c
-  ../../src/cbor/lib/tinycbor/src/cborparser_dup_string.c
-  ../../src/cbor/lib/tinycbor/src/cborpretty.c
-  ../../src/cbor/lib/tinycbor/src/cborpretty_stdio.c
-  ../../src/cbor/lib/tinycbor/src/cbortojson.c
-  ../../src/cbor/lib/tinycbor/src/cborvalidation.c
-  ../../src/cbor/lib/tinycbor/src/open_memstream.c
-)
 
+  Arduino_CloudUtils/src/cbor/tinycbor/src/cborencoder.c
+  Arduino_CloudUtils/src/cbor/tinycbor/src/cborencoder_close_container_checked.c
+  Arduino_CloudUtils/src/cbor/tinycbor/src/cborerrorstrings.c
+  Arduino_CloudUtils/src/cbor/tinycbor/src/cborparser.c
+  Arduino_CloudUtils/src/cbor/tinycbor/src/cborparser_dup_string.c
+  Arduino_CloudUtils/src/cbor/tinycbor/src/cborpretty.c
+  Arduino_CloudUtils/src/cbor/tinycbor/src/cborpretty_stdio.c
+  Arduino_CloudUtils/src/cbor/tinycbor/src/cbortojson.c
+  Arduino_CloudUtils/src/cbor/tinycbor/src/cborvalidation.c
+  Arduino_CloudUtils/src/cbor/tinycbor/src/open_memstream.c
+
+  Arduino_CloudUtils/src/cbor/CborDecoder.cpp
+  Arduino_CloudUtils/src/cbor/CborEncoder.cpp
+)
 ##########################################################################
 
 set(TEST_TARGET_SRCS
