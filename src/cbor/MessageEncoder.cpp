@@ -14,162 +14,146 @@
 
 #include "CBOREncoder.h"
 
-#undef max
-#undef min
-#include <algorithm>
-#include <iterator>
-
-#include "lib/tinycbor/cbor-lib.h"
 #include "MessageEncoder.h"
 
 /******************************************************************************
  * PUBLIC MEMBER FUNCTIONS
  ******************************************************************************/
 
-Encoder::Status CBORMessageEncoder::encode(Message * message, uint8_t * data, size_t& len)
-{
-  EncoderState current_state = EncoderState::EncodeTag,
-                 next_state  = EncoderState::Error;
-
-  CborEncoder encoder;
-  CborEncoder arrayEncoder;
-
-  cbor_encoder_init(&encoder, data, len, 0);
-
-  while (current_state != EncoderState::Complete) {
-
-    switch (current_state) {
-      case EncoderState::EncodeTag            : next_state = handle_EncodeTag(&encoder, message); break;
-      case EncoderState::EncodeArray          : next_state = handle_EncodeArray(&encoder, &arrayEncoder, message); break;
-      case EncoderState::EncodeParam          : next_state = handle_EncodeParam(&arrayEncoder, message); break;
-      case EncoderState::CloseArray           : next_state = handle_CloseArray(&encoder, &arrayEncoder); break;
-      case EncoderState::Complete             : /* Nothing to do */ break;
-      case EncoderState::MessageNotSupported  :
-      case EncoderState::Error                : return Encoder::Status::Error;
-    }
-
-    current_state = next_state;
-  }
-
-  len = cbor_encoder_get_buffer_size(&encoder, data);
-
-  return Encoder::Status::Complete;
-}
 
 /******************************************************************************
     PRIVATE MEMBER FUNCTIONS
  ******************************************************************************/
 
-CBORMessageEncoder::EncoderState CBORMessageEncoder::handle_EncodeTag(CborEncoder * encoder, Message * message)
-{
-  CborTag commandTag = toCBORCommandTag(message->id);
-  if (commandTag == CBORCommandTag::CBORUnknownCmdTag16b ||
-      commandTag == CBORCommandTag::CBORUnknownCmdTag32b ||
-      commandTag == CBORCommandTag::CBORUnknownCmdTag64b ||
-      cbor_encode_tag(encoder, commandTag) != CborNoError) {
-    return EncoderState::Error;
+Encoder::Status OtaBeginCommandEncoder::encode(CborEncoder* encoder, Message *msg) {
+  OtaBeginUp * otaBeginUp = (OtaBeginUp*) msg;
+  CborEncoder array_encoder;
+
+  if(cbor_encoder_create_array(encoder, &array_encoder, 1) != CborNoError) {
+    return Encoder::Status::Error;
   }
 
-  return EncoderState::EncodeArray;
-}
-
-CBORMessageEncoder::EncoderState CBORMessageEncoder::handle_EncodeArray(CborEncoder * encoder, CborEncoder * array_encoder, Message * message)
-{
-  // Set array size based on the message id
-  size_t array_size = 0;
-  switch (message->id)
-  {
-  case CommandId::OtaBeginUpId:
-    array_size = 1;
-    break;
-  case CommandId::ThingBeginCmdId:
-    array_size = 1;
-    break;
-  case CommandId::DeviceBeginCmdId:
-    array_size = 1;
-    break;
-  case CommandId::LastValuesBeginCmdId:
-    break;
-  case CommandId::OtaProgressCmdUpId:
-    array_size = 4;
-    break;
-  case CommandId::TimezoneCommandUpId:
-    break;
-  default:
-    return EncoderState::MessageNotSupported;
+  if(cbor_encode_byte_string(&array_encoder, otaBeginUp->params.sha, SHA256_SIZE) != CborNoError) {
+    return Encoder::Status::Error;
   }
 
-  // Start an array with fixed width based on message type
-  if (cbor_encoder_create_array(encoder, array_encoder, array_size) != CborNoError){
-    return EncoderState::Error;
+  if(cbor_encoder_close_container(encoder, &array_encoder) != CborNoError) {
+    return Encoder::Status::Error;
   }
 
-  return EncoderState::EncodeParam;
+  return Encoder::Status::Complete;
 }
 
-CBORMessageEncoder::EncoderState CBORMessageEncoder::handle_EncodeParam(CborEncoder * array_encoder, Message * message)
-{
-  CborError error = CborNoError;
-  switch (message->id)
-  {
-  case CommandId::OtaBeginUpId:
-    error = CBORMessageEncoder::encodeOtaBeginUp(array_encoder, message);
-    break;
-  case CommandId::ThingBeginCmdId:
-    error = CBORMessageEncoder::encodeThingBeginCmd(array_encoder, message);
-    break;
-  case CommandId::DeviceBeginCmdId:
-    error = CBORMessageEncoder::encodeDeviceBeginCmd(array_encoder, message);
-    break;
-  case CommandId::LastValuesBeginCmdId:
-    break;
-  case CommandId::OtaProgressCmdUpId:
-    error = CBORMessageEncoder::encodeOtaProgressCmdUp(array_encoder, message);
-    break;
-  case CommandId::TimezoneCommandUpId:
-    break;
-  default:
-    return EncoderState::MessageNotSupported;
+Encoder::Status ThingBeginCommandEncoder::encode(CborEncoder* encoder, Message *msg) {
+  ThingBeginCmd * thingBeginCmd = (ThingBeginCmd*) msg;
+  CborEncoder array_encoder;
+
+  if(cbor_encoder_create_array(encoder, &array_encoder, 1) != CborNoError) {
+      return Encoder::Status::Error;
   }
 
-  return (error != CborNoError) ? EncoderState::Error : EncoderState::CloseArray;
+  if(cbor_encode_text_stringz(&array_encoder, thingBeginCmd->params.thing_id) != CborNoError) {
+    return Encoder::Status::Error;
+  }
+
+  if(cbor_encoder_close_container(encoder, &array_encoder) != CborNoError) {
+    return Encoder::Status::Error;
+  }
+
+  return Encoder::Status::Complete;
 }
 
-CBORMessageEncoder::EncoderState CBORMessageEncoder::handle_CloseArray(CborEncoder * encoder, CborEncoder * array_encoder)
-{
-  CborError error = cbor_encoder_close_container(encoder, array_encoder);
+Encoder::Status LastValuesBeginCommandEncoder::encode(CborEncoder* encoder, Message *msg) {
+  // This command contains no parameters, it contains just the id of the message
+  // nothing to perform here
+  // (void)(encoder);
+  (void)(msg);
+  CborEncoder array_encoder;
 
-  return (error != CborNoError) ? EncoderState::Error : EncoderState::Complete;
+  // FIXME we are encoiding an empty array, this could be avoided
+  if (cbor_encoder_create_array(encoder, &array_encoder, 0) != CborNoError){
+    return Encoder::Status::Error;
+  }
+
+  if(cbor_encoder_close_container(encoder, &array_encoder) != CborNoError) {
+    return Encoder::Status::Error;
+  }
+
+  return Encoder::Status::Complete;
 }
 
-// Message specific encoders
-CborError CBORMessageEncoder::encodeOtaBeginUp(CborEncoder * array_encoder, Message * message)
-{
-  OtaBeginUp * otaBeginUp = (OtaBeginUp *) message;
-  CHECK_CBOR(cbor_encode_byte_string(array_encoder, otaBeginUp->params.sha, SHA256_SIZE));
-  return CborNoError;
+Encoder::Status DeviceBeginCommandEncoder::encode(CborEncoder* encoder, Message *msg) {
+  DeviceBeginCmd * deviceBeginCmd = (DeviceBeginCmd*) msg;
+  CborEncoder array_encoder;
+
+  if(cbor_encoder_create_array(encoder, &array_encoder, 1) != CborNoError) {
+      return Encoder::Status::Error;
+  }
+
+  if(cbor_encode_text_stringz(&array_encoder, deviceBeginCmd->params.lib_version) != CborNoError) {
+    return Encoder::Status::Error;
+  }
+
+  if(cbor_encoder_close_container(encoder, &array_encoder) != CborNoError) {
+    return Encoder::Status::Error;
+  }
+
+  return Encoder::Status::Complete;
 }
 
-CborError CBORMessageEncoder::encodeThingBeginCmd(CborEncoder * array_encoder, Message * message)
-{
-  ThingBeginCmd * thingBeginCmd = (ThingBeginCmd *) message;
-  CHECK_CBOR(cbor_encode_text_stringz(array_encoder, thingBeginCmd->params.thing_id));
-  return CborNoError;
+Encoder::Status OtaProgressCommandUpEncoder::encode(CborEncoder* encoder, Message *msg) {
+  OtaProgressCmdUp * ota = (OtaProgressCmdUp*) msg;
+  CborEncoder array_encoder;
+
+  if(cbor_encoder_create_array(encoder, &array_encoder, 4) != CborNoError) {
+      return Encoder::Status::Error;
+  }
+
+  if(cbor_encode_byte_string(&array_encoder, ota->params.id, ID_SIZE) != CborNoError) {
+    return Encoder::Status::Error;
+  }
+
+  if(cbor_encode_simple_value(&array_encoder, ota->params.state) != CborNoError) {
+    return Encoder::Status::Error;
+  }
+
+  if(cbor_encode_int(&array_encoder, ota->params.state_data) != CborNoError) {
+    return Encoder::Status::Error;
+  }
+
+  if(cbor_encode_uint(&array_encoder, ota->params.time) != CborNoError) {
+    return Encoder::Status::Error;
+  }
+
+  if(cbor_encoder_close_container(encoder, &array_encoder) != CborNoError) {
+    return Encoder::Status::Error;
+  }
+
+  return Encoder::Status::Complete;
 }
 
-CborError CBORMessageEncoder::encodeDeviceBeginCmd(CborEncoder * array_encoder, Message * message)
-{
-  DeviceBeginCmd * deviceBeginCmd = (DeviceBeginCmd *) message;
-  CHECK_CBOR(cbor_encode_text_stringz(array_encoder, deviceBeginCmd->params.lib_version));
-  return CborNoError;
+Encoder::Status TimezoneCommandUpEncoder::encode(CborEncoder* encoder, Message *msg) {
+  // This command contains no parameters, it contains just the id of the message
+  // nothing to perform here
+  // (void)(encoder);
+  (void)(msg);
+  CborEncoder array_encoder;
+
+  // FIXME we are encoiding an empty array, this could be avoided
+  if (cbor_encoder_create_array(encoder, &array_encoder, 0) != CborNoError){
+    return Encoder::Status::Error;
+  }
+
+  if(cbor_encoder_close_container(encoder, &array_encoder) != CborNoError) {
+    return Encoder::Status::Error;
+  }
+
+  return Encoder::Status::Complete;
 }
 
-CborError CBORMessageEncoder::encodeOtaProgressCmdUp(CborEncoder * array_encoder, Message * message)
-{
-  OtaProgressCmdUp * ota = (OtaProgressCmdUp *)message;
-  CHECK_CBOR(cbor_encode_byte_string(array_encoder, ota->params.id, ID_SIZE));
-  CHECK_CBOR(cbor_encode_simple_value(array_encoder, ota->params.state));
-  CHECK_CBOR(cbor_encode_int(array_encoder, ota->params.state_data));
-  CHECK_CBOR(cbor_encode_uint(array_encoder, ota->params.time));
-  return CborNoError;
-}
+static OtaBeginCommandEncoder         otaBeginCommandEncoder;
+static ThingBeginCommandEncoder       thingBeginCommandEncoder;
+static LastValuesBeginCommandEncoder  lastValuesBeginCommandEncoder;
+static DeviceBeginCommandEncoder      deviceBeginCommandEncoder;
+static OtaProgressCommandUpEncoder    otaProgressCommandUpEncoder;
+static TimezoneCommandUpEncoder       timezoneCommandUpEncoder;

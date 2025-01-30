@@ -402,10 +402,10 @@ void ArduinoIoTCloudTCP::handleMessage(int length)
   if (_messageTopicIn == topic) {
     CommandDown command;
     DEBUG_VERBOSE("ArduinoIoTCloudTCP::%s [%d] received %d bytes", __FUNCTION__, millis(), length);
-    CBORMessageDecoder decoder;
+    // CBORMessageDecoder decoder;
 
     size_t buffer_length = length;
-    if (decoder.decode((Message*)&command, bytes, buffer_length) != Decoder::Status::Error) {
+    if (CBORMessageDecoder.decode((Message*)&command, bytes, buffer_length) != Decoder::Status::Error) {
       DEBUG_VERBOSE("ArduinoIoTCloudTCP::%s [%d] received command id %d", __FUNCTION__, millis(), command.c.id);
       switch (command.c.id)
       {
@@ -486,7 +486,7 @@ void ArduinoIoTCloudTCP::sendMessage(Message * msg)
 {
   uint8_t data[MQTT_TRANSMIT_BUFFER_SIZE];
   size_t bytes_encoded = sizeof(data);
-  CBORMessageEncoder encoder;
+  // CBORMessageEncoder encoder;
 
   switch (msg->id) {
     case PropertiesUpdateCmdId:
@@ -499,7 +499,7 @@ void ArduinoIoTCloudTCP::sendMessage(Message * msg)
       break;
   }
 
-  if (encoder.encode(msg, data, bytes_encoded) == Encoder::Status::Complete &&
+  if (CBORMessageEncoder.encode(msg, data, bytes_encoded) == Encoder::Status::Complete &&
       bytes_encoded > 0) {
     write(_messageTopicOut, data, bytes_encoded);
   } else {
