@@ -6,12 +6,13 @@
    INCLUDE
  **************************************************************************************/
 
-#include <catch.hpp>
+#include <catch2/catch_test_macros.hpp>
 
 #include <util/CBORTestUtil.h>
 #include <CBORDecoder.h>
 #include <PropertyContainer.h>
 #include "types/CloudWrapperBool.h"
+#include <memory>
 
 /**************************************************************************************
    GLOBAL CONSTANTS
@@ -41,7 +42,7 @@ void externalCallbackV2()
 SCENARIO("A callback is registered via 'onUpdate' to be called on property change", "[ArduinoCloudThing::decode]")
 {
   PropertyContainer property_container;
-    
+
   CloudInt test = 10;
   addPropertyToContainer(property_container, test, "test", Permission::ReadWrite).onUpdate(externalCallbackV2);
 
@@ -112,7 +113,7 @@ SCENARIO("After a connection/reconnection an incoming cbor payload is processed 
   change_callback_called = false;
 
   PropertyContainer property_container;
-    
+
   addPropertyToContainer(property_container, test, "test", Permission::ReadWrite).onUpdate(change_callback).onSync(auto_sync_callback);
 
   test.setLastLocalChangeTimestamp(1550138809);
@@ -137,7 +138,7 @@ SCENARIO("After a connection/reconnection an incoming cbor payload is processed 
   change_callback_called = false;
 
   PropertyContainer property_container;
-    
+
   addPropertyToContainer(property_container, test, "test", Permission::ReadWrite).onUpdate(change_callback).onSync(auto_sync_callback);
   test = false;
   test.setLastLocalChangeTimestamp(1550138811);
@@ -161,7 +162,7 @@ SCENARIO("Primitive property: After a connection/reconnection an incoming cbor p
   change_callback_called = false;
 
   PropertyContainer property_container;
-    
+
   addPropertyToContainer(property_container, *p, "test", Permission::ReadWrite).onUpdate(change_callback).onSync(auto_sync_callback);
   test = false;
   updateTimestampOnLocallyChangedProperties(property_container);
@@ -189,7 +190,7 @@ SCENARIO("Primitive property: After a connection/reconnection an incoming cbor p
   change_callback_called = false;
 
   PropertyContainer property_container;
-    
+
   addPropertyToContainer(property_container, *p, "test", Permission::ReadWrite).onUpdate(change_callback).onSync(auto_sync_callback);
   test = false;
   updateTimestampOnLocallyChangedProperties(property_container);
@@ -214,7 +215,7 @@ SCENARIO("Object property: After a connection/reconnection an incoming cbor payl
   change_callback_called = false;
 
   PropertyContainer property_container;
-    
+
   addPropertyToContainer(property_container, location_test, "test", Permission::ReadWrite).onUpdate(change_callback).onSync(auto_sync_callback);
   location_test.setLastLocalChangeTimestamp(1550138809);
 
@@ -243,7 +244,7 @@ SCENARIO("Object property: After a connection/reconnection an incoming cbor payl
   change_callback_called = false;
 
   PropertyContainer property_container;
-    
+
   addPropertyToContainer(property_container, location_test, "test", Permission::ReadWrite).onUpdate(change_callback).onSync(auto_sync_callback);
   location_test.setLastLocalChangeTimestamp(1550138811);
 
@@ -278,7 +279,7 @@ SCENARIO("After a connection/reconnection an incoming cbor payload is processed 
   change_callback_called = false;
 
   PropertyContainer property_container;
-  
+
   addPropertyToContainer(property_container, test, "test", Permission::ReadWrite).onUpdate(change_callback).onSync(force_device_sync_callback);
 
   /* [{-3: 1550138810.00, 0: "test", 4: true}] = 81 A3 22 FB 41 D7 19 4F 6E 80 00 00 00 64 74 65 73 74 04 F5 */
@@ -307,7 +308,7 @@ SCENARIO("After a connection/reconnection an incoming cbor payload is processed 
   change_callback_called = false;
 
   PropertyContainer property_container;
-    
+
   addPropertyToContainer(property_container, test, "test", Permission::ReadWrite).onUpdate(change_callback).onSync(force_cloud_sync_callback);
 
   /* [{-3: 1550138810.00, 0: "test", 4: true}] = 81 A3 22 FB 41 D7 19 4F 6E 80 00 00 00 64 74 65 73 74 04 F5 */
@@ -330,7 +331,7 @@ SCENARIO("After a connection/reconnection an incoming cbor payload is processed.
   change_callback_called = false;
 
   PropertyContainer property_container;
-    
+
   addPropertyToContainer(property_container, test, "test", Permission::ReadWrite).onUpdate(change_callback);
 
   /* [{-3: 1550138810.00, 0: "test", 4: true}] = 81 A3 22 FB 41 D7 19 4F 6E 80 00 00 00 64 74 65 73 74 04 F5 */

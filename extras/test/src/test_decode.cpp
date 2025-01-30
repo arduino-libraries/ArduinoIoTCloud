@@ -6,7 +6,8 @@
    INCLUDE
  **************************************************************************************/
 
-#include <catch.hpp>
+#include <catch2/catch_test_macros.hpp>
+#include <catch2/catch_approx.hpp>
 
 #include <memory>
 
@@ -27,6 +28,8 @@
 #include "types/automation/CloudTemperatureSensor.h"
 #include "types/automation/CloudTelevision.h"
 
+using namespace Catch;
+
 /**************************************************************************************
    TEST CODE
  **************************************************************************************/
@@ -37,7 +40,7 @@ SCENARIO("Arduino Cloud Properties are decoded", "[ArduinoCloudThing::decode]")
   WHEN("A boolean property is changed via CBOR message")
   {
     PropertyContainer property_container;
-        
+
     CloudBool test = true;
     addPropertyToContainer(property_container, test, "test", Permission::ReadWrite);
 
@@ -55,7 +58,7 @@ SCENARIO("Arduino Cloud Properties are decoded", "[ArduinoCloudThing::decode]")
   {
     /*An integer identifier has been encoded instead of the name of the property in order to have a shorter payload*/
     PropertyContainer property_container;
-        
+
     CloudBool test = true;
     /*The property is added with identifier 1 that will be used instead of the string "test" as property identifier*/
     addPropertyToContainer(property_container, test, "test", Permission::ReadWrite, 1);
@@ -73,7 +76,7 @@ SCENARIO("Arduino Cloud Properties are decoded", "[ArduinoCloudThing::decode]")
   WHEN("A positive int property is changed via CBOR message")
   {
     PropertyContainer property_container;
-        
+
     CloudInt test = 0;
     addPropertyToContainer(property_container, test, "test", Permission::ReadWrite);
 
@@ -88,7 +91,7 @@ SCENARIO("Arduino Cloud Properties are decoded", "[ArduinoCloudThing::decode]")
   WHEN("A negative int property is changed via CBOR message")
   {
     PropertyContainer property_container;
-        
+
     CloudInt test = 0;
     addPropertyToContainer(property_container, test, "test", Permission::ReadWrite);
 
@@ -105,7 +108,7 @@ SCENARIO("Arduino Cloud Properties are decoded", "[ArduinoCloudThing::decode]")
   WHEN("A float property is changed via CBOR message")
   {
     PropertyContainer property_container;
-        
+
     CloudFloat test = 0.0f;
     addPropertyToContainer(property_container, test, "test", Permission::ReadWrite);
 
@@ -122,7 +125,7 @@ SCENARIO("Arduino Cloud Properties are decoded", "[ArduinoCloudThing::decode]")
   WHEN("A String property is changed via CBOR message")
   {
     PropertyContainer property_container;
-        
+
     CloudString str_test;
     str_test = "test";
     addPropertyToContainer(property_container, str_test, "test", Permission::ReadWrite);
@@ -139,7 +142,7 @@ SCENARIO("Arduino Cloud Properties are decoded", "[ArduinoCloudThing::decode]")
   WHEN("A Location property is changed via CBOR message")
   {
     PropertyContainer property_container;
-        
+
     CloudLocation location_test = CloudLocation(0, 1);
     addPropertyToContainer(property_container, location_test, "test", Permission::ReadWrite);
 
@@ -157,7 +160,7 @@ SCENARIO("Arduino Cloud Properties are decoded", "[ArduinoCloudThing::decode]")
   WHEN("A Color property is changed via CBOR message")
   {
     PropertyContainer property_container;
-        
+
     CloudColor color_test = CloudColor(0.0, 0.0, 0.0);
 
     addPropertyToContainer(property_container, color_test, "test", Permission::ReadWrite);
@@ -181,7 +184,7 @@ SCENARIO("Arduino Cloud Properties are decoded", "[ArduinoCloudThing::decode]")
   {
     /*An integer identifier has been encoded instead of the name of the property in order to have a shorter payload*/
     PropertyContainer property_container;
-        
+
     CloudColor color_test = CloudColor(0.0, 0.0, 0.0);
 
     /*The property is added with identifier 1 that will be used instead of the string "test" as property identifier*/
@@ -205,7 +208,7 @@ SCENARIO("Arduino Cloud Properties are decoded", "[ArduinoCloudThing::decode]")
   WHEN("A ColoredLight property is changed via CBOR message")
   {
     PropertyContainer property_container;
-      
+
     CloudColoredLight color_test = CloudColoredLight(false, 0.0, 0.0, 0.0);
 
     addPropertyToContainer(property_container, color_test, "test", Permission::ReadWrite);
@@ -229,7 +232,7 @@ SCENARIO("Arduino Cloud Properties are decoded", "[ArduinoCloudThing::decode]")
   WHEN("A Television property is changed via CBOR message")
   {
     PropertyContainer property_container;
-        
+
     CloudTelevision tv_test = CloudTelevision(false, 0, false, PlaybackCommands::Stop, InputValue::AUX1, 0);
 
     addPropertyToContainer(property_container, tv_test, "test", Permission::ReadWrite);
@@ -255,7 +258,7 @@ SCENARIO("Arduino Cloud Properties are decoded", "[ArduinoCloudThing::decode]")
   WHEN("A DimmedLight property is changed via CBOR message")
   {
     PropertyContainer property_container;
-        
+
     CloudDimmedLight light_test = CloudDimmedLight(false, 0.0);
 
     addPropertyToContainer(property_container, light_test, "test", Permission::ReadWrite);
@@ -277,7 +280,7 @@ SCENARIO("Arduino Cloud Properties are decoded", "[ArduinoCloudThing::decode]")
   WHEN("A Light property is changed via CBOR message")
   {
     PropertyContainer property_container;
-        
+
     CloudLight light_test;
     light_test = false;
 
@@ -295,7 +298,7 @@ SCENARIO("Arduino Cloud Properties are decoded", "[ArduinoCloudThing::decode]")
   WHEN("A ContactSensor property is changed via CBOR message")
   {
     PropertyContainer property_container;
-        
+
     CloudContactSensor contact_test;
     contact_test = false;
 
@@ -313,7 +316,7 @@ SCENARIO("Arduino Cloud Properties are decoded", "[ArduinoCloudThing::decode]")
   WHEN("A MotionSensor property is changed via CBOR message")
   {
     PropertyContainer property_container;
-        
+
     CloudMotionSensor motion_test;
     motion_test = false;
 
@@ -331,7 +334,7 @@ SCENARIO("Arduino Cloud Properties are decoded", "[ArduinoCloudThing::decode]")
   WHEN("A SmartPlug property is changed via CBOR message")
   {
     PropertyContainer property_container;
-        
+
     CloudSmartPlug plug_test;
     plug_test = false;
 
@@ -349,7 +352,7 @@ SCENARIO("Arduino Cloud Properties are decoded", "[ArduinoCloudThing::decode]")
   WHEN("A Switch property is changed via CBOR message")
   {
     PropertyContainer property_container;
-        
+
     CloudSwitch switch_test;
     switch_test = false;
 
@@ -367,7 +370,7 @@ SCENARIO("Arduino Cloud Properties are decoded", "[ArduinoCloudThing::decode]")
   WHEN("A Temperature property is changed via CBOR message")
   {
     PropertyContainer property_container;
-        
+
     CloudTemperatureSensor test;
     test = 0.0f;
     addPropertyToContainer(property_container, test, "test", Permission::ReadWrite);
@@ -414,8 +417,8 @@ SCENARIO("Arduino Cloud Properties are decoded", "[ArduinoCloudThing::decode]")
     CBORDecoder::decode(property_container, payload, sizeof(payload) / sizeof(uint8_t));
 
     Schedule schedule_compare = Schedule(1633305600, 1633651200, 600, 1140850708);
-    Schedule value_schedule_test = schedule_test.getValue(); 
-    
+    Schedule value_schedule_test = schedule_test.getValue();
+
     bool verify = (value_schedule_test == schedule_compare);
     REQUIRE(verify);
     REQUIRE(value_schedule_test.frm == schedule_compare.frm);
@@ -431,7 +434,7 @@ SCENARIO("Arduino Cloud Properties are decoded", "[ArduinoCloudThing::decode]")
     WHEN("Multiple properties of different type are changed via CBOR message")
     {
       PropertyContainer property_container;
-          
+
       CloudBool   bool_test = false;
       CloudInt    int_test = 1;
       CloudFloat  float_test = 2.0f;
@@ -460,7 +463,7 @@ SCENARIO("Arduino Cloud Properties are decoded", "[ArduinoCloudThing::decode]")
     WHEN("Multiple properties of different type are synchronized via CBOR message. FORCE_CLOUD_SYNC is passed as synchronization function and as a consequence values contained in the incoming message are stored in the properties")
     {
       PropertyContainer property_container;
-          
+
       CloudBool   bool_test = false;
       CloudInt    int_test = 1;
       CloudFloat  float_test = 2.0f;
@@ -489,7 +492,7 @@ SCENARIO("Arduino Cloud Properties are decoded", "[ArduinoCloudThing::decode]")
     WHEN("Multiple primitive properties of different type are synchronized via CBOR message. FORCE_CLOUD_SYNC is passed as synchronization function and as a consequence values contained in the incoming message are stored in the properties")
     {
       PropertyContainer property_container;
-          
+
       int    int_test = 1;
       bool   bool_test = false;
       float  float_test = 2.0f;
@@ -525,7 +528,7 @@ SCENARIO("Arduino Cloud Properties are decoded", "[ArduinoCloudThing::decode]")
     WHEN("Multiple String properties are changed via CBOR message")
     {
       PropertyContainer property_container;
-          
+
       CloudString str_1("hello"),
                   str_2("arduino"),
                   str_3("cloud"),
@@ -554,7 +557,7 @@ SCENARIO("Arduino Cloud Properties are decoded", "[ArduinoCloudThing::decode]")
   WHEN("A payload containing a CBOR base name is parsed")
   {
     PropertyContainer property_container;
-        
+
     CloudString str = "hello";
     addPropertyToContainer(property_container, str, "test", Permission::ReadWrite);
 
@@ -570,7 +573,7 @@ SCENARIO("Arduino Cloud Properties are decoded", "[ArduinoCloudThing::decode]")
   WHEN("A payload containing a CBOR base time is parsed")
   {
     PropertyContainer property_container;
-       
+
     CloudInt test = 0;
     addPropertyToContainer(property_container, test, "test", Permission::ReadWrite);
 
@@ -586,7 +589,7 @@ SCENARIO("Arduino Cloud Properties are decoded", "[ArduinoCloudThing::decode]")
   WHEN("A payload containing a CBOR time is parsed")
   {
     PropertyContainer property_container;
-        
+
     CloudInt test = 0;
     addPropertyToContainer(property_container, test, "test", Permission::ReadWrite);
 
@@ -602,7 +605,7 @@ SCENARIO("Arduino Cloud Properties are decoded", "[ArduinoCloudThing::decode]")
   WHEN("A payload containing a CBOR BaseVersion is parsed")
   {
     PropertyContainer property_container;
-        
+
     CloudInt test = 0;
     addPropertyToContainer(property_container, test, "test", Permission::ReadWrite);
 
@@ -618,7 +621,7 @@ SCENARIO("Arduino Cloud Properties are decoded", "[ArduinoCloudThing::decode]")
   WHEN("A payload containing a CBOR BaseName, BaseTime and Time is parsed")
   {
     PropertyContainer property_container;
-        
+
     CloudInt test = 0;
     addPropertyToContainer(property_container, test, "test", Permission::ReadWrite);
 
@@ -636,7 +639,7 @@ SCENARIO("Arduino Cloud Properties are decoded", "[ArduinoCloudThing::decode]")
   WHEN("A payload containing a invalid CBOR key is parsed")
   {
     PropertyContainer property_container;
-        
+
     CloudInt test = 0;
     addPropertyToContainer(property_container, test, "test", Permission::ReadWrite);
 
