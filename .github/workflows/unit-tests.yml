@@ -32,7 +32,6 @@ jobs:
           coverage-exclude-paths: |
             - '*/extras/test/*'
             - '/usr/*'
-            - '*/src/cbor/lib/*'
           coverage-data-path: ${{ env.COVERAGE_DATA_PATH }}
 
       # A token is used to avoid intermittent spurious job failures caused by rate limiting.

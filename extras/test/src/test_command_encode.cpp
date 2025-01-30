@@ -11,7 +11,9 @@
 #include <memory>
 
 #include <util/CBORTestUtil.h>
+#include <IoTCloudMessageEncoder.h>
 #include <MessageEncoder.h>
+#include <catch2/matchers/catch_matchers_vector.hpp>
 
 /******************************************************************************
    TEST CODE
@@ -32,15 +34,7 @@ SCENARIO("Test the encoding of command messages") {
     size_t bytes_encoded = sizeof(buffer);
 
     CBORMessageEncoder encoder;
-    Encoder::Status err = encoder.encode((Message*)&command, buffer, bytes_encoded);
-
-    uint8_t expected_result[] = {
-      0xda, 0x00, 0x01, 0x00, 0x00, 0x81, 0x58, 0x20,
-      0x01, 0x02, 0x03, 0x04, 0x00, 0x00, 0x00, 0x00,
-      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
-    };
+    MessageEncoder::Status err = encoder.encode((Message*)&command, buffer, bytes_encoded);
 
     // Test the encoding is
     // DA 00010000                             # tag(65536)
@@ -48,9 +42,16 @@ SCENARIO("Test the encoding of command messages") {
     //       58 20                             # bytes(32)
     //          01020304
     THEN("The encoding is successful") {
-      REQUIRE(err == Encoder::Status::Complete);
-      REQUIRE(bytes_encoded == sizeof(expected_result));
-      REQUIRE(memcmp(buffer, expected_result, sizeof(expected_result)) == 0);
+      REQUIRE(err == MessageEncoder::Status::Complete);
+      std::vector<int> res(buffer, buffer+bytes_encoded);
+
+      REQUIRE_THAT(res, Catch::Matchers::Equals(std::vector<int>{
+        0xda, 0x00, 0x01, 0x00, 0x00, 0x81, 0x58, 0x20,
+        0x01, 0x02, 0x03, 0x04, 0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+      }));
     }
   }
 
@@ -69,12 +70,7 @@ SCENARIO("Test the encoding of command messages") {
     size_t bytes_encoded = sizeof(buffer);
 
     CBORMessageEncoder encoder;
-    Encoder::Status err = encoder.encode((Message*)&command, buffer, bytes_encoded);
-
-    uint8_t expected_result[] = {
-      0xda, 0x00, 0x01, 0x03, 0x00, 0x81, 0x68, 0x74,
-      0x68, 0x69, 0x6e, 0x67, 0x5f, 0x69, 0x64
-    };
+    MessageEncoder::Status err = encoder.encode((Message*)&command, buffer, bytes_encoded);
 
     // Test the encoding is
     // DA 00010300               # tag(66304)
@@ -83,9 +79,13 @@ SCENARIO("Test the encoding of command messages") {
     //          7468696E675F6964 # "thing_id"
 
     THEN("The encoding is successful") {
-      REQUIRE(err == Encoder::Status::Complete);
-      REQUIRE(bytes_encoded == sizeof(expected_result));
-      REQUIRE(memcmp(buffer, expected_result, sizeof(expected_result)) == 0);
+      REQUIRE(err == MessageEncoder::Status::Complete);
+      std::vector<int> res(buffer, buffer+bytes_encoded);
+
+      REQUIRE_THAT(res, Catch::Matchers::Equals(std::vector<int>{
+        0xda, 0x00, 0x01, 0x03, 0x00, 0x81, 0x68, 0x74,
+        0x68, 0x69, 0x6e, 0x67, 0x5f, 0x69, 0x64
+      }));
     }
   }
 
@@ -100,19 +100,18 @@ SCENARIO("Test the encoding of command messages") {
     size_t bytes_encoded = sizeof(buffer);
 
     CBORMessageEncoder encoder;
-    Encoder::Status err = encoder.encode((Message*)&command, buffer, bytes_encoded);
-
-    uint8_t expected_result[] = {
-      0xda, 0x00, 0x01, 0x05, 0x00, 0x80
-    };
+    MessageEncoder::Status err = encoder.encode((Message*)&command, buffer, bytes_encoded);
 
     // Test the encoding is
     // DA 00010500 # tag(66816)
     //    80       # array(0)
     THEN("The encoding is successful") {
-      REQUIRE(err == Encoder::Status::Complete);
-      REQUIRE(bytes_encoded == sizeof(expected_result));
-      REQUIRE(memcmp(buffer, expected_result, sizeof(expected_result)) == 0);
+      REQUIRE(err == MessageEncoder::Status::Complete);
+      std::vector<int> res(buffer, buffer+bytes_encoded);
+
+      REQUIRE_THAT(res, Catch::Matchers::Equals(std::vector<int>{
+        0xda, 0x00, 0x01, 0x05, 0x00, 0x80
+      }));
     }
   }
 
@@ -130,12 +129,7 @@ SCENARIO("Test the encoding of command messages") {
     size_t bytes_encoded = sizeof(buffer);
 
     CBORMessageEncoder encoder;
-    Encoder::Status err = encoder.encode((Message*)&command, buffer, bytes_encoded);
-
-    uint8_t expected_result[] = {
-      0xda, 0x00, 0x01, 0x07, 0x00, 0x81, 0x65, 0x32,
-      0x2e, 0x30, 0x2e, 0x30
-    };
+    MessageEncoder::Status err = encoder.encode((Message*)&command, buffer, bytes_encoded);
 
     // Test the encoding is
     // DA 00010700         # tag(67328)
@@ -143,9 +137,13 @@ SCENARIO("Test the encoding of command messages") {
     //       65            # text(5)
     //          322E302E30 # "2.0.0"
     THEN("The encoding is successful") {
-      REQUIRE(err == Encoder::Status::Complete);
-      REQUIRE(bytes_encoded == sizeof(expected_result));
-      REQUIRE(memcmp(buffer, expected_result, sizeof(expected_result)) == 0);
+      REQUIRE(err == MessageEncoder::Status::Complete);
+      std::vector<int> res(buffer, buffer+bytes_encoded);
+
+      REQUIRE_THAT(res, Catch::Matchers::Equals(std::vector<int>{
+        0xda, 0x00, 0x01, 0x07, 0x00, 0x81, 0x65, 0x32,
+        0x2e, 0x30, 0x2e, 0x30
+      }));
     }
   }
 
@@ -168,14 +166,7 @@ SCENARIO("Test the encoding of command messages") {
     size_t bytes_encoded = sizeof(buffer);
 
     CBORMessageEncoder encoder;
-    Encoder::Status err = encoder.encode((Message*)&command, buffer, bytes_encoded);
-
-    uint8_t expected_result[] = {
-      0xda, 0x00, 0x01, 0x02, 0x00, 0x84, 0x50, 0x00,
-      0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08,
-      0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f, 0xe1,
-      0x20, 0x18, 0x64
-    };
+    MessageEncoder::Status err = encoder.encode((Message*)&command, buffer, bytes_encoded);
 
     // Test the encoding is
     // DA 00010200                             # tag(66048)
@@ -186,9 +177,15 @@ SCENARIO("Test the encoding of command messages") {
     //       20                                # negative(0)
     //       18 64                             # unsigned(100)
     THEN("The encoding is successful") {
-      REQUIRE(err == Encoder::Status::Complete);
-      REQUIRE(bytes_encoded == sizeof(expected_result));
-      REQUIRE(memcmp(buffer, expected_result, sizeof(expected_result)) == 0);
+      REQUIRE(err == MessageEncoder::Status::Complete);
+      std::vector<int> res(buffer, buffer+bytes_encoded);
+
+      REQUIRE_THAT(res, Catch::Matchers::Equals(std::vector<int>{
+        0xda, 0x00, 0x01, 0x02, 0x00, 0x84, 0x50, 0x00,
+        0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08,
+        0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f, 0xe1,
+        0x20, 0x18, 0x64
+      }));
     }
   }
 
@@ -203,19 +200,18 @@ SCENARIO("Test the encoding of command messages") {
     size_t bytes_encoded = sizeof(buffer);
 
     CBORMessageEncoder encoder;
-    Encoder::Status err = encoder.encode((Message*)&command, buffer, bytes_encoded);
-
-    uint8_t expected_result[] = {
-      0xda, 0x00, 0x01, 0x08, 0x00, 0x80
-    };
+    MessageEncoder::Status err = encoder.encode((Message*)&command, buffer, bytes_encoded);
 
     // Test the encoding is
     // DA 00010800 # tag(67584)
     //    80       # array(0)
     THEN("The encoding is successful") {
-      REQUIRE(err == Encoder::Status::Complete);
-      REQUIRE(bytes_encoded == sizeof(expected_result));
-      REQUIRE(memcmp(buffer, expected_result, sizeof(expected_result)) == 0);
+      REQUIRE(err == MessageEncoder::Status::Complete);
+      std::vector<int> res(buffer, buffer+bytes_encoded);
+
+      REQUIRE_THAT(res, Catch::Matchers::Equals(std::vector<int>{
+        0xda, 0x00, 0x01, 0x08, 0x00, 0x80
+      }));
     }
   }
 
@@ -233,10 +229,10 @@ SCENARIO("Test the encoding of command messages") {
     size_t bytes_encoded = sizeof(buffer);
 
     CBORMessageEncoder encoder;
-    Encoder::Status err = encoder.encode((Message*)&command, buffer, bytes_encoded);
+    MessageEncoder::Status err = encoder.encode((Message*)&command, buffer, bytes_encoded);
 
     THEN("The encoding is unsuccessful - ThingUpdateCmdId is not supported") {
-      REQUIRE(err == Encoder::Status::Error);
+      REQUIRE(err == MessageEncoder::Status::Error);
     }
   }
 
@@ -254,10 +250,10 @@ SCENARIO("Test the encoding of command messages") {
     size_t bytes_encoded = sizeof(buffer);
 
     CBORMessageEncoder encoder;
-    Encoder::Status err = encoder.encode((Message*)&command, buffer, bytes_encoded);
+    MessageEncoder::Status err = encoder.encode((Message*)&command, buffer, bytes_encoded);
 
     THEN("The encoding is unsuccessful - SetTimezoneCommand is not supported") {
-      REQUIRE(err == Encoder::Status::Error);
+      REQUIRE(err == MessageEncoder::Status::Error);
     }
   }
 
@@ -277,10 +273,10 @@ SCENARIO("Test the encoding of command messages") {
     size_t bytes_encoded = sizeof(buffer);
 
     CBORMessageEncoder encoder;
-    Encoder::Status err = encoder.encode((Message*)&command, buffer, bytes_encoded);
+    MessageEncoder::Status err = encoder.encode((Message*)&command, buffer, bytes_encoded);
 
     THEN("The encoding is unsuccessful - LastValuesUpdateCmd is not supported") {
-      REQUIRE(err == Encoder::Status::Error);
+      REQUIRE(err == MessageEncoder::Status::Error);
     }
   }
 
@@ -295,10 +291,10 @@ SCENARIO("Test the encoding of command messages") {
     size_t bytes_encoded = sizeof(buffer);
 
     CBORMessageEncoder encoder;
-    Encoder::Status err = encoder.encode((Message*)&command, buffer, bytes_encoded);
+    MessageEncoder::Status err = encoder.encode((Message*)&command, buffer, bytes_encoded);
 
     THEN("The encoding is unsuccessful - OtaUpdateCmdDown is not supported") {
-      REQUIRE(err == Encoder::Status::Error);
+      REQUIRE(err == MessageEncoder::Status::Error);
     }
   }
 
@@ -313,10 +309,10 @@ SCENARIO("Test the encoding of command messages") {
     size_t bytes_encoded = sizeof(buffer);
 
     CBORMessageEncoder encoder;
-    Encoder::Status err = encoder.encode((Message*)&command, buffer, bytes_encoded);
+    MessageEncoder::Status err = encoder.encode((Message*)&command, buffer, bytes_encoded);
 
     THEN("The encoding is unsuccessful - ThingDetachCmd is not supported") {
-      REQUIRE(err == Encoder::Status::Error);
+      REQUIRE(err == MessageEncoder::Status::Error);
     }
   }
 
@@ -331,10 +327,10 @@ SCENARIO("Test the encoding of command messages") {
     size_t bytes_encoded = sizeof(buffer);
 
     CBORMessageEncoder encoder;
-    Encoder::Status err = encoder.encode((Message*)&command, buffer, bytes_encoded);
+    MessageEncoder::Status err = encoder.encode((Message*)&command, buffer, bytes_encoded);
 
     THEN("The encoding is unsuccessful - UnknownCmdId is not supported") {
-      REQUIRE(err == Encoder::Status::Error);
+      REQUIRE(err == MessageEncoder::Status::Error);
     }
   }
 }
