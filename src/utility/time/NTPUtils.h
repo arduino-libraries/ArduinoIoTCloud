@@ -53,7 +53,7 @@ private:
   static int           const MIN_NTP_PORT         = 49152;
   static int           const MAX_NTP_PORT         = 65535;
 #endif
-  static unsigned long const NTP_TIMEOUT_MS       = 1000;
+  static unsigned long const NTP_TIMEOUT_MS       = 2000;
   static constexpr const char * NTP_TIME_SERVER   = "time.arduino.cc";
 
   static void sendNTPpacket(UDP & udp);
