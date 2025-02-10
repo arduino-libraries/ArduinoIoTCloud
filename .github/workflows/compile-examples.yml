@@ -27,7 +27,7 @@ jobs:
         - name: ArduinoMqttClient
         - name: Arduino_SecureElement
         - source-url: https://github.com/andreagilardoni/Arduino_CloudUtils.git
-          version: bf817dfbe8541e3be4dd583f11a0510681f595ac
+          version: abb7f2764b8be3c424a2ec12777a0ce985227b1b
       # sketch paths to compile (recursive) for all boards
       UNIVERSAL_SKETCH_PATHS: |
         - examples/ArduinoIoTCloud-Advanced
