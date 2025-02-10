@@ -142,6 +142,7 @@ class Property
 {
   public:
     Property();
+    virtual ~Property() {}
     void init(String const name, Permission const permission, GetTimeCallbackFunc func);
 
     /* Composable configuration of the Property class */
