@@ -38,7 +38,7 @@
 enum CommandId: MessageId {
 
   /* Device commands */
-  DeviceBeginCmdId        = 1,
+  DeviceBeginCmdId        = ArduinoIOTCloudStartMessageId,
   ThingBeginCmdId,
   ThingUpdateCmdId,
   ThingDetachCmdId,
