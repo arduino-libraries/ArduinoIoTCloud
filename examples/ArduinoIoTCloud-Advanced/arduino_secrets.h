@@ -9,7 +9,7 @@
 #endif
 
 /* ESP8266 ESP32 */
-#if defined(BOARD_HAS_SECRET_KEY)
+#if !defined(BOARD_HAS_SECURE_ELEMENT)
   #define SECRET_DEVICE_KEY "my-device-password"
 #endif
 
