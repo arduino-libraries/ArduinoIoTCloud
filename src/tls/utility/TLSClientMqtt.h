@@ -35,7 +35,8 @@ enum class ArduinoIoTAuthenticationMode
    * Arduino Giga R1
    * OPTA
    */
-  #include <tls/BearSSLClient.h>
+  #include <ArduinoBearSSLConfig.h>
+  #include <ArduinoBearSSL.h>
   class TLSClientMqtt : public BearSSLClient {
 #elif defined(ARDUINO_PORTENTA_C33)
   /*
