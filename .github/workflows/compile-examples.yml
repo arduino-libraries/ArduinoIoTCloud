@@ -31,7 +31,6 @@ jobs:
         - examples/ArduinoIoTCloud-Advanced
         - examples/ArduinoIoTCloud-Basic
         - examples/ArduinoIoTCloud-Callbacks
-        - examples/ArduinoIoTCloud-Schedule
         - examples/utility/ArduinoIoTCloud_Travis_CI
       SKETCHES_REPORTS_PATH: sketches-reports
 
@@ -109,6 +108,7 @@ jobs:
               - source-url: https://github.com/adafruit/Adafruit_SleepyDog.git
             sketch-paths: |
               - examples/ArduinoIoTCloud-Notecard
+              - examples/ArduinoIoTCloud-Schedule
               - examples/utility/Provisioning
           # MKR WiFi 1010, Nano 33 IoT, Nano RP2040 Connect
           - board:
@@ -127,6 +127,7 @@ jobs:
             sketch-paths: |
               - examples/ArduinoIoTCloud-DeferredOTA
               - examples/ArduinoIoTCloud-Notecard
+              - examples/ArduinoIoTCloud-Schedule
               - examples/utility/Provisioning
               - examples/utility/SelfProvisioning
           - board:
@@ -156,6 +157,7 @@ jobs:
               - source-url: https://github.com/adafruit/Adafruit_SleepyDog.git
             sketch-paths: |
               - examples/ArduinoIoTCloud-Notecard
+              - examples/ArduinoIoTCloud-Schedule
               - examples/utility/Provisioning
           # NB boards
           - board:
@@ -171,6 +173,7 @@ jobs:
               - source-url: https://github.com/adafruit/Adafruit_SleepyDog.git
             sketch-paths: |
               - examples/ArduinoIoTCloud-Notecard
+              - examples/ArduinoIoTCloud-Schedule
               - examples/utility/Provisioning
           # Portenta
           - board:
@@ -185,6 +188,7 @@ jobs:
             sketch-paths: |
               - examples/ArduinoIoTCloud-DeferredOTA
               - examples/ArduinoIoTCloud-Notecard
+              - examples/ArduinoIoTCloud-Schedule
               - examples/utility/Provisioning
           # Nicla Vision
           - board:
@@ -197,6 +201,7 @@ jobs:
             sketch-paths: |
               - examples/ArduinoIoTCloud-DeferredOTA
               - examples/ArduinoIoTCloud-Notecard
+              - examples/ArduinoIoTCloud-Schedule
               - examples/utility/Provisioning
           # Opta
           - board:
@@ -210,6 +215,7 @@ jobs:
             sketch-paths: |
               - examples/ArduinoIoTCloud-DeferredOTA
               - examples/ArduinoIoTCloud-Notecard
+              - examples/ArduinoIoTCloud-Schedule
               - examples/utility/Provisioning
           # GIGA
           - board:
@@ -223,6 +229,7 @@ jobs:
             sketch-paths: |
               - examples/ArduinoIoTCloud-DeferredOTA
               - examples/ArduinoIoTCloud-Notecard
+              - examples/ArduinoIoTCloud-Schedule
               - examples/utility/Provisioning
           # Portenta C33
           - board:
@@ -235,6 +242,7 @@ jobs:
               - name: Blues Wireless Notecard
             sketch-paths: |
               - examples/ArduinoIoTCloud-Notecard
+              - examples/ArduinoIoTCloud-Schedule
               - examples/utility/Provisioning
           # UNO R4 WiFi
           - board:
@@ -246,6 +254,7 @@ jobs:
               - name: Blues Wireless Notecard
             sketch-paths: |
               - examples/ArduinoIoTCloud-Notecard
+              - examples/ArduinoIoTCloud-Schedule
           # Nano ESP32
           - board:
               type: arduino_esp32
@@ -257,6 +266,7 @@ jobs:
             sketch-paths: |
               - examples/ArduinoIoTCloud-DeferredOTA
               - examples/ArduinoIoTCloud-Notecard
+              - examples/ArduinoIoTCloud-Schedule
           # Edge Control
           - board:
               type: mbed_edge
@@ -267,6 +277,7 @@ jobs:
               - name: Blues Wireless Notecard
             sketch-paths: |
               - examples/ArduinoIoTCloud-Notecard
+              - examples/ArduinoIoTCloud-Schedule
           # ESP8266 boards
           - board:
               type: esp8266
@@ -277,7 +288,8 @@ jobs:
                 # Use the version currently installed in Arduino Cloud
                 version: 2.5.0
             libraries:
-            sketch-paths:
+            sketch-paths: |
+              - examples/ArduinoIoTCloud-Schedule
           # ESP32 boards
           - board:
               type: esp32
@@ -290,6 +302,7 @@ jobs:
             sketch-paths: |
               - examples/ArduinoIoTCloud-DeferredOTA
               - examples/ArduinoIoTCloud-Notecard
+              - examples/ArduinoIoTCloud-Schedule
 
     steps:
       - name: Checkout
