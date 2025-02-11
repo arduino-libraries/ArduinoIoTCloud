@@ -15,51 +15,61 @@
  * INCLUDE
  ******************************************************************************/
 
-#include <Arduino.h>
-
-#undef max
-#undef min
-#include <list>
-
-#include "CBOR.h"
-#include "../interfaces/Encoder.h"
-#include "lib/tinycbor/cbor-lib.h"
+#include "./CBOR.h"
+#include <cbor/CborEncoder.h>
+#include "message/Commands.h"
 
 /******************************************************************************
  * CLASS DECLARATION
  ******************************************************************************/
 
-class CBORMessageEncoder: public Encoder
-{
-
+class OtaBeginCommandEncoder: public CBORMessageEncoderInterface {
 public:
-  CBORMessageEncoder() { }
-  CBORMessageEncoder(CborEncoder const &) { }
-  Encoder::Status encode(Message * message, uint8_t * data, size_t& len);
-
-private:
-
-  enum class EncoderState
-  {
-    EncodeTag,
-    EncodeArray,
-    EncodeParam,
-    CloseArray,
-    MessageNotSupported,
-    Complete,
-    Error
-  };
-
-  EncoderState handle_EncodeTag(CborEncoder * encoder, Message * message);
-  EncoderState handle_EncodeArray(CborEncoder * encoder, CborEncoder * array_encoder, Message * message);
-  EncoderState handle_EncodeParam(CborEncoder * array_encoder, Message * message);
-  EncoderState handle_CloseArray(CborEncoder * encoder, CborEncoder * array_encoder);
-
-  // Message specific encoders
-  CborError encodeThingBeginCmd(CborEncoder * array_encoder, Message * message);
-  CborError encodeOtaBeginUp(CborEncoder * array_encoder, Message * message);
-  CborError encodeDeviceBeginCmd(CborEncoder * array_encoder, Message * message);
-  CborError encodeOtaProgressCmdUp(CborEncoder * array_encoder, Message * message);
+  OtaBeginCommandEncoder()
+  : CBORMessageEncoderInterface(CBOROtaBeginUp, OtaBeginUpId) {}
+protected:
+  Encoder::Status encode(CborEncoder* encoder, Message *msg) override;
 };
+
+class ThingBeginCommandEncoder: public CBORMessageEncoderInterface {
+public:
+  ThingBeginCommandEncoder()
+  : CBORMessageEncoderInterface(CBORThingBeginCmd, ThingBeginCmdId) {}
+protected:
+  Encoder::Status encode(CborEncoder* encoder, Message *msg) override;
+};
+
+class LastValuesBeginCommandEncoder: public CBORMessageEncoderInterface {
+public:
+  LastValuesBeginCommandEncoder()
+  : CBORMessageEncoderInterface(CBORLastValuesBeginCmd, LastValuesBeginCmdId) {}
+protected:
+  Encoder::Status encode(CborEncoder* encoder, Message *msg) override;
+};
+
+class DeviceBeginCommandEncoder: public CBORMessageEncoderInterface {
+public:
+  DeviceBeginCommandEncoder()
+  : CBORMessageEncoderInterface(CBORDeviceBeginCmd, DeviceBeginCmdId) {}
+protected:
+  Encoder::Status encode(CborEncoder* encoder, Message *msg) override;
+};
+
+class OtaProgressCommandUpEncoder: public CBORMessageEncoderInterface {
+public:
+  OtaProgressCommandUpEncoder()
+  : CBORMessageEncoderInterface(CBOROtaProgressCmdUp, OtaProgressCmdUpId) {}
+protected:
+  Encoder::Status encode(CborEncoder* encoder, Message *msg) override;
+};
+
+class TimezoneCommandUpEncoder: public CBORMessageEncoderInterface {
+public:
+  TimezoneCommandUpEncoder()
+  : CBORMessageEncoderInterface(CBORTimezoneCommandUp, TimezoneCommandUpId) {}
+protected:
+  Encoder::Status encode(CborEncoder* encoder, Message *msg) override;
+};
+
 
 #endif /* ARDUINO_CBOR_MESSAGE_ENCODER_H_ */

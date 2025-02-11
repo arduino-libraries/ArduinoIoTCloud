@@ -69,7 +69,7 @@ int ArduinoCloudThing::connected() {
 void ArduinoCloudThing::handleMessage(Message* m) {
   _command = UnknownCmdId;
   if (m != nullptr) {
-    _command = m->id;
+    _command = static_cast<CommandId>(m->id);
     if (_command == TimezoneCommandDownId) {
       _utcOffset = reinterpret_cast<TimezoneCommandDown*>(m)->params.offset;
       _utcOffsetExpireTime = reinterpret_cast<TimezoneCommandDown*>(m)->params.until;
