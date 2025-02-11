@@ -6,7 +6,7 @@
   #error  "Please check Arduino IoT Cloud supported boards list: https://github.com/arduino-libraries/ArduinoIoTCloud/#what"
 #endif
 
-#if defined(BOARD_HAS_SECRET_KEY)
+#if !defined(BOARD_HAS_SECURE_ELEMENT)
   #define BOARD_ID "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
 #endif
 
@@ -26,10 +26,6 @@ CloudSchedule monthly;
 CloudSchedule yearly;
 
 void initProperties() {
-#if defined(BOARD_HAS_SECRET_KEY)
-  ArduinoCloud.setBoardId(BOARD_ID);
-  ArduinoCloud.setSecretDeviceKey(SECRET_DEVICE_KEY);
-#endif
 #if defined(HAS_TCP)
   ArduinoCloud.addProperty(switchButton, Permission::Write);
   ArduinoCloud.addProperty(oneShot, Permission::ReadWrite);
@@ -39,6 +35,11 @@ void initProperties() {
   ArduinoCloud.addProperty(weekly, Permission::ReadWrite);
   ArduinoCloud.addProperty(monthly, Permission::ReadWrite);
   ArduinoCloud.addProperty(yearly, Permission::ReadWrite);
+
+#if !defined(BOARD_HAS_SECURE_ELEMENT)
+  ArduinoCloud.setBoardId(BOARD_ID);
+  ArduinoCloud.setSecretDeviceKey(SECRET_DEVICE_KEY);
+#endif
 #elif defined(HAS_LORA)
   ArduinoCloud.addProperty(switchButton, 1, Permission::Write);
 
