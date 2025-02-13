@@ -120,6 +120,9 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
 
     enum class State
     {
+      ConfigPhy,
+      updatePhy,
+      Init,
       ConnectPhy,
       SyncTime,
       ConnectMqttBroker,
@@ -133,11 +136,13 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
     ArduinoCloudThing _thing;
     ArduinoCloudDevice _device;
 
+    ArduinoIoTAuthenticationMode _authMode;
     String _brokerAddress;
     uint16_t _brokerPort;
     uint8_t _mqtt_data_buf[MQTT_TRANSMIT_BUFFER_SIZE];
     int _mqtt_data_len;
     bool _mqtt_data_request_retransmit;
+    bool _enable_watchdog;
 
 #if defined(BOARD_HAS_SECRET_KEY)
     String _password;
@@ -170,6 +175,9 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
     inline String getTopic_dataout  () { return ( getThingId().length() == 0) ? String("") : String("/a/t/" + getThingId() + "/e/o"); }
     inline String getTopic_datain   () { return ( getThingId().length() == 0) ? String("") : String("/a/t/" + getThingId() + "/e/i"); }
 
+    State handle_ConfigPhy();
+    State handle_updatePhy();
+    State handle_Init();
     State handle_ConnectPhy();
     State handle_SyncTime();
     State handle_ConnectMqttBroker();

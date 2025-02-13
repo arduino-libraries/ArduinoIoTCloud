@@ -21,12 +21,19 @@ jobs:
       UNIVERSAL_LIBRARIES: |
         # Install the ArduinoIoTCloud library from the repository
         - source-path: ./
-        - name: Arduino_ConnectionHandler
+        - source-url: https://github.com/andreagilardoni/Arduino_ConnectionHandler.git
+          version: 0ca6d61eb538c5a21983e582ee1c8794442f8c75
+        - source-url: https://github.com/fabik111/ArduinoBLE.git
+          version: 82e2a28f871e97b313846cee6d9efed8943dca53
         - name: ArduinoHttpClient
         - name: Arduino_DebugUtils
         - name: ArduinoMqttClient
         - name: Arduino_SecureElement
         - name: Arduino_CloudUtils
+        - source-url: https://github.com/andreagilardoni/ArduinoStorage.git
+          version: 39f0bd138103967aaafcaa7f5c0e1e237b4ccb4d
+        - source-url: https://github.com/bcmi-labs/arduino-network-configurator.git
+          version: 962ab36dfb00eb9cebe089907223e576f463519f
       # sketch paths to compile (recursive) for all boards
       UNIVERSAL_SKETCH_PATHS: |
         - examples/ArduinoIoTCloud-Advanced
@@ -125,10 +132,12 @@ jobs:
               - name: ArduinoECCX08
               - name: Blues Wireless Notecard
               - name: RTCZero
-              - name: WiFiNINA
+              - source-url: https://github.com/andreagilardoni/WiFiNINA.git
+                version: ca7a9224f86b9aaf00de4f7feccea583a23b3d53
               - name: Arduino_JSON
               - source-url: https://github.com/adafruit/Adafruit_SleepyDog.git
             sketch-paths: |
+              - examples/ArduinoIoTCloud-NetConfig
               - examples/ArduinoIoTCloud-DeferredOTA
               - examples/ArduinoIoTCloud-Notecard
               - examples/ArduinoIoTCloud-Schedule
@@ -190,6 +199,7 @@ jobs:
               - name: Arduino_Cellular
               - name: Blues Wireless Notecard
             sketch-paths: |
+              - examples/ArduinoIoTCloud-NetConfig
               - examples/ArduinoIoTCloud-DeferredOTA
               - examples/ArduinoIoTCloud-Notecard
               - examples/ArduinoIoTCloud-Schedule
@@ -203,6 +213,7 @@ jobs:
             libraries: |
               - name: Blues Wireless Notecard
             sketch-paths: |
+              - examples/ArduinoIoTCloud-NetConfig
               - examples/ArduinoIoTCloud-DeferredOTA
               - examples/ArduinoIoTCloud-Notecard
               - examples/ArduinoIoTCloud-Schedule
@@ -217,6 +228,7 @@ jobs:
               - name: ArduinoECCX08
               - name: Blues Wireless Notecard
             sketch-paths: |
+              - examples/ArduinoIoTCloud-NetConfig
               - examples/ArduinoIoTCloud-DeferredOTA
               - examples/ArduinoIoTCloud-Notecard
               - examples/ArduinoIoTCloud-Schedule
@@ -231,6 +243,7 @@ jobs:
               - name: ArduinoECCX08
               - name: Blues Wireless Notecard
             sketch-paths: |
+              - examples/ArduinoIoTCloud-NetConfig
               - examples/ArduinoIoTCloud-DeferredOTA
               - examples/ArduinoIoTCloud-Notecard
               - examples/ArduinoIoTCloud-Schedule
@@ -245,6 +258,7 @@ jobs:
               - name: Arduino_Cellular
               - name: Blues Wireless Notecard
             sketch-paths: |
+              - examples/ArduinoIoTCloud-NetConfig
               - examples/ArduinoIoTCloud-Notecard
               - examples/ArduinoIoTCloud-Schedule
               - examples/utility/Provisioning
@@ -257,6 +271,7 @@ jobs:
             libraries: |
               - name: Blues Wireless Notecard
             sketch-paths: |
+              - examples/ArduinoIoTCloud-NetConfig
               - examples/ArduinoIoTCloud-Notecard
               - examples/ArduinoIoTCloud-Schedule
           # Nano ESP32
