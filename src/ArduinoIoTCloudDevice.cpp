@@ -65,7 +65,7 @@ void ArduinoCloudDevice::handleMessage(Message *m) {
     case DeviceAttachedCmdId:
       _attached = true;
       _registered = true;
-      DEBUG_VERBOSE("CloudDevice::%s Device is attached", __FUNCTION__);
+      DEBUG_VERBOSE("Device::%s Device is attached", __FUNCTION__);
       nextState = State::Connected;
       break;
 
@@ -115,7 +115,7 @@ ArduinoCloudDevice::State ArduinoCloudDevice::handleSendCapabilities() {
 
   /* No device configuration received. Wait: 4s -> 8s -> 16s -> 32s -> 32s ...*/
   _attachAttempt.retry();
-  DEBUG_VERBOSE("CloudDevice::%s not attached. %d next configuration request in %d ms",
+  DEBUG_VERBOSE("Device::%s not attached. %d next configuration request in %d ms",
                 __FUNCTION__, _attachAttempt.getRetryCount(), _attachAttempt.getWaitTime());
   return State::Connected;
 }

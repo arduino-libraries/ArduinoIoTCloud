@@ -89,7 +89,7 @@ int ArduinoIoTCloudNotecard::begin(ConnectionHandler &connection_, int interrupt
 
   // Initialize the connection to the Notecard
   if (NetworkConnectionState::ERROR == _connection->check()) {
-    DEBUG_ERROR("ArduinoIoTCloudNotecard::%s encountered fatal connection error!", __FUNCTION__);
+    DEBUG_ERROR("Notecard::%s encountered fatal connection error!", __FUNCTION__);
     return 0; // (false -> failure)
   }
 
@@ -163,11 +163,11 @@ ArduinoIoTCloudNotecard::State ArduinoIoTCloudNotecard::handle_SyncTime()
   const uint32_t current_time = ArduinoCloud.getInternalTime();
   if (TimeServiceClass::isTimeValid(current_time))
   {
-    DEBUG_VERBOSE("ArduinoIoTCloudNotecard::%s [%d] internal clock configured to posix timestamp %d", __FUNCTION__, millis(), current_time);
+    DEBUG_VERBOSE("Notecard::%s [%d] internal clock configured to posix timestamp %d", __FUNCTION__, millis(), current_time);
     return State::Connected;
   }
 
-  DEBUG_ERROR("ArduinoIoTCloudNotecard::%s could not get valid time. Retrying now.", __FUNCTION__);
+  DEBUG_ERROR("Notecard::%s could not get valid time. Retrying now.", __FUNCTION__);
   return State::ConnectPhy;
 }
 
@@ -206,7 +206,7 @@ ArduinoIoTCloudNotecard::State ArduinoIoTCloudNotecard::handle_Connected()
 ArduinoIoTCloudNotecard::State ArduinoIoTCloudNotecard::handle_Disconnect()
 {
   if (!connected()) {
-    DEBUG_ERROR("ArduinoIoTCloudNotecard::%s connection to Notehub lost", __FUNCTION__);
+    DEBUG_ERROR("Notecard::%s connection to Notehub lost", __FUNCTION__);
   }
 
   // Reset the Thing and Device property containers
@@ -285,9 +285,9 @@ void ArduinoIoTCloudNotecard::fetchIncomingBytes(uint8_t *buf, size_t &len)
     buf[bytes_received] = _connection->read();
   }
   if (bytes_received == len && _connection->available()) {
-    DEBUG_ERROR("ArduinoIoTCloudNotecard::%s buffer overflow on inbound message", __FUNCTION__);
+    DEBUG_ERROR("Notecard::%s buffer overflow on inbound message", __FUNCTION__);
   } else {
-    DEBUG_DEBUG("ArduinoIoTCloudNotecard::%s received %d bytes from cloud", __FUNCTION__, bytes_received);
+    DEBUG_DEBUG("Notecard::%s received %d bytes from cloud", __FUNCTION__, bytes_received);
     len = bytes_received;
   }
 }
@@ -306,20 +306,20 @@ void ArduinoIoTCloudNotecard::pollNotecard(void)
 void ArduinoIoTCloudNotecard::processCommand(const uint8_t *buf, size_t len)
 {
   CommandDown command;
-  DEBUG_VERBOSE("ArduinoIoTCloudNotecard::%s [%d] received %d bytes", __FUNCTION__, millis(), len);
+  DEBUG_VERBOSE("Notecard::%s [%d] received %d bytes", __FUNCTION__, millis(), len);
   CBORMessageDecoder decoder;
 
   if (decoder.decode((Message*)&command, buf, len) != Decoder::Status::Error) {
-    DEBUG_VERBOSE("ArduinoIoTCloudNotecard::%s [%d] received command id %d", __FUNCTION__, millis(), command.c.id);
+    DEBUG_VERBOSE("Notecard::%s [%d] received command id %d", __FUNCTION__, millis(), command.c.id);
     switch (command.c.id)
     {
       case CommandId::ThingUpdateCmdId:
       {
-        DEBUG_VERBOSE("ArduinoIoTCloudNotecard::%s [%d] device configuration received", __FUNCTION__, millis());
+        DEBUG_VERBOSE("Notecard::%s [%d] device configuration received", __FUNCTION__, millis());
         String new_thing_id = String(command.thingUpdateCmd.params.thing_id);
 
         if (!new_thing_id.length()) {
-          DEBUG_DEBUG("ArduinoIoTCloudNotecard::%s received null Thing ID.", __FUNCTION__);
+          DEBUG_DEBUG("Notecard::%s received null Thing ID.", __FUNCTION__);
           _thing_id = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx";
 
           // Send message to device state machine to inform we have received a null thing-id
@@ -328,11 +328,11 @@ void ArduinoIoTCloudNotecard::processCommand(const uint8_t *buf, size_t len)
           _device.handleMessage(&message);
         } else {
           if (_device.isAttached() && _thing_id != new_thing_id) {
-            DEBUG_DEBUG("ArduinoIoTCloudNotecard::%s detaching Thing ID: %s", __FUNCTION__, _thing_id.c_str());
+            DEBUG_DEBUG("Notecard::%s detaching Thing ID: %s", __FUNCTION__, _thing_id.c_str());
             detachThing();
           }
           if (!_device.isAttached()) {
-            DEBUG_DEBUG("ArduinoIoTCloudNotecard::%s attaching Thing ID: %s", __FUNCTION__, new_thing_id.c_str());
+            DEBUG_DEBUG("Notecard::%s attaching Thing ID: %s", __FUNCTION__, new_thing_id.c_str());
             attachThing(new_thing_id);
           }
         }
@@ -342,24 +342,24 @@ void ArduinoIoTCloudNotecard::processCommand(const uint8_t *buf, size_t len)
       case CommandId::ThingDetachCmdId:
       {
         if (!_device.isAttached() || _thing_id != String(command.thingDetachCmd.params.thing_id)) {
-          DEBUG_VERBOSE("ArduinoIoTCloudNotecard::%s [%d] thing detach rejected", __FUNCTION__, millis());
+          DEBUG_VERBOSE("Notecard::%s [%d] thing detach rejected", __FUNCTION__, millis());
         }
 
-        DEBUG_VERBOSE("ArduinoIoTCloudNotecard::%s [%d] thing detach received", __FUNCTION__, millis());
+        DEBUG_VERBOSE("Notecard::%s [%d] thing detach received", __FUNCTION__, millis());
         detachThing();
       }
       break;
 
       case CommandId::TimezoneCommandDownId:
       {
-        DEBUG_VERBOSE("ArduinoIoTCloudNotecard::%s [%d] timezone update received", __FUNCTION__, millis());
+        DEBUG_VERBOSE("Notecard::%s [%d] timezone update received", __FUNCTION__, millis());
         _thing.handleMessage((Message*)&command);
       }
       break;
 
       case CommandId::LastValuesUpdateCmdId:
       {
-        DEBUG_VERBOSE("ArduinoIoTCloudNotecard::%s [%d] last values received", __FUNCTION__, millis());
+        DEBUG_VERBOSE("Notecard::%s [%d] last values received", __FUNCTION__, millis());
         CBORDecoder::decode(_thing.getPropertyContainer(),
           (uint8_t*)command.lastValuesUpdateCmd.params.last_values,
           command.lastValuesUpdateCmd.params.length, true);
@@ -379,7 +379,7 @@ void ArduinoIoTCloudNotecard::processCommand(const uint8_t *buf, size_t len)
 #if OTA_ENABLED
       case CommandId::OtaUpdateCmdDownId:
       {
-        DEBUG_VERBOSE("ArduinoIoTCloudNotecard::%s [%d] ota update received", __FUNCTION__, millis());
+        DEBUG_VERBOSE("Notecard::%s [%d] ota update received", __FUNCTION__, millis());
         _ota.handleMessage((Message*)&command);
       }
 #endif
@@ -392,7 +392,7 @@ void ArduinoIoTCloudNotecard::processCommand(const uint8_t *buf, size_t len)
 
 void ArduinoIoTCloudNotecard::processMessage(const uint8_t *buf, size_t len)
 {
-  DEBUG_VERBOSE("ArduinoIoTCloudNotecard::%s [%d] decoding %d bytes from cloud...", __FUNCTION__, millis(), len);
+  DEBUG_VERBOSE("Notecard::%s [%d] decoding %d bytes from cloud...", __FUNCTION__, millis(), len);
   NotecardConnectionHandler *notecard_connection = reinterpret_cast<NotecardConnectionHandler *>(_connection);
   switch (notecard_connection->getTopicType()) {
     // Commands
@@ -433,7 +433,7 @@ void ArduinoIoTCloudNotecard::sendCommandMsgToCloud(Message * msg_)
     if (CBOR_LORA_PAYLOAD_MAX_SIZE < bytes_encoded) {
       DEBUG_WARNING("Encoded %d bytes for Command Message. Exceeds maximum payload size of %d bytes, and cannot be sent to cloud.", bytes_encoded, CBOR_LORA_PAYLOAD_MAX_SIZE);
     } else if (bytes_encoded > 0) {
-      DEBUG_DEBUG("ArduinoIoTCloudNotecard::%s encoded %d bytes for Command Message", __FUNCTION__, bytes_encoded);
+      DEBUG_DEBUG("Notecard::%s encoded %d bytes for Command Message", __FUNCTION__, bytes_encoded);
       notecard_connection->setTopicType(NotecardConnectionHandler::TopicType::Command);
       if (notecard_connection->write(data, bytes_encoded)) {
         DEBUG_ERROR("Failed to send Command Message to cloud");
@@ -441,7 +441,7 @@ void ArduinoIoTCloudNotecard::sendCommandMsgToCloud(Message * msg_)
         notecard_connection->initiateNotehubSync(NotecardConnectionHandler::SyncType::Inbound);
       }
     } else {
-      DEBUG_DEBUG("ArduinoIoTCloudNotecard::%s encoded zero (0) bytes for Command Message", __FUNCTION__);
+      DEBUG_DEBUG("Notecard::%s encoded zero (0) bytes for Command Message", __FUNCTION__);
     }
   } else {
     DEBUG_ERROR("Failed to encode Command Message");
@@ -461,7 +461,7 @@ void ArduinoIoTCloudNotecard::sendThingPropertyContainerToCloud()
     } else if (bytes_encoded < 0) {
       DEBUG_ERROR("Encoding Thing properties resulted in error: %d.", bytes_encoded);
     } else if (bytes_encoded > 0) {
-      DEBUG_DEBUG("ArduinoIoTCloudNotecard::%s encoded %d bytes of Thing properties", __FUNCTION__, bytes_encoded);
+      DEBUG_DEBUG("Notecard::%s encoded %d bytes of Thing properties", __FUNCTION__, bytes_encoded);
       notecard_connection->setTopicType(NotecardConnectionHandler::TopicType::Thing);
       if (notecard_connection->write(data, bytes_encoded)) {
         DEBUG_ERROR("Failed to sync Thing properties with cloud");
