@@ -73,7 +73,7 @@ OTACloudProcessInterface::State UNOR4OTACloudProcess::fetch() {
 
     if(progress < context->downloadSize) {
       return Fetch;
-    } else if(progress > context->downloadSize) {
+    } else if(progress > context->downloadSize || progress < 0) {
       return OtaDownloadFail;
     } else {
       return FlashOTA;
