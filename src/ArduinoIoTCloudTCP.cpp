@@ -240,6 +240,24 @@ void ArduinoIoTCloudTCP::update()
 #if defined (ARDUINO_ARCH_SAMD) || defined (ARDUINO_ARCH_MBED)
   watchdog_reset();
 #endif
+
+#if OTA_ENABLED
+  /* OTA FSM needs to reach the Idle state before being able to run independently from
+   * the mqttClient. The state can be reached only after the mqttClient is connected to
+   * the broker.
+   */
+  if((_ota.getState() != OTACloudProcessInterface::Resume &&
+      _ota.getState() != OTACloudProcessInterface::OtaBegin) ||
+      _mqttClient.connected()) {
+    _ota.update();
+  }
+
+  if(_get_ota_confirmation != nullptr &&
+      _ota.getState() == OTACloudProcessInterface::State::OtaAvailable &&
+      _get_ota_confirmation()) {
+    _ota.approveOta();
+  }
+#endif // OTA_ENABLED
 }
 
 int ArduinoIoTCloudTCP::connected()
@@ -337,16 +355,6 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_Connected()
 
   /* Call CloudDevice process to get configuration */
   _device.update();
-
-#if  OTA_ENABLED
-  if(_get_ota_confirmation != nullptr &&
-      _ota.getState() == OTACloudProcessInterface::State::OtaAvailable &&
-      _get_ota_confirmation()) {
-    _ota.approveOta();
-  }
-
-  _ota.update();
-#endif // OTA_ENABLED
 
 
   if (_device.isAttached()) {
