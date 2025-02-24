@@ -89,7 +89,7 @@ void ArduinoCloudThing::handleMessage(Message* m) {
   switch (_command) {
     case LastValuesUpdateCmdId:
       if (_state == State::RequestLastValues) {
-        DEBUG_VERBOSE("CloudThing::%s Thing is synced", __FUNCTION__);
+        DEBUG_VERBOSE("Thing::%s Thing is synced", __FUNCTION__);
         nextState = State::Connected;
       }
       break;
@@ -136,7 +136,7 @@ ArduinoCloudThing::State ArduinoCloudThing::handleRequestLastValues() {
   /* Send message upstream to inform infrastructure we need to request thing
    * last values
    */
-  DEBUG_VERBOSE("CloudThing::%s not int sync. %d next sync request in %d ms",
+  DEBUG_VERBOSE("Thing::%s not int sync. %d next sync request in %d ms",
                 __FUNCTION__, _syncAttempt.getRetryCount(), _syncAttempt.getWaitTime());
   Message message = { LastValuesBeginCmdId };
   deliver(&message);
