@@ -12,7 +12,7 @@
 #include <memory>
 
 #include <util/CBORTestUtil.h>
-#include <CborDecoder.h>
+#include <IoTCloudMessageEncoder.h>
 #include <MessageDecoder.h>
 
 /******************************************************************************
@@ -40,11 +40,11 @@ SCENARIO("Test the decoding of command messages") {
 
     size_t payload_length = sizeof(payload) / sizeof(uint8_t);
     CBORMessageDecoder decoder;
-    Decoder::Status err =  decoder.decode((Message*)&command, payload, payload_length);
+    MessageDecoder::Status err =  decoder.decode((Message*)&command, payload, payload_length);
     const char *thingIdToMatch = "e4494d55-872a-4fd2-9646-92f87949394c";
 
     THEN("The decode is successful") {
-      REQUIRE(err == Decoder::Status::Complete);
+      REQUIRE(err == MessageDecoder::Status::Complete);
       REQUIRE(strcmp(command.thingUpdateCmd.params.thing_id, thingIdToMatch) == 0);
       REQUIRE(command.c.id == ThingUpdateCmdId);
     }
@@ -69,11 +69,11 @@ SCENARIO("Test the decoding of command messages") {
 
     size_t payload_length = sizeof(payload) / sizeof(uint8_t);
     CBORMessageDecoder decoder;
-    Decoder::Status err =  decoder.decode((Message*)&command, payload, payload_length);
+    MessageDecoder::Status err =  decoder.decode((Message*)&command, payload, payload_length);
     const char *thingIdToMatch = "e4494d55-872a-4fd2-9646-92f87949394c";
 
     THEN("The decode is successful") {
-      REQUIRE(err == Decoder::Status::Complete);
+      REQUIRE(err == MessageDecoder::Status::Complete);
       REQUIRE(strcmp(command.thingDetachCmd.params.thing_id, thingIdToMatch) == 0);
       REQUIRE(command.c.id == ThingDetachCmdId);
     }
@@ -94,10 +94,10 @@ SCENARIO("Test the decoding of command messages") {
 
     size_t payload_length = sizeof(payload) / sizeof(uint8_t);
     CBORMessageDecoder decoder;
-    Decoder::Status err =  decoder.decode((Message*)&command, payload, payload_length);
+    MessageDecoder::Status err =  decoder.decode((Message*)&command, payload, payload_length);
 
     THEN("The decode is unsuccessful") {
-      REQUIRE(err == Decoder::Status::Error);
+      REQUIRE(err == MessageDecoder::Status::Error);
     }
   }
 
@@ -115,10 +115,10 @@ SCENARIO("Test the decoding of command messages") {
 
     size_t payload_length = sizeof(payload) / sizeof(uint8_t);
     CBORMessageDecoder decoder;
-    Decoder::Status err =  decoder.decode((Message*)&command, payload, payload_length);
+    MessageDecoder::Status err =  decoder.decode((Message*)&command, payload, payload_length);
 
     THEN("The decode is successful") {
-      REQUIRE(err == Decoder::Status::Error);
+      REQUIRE(err == MessageDecoder::Status::Error);
     }
   }
 
@@ -140,10 +140,10 @@ SCENARIO("Test the decoding of command messages") {
 
     size_t payload_length = sizeof(payload) / sizeof(uint8_t);
     CBORMessageDecoder decoder;
-    Decoder::Status err =  decoder.decode((Message*)&command, payload, payload_length);
+    MessageDecoder::Status err =  decoder.decode((Message*)&command, payload, payload_length);
 
     THEN("The decode is successful") {
-      REQUIRE(err == Decoder::Status::Complete);
+      REQUIRE(err == MessageDecoder::Status::Complete);
       REQUIRE(command.timezoneCommandDown.params.offset == (uint32_t)1708963873);
       REQUIRE(command.timezoneCommandDown.params.until == (uint32_t)2024579473);
       REQUIRE(command.c.id == TimezoneCommandDownId);
@@ -170,10 +170,10 @@ SCENARIO("Test the decoding of command messages") {
 
     size_t payload_length = sizeof(payload) / sizeof(uint8_t);
     CBORMessageDecoder decoder;
-    Decoder::Status err =  decoder.decode((Message*)&command, payload, payload_length);
+    MessageDecoder::Status err =  decoder.decode((Message*)&command, payload, payload_length);
 
     THEN("The decode is successful") {
-      REQUIRE(err == Decoder::Status::Complete);
+      REQUIRE(err == MessageDecoder::Status::Complete);
       REQUIRE(command.lastValuesUpdateCmd.params.length == 13);
       REQUIRE(command.lastValuesUpdateCmd.params.last_values[0] == (uint8_t)0x00);
       REQUIRE(command.lastValuesUpdateCmd.params.last_values[1] == (uint8_t)0x01);
@@ -250,14 +250,14 @@ SCENARIO("Test the decoding of command messages") {
 
     size_t payload_length = sizeof(payload) / sizeof(uint8_t);
     CBORMessageDecoder decoder;
-    Decoder::Status err =  decoder.decode((Message*)&command, payload, payload_length);
+    MessageDecoder::Status err =  decoder.decode((Message*)&command, payload, payload_length);
 
     uint8_t otaIdToMatch[ID_SIZE] = { 0xC7, 0x3C, 0xB0, 0x45, 0xF9, 0xC2, 0x43, 0x45,
                                       0x85, 0xAF, 0xFA, 0x36, 0xA3, 0x07, 0xBF, 0xE7};
     const char *urlToMatch   = "https://boards-int.oniudra.cc/storage/firmware/v1/df1eac9c7bd63473fffb117f9873703e4ec955931e267f26262b0949bc16dc49";
 
     THEN("The decode is successful") {
-      REQUIRE(err == Decoder::Status::Complete);
+      REQUIRE(err == MessageDecoder::Status::Complete);
       REQUIRE(memcmp(command.otaUpdateCmdDown.params.id, otaIdToMatch, ID_SIZE) == 0);
       REQUIRE(strcmp(command.otaUpdateCmdDown.params.url, urlToMatch) == 0);
       // Initial SHA256 check
@@ -389,10 +389,10 @@ SCENARIO("Test the decoding of command messages") {
 
     size_t payload_length = sizeof(payload) / sizeof(uint8_t);
     CBORMessageDecoder decoder;
-    Decoder::Status err =  decoder.decode((Message*)&command, payload, payload_length);
+    MessageDecoder::Status err =  decoder.decode((Message*)&command, payload, payload_length);
 
     THEN("The decode is successful") {
-      REQUIRE(err == Decoder::Status::Error);
+      REQUIRE(err == MessageDecoder::Status::Error);
     }
   }
 
@@ -453,10 +453,10 @@ SCENARIO("Test the decoding of command messages") {
 
     size_t payload_length = sizeof(payload) / sizeof(uint8_t);
     CBORMessageDecoder decoder;
-    Decoder::Status err =  decoder.decode((Message*)&command, payload, payload_length);
+    MessageDecoder::Status err =  decoder.decode((Message*)&command, payload, payload_length);
 
     THEN("The decode is successful") {
-      REQUIRE(err == Decoder::Status::Error);
+      REQUIRE(err == MessageDecoder::Status::Error);
     }
   }
 
@@ -512,10 +512,10 @@ SCENARIO("Test the decoding of command messages") {
 
     size_t payload_length = sizeof(payload) / sizeof(uint8_t);
     CBORMessageDecoder decoder;
-    Decoder::Status err =  decoder.decode((Message*)&command, payload, payload_length);
+    MessageDecoder::Status err =  decoder.decode((Message*)&command, payload, payload_length);
 
     THEN("The decode is successful") {
-      REQUIRE(err == Decoder::Status::Error);
+      REQUIRE(err == MessageDecoder::Status::Error);
     }
   }
 
@@ -571,10 +571,10 @@ SCENARIO("Test the decoding of command messages") {
 
     size_t payload_length = sizeof(payload) / sizeof(uint8_t);
     CBORMessageDecoder decoder;
-    Decoder::Status err =  decoder.decode((Message*)&command, payload, payload_length);
+    MessageDecoder::Status err =  decoder.decode((Message*)&command, payload, payload_length);
 
     THEN("The decode is successful") {
-      REQUIRE(err == Decoder::Status::Error);
+      REQUIRE(err == MessageDecoder::Status::Error);
     }
   }
 
@@ -597,10 +597,10 @@ SCENARIO("Test the decoding of command messages") {
 
     size_t payload_length = sizeof(payload) / sizeof(uint8_t);
     CBORMessageDecoder decoder;
-    Decoder::Status err =  decoder.decode((Message*)&command, payload, payload_length);
+    MessageDecoder::Status err =  decoder.decode((Message*)&command, payload, payload_length);
 
     THEN("The decode is unsuccessful - OtaBeginUp is not supported") {
-      REQUIRE(err == Decoder::Status::Error);
+      REQUIRE(err == MessageDecoder::Status::Error);
     }
   }
 
@@ -620,10 +620,10 @@ SCENARIO("Test the decoding of command messages") {
 
     size_t payload_length = sizeof(payload) / sizeof(uint8_t);
     CBORMessageDecoder decoder;
-    Decoder::Status err =  decoder.decode((Message*)&command, payload, payload_length);
+    MessageDecoder::Status err =  decoder.decode((Message*)&command, payload, payload_length);
 
     THEN("The decode is unsuccessful - ThingBeginCmd is not supported") {
-      REQUIRE(err == Decoder::Status::Error);
+      REQUIRE(err == MessageDecoder::Status::Error);
     }
   }
 
@@ -640,10 +640,10 @@ SCENARIO("Test the decoding of command messages") {
 
     size_t payload_length = sizeof(payload) / sizeof(uint8_t);
     CBORMessageDecoder decoder;
-    Decoder::Status err =  decoder.decode((Message*)&command, payload, payload_length);
+    MessageDecoder::Status err =  decoder.decode((Message*)&command, payload, payload_length);
 
     THEN("The decode is unsuccessful - LastValuesBeginCmd is not supported") {
-      REQUIRE(err == Decoder::Status::Error);
+      REQUIRE(err == MessageDecoder::Status::Error);
     }
   }
 
@@ -663,10 +663,10 @@ SCENARIO("Test the decoding of command messages") {
 
     size_t payload_length = sizeof(payload) / sizeof(uint8_t);
     CBORMessageDecoder decoder;
-    Decoder::Status err =  decoder.decode((Message*)&command, payload, payload_length);
+    MessageDecoder::Status err =  decoder.decode((Message*)&command, payload, payload_length);
 
     THEN("The decode is unsuccessful - DeviceBeginCmd is not supported") {
-      REQUIRE(err == Decoder::Status::Error);
+      REQUIRE(err == MessageDecoder::Status::Error);
     }
   }
 
@@ -691,10 +691,10 @@ SCENARIO("Test the decoding of command messages") {
 
     size_t payload_length = sizeof(payload) / sizeof(uint8_t);
     CBORMessageDecoder decoder;
-    Decoder::Status err =  decoder.decode((Message*)&command, payload, payload_length);
+    MessageDecoder::Status err =  decoder.decode((Message*)&command, payload, payload_length);
 
     THEN("The decode is unsuccessful - OtaProgressCmdUp is not supported") {
-      REQUIRE(err == Decoder::Status::Error);
+      REQUIRE(err == MessageDecoder::Status::Error);
     }
   }
 
@@ -711,10 +711,10 @@ SCENARIO("Test the decoding of command messages") {
 
     size_t payload_length = sizeof(payload) / sizeof(uint8_t);
     CBORMessageDecoder decoder;
-    Decoder::Status err =  decoder.decode((Message*)&command, payload, payload_length);
+    MessageDecoder::Status err =  decoder.decode((Message*)&command, payload, payload_length);
 
     THEN("The decode is unsuccessful - TimezoneCommandUp is not supported") {
-      REQUIRE(err == Decoder::Status::Error);
+      REQUIRE(err == MessageDecoder::Status::Error);
     }
   }
 
@@ -736,10 +736,10 @@ SCENARIO("Test the decoding of command messages") {
 
     size_t payload_length = sizeof(payload) / sizeof(uint8_t);
     CBORMessageDecoder decoder;
-    Decoder::Status err =  decoder.decode((Message*)&command, payload, payload_length);
+    MessageDecoder::Status err =  decoder.decode((Message*)&command, payload, payload_length);
 
     THEN("The decode is unsuccessful") {
-      REQUIRE(err == Decoder::Status::Error);
+      REQUIRE(err == MessageDecoder::Status::Error);
     }
   }
 
@@ -760,10 +760,10 @@ SCENARIO("Test the decoding of command messages") {
 
     size_t payload_length = sizeof(payload) / sizeof(uint8_t);
     CBORMessageDecoder decoder;
-    Decoder::Status err =  decoder.decode((Message*)&command, payload, payload_length);
+    MessageDecoder::Status err =  decoder.decode((Message*)&command, payload, payload_length);
 
     THEN("The decode is unsuccessful") {
-      REQUIRE(err == Decoder::Status::Error);
+      REQUIRE(err == MessageDecoder::Status::Error);
     }
   }
 
@@ -777,10 +777,10 @@ SCENARIO("Test the decoding of command messages") {
 
     size_t payload_length = sizeof(payload) / sizeof(uint8_t);
     CBORMessageDecoder decoder;
-    Decoder::Status err =  decoder.decode((Message*)&command, payload, payload_length);
+    MessageDecoder::Status err =  decoder.decode((Message*)&command, payload, payload_length);
 
     THEN("The decode is unsuccessful") {
-      REQUIRE(err == Decoder::Status::Error);
+      REQUIRE(err == MessageDecoder::Status::Error);
     }
   }
 

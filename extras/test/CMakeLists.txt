@@ -33,6 +33,7 @@ endif()
 
 include_directories(include)
 include_directories(../../src)
+include_directories(../../src/message)
 include_directories(../../src/cbor)
 include_directories(../../src/property)
 include_directories(../../src/utility/time)
@@ -98,8 +99,8 @@ set(TEST_DUT_SRCS
   ../../src/property/PropertyContainer.cpp
   ../../src/cbor/CBORDecoder.cpp
   ../../src/cbor/CBOREncoder.cpp
-  ../../src/cbor/MessageDecoder.cpp
-  ../../src/cbor/MessageEncoder.cpp
+  ../../src/cbor/IoTCloudMessageDecoder.cpp
+  ../../src/cbor/IoTCloudMessageEncoder.cpp
 
   ${cloudutils_SOURCE_DIR}/src/cbor/tinycbor/src/cborencoder.c
   ${cloudutils_SOURCE_DIR}/src/cbor/tinycbor/src/cborencoder_close_container_checked.c
@@ -111,8 +112,8 @@ set(TEST_DUT_SRCS
   ${cloudutils_SOURCE_DIR}/src/cbor/tinycbor/src/cbortojson.c
   ${cloudutils_SOURCE_DIR}/src/cbor/tinycbor/src/cborvalidation.c
   ${cloudutils_SOURCE_DIR}/src/cbor/tinycbor/src/open_memstream.c
-  ${cloudutils_SOURCE_DIR}/src/cbor/CborDecoder.cpp
-  ${cloudutils_SOURCE_DIR}/src/cbor/CborEncoder.cpp
+  ${cloudutils_SOURCE_DIR}/src/cbor/MessageDecoder.cpp
+  ${cloudutils_SOURCE_DIR}/src/cbor/MessageEncoder.cpp
 )
 ##########################################################################
 
