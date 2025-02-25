@@ -16,7 +16,7 @@
  ******************************************************************************/
 
 #include "./CBOR.h"
-#include <cbor/CborDecoder.h>
+#include <cbor/MessageDecoder.h>
 #include "message/Commands.h"
 
 /******************************************************************************
@@ -28,7 +28,7 @@ public:
   OtaUpdateCommandDecoder()
   : CBORMessageDecoderInterface(CBOROtaUpdateCmdDown, OtaUpdateCmdDownId) {}
 protected:
-  Decoder::Status decode(CborValue* iter, Message *msg) override;
+  MessageDecoder::Status decode(CborValue* iter, Message *msg) override;
 };
 
 class ThingUpdateCommandDecoder: public CBORMessageDecoderInterface {
@@ -36,7 +36,7 @@ public:
   ThingUpdateCommandDecoder()
   : CBORMessageDecoderInterface(CBORThingUpdateCmd, ThingUpdateCmdId) {}
 protected:
-  Decoder::Status decode(CborValue* iter, Message *msg) override;
+  MessageDecoder::Status decode(CborValue* iter, Message *msg) override;
 };
 
 class ThingDetachCommandDecoder: public CBORMessageDecoderInterface {
@@ -44,7 +44,7 @@ public:
   ThingDetachCommandDecoder()
   : CBORMessageDecoderInterface(CBORThingDetachCmd, ThingDetachCmdId) {}
 protected:
-  Decoder::Status decode(CborValue* iter, Message *msg) override;
+  MessageDecoder::Status decode(CborValue* iter, Message *msg) override;
 };
 
 class LastValuesUpdateCommandDecoder: public CBORMessageDecoderInterface {
@@ -52,7 +52,7 @@ public:
   LastValuesUpdateCommandDecoder()
   : CBORMessageDecoderInterface(CBORLastValuesUpdate, LastValuesUpdateCmdId) {}
 protected:
-  Decoder::Status decode(CborValue* iter, Message *msg) override;
+  MessageDecoder::Status decode(CborValue* iter, Message *msg) override;
 };
 
 class TimezoneCommandDownDecoder: public CBORMessageDecoderInterface {
@@ -60,7 +60,7 @@ public:
   TimezoneCommandDownDecoder()
   : CBORMessageDecoderInterface(CBORTimezoneCommandDown, TimezoneCommandDownId) {}
 protected:
-  Decoder::Status decode(CborValue* iter, Message *msg) override;
+  MessageDecoder::Status decode(CborValue* iter, Message *msg) override;
 };
 
 #endif /* ARDUINO_CBOR_MESSAGE_DECODER_H_ */

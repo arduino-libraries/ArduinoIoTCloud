@@ -14,7 +14,7 @@
 
 #include <Arduino.h>
 
-#include "MessageDecoder.h"
+#include "IoTCloudMessageDecoder.h"
 #include <AIoTC_Config.h>
 
 /******************************************************************************
@@ -53,29 +53,29 @@ static bool copyCBORByteToArray(CborValue * param, uint8_t * dest, size_t dest_s
     MESSAGE DECODE FUNCTIONS
  ******************************************************************************/
 
-Decoder::Status ThingUpdateCommandDecoder::decode(CborValue* iter, Message *msg) {
+MessageDecoder::Status ThingUpdateCommandDecoder::decode(CborValue* iter, Message *msg) {
   ThingUpdateCmd * thingCommand = (ThingUpdateCmd *) msg;
 
   // Message is composed of a single parameter, a string (thing_id)
   if (!copyCBORStringToArray(iter, thingCommand->params.thing_id, sizeof(thingCommand->params.thing_id))) {
-    return Decoder::Status::Error;
+    return MessageDecoder::Status::Error;
   }
 
-  return Decoder::Status::Complete;
+  return MessageDecoder::Status::Complete;
 }
 
-Decoder::Status ThingDetachCommandDecoder::decode(CborValue* iter, Message *msg) {
+MessageDecoder::Status ThingDetachCommandDecoder::decode(CborValue* iter, Message *msg) {
   ThingDetachCmd * thingCommand = (ThingDetachCmd *) msg;
 
   // Message is composed of a single parameter, a string (thing_id)
   if (!copyCBORStringToArray(iter, thingCommand->params.thing_id, sizeof(thingCommand->params.thing_id))) {
-    return Decoder::Status::Error;
+    return MessageDecoder::Status::Error;
   }
 
-  return Decoder::Status::Complete;
+  return MessageDecoder::Status::Complete;
 }
 
-Decoder::Status TimezoneCommandDownDecoder::decode(CborValue* iter, Message *msg) {
+MessageDecoder::Status TimezoneCommandDownDecoder::decode(CborValue* iter, Message *msg) {
   TimezoneCommandDown * setTz = (TimezoneCommandDown *) msg;
 
   // Message is composed of 2 parameters, offset 32-bit signed integer and until 32-bit unsigned integer
@@ -89,7 +89,7 @@ Decoder::Status TimezoneCommandDownDecoder::decode(CborValue* iter, Message *msg
 
   // Next
   if (cbor_value_advance(iter) != CborNoError) {
-    return Decoder::Status::Error;
+    return MessageDecoder::Status::Error;
   }
 
   // Get until
@@ -100,10 +100,10 @@ Decoder::Status TimezoneCommandDownDecoder::decode(CborValue* iter, Message *msg
     }
   }
 
-  return Decoder::Status::Complete;
+  return MessageDecoder::Status::Complete;
 }
 
-Decoder::Status LastValuesUpdateCommandDecoder::decode(CborValue* iter, Message *msg) {
+MessageDecoder::Status LastValuesUpdateCommandDecoder::decode(CborValue* iter, Message *msg) {
   LastValuesUpdateCmd * setLv = (LastValuesUpdateCmd *) msg;
 
   // Message is composed by a single parameter, a variable length byte array.
@@ -112,43 +112,43 @@ Decoder::Status LastValuesUpdateCommandDecoder::decode(CborValue* iter, Message 
     // we use a support variable to cope with that
     size_t s;
     if (cbor_value_dup_byte_string(iter, &setLv->params.last_values, &s, NULL) != CborNoError) {
-      return Decoder::Status::Error;
+      return MessageDecoder::Status::Error;
     }
 
     setLv->params.length = s;
   }
 
-  return Decoder::Status::Complete;
+  return MessageDecoder::Status::Complete;
 }
 
-Decoder::Status OtaUpdateCommandDecoder::decode(CborValue* iter, Message *msg) {
+MessageDecoder::Status OtaUpdateCommandDecoder::decode(CborValue* iter, Message *msg) {
   CborError error = CborNoError;
   OtaUpdateCmdDown * ota = (OtaUpdateCmdDown *) msg;
 
   // Message is composed 4 parameters: id, url, initialSha, finalSha
   if (!copyCBORByteToArray(iter, ota->params.id, sizeof(ota->params.id))) {
-    return Decoder::Status::Error;
+    return MessageDecoder::Status::Error;
   }
 
   error = cbor_value_advance(iter);
 
   if ((error != CborNoError) || !copyCBORStringToArray(iter, ota->params.url, sizeof(ota->params.url))) {
-    return Decoder::Status::Error;
+    return MessageDecoder::Status::Error;
   }
 
   error = cbor_value_advance(iter);
 
   if ((error != CborNoError) || !copyCBORByteToArray(iter, ota->params.initialSha256, sizeof(ota->params.initialSha256))) {
-    return Decoder::Status::Error;
+    return MessageDecoder::Status::Error;
   }
 
   error = cbor_value_advance(iter);
 
   if ((error != CborNoError) || !copyCBORByteToArray(iter, ota->params.finalSha256, sizeof(ota->params.finalSha256))) {
-    return Decoder::Status::Error;
+    return MessageDecoder::Status::Error;
   }
 
-  return Decoder::Status::Complete;
+  return MessageDecoder::Status::Complete;
 }
 
 static OtaUpdateCommandDecoder        otaUpdateCommandDecoder;
