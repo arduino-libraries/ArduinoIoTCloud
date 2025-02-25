@@ -16,7 +16,7 @@
  ******************************************************************************/
 
 #include "./CBOR.h"
-#include <cbor/CborEncoder.h>
+#include <cbor/MessageEncoder.h>
 #include "message/Commands.h"
 
 /******************************************************************************
@@ -28,7 +28,7 @@ public:
   OtaBeginCommandEncoder()
   : CBORMessageEncoderInterface(CBOROtaBeginUp, OtaBeginUpId) {}
 protected:
-  Encoder::Status encode(CborEncoder* encoder, Message *msg) override;
+  MessageEncoder::Status encode(CborEncoder* encoder, Message *msg) override;
 };
 
 class ThingBeginCommandEncoder: public CBORMessageEncoderInterface {
@@ -36,7 +36,7 @@ public:
   ThingBeginCommandEncoder()
   : CBORMessageEncoderInterface(CBORThingBeginCmd, ThingBeginCmdId) {}
 protected:
-  Encoder::Status encode(CborEncoder* encoder, Message *msg) override;
+  MessageEncoder::Status encode(CborEncoder* encoder, Message *msg) override;
 };
 
 class LastValuesBeginCommandEncoder: public CBORMessageEncoderInterface {
@@ -44,7 +44,7 @@ public:
   LastValuesBeginCommandEncoder()
   : CBORMessageEncoderInterface(CBORLastValuesBeginCmd, LastValuesBeginCmdId) {}
 protected:
-  Encoder::Status encode(CborEncoder* encoder, Message *msg) override;
+  MessageEncoder::Status encode(CborEncoder* encoder, Message *msg) override;
 };
 
 class DeviceBeginCommandEncoder: public CBORMessageEncoderInterface {
@@ -52,7 +52,7 @@ public:
   DeviceBeginCommandEncoder()
   : CBORMessageEncoderInterface(CBORDeviceBeginCmd, DeviceBeginCmdId) {}
 protected:
-  Encoder::Status encode(CborEncoder* encoder, Message *msg) override;
+  MessageEncoder::Status encode(CborEncoder* encoder, Message *msg) override;
 };
 
 class OtaProgressCommandUpEncoder: public CBORMessageEncoderInterface {
@@ -60,7 +60,7 @@ public:
   OtaProgressCommandUpEncoder()
   : CBORMessageEncoderInterface(CBOROtaProgressCmdUp, OtaProgressCmdUpId) {}
 protected:
-  Encoder::Status encode(CborEncoder* encoder, Message *msg) override;
+  MessageEncoder::Status encode(CborEncoder* encoder, Message *msg) override;
 };
 
 class TimezoneCommandUpEncoder: public CBORMessageEncoderInterface {
@@ -68,7 +68,7 @@ public:
   TimezoneCommandUpEncoder()
   : CBORMessageEncoderInterface(CBORTimezoneCommandUp, TimezoneCommandUpId) {}
 protected:
-  Encoder::Status encode(CborEncoder* encoder, Message *msg) override;
+  MessageEncoder::Status encode(CborEncoder* encoder, Message *msg) override;
 };
 
 
