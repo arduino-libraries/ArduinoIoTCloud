@@ -49,10 +49,6 @@
  ******************************************************************************/
 static constexpr char DEFAULT_BROKER_ADDRESS[] = "iot.arduino.cc";
 static constexpr uint16_t DEFAULT_BROKER_PORT_SECURE_AUTH = 8885;
-static constexpr uint16_t DEPRECATED_BROKER_PORT_SECURE_AUTH = 8883;
-static constexpr uint8_t DEPRECATED_BROKER_AUTHORITY_KEY_IDENTIFIER[] = {
-                  0x5b, 0x3e, 0x2a, 0x6b, 0x8e, 0xc9, 0xb0, 0x1a, 0xa8, 0x54,
-                  0xe6, 0x36, 0x9b, 0x8c, 0x09, 0xf9, 0xfc, 0xe1, 0xb9, 0x80 };
 static constexpr uint16_t DEFAULT_BROKER_PORT_USER_PASS_AUTH = 8884;
 static constexpr uint16_t DEFAULT_BROKER_PORT_AUTO = 0;
 
@@ -188,10 +184,6 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
     void attachThing(String thingId);
     void detachThing();
     int write(String const topic, byte const data[], int const length);
-
-#if defined(BOARD_HAS_SECURE_ELEMENT)
-    int mqttPort();
-#endif
 
 };
 
