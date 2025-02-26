@@ -133,7 +133,7 @@ int ArduinoIoTCloudTCP::begin(ConnectionHandler & connection, bool const enable_
     _otaClient.setEccSlot(static_cast<int>(SElementArduinoCloudSlot::Key), _cert.bytes(), _cert.length());
     #endif
   #endif
-    _brokerPort = (brokerPort == DEFAULT_BROKER_PORT_AUTO) ? mqttPort() : brokerPort;
+    _brokerPort = (brokerPort == DEFAULT_BROKER_PORT_AUTO) ? DEFAULT_BROKER_PORT_SECURE_AUTH : brokerPort;
 #endif
   }
   else
@@ -586,15 +586,6 @@ int ArduinoIoTCloudTCP::write(String const topic, byte const data[], int const l
 }
 
 #if defined(BOARD_HAS_SECURE_ELEMENT)
-int ArduinoIoTCloudTCP::mqttPort()
-{
-  if (memcmp(DEPRECATED_BROKER_AUTHORITY_KEY_IDENTIFIER, _cert.authorityKeyIdentifierBytes() , ECP256_CERT_AUTHORITY_KEY_ID_LENGTH) == 0) {
-    return DEPRECATED_BROKER_PORT_SECURE_AUTH;
-  } else {
-    return DEFAULT_BROKER_PORT_SECURE_AUTH;
-  }
-}
-
 int ArduinoIoTCloudTCP::updateCertificate(String authorityKeyIdentifier, String serialNumber, String notBefore, String notAfter, String signature)
 {
   if (!_selement.begin())
