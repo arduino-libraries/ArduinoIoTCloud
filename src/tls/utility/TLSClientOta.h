@@ -90,6 +90,10 @@ private:
     case NetworkAdapter::CATM1:
       return new GSMClient();
 #endif // BOARD_HAS_CATM1_NBIOT
+#ifdef BOARD_HAS_CELLULAR
+    case NetworkAdapter::CELL:
+      return new TinyGsmClient(modem, 1);
+#endif // BOARD_HAS_CELLULAR
     default:
       return nullptr;
     }
