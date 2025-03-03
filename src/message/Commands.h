@@ -16,11 +16,15 @@
 
 #include <stdint.h>
 #include <stddef.h>
+#include <interfaces/message.h>
 
 /******************************************************************************
  * DEFINE
  ******************************************************************************/
 
+
+// FIXME make this constants into an enum
+// TODO remove provisioning constants
 #define THING_ID_SIZE               37
 #define SHA256_SIZE                 32
 #define URL_SIZE                   256
@@ -31,10 +35,10 @@
     TYPEDEF
  ******************************************************************************/
 
-enum CommandId: uint32_t {
+enum CommandId: MessageId {
 
   /* Device commands */
-  DeviceBeginCmdId,
+  DeviceBeginCmdId        = ArduinoIOTCloudStartMessageId,
   ThingBeginCmdId,
   ThingUpdateCmdId,
   ThingDetachCmdId,
@@ -60,14 +64,10 @@ enum CommandId: uint32_t {
   TimezoneCommandDownId,
 
   /* Unknown command id */
-  UnknownCmdId
+  UnknownCmdId,
 };
 
-struct Command {
-  CommandId id;
-};
-
-typedef Command Message;
+typedef Message Command;
 
 struct DeviceBeginCmd {
   Command c;
@@ -149,7 +149,7 @@ struct TimezoneCommandDown {
 };
 
 union CommandDown {
-  struct Command                  c;
+  Command                         c;
   struct OtaUpdateCmdDown         otaUpdateCmdDown;
   struct ThingUpdateCmd           thingUpdateCmd;
   struct ThingDetachCmd           thingDetachCmd;
