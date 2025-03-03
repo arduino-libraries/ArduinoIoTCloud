@@ -90,6 +90,9 @@ jobs:
           - fqbn: arduino:mbed_edge:edge_control
             type: mbed_edge
             artifact-name-suffix: arduino-mbed_edge-edge_control
+          - fqbn: "rp2040:rp2040:rpipicow"
+            type: rp2040
+            artifact-name-suffix: rp2040-rp2040-rpipicow
 
 
         # make board type-specific customizations to the matrix jobs
@@ -303,6 +306,13 @@ jobs:
               - examples/ArduinoIoTCloud-DeferredOTA
               - examples/ArduinoIoTCloud-Notecard
               - examples/ArduinoIoTCloud-Schedule
+          # PicoW
+          - board:
+              type: rp2040
+            platforms: |
+              # Install rp2040 platform via Boards Manager
+              - name: rp2040:rp2040
+                source-url: https://github.com/earlephilhower/arduino-pico/releases/download/global/package_rp2040_index.json
 
     steps:
       - name: Checkout

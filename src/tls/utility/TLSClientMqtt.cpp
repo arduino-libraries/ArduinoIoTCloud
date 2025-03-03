@@ -69,6 +69,8 @@ void TLSClientMqtt::begin(ConnectionHandler & connection, ArduinoIoTAuthenticati
   if (authMode == ArduinoIoTAuthenticationMode::CERTIFICATE) {
     setCACert(AIoTSSCert);
   }
+#elif defined(ARDUINO_RASPBERRY_PI_PICO_W)
+    setCACert(AIoTUPCert);
 #elif defined(ARDUINO_ARCH_ESP32)
   (void)authMode;
   setCACert(AIoTUPCert);

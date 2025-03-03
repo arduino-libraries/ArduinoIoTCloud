@@ -55,10 +55,11 @@
    */
   #include <WiFiSSLClient.h>
   class TLSClientOta : public WiFiSSLClient {
-#elif defined(BOARD_ESP)
+#elif defined(BOARD_ESP) || defined(ARDUINO_RASPBERRY_PI_PICO_W)
   /*
    * ESP32*
    * ESP82*
+   * PICOW
    */
   #include <WiFiClientSecure.h>
   class TLSClientOta : public WiFiClientSecure {
