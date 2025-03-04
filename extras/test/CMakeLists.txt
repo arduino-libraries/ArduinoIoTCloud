@@ -79,7 +79,6 @@ set(TEST_SRCS
   src/test_writeOnly.cpp
   src/test_writeOnDemand.cpp
   src/test_writeOnChange.cpp
-  src/test_TimedAttempt.cpp
 )
 
 set(TEST_UTIL_SRCS
@@ -88,7 +87,6 @@ set(TEST_UTIL_SRCS
 )
 
 set(TEST_DUT_SRCS
-  ../../src/utility/time/TimedAttempt.cpp
   ../../src/property/Property.cpp
   ../../src/property/PropertyContainer.cpp
   ../../src/cbor/CBORDecoder.cpp
