@@ -15,8 +15,8 @@
  * INCLUDE
  ******************************************************************************/
 
+#include <Arduino_TimedAttempt.h>
 #include "interfaces/CloudProcess.h"
-#include "utility/time/TimedAttempt.h"
 #include "property/PropertyContainer.h"
 
 /******************************************************************************
