@@ -152,6 +152,124 @@ SCENARIO("Test the decoding of command messages") {
     }
   }
 
+  WHEN("Decode the TimezoneCommandDown message, but until is not present")
+  {
+    CommandDown command;
+
+    /*
+      DA 00010764       # tag(67840)
+        81              # array(1)
+            1A 65DCB821 # unsigned(1708963873)
+    */
+
+    uint8_t const payload[] = {0xDA, 0x00, 0x01, 0x09, 0x00, 0x81, 0x1A, 0x65,
+                               0xDC, 0xB8, 0x21};
+
+    size_t payload_length = sizeof(payload) / sizeof(uint8_t);
+    CBORMessageDecoder decoder;
+    MessageDecoder::Status err =  decoder.decode((Message*)&command, payload, payload_length);
+
+    THEN("The decode is unsuccessful") {
+      REQUIRE(err == MessageDecoder::Status::Error);
+    }
+  }
+
+  WHEN("Decode the TimezoneCommandDown message, but offset is incorrectly encoded")
+  {
+    CommandDown command;
+
+    /*
+      DA 00010764       # tag(67840)
+        81              # array(1)
+            1A 65DC     # unsigned(26076)
+    */
+
+    uint8_t const payload[] = {0xDA, 0x00, 0x01, 0x09, 0x00, 0x81, 0x1A,};
+
+    size_t payload_length = sizeof(payload) / sizeof(uint8_t);
+    CBORMessageDecoder decoder;
+    MessageDecoder::Status err =  decoder.decode((Message*)&command, payload, payload_length);
+
+    THEN("The decode is unsuccessful") {
+      REQUIRE(err == MessageDecoder::Status::Error);
+    }
+  }
+
+  WHEN("Decode the TimezoneCommandDown message, but offset is a byte array instead of an integer")
+  {
+    CommandDown command;
+
+    /*
+      DA 00010764                        # tag(67840)
+        81                               # array(2)
+            4D                           # bytes(13)
+              00010203040506070809101112 # "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\u0010\u0011\u0012"
+            1A 65DCB821                  # unsigned(1708963873)
+    */
+
+    uint8_t const payload[] = {0xDA, 0x00, 0x01, 0x09, 0x00, 0x81, 0x21, 0x4D,
+                               0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
+                               0x08, 0x09, 0x10, 0x11, 0x12, 0x1A, 0x65, 0xDC,
+                               0xB8,};
+
+    size_t payload_length = sizeof(payload) / sizeof(uint8_t);
+    CBORMessageDecoder decoder;
+    MessageDecoder::Status err =  decoder.decode((Message*)&command, payload, payload_length);
+
+    THEN("The decode is unsuccessful") {
+      REQUIRE(err == MessageDecoder::Status::Error);
+    }
+  }
+
+  WHEN("Decode the TimezoneCommandDown message, but until is a byte array instead of an integer")
+  {
+    CommandDown command;
+
+    /*
+      DA 00010764                        # tag(67840)
+        82                               # array(2)
+            1A 65DCB821                  # unsigned(1708963873)
+            4D                           # bytes(13)
+              00010203040506070809101112 # "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\u0010\u0011\u0012"
+    */
+
+    uint8_t const payload[] = {0xDA, 0x00, 0x01, 0x09, 0x00, 0x82, 0x1A, 0x65,
+                               0xDC, 0xB8, 0x21, 0x4D, 0x00, 0x01, 0x02, 0x03,
+                               0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x10, 0x11,
+                               0x12};
+
+    size_t payload_length = sizeof(payload) / sizeof(uint8_t);
+    CBORMessageDecoder decoder;
+    MessageDecoder::Status err =  decoder.decode((Message*)&command, payload, payload_length);
+
+    THEN("The decode is unsuccessful") {
+      REQUIRE(err == MessageDecoder::Status::Error);
+    }
+  }
+
+  WHEN("Decode the TimezoneCommandDown message, but until is incorrectly encoded")
+  {
+    CommandDown command;
+
+    /*
+      DA 00010764       # tag(67840)
+        82              # array(2)
+            1A 65DCB821 # unsigned(1708963873)
+            1A 78AC     # unsigned(30892)
+    */
+
+    uint8_t const payload[] = {0xDA, 0x00, 0x01, 0x09, 0x00, 0x82, 0x1A, 0x65,
+                               0xDC, 0xB8, 0x21, 0x1A, 0x78, 0xAC};
+
+    size_t payload_length = sizeof(payload) / sizeof(uint8_t);
+    CBORMessageDecoder decoder;
+    MessageDecoder::Status err =  decoder.decode((Message*)&command, payload, payload_length);
+
+    THEN("The decode is unsuccessful") {
+      REQUIRE(err == MessageDecoder::Status::Error);
+    }
+  }
+
   /****************************************************************************/
 
   WHEN("Decode the LastValuesUpdateCmd message")
@@ -188,6 +306,29 @@ SCENARIO("Test the decoding of command messages") {
       REQUIRE(command.c.id == LastValuesUpdateCmdId);
     }
     free(command.lastValuesUpdateCmd.params.last_values);
+  }
+
+  WHEN("Decode the LastValuesUpdateCmd message, but lastvalues is an integer")
+  {
+    CommandDown command;
+
+    /*
+      DA 00010600                        # tag(67072)
+        81                               # array(1)
+            1A 65DCB821                  # unsigned(1708963873)
+
+    */
+
+    uint8_t const payload[] = {0xDA, 0x00, 0x01, 0x06, 0x00, 0x81, 0x1A, 0x65,
+                               0xDC, 0xB8, 0x21};
+
+    size_t payload_length = sizeof(payload) / sizeof(uint8_t);
+    CBORMessageDecoder decoder;
+    MessageDecoder::Status err =  decoder.decode((Message*)&command, payload, payload_length);
+
+    THEN("The decode is unsuccessful") {
+      REQUIRE(err == MessageDecoder::Status::Error);
+    }
   }
 
   /****************************************************************************/
