@@ -308,6 +308,14 @@ SCENARIO("Test the decoding of command messages") {
       REQUIRE(command.lastValuesUpdateCmd.params.last_values[10] == (uint8_t)0x10);
       REQUIRE(command.lastValuesUpdateCmd.params.last_values[11] == (uint8_t)0x11);
       REQUIRE(command.lastValuesUpdateCmd.params.last_values[12] == (uint8_t)0x12);
+      std::vector<int> last_values(command.lastValuesUpdateCmd.params.last_values,
+        command.lastValuesUpdateCmd.params.last_values+13);
+
+      REQUIRE_THAT(last_values,
+        Catch::Matchers::Equals(std::vector<int>{
+          0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x10, 0x11, 0x12,
+      }));
+
       REQUIRE(command.c.id == LastValuesUpdateCmdId);
     }
     free(command.lastValuesUpdateCmd.params.last_values);
