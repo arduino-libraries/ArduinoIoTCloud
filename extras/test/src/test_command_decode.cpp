@@ -7,6 +7,8 @@
  ******************************************************************************/
 
 #include <catch2/catch_test_macros.hpp>
+#include <catch2/matchers/catch_matchers_vector.hpp>
+
 #include <string.h>
 
 #include <memory>
@@ -260,73 +262,24 @@ SCENARIO("Test the decoding of command messages") {
       REQUIRE(err == MessageDecoder::Status::Complete);
       REQUIRE(memcmp(command.otaUpdateCmdDown.params.id, otaIdToMatch, ID_SIZE) == 0);
       REQUIRE(strcmp(command.otaUpdateCmdDown.params.url, urlToMatch) == 0);
-      // Initial SHA256 check
-      REQUIRE(command.otaUpdateCmdDown.params.initialSha256[0] == (uint8_t)0x00);
-      REQUIRE(command.otaUpdateCmdDown.params.initialSha256[1] == (uint8_t)0x00);
-      REQUIRE(command.otaUpdateCmdDown.params.initialSha256[2] == (uint8_t)0x00);
-      REQUIRE(command.otaUpdateCmdDown.params.initialSha256[3] == (uint8_t)0x00);
-      REQUIRE(command.otaUpdateCmdDown.params.initialSha256[4] == (uint8_t)0x00);
-      REQUIRE(command.otaUpdateCmdDown.params.initialSha256[5] == (uint8_t)0x00);
-      REQUIRE(command.otaUpdateCmdDown.params.initialSha256[6] == (uint8_t)0x00);
-      REQUIRE(command.otaUpdateCmdDown.params.initialSha256[7] == (uint8_t)0x00);
-      REQUIRE(command.otaUpdateCmdDown.params.initialSha256[8] == (uint8_t)0x00);
-      REQUIRE(command.otaUpdateCmdDown.params.initialSha256[9] == (uint8_t)0x00);
-      REQUIRE(command.otaUpdateCmdDown.params.initialSha256[10] == (uint8_t)0x00);
-      REQUIRE(command.otaUpdateCmdDown.params.initialSha256[11] == (uint8_t)0x00);
-      REQUIRE(command.otaUpdateCmdDown.params.initialSha256[12] == (uint8_t)0x00);
-      REQUIRE(command.otaUpdateCmdDown.params.initialSha256[13] == (uint8_t)0x00);
-      REQUIRE(command.otaUpdateCmdDown.params.initialSha256[14] == (uint8_t)0x00);
-      REQUIRE(command.otaUpdateCmdDown.params.initialSha256[15] == (uint8_t)0x00);
-      REQUIRE(command.otaUpdateCmdDown.params.initialSha256[16] == (uint8_t)0x00);
-      REQUIRE(command.otaUpdateCmdDown.params.initialSha256[17] == (uint8_t)0x00);
-      REQUIRE(command.otaUpdateCmdDown.params.initialSha256[18] == (uint8_t)0x00);
-      REQUIRE(command.otaUpdateCmdDown.params.initialSha256[19] == (uint8_t)0x00);
-      REQUIRE(command.otaUpdateCmdDown.params.initialSha256[20] == (uint8_t)0x00);
-      REQUIRE(command.otaUpdateCmdDown.params.initialSha256[21] == (uint8_t)0x00);
-      REQUIRE(command.otaUpdateCmdDown.params.initialSha256[22] == (uint8_t)0x00);
-      REQUIRE(command.otaUpdateCmdDown.params.initialSha256[23] == (uint8_t)0x00);
-      REQUIRE(command.otaUpdateCmdDown.params.initialSha256[24] == (uint8_t)0x00);
-      REQUIRE(command.otaUpdateCmdDown.params.initialSha256[25] == (uint8_t)0x00);
-      REQUIRE(command.otaUpdateCmdDown.params.initialSha256[26] == (uint8_t)0x00);
-      REQUIRE(command.otaUpdateCmdDown.params.initialSha256[27] == (uint8_t)0x00);
-      REQUIRE(command.otaUpdateCmdDown.params.initialSha256[28] == (uint8_t)0x00);
-      REQUIRE(command.otaUpdateCmdDown.params.initialSha256[29] == (uint8_t)0x00);
-      REQUIRE(command.otaUpdateCmdDown.params.initialSha256[30] == (uint8_t)0x00);
-      REQUIRE(command.otaUpdateCmdDown.params.initialSha256[31] == (uint8_t)0x00);
 
-      // Final SHA256 check
-      REQUIRE(command.otaUpdateCmdDown.params.finalSha256[0] == (uint8_t)0xdf);
-      REQUIRE(command.otaUpdateCmdDown.params.finalSha256[1] == (uint8_t)0x1e);
-      REQUIRE(command.otaUpdateCmdDown.params.finalSha256[2] == (uint8_t)0xac);
-      REQUIRE(command.otaUpdateCmdDown.params.finalSha256[3] == (uint8_t)0x9c);
-      REQUIRE(command.otaUpdateCmdDown.params.finalSha256[4] == (uint8_t)0x7b);
-      REQUIRE(command.otaUpdateCmdDown.params.finalSha256[5] == (uint8_t)0xd6);
-      REQUIRE(command.otaUpdateCmdDown.params.finalSha256[6] == (uint8_t)0x34);
-      REQUIRE(command.otaUpdateCmdDown.params.finalSha256[7] == (uint8_t)0x73);
-      REQUIRE(command.otaUpdateCmdDown.params.finalSha256[8] == (uint8_t)0xff);
-      REQUIRE(command.otaUpdateCmdDown.params.finalSha256[9] == (uint8_t)0xfb);
-      REQUIRE(command.otaUpdateCmdDown.params.finalSha256[10] == (uint8_t)0x11);
-      REQUIRE(command.otaUpdateCmdDown.params.finalSha256[11] == (uint8_t)0x7f);
-      REQUIRE(command.otaUpdateCmdDown.params.finalSha256[12] == (uint8_t)0x98);
-      REQUIRE(command.otaUpdateCmdDown.params.finalSha256[13] == (uint8_t)0x73);
-      REQUIRE(command.otaUpdateCmdDown.params.finalSha256[14] == (uint8_t)0x70);
-      REQUIRE(command.otaUpdateCmdDown.params.finalSha256[15] == (uint8_t)0x3e);
-      REQUIRE(command.otaUpdateCmdDown.params.finalSha256[16] == (uint8_t)0x4e);
-      REQUIRE(command.otaUpdateCmdDown.params.finalSha256[17] == (uint8_t)0xc9);
-      REQUIRE(command.otaUpdateCmdDown.params.finalSha256[18] == (uint8_t)0x55);
-      REQUIRE(command.otaUpdateCmdDown.params.finalSha256[19] == (uint8_t)0x93);
-      REQUIRE(command.otaUpdateCmdDown.params.finalSha256[20] == (uint8_t)0x1e);
-      REQUIRE(command.otaUpdateCmdDown.params.finalSha256[21] == (uint8_t)0x26);
-      REQUIRE(command.otaUpdateCmdDown.params.finalSha256[22] == (uint8_t)0x7f);
-      REQUIRE(command.otaUpdateCmdDown.params.finalSha256[23] == (uint8_t)0x26);
-      REQUIRE(command.otaUpdateCmdDown.params.finalSha256[24] == (uint8_t)0x26);
-      REQUIRE(command.otaUpdateCmdDown.params.finalSha256[25] == (uint8_t)0x2b);
-      REQUIRE(command.otaUpdateCmdDown.params.finalSha256[26] == (uint8_t)0x09);
-      REQUIRE(command.otaUpdateCmdDown.params.finalSha256[27] == (uint8_t)0x49);
-      REQUIRE(command.otaUpdateCmdDown.params.finalSha256[28] == (uint8_t)0xbc);
-      REQUIRE(command.otaUpdateCmdDown.params.finalSha256[29] == (uint8_t)0x16);
-      REQUIRE(command.otaUpdateCmdDown.params.finalSha256[30] == (uint8_t)0xdc);
-      REQUIRE(command.otaUpdateCmdDown.params.finalSha256[31] == (uint8_t)0x49);
+      std::vector<int> initialSha256(command.otaUpdateCmdDown.params.initialSha256,
+        command.otaUpdateCmdDown.params.initialSha256+32);
+
+      REQUIRE_THAT(initialSha256,
+        Catch::Matchers::Equals(std::vector<int>{
+          0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+          0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+      }));
+
+      std::vector<int> finalSha256(command.otaUpdateCmdDown.params.finalSha256,
+        command.otaUpdateCmdDown.params.finalSha256+32);
+
+      REQUIRE_THAT(finalSha256,
+        Catch::Matchers::Equals(std::vector<int>{
+          0xdf, 0x1e, 0xac, 0x9c, 0x7b, 0xd6, 0x34, 0x73, 0xff, 0xfb, 0x11, 0x7f, 0x98, 0x73, 0x70, 0x3e,
+          0x4e, 0xc9, 0x55, 0x93, 0x1e, 0x26, 0x7f, 0x26, 0x26, 0x2b, 0x09, 0x49, 0xbc, 0x16, 0xdc, 0x49
+      }));
 
       REQUIRE(command.c.id == OtaUpdateCmdDownId);
     }
