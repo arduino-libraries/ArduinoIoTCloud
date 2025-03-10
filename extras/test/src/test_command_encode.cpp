@@ -55,6 +55,49 @@ SCENARIO("Test the encoding of command messages") {
     }
   }
 
+  WHEN("Encode the OtaBeginUp message, but the buffer is not big enough to accommodate the encode the array open")
+  {
+    OtaBeginUp command;
+    uint8_t sha[SHA256_SIZE] = {0x01, 0x02, 0x03, 0x04};
+    memcpy(command.params.sha, sha, SHA256_SIZE);
+
+    command.c.id = CommandId::OtaBeginUpId;
+
+    uint8_t buffer[5];
+    size_t bytes_encoded = sizeof(buffer);
+
+    CBORMessageEncoder encoder;
+    MessageEncoder::Status err = encoder.encode((Message*)&command, buffer, bytes_encoded);
+
+    // Test the encoding is
+    // DA 00010000                             # tag(65536)
+    //    81                                   # array(1)
+    //       58 20                             # bytes(32)
+    //          01020304
+    REQUIRE(err == MessageEncoder::Status::Error);
+  }
+
+  WHEN("Encode the OtaBeginUp message, but the buffer is not big enough to accommodate the sha")
+  {
+    OtaBeginUp command;
+    uint8_t sha[SHA256_SIZE] = {0x01, 0x02, 0x03, 0x04};
+    memcpy(command.params.sha, sha, SHA256_SIZE);
+
+    command.c.id = CommandId::OtaBeginUpId;
+
+    uint8_t buffer[6];
+    size_t bytes_encoded = sizeof(buffer);
+
+    CBORMessageEncoder encoder;
+    MessageEncoder::Status err = encoder.encode((Message*)&command, buffer, bytes_encoded);
+
+    // Test the encoding is
+    // DA 00010000                             # tag(65536)
+    //    81                                   # array(1)
+    //       58 20                             # bytes(32)
+    //          01020304
+    REQUIRE(err == MessageEncoder::Status::Error);
+  }
 
   /****************************************************************************/
 
@@ -89,6 +132,50 @@ SCENARIO("Test the encoding of command messages") {
     }
   }
 
+  WHEN("Encode the ThingBeginCmd message, but the buffer is not big enough to accommodate the array open")
+  {
+    ThingBeginCmd command;
+    String thing_id = "thing_id";
+    strcpy(command.params.thing_id, thing_id.c_str());
+
+    command.c.id = CommandId::ThingBeginCmdId;
+
+    uint8_t buffer[5];
+    size_t bytes_encoded = sizeof(buffer);
+
+    CBORMessageEncoder encoder;
+    MessageEncoder::Status err = encoder.encode((Message*)&command, buffer, bytes_encoded);
+
+    // Test the encoding is
+    // DA 00010300               # tag(66304)
+    //    81                     # array(1)
+    //       68                  # text(8)
+    //          7468696E675F6964 # "thing_id"
+    REQUIRE(err == MessageEncoder::Status::Error);
+  }
+
+  WHEN("Encode the ThingBeginCmd message, but the buffer is not big enough to accommodate the thing id")
+  {
+    ThingBeginCmd command;
+    String thing_id = "thing_id";
+    strcpy(command.params.thing_id, thing_id.c_str());
+
+    command.c.id = CommandId::ThingBeginCmdId;
+
+    uint8_t buffer[6];
+    size_t bytes_encoded = sizeof(buffer);
+
+    CBORMessageEncoder encoder;
+    MessageEncoder::Status err = encoder.encode((Message*)&command, buffer, bytes_encoded);
+
+    // Test the encoding is
+    // DA 00010300               # tag(66304)
+    //    81                     # array(1)
+    //       68                  # text(8)
+    //          7468696E675F6964 # "thing_id"
+    REQUIRE(err == MessageEncoder::Status::Error);
+  }
+
   /****************************************************************************/
 
   WHEN("Encode the LastValuesBeginCmd message")
@@ -113,6 +200,23 @@ SCENARIO("Test the encoding of command messages") {
         0xda, 0x00, 0x01, 0x05, 0x00, 0x80
       }));
     }
+  }
+
+  WHEN("Encode the LastValuesBeginCmd message, but the buffer is not big enough to accommodate the array open")
+  {
+    LastValuesBeginCmd command;
+    command.c.id = CommandId::LastValuesBeginCmdId;
+
+    uint8_t buffer[5];
+    size_t bytes_encoded = sizeof(buffer);
+
+    CBORMessageEncoder encoder;
+    MessageEncoder::Status err = encoder.encode((Message*)&command, buffer, bytes_encoded);
+
+    // Test the encoding is
+    // DA 00010500 # tag(66816)
+    //    80       # array(0)
+    REQUIRE(err == MessageEncoder::Status::Error);
   }
 
     /**************************************************************************/
@@ -145,6 +249,50 @@ SCENARIO("Test the encoding of command messages") {
         0x2e, 0x30, 0x2e, 0x30
       }));
     }
+  }
+
+  WHEN("Encode the DeviceBeginCmd message, but the buffer is not big enough to accommodate the array open")
+  {
+    DeviceBeginCmd command;
+    String lib_version = "2.0.0";
+    strcpy(command.params.lib_version, lib_version.c_str());
+
+    command.c.id = CommandId::DeviceBeginCmdId;
+
+    uint8_t buffer[5];
+    size_t bytes_encoded = sizeof(buffer);
+
+    CBORMessageEncoder encoder;
+    MessageEncoder::Status err = encoder.encode((Message*)&command, buffer, bytes_encoded);
+
+    // Test the encoding is
+    // DA 00010700         # tag(67328)
+    //    81               # array(1)
+    //       65            # text(5)
+    //          322E302E30 # "2.0.0"
+    REQUIRE(err == MessageEncoder::Status::Error);
+  }
+
+  WHEN("Encode the DeviceBeginCmd message, but the buffer is not big enough to accommodate the lib version")
+  {
+    DeviceBeginCmd command;
+    String lib_version = "2.0.0";
+    strcpy(command.params.lib_version, lib_version.c_str());
+
+    command.c.id = CommandId::DeviceBeginCmdId;
+
+    uint8_t buffer[6];
+    size_t bytes_encoded = sizeof(buffer);
+
+    CBORMessageEncoder encoder;
+    MessageEncoder::Status err = encoder.encode((Message*)&command, buffer, bytes_encoded);
+
+    // Test the encoding is
+    // DA 00010700         # tag(67328)
+    //    81               # array(1)
+    //       65            # text(5)
+    //          322E302E30 # "2.0.0"
+    REQUIRE(err == MessageEncoder::Status::Error);
   }
 
   /****************************************************************************/
@@ -189,6 +337,156 @@ SCENARIO("Test the encoding of command messages") {
     }
   }
 
+  WHEN("Encode the OtaProgressCmdUp message, but the buffer is not big enough to accommodate the array open")
+  {
+    OtaProgressCmdUp command;
+    command.params.time = 2;
+
+    uint8_t id[ID_SIZE] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0xa, 0xb, 0xc, 0xd, 0xe, 0xf};
+    memcpy(command.params.id, id, ID_SIZE);
+    command.params.state = 1;
+    command.params.state_data = -1;
+    command.params.time = 100;
+
+    command.c.id = CommandId::OtaProgressCmdUpId;
+
+    uint8_t buffer[5];
+    size_t bytes_encoded = sizeof(buffer);
+
+    CBORMessageEncoder encoder;
+    MessageEncoder::Status err = encoder.encode((Message*)&command, buffer, bytes_encoded);
+
+    // Test the encoding is
+    // DA 00010200                             # tag(66048)
+    //    84                                   # array(4)
+    //       50                                # bytes(16)
+    //          000102030405060708090A0B0C0D0E0F # "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f"
+    //       E1                                # primitive(1)
+    //       20                                # negative(0)
+    //       18 64                             # unsigned(100)
+    REQUIRE(err == MessageEncoder::Status::Error);
+  }
+
+  WHEN("Encode the OtaProgressCmdUp message, but the buffer is not big enough to accommodate the id")
+  {
+    OtaProgressCmdUp command;
+    command.params.time = 2;
+
+    uint8_t id[ID_SIZE] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0xa, 0xb, 0xc, 0xd, 0xe, 0xf};
+    memcpy(command.params.id, id, ID_SIZE);
+    command.params.state = 1;
+    command.params.state_data = -1;
+    command.params.time = 100;
+
+    command.c.id = CommandId::OtaProgressCmdUpId;
+
+    uint8_t buffer[6];
+    size_t bytes_encoded = sizeof(buffer);
+
+    CBORMessageEncoder encoder;
+    MessageEncoder::Status err = encoder.encode((Message*)&command, buffer, bytes_encoded);
+
+    // Test the encoding is
+    // DA 00010200                             # tag(66048)
+    //    84                                   # array(4)
+    //       50                                # bytes(16)
+    //          000102030405060708090A0B0C0D0E0F # "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f"
+    //       E1                                # primitive(1)
+    //       20                                # negative(0)
+    //       18 64                             # unsigned(100)
+    REQUIRE(err == MessageEncoder::Status::Error);
+  }
+
+  WHEN("Encode the OtaProgressCmdUp message, but the buffer is not big enough to accommodate the state")
+  {
+    OtaProgressCmdUp command;
+    command.params.time = 2;
+
+    uint8_t id[ID_SIZE] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0xa, 0xb, 0xc, 0xd, 0xe, 0xf};
+    memcpy(command.params.id, id, ID_SIZE);
+    command.params.state = 1;
+    command.params.state_data = -1;
+    command.params.time = 100;
+
+    command.c.id = CommandId::OtaProgressCmdUpId;
+
+    uint8_t buffer[23];
+    size_t bytes_encoded = sizeof(buffer);
+
+    CBORMessageEncoder encoder;
+    MessageEncoder::Status err = encoder.encode((Message*)&command, buffer, bytes_encoded);
+
+    // Test the encoding is
+    // DA 00010200                             # tag(66048)
+    //    84                                   # array(4)
+    //       50                                # bytes(16)
+    //          000102030405060708090A0B0C0D0E0F # "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f"
+    //       E1                                # primitive(1)
+    //       20                                # negative(0)
+    //       18 64                             # unsigned(100)
+    REQUIRE(err == MessageEncoder::Status::Error);
+  }
+
+  WHEN("Encode the OtaProgressCmdUp message, but the buffer is not big enough to accommodate the state_data")
+  {
+    OtaProgressCmdUp command;
+    command.params.time = 2;
+
+    uint8_t id[ID_SIZE] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0xa, 0xb, 0xc, 0xd, 0xe, 0xf};
+    memcpy(command.params.id, id, ID_SIZE);
+    command.params.state = 1;
+    command.params.state_data = -1;
+    command.params.time = 100;
+
+    command.c.id = CommandId::OtaProgressCmdUpId;
+
+    uint8_t buffer[24];
+    size_t bytes_encoded = sizeof(buffer);
+
+    CBORMessageEncoder encoder;
+    MessageEncoder::Status err = encoder.encode((Message*)&command, buffer, bytes_encoded);
+
+    // Test the encoding is
+    // DA 00010200                             # tag(66048)
+    //    84                                   # array(4)
+    //       50                                # bytes(16)
+    //          000102030405060708090A0B0C0D0E0F # "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f"
+    //       E1                                # primitive(1)
+    //       20                                # negative(0)
+    //       18 64                             # unsigned(100)
+    REQUIRE(err == MessageEncoder::Status::Error);
+  }
+
+  WHEN("Encode the OtaProgressCmdUp message, but the buffer is not big enough to accommodate the time")
+  {
+    OtaProgressCmdUp command;
+    command.params.time = 2;
+
+    uint8_t id[ID_SIZE] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0xa, 0xb, 0xc, 0xd, 0xe, 0xf};
+    memcpy(command.params.id, id, ID_SIZE);
+    command.params.state = 1;
+    command.params.state_data = -1;
+    command.params.time = 100;
+
+    command.c.id = CommandId::OtaProgressCmdUpId;
+
+    uint8_t buffer[25];
+    size_t bytes_encoded = sizeof(buffer);
+
+    CBORMessageEncoder encoder;
+    MessageEncoder::Status err = encoder.encode((Message*)&command, buffer, bytes_encoded);
+
+    // Test the encoding is
+    // DA 00010200                             # tag(66048)
+    //    84                                   # array(4)
+    //       50                                # bytes(16)
+    //          000102030405060708090A0B0C0D0E0F # "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000b\f\r\u000e\u000f"
+    //       E1                                # primitive(1)
+    //       20                                # negative(0)
+    //       18 64                             # unsigned(100)
+    REQUIRE(err == MessageEncoder::Status::Error);
+  }
+
   /****************************************************************************/
 
   WHEN("Encode the TimezoneCommandUp message")
@@ -213,6 +511,23 @@ SCENARIO("Test the encoding of command messages") {
         0xda, 0x00, 0x01, 0x08, 0x00, 0x80
       }));
     }
+  }
+
+  WHEN("Encode the TimezoneCommandUp message, but the buffer is not big enough to accommodate the array open")
+  {
+    TimezoneCommandUp command;
+    command.c.id = CommandId::TimezoneCommandUpId;
+
+    uint8_t buffer[5];
+    size_t bytes_encoded = sizeof(buffer);
+
+    CBORMessageEncoder encoder;
+    MessageEncoder::Status err = encoder.encode((Message*)&command, buffer, bytes_encoded);
+
+    // Test the encoding is
+    // DA 00010800 # tag(67584)
+    //    80       # array(0)
+    REQUIRE(err == MessageEncoder::Status::Error);
   }
 
   /****************************************************************************/
