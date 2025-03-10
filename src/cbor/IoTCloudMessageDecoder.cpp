@@ -114,11 +114,6 @@ MessageDecoder::Status TimezoneCommandDownDecoder::decode(CborValue* iter, Messa
 MessageDecoder::Status LastValuesUpdateCommandDecoder::decode(CborValue* iter, Message *msg) {
   LastValuesUpdateCmd * setLv = (LastValuesUpdateCmd *) msg;
 
-  // Message is composed by a single parameter, a variable length byte array.
-  if (!cbor_value_is_byte_string(iter)) {
-    return MessageDecoder::Status::Error;
-  }
-
   // Cortex M0 is not able to assign a value to pointed memory that is not 32bit aligned
   // we use a support variable to cope with that
   size_t s;
