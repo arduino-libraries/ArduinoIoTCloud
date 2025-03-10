@@ -80,12 +80,16 @@ MessageDecoder::Status TimezoneCommandDownDecoder::decode(CborValue* iter, Messa
 
   // Message is composed of 2 parameters, offset 32-bit signed integer and until 32-bit unsigned integer
   // Get offset
-  if (cbor_value_is_integer(iter)) {
-    int64_t val = 0;
-    if (cbor_value_get_int64(iter, &val) == CborNoError) {
-      setTz->params.offset = static_cast<int32_t>(val);
-    }
+  if (!cbor_value_is_integer(iter)) {
+    return MessageDecoder::Status::Error;
   }
+
+  int64_t val = 0;
+  if (cbor_value_get_int64(iter, &val) != CborNoError) {
+    return MessageDecoder::Status::Error;
+  }
+
+  setTz->params.offset = static_cast<int32_t>(val);
 
   // Next
   if (cbor_value_advance(iter) != CborNoError) {
@@ -93,12 +97,16 @@ MessageDecoder::Status TimezoneCommandDownDecoder::decode(CborValue* iter, Messa
   }
 
   // Get until
-  if (cbor_value_is_integer(iter)) {
-    uint64_t val = 0;
-    if (cbor_value_get_uint64(iter, &val) == CborNoError) {
-      setTz->params.until = static_cast<uint32_t>(val);
-    }
+  if (!cbor_value_is_integer(iter)) {
+    return MessageDecoder::Status::Error;
   }
+
+  uint64_t val1 = 0;
+  if (cbor_value_get_uint64(iter, &val1) != CborNoError) {
+    return MessageDecoder::Status::Error;
+  }
+
+  setTz->params.until = static_cast<uint32_t>(val1);
 
   return MessageDecoder::Status::Complete;
 }
@@ -107,16 +115,18 @@ MessageDecoder::Status LastValuesUpdateCommandDecoder::decode(CborValue* iter, M
   LastValuesUpdateCmd * setLv = (LastValuesUpdateCmd *) msg;
 
   // Message is composed by a single parameter, a variable length byte array.
-  if (cbor_value_is_byte_string(iter)) {
-    // Cortex M0 is not able to assign a value to pointed memory that is not 32bit aligned
-    // we use a support variable to cope with that
-    size_t s;
-    if (cbor_value_dup_byte_string(iter, &setLv->params.last_values, &s, NULL) != CborNoError) {
-      return MessageDecoder::Status::Error;
-    }
-
-    setLv->params.length = s;
+  if (!cbor_value_is_byte_string(iter)) {
+    return MessageDecoder::Status::Error;
   }
+
+  // Cortex M0 is not able to assign a value to pointed memory that is not 32bit aligned
+  // we use a support variable to cope with that
+  size_t s;
+  if (cbor_value_dup_byte_string(iter, &setLv->params.last_values, &s, NULL) != CborNoError) {
+    return MessageDecoder::Status::Error;
+  }
+
+  setLv->params.length = s;
 
   return MessageDecoder::Status::Complete;
 }
