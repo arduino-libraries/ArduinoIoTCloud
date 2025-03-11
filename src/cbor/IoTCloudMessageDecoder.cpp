@@ -114,9 +114,17 @@ MessageDecoder::Status TimezoneCommandDownDecoder::decode(CborValue* iter, Messa
 MessageDecoder::Status LastValuesUpdateCommandDecoder::decode(CborValue* iter, Message *msg) {
   LastValuesUpdateCmd * setLv = (LastValuesUpdateCmd *) msg;
 
+  if(!cbor_value_is_byte_string(iter)) {
+    return MessageDecoder::Status::Error;
+  }
+
   // Cortex M0 is not able to assign a value to pointed memory that is not 32bit aligned
   // we use a support variable to cope with that
   size_t s;
+
+  // NOTE: cbor_value_dup_byte_string calls malloc and assigns it to the second parameter of the call,
+  //       free must be called. Free has to be called only if decode succeeds.
+  //       Read tinyCbor documentation for more information.
   if (cbor_value_dup_byte_string(iter, &setLv->params.last_values, &s, NULL) != CborNoError) {
     return MessageDecoder::Status::Error;
   }
