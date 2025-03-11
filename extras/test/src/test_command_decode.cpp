@@ -294,20 +294,7 @@ SCENARIO("Test the decoding of command messages") {
 
     THEN("The decode is successful") {
       REQUIRE(err == MessageDecoder::Status::Complete);
-      REQUIRE(command.lastValuesUpdateCmd.params.length == 13);
-      REQUIRE(command.lastValuesUpdateCmd.params.last_values[0] == (uint8_t)0x00);
-      REQUIRE(command.lastValuesUpdateCmd.params.last_values[1] == (uint8_t)0x01);
-      REQUIRE(command.lastValuesUpdateCmd.params.last_values[2] == (uint8_t)0x02);
-      REQUIRE(command.lastValuesUpdateCmd.params.last_values[3] == (uint8_t)0x03);
-      REQUIRE(command.lastValuesUpdateCmd.params.last_values[4] == (uint8_t)0x04);
-      REQUIRE(command.lastValuesUpdateCmd.params.last_values[5] == (uint8_t)0x05);
-      REQUIRE(command.lastValuesUpdateCmd.params.last_values[6] == (uint8_t)0x06);
-      REQUIRE(command.lastValuesUpdateCmd.params.last_values[7] == (uint8_t)0x07);
-      REQUIRE(command.lastValuesUpdateCmd.params.last_values[8] == (uint8_t)0x08);
-      REQUIRE(command.lastValuesUpdateCmd.params.last_values[9] == (uint8_t)0x09);
-      REQUIRE(command.lastValuesUpdateCmd.params.last_values[10] == (uint8_t)0x10);
-      REQUIRE(command.lastValuesUpdateCmd.params.last_values[11] == (uint8_t)0x11);
-      REQUIRE(command.lastValuesUpdateCmd.params.last_values[12] == (uint8_t)0x12);
+
       std::vector<int> last_values(command.lastValuesUpdateCmd.params.last_values,
         command.lastValuesUpdateCmd.params.last_values+13);
 
