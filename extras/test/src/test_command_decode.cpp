@@ -308,6 +308,29 @@ SCENARIO("Test the decoding of command messages") {
     free(command.lastValuesUpdateCmd.params.last_values);
   }
 
+  WHEN("Decode the LastValuesUpdateCmd message, but lastvalues is an integer")
+  {
+    CommandDown command;
+
+    /*
+      DA 00010600                        # tag(67072)
+        81                               # array(1)
+            1A 65DCB821                  # unsigned(1708963873)
+
+    */
+
+    uint8_t const payload[] = {0xDA, 0x00, 0x01, 0x06, 0x00, 0x81, 0x1A, 0x65,
+                               0xDC, 0xB8, 0x21};
+
+    size_t payload_length = sizeof(payload) / sizeof(uint8_t);
+    CBORMessageDecoder decoder;
+    MessageDecoder::Status err =  decoder.decode((Message*)&command, payload, payload_length);
+
+    THEN("The decode is unsuccessful") {
+      REQUIRE(err == MessageDecoder::Status::Error);
+    }
+  }
+
   /****************************************************************************/
 
   WHEN("Decode the OtaUpdateCmdDown message")
