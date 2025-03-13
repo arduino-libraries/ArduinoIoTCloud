@@ -120,7 +120,7 @@ OTACloudProcessInterface::State OTADefaultCloudProcessInterface::fetch() {
     // this could distinguish between consistency of the downloaded bytes and filesize
 
     // validate CRC
-    arduino::crc32::finalize(context->calculatedCrc32);
+    context->calculatedCrc32 = arduino::crc32::finalize(context->calculatedCrc32);
     if(context->header.header.crc32 == context->calculatedCrc32) {
       DEBUG_VERBOSE("Ota download completed successfully");
       res = FlashOTA;
