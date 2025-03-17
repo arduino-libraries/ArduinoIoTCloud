@@ -22,9 +22,6 @@
  * DEFINE
  ******************************************************************************/
 
-
-// FIXME make this constants into an enum
-// TODO remove provisioning constants
 #define THING_ID_SIZE               37
 #define SHA256_SIZE                 32
 #define URL_SIZE                   256
