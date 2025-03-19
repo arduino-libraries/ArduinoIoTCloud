@@ -90,7 +90,7 @@ class ArduinoIoTCloudClass
     virtual void update        () = 0;
     virtual int  connected     () = 0;
     virtual void printDebugInfo() = 0;
-
+    virtual void disconnect    () { }
             void push();
             bool setTimestamp(String const & prop_name, unsigned long const timestamp);
 

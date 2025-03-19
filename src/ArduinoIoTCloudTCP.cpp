@@ -79,7 +79,7 @@ ArduinoIoTCloudTCP::ArduinoIoTCloudTCP()
  * PUBLIC MEMBER FUNCTIONS
  ******************************************************************************/
 
-int ArduinoIoTCloudTCP::begin(ConnectionHandler & connection, bool const enable_watchdog, String brokerAddress, uint16_t brokerPort)
+int ArduinoIoTCloudTCP::begin(ConnectionHandler & connection, bool const enable_watchdog, String brokerAddress, uint16_t brokerPort, bool auto_reconnect)
 {
   _connection = &connection;
   _brokerAddress = brokerAddress;
@@ -135,14 +135,17 @@ int ArduinoIoTCloudTCP::begin(ConnectionHandler & connection, bool const enable_
 
   /* Setup retry timers */
   _connection_attempt.begin(AIOT_CONFIG_RECONNECTION_RETRY_DELAY_ms, AIOT_CONFIG_MAX_RECONNECTION_RETRY_DELAY_ms);
-  return begin(enable_watchdog, _brokerAddress, _brokerPort);
+  return begin(enable_watchdog, _brokerAddress, _brokerPort, auto_reconnect);
 }
 
-int ArduinoIoTCloudTCP::begin(bool const enable_watchdog, String brokerAddress, uint16_t brokerPort)
+int ArduinoIoTCloudTCP::begin(bool const enable_watchdog, String brokerAddress, uint16_t brokerPort, bool auto_reconnect)
 {
   _enable_watchdog = enable_watchdog;
   _brokerAddress = brokerAddress;
   _brokerPort = brokerPort;
+  _auto_reconnect = auto_reconnect;
+
+  _state = State::ConfigPhy;
 
   _mqttClient.setClient(_brokerClient);
 
@@ -215,6 +218,7 @@ void ArduinoIoTCloudTCP::update()
   case State::ConnectMqttBroker:    next_state = handle_ConnectMqttBroker();    break;
   case State::Connected:            next_state = handle_Connected();            break;
   case State::Disconnect:           next_state = handle_Disconnect();           break;
+  case State::Disconnected:                                                     break;
   }
 
   _state = next_state;
@@ -272,6 +276,16 @@ void ArduinoIoTCloudTCP::printDebugInfo()
   DEBUG_INFO("***** Arduino IoT Cloud - %s *****", AIOT_CONFIG_LIB_VERSION);
   DEBUG_INFO("Device ID: %s", getDeviceId().c_str());
   DEBUG_INFO("MQTT Broker: %s:%d", _brokerAddress.c_str(), _brokerPort);
+}
+
+void ArduinoIoTCloudTCP::disconnect() {
+  if (_state == State::ConfigPhy || _state == State::Init) {
+    return;
+  }
+
+  _mqttClient.stop();
+  _auto_reconnect = false;
+  _state = State::Disconnect;
 }
 
 /******************************************************************************
@@ -447,9 +461,13 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_Disconnect()
   DEBUG_INFO("Disconnected from Arduino IoT Cloud");
   execCloudEventCallback(ArduinoIoTCloudEvent::DISCONNECT);
 
-  /* Setup timer for broker connection and restart */
-  _connection_attempt.begin(AIOT_CONFIG_RECONNECTION_RETRY_DELAY_ms, AIOT_CONFIG_MAX_RECONNECTION_RETRY_DELAY_ms);
-  return State::ConnectPhy;
+  if(_auto_reconnect) {
+    /* Setup timer for broker connection and restart */
+    _connection_attempt.begin(AIOT_CONFIG_RECONNECTION_RETRY_DELAY_ms, AIOT_CONFIG_MAX_RECONNECTION_RETRY_DELAY_ms);
+    return State::ConnectPhy;
+  }
+
+  return State::Disconnected;
 }
 
 void ArduinoIoTCloudTCP::onMessage(int length)
@@ -696,6 +714,7 @@ int ArduinoIoTCloudTCP::updateCertificate(String authorityKeyIdentifier, String 
   }
   return 0;
 }
+
 #endif
 
 /******************************************************************************
