@@ -62,6 +62,12 @@ unsigned long NTPUtils::getTime(UDP & udp)
   unsigned long const highWord      = word(ntp_packet_buf[40], ntp_packet_buf[41]);
   unsigned long const lowWord       = word(ntp_packet_buf[42], ntp_packet_buf[43]);
   unsigned long const secsSince1900 = highWord << 16 | lowWord;
+
+  /* Check for corrupted NTP response */
+  if(secsSince1900 == 0) {
+    return 0;
+  }
+
   unsigned long const seventyYears  = 2208988800UL;
   unsigned long const epoch         = secsSince1900 - seventyYears;
 
