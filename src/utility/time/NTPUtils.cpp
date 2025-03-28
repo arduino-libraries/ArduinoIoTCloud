@@ -54,7 +54,7 @@ unsigned long NTPUtils::getTime(UDP & udp)
     udp.stop();
     return 0;
   }
-  
+
   uint8_t ntp_packet_buf[NTP_PACKET_SIZE];
   udp.read(ntp_packet_buf, NTP_PACKET_SIZE);
   udp.stop();
@@ -81,7 +81,7 @@ unsigned long NTPUtils::getTime(UDP & udp)
 void NTPUtils::sendNTPpacket(UDP & udp)
 {
   uint8_t ntp_packet_buf[NTP_PACKET_SIZE] = {0};
-  
+
   ntp_packet_buf[0]  = 0b11100011;
   ntp_packet_buf[1]  = 0;
   ntp_packet_buf[2]  = 6;
@@ -90,7 +90,7 @@ void NTPUtils::sendNTPpacket(UDP & udp)
   ntp_packet_buf[13] = 0x4E;
   ntp_packet_buf[14] = 49;
   ntp_packet_buf[15] = 52;
-  
+
   udp.beginPacket(NTP_TIME_SERVER, NTP_TIME_SERVER_PORT);
   udp.write(ntp_packet_buf, NTP_PACKET_SIZE);
   udp.endPacket();
