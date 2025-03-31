@@ -190,7 +190,7 @@ int ArduinoIoTCloudTCP::begin(bool const enable_watchdog, String brokerAddress, 
 
 #if NETWORK_CONFIGURATOR_ENABLED
   if(_configurator != nullptr){
-    _configurator->enableBLE(false);
+    _configurator->enableAgent(ConfiguratorAgent::AgentTypes::BLE,false);
     _configurator->begin();
   }
 #endif
