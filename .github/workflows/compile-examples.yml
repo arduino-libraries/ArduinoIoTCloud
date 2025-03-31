@@ -21,19 +21,21 @@ jobs:
       UNIVERSAL_LIBRARIES: |
         # Install the ArduinoIoTCloud library from the repository
         - source-path: ./
-        - source-url: https://github.com/andreagilardoni/Arduino_ConnectionHandler.git
-          version: 0ca6d61eb538c5a21983e582ee1c8794442f8c75
+        - source-url: https://github.com/fabik111/Arduino_ConnectionHandler.git
+          version: 228ac355a957d60e1e06276ec12fe75598b09759
         - source-url: https://github.com/fabik111/ArduinoBLE.git
           version: 82e2a28f871e97b313846cee6d9efed8943dca53
         - name: ArduinoHttpClient
         - name: Arduino_DebugUtils
         - name: ArduinoMqttClient
-        - name: Arduino_SecureElement
-        - name: Arduino_CloudUtils
+        - source-url: https://github.com/fabik111/Arduino_SecureElement.git
+          version: f5a23964a1c70048e48d5ed2d2657004446f0e3d
+        - source-url: https://github.com/fabik111/Arduino_CloudUtils.git
+          version: a8b52eaf500c63b2e8bd3e4b6f6c77b70fc3e65d
         - source-url: https://github.com/andreagilardoni/ArduinoStorage.git
-          version: 39f0bd138103967aaafcaa7f5c0e1e237b4ccb4d
+        - source-url: https://github.com/arduino-libraries/Arduino_UniqueHWId.git
         - source-url: https://github.com/bcmi-labs/arduino-network-configurator.git
-          version: 962ab36dfb00eb9cebe089907223e576f463519f
+          version: 06686ca1dbc7a4150ca94ac14d19dae1cc0a1667
       # sketch paths to compile (recursive) for all boards
       UNIVERSAL_SKETCH_PATHS: |
         - examples/ArduinoIoTCloud-Advanced
@@ -143,6 +145,7 @@ jobs:
               - examples/ArduinoIoTCloud-Schedule
               - examples/utility/Provisioning
               - examples/utility/SelfProvisioning
+              - examples/utility/Provisioning_2.0
           - board:
               type: wan
             platforms: |
@@ -204,6 +207,7 @@ jobs:
               - examples/ArduinoIoTCloud-Notecard
               - examples/ArduinoIoTCloud-Schedule
               - examples/utility/Provisioning
+              - examples/utility/Provisioning_2.0
           # Nicla Vision
           - board:
               type: mbed_nicla
@@ -218,6 +222,7 @@ jobs:
               - examples/ArduinoIoTCloud-Notecard
               - examples/ArduinoIoTCloud-Schedule
               - examples/utility/Provisioning
+              - examples/utility/Provisioning_2.0
           # Opta
           - board:
               type: mbed_opta
@@ -233,6 +238,7 @@ jobs:
               - examples/ArduinoIoTCloud-Notecard
               - examples/ArduinoIoTCloud-Schedule
               - examples/utility/Provisioning
+              - examples/utility/Provisioning_2.0
           # GIGA
           - board:
               type: mbed_giga
@@ -248,6 +254,7 @@ jobs:
               - examples/ArduinoIoTCloud-Notecard
               - examples/ArduinoIoTCloud-Schedule
               - examples/utility/Provisioning
+              - examples/utility/Provisioning_2.0
           # Portenta C33
           - board:
               type: renesas_portenta
@@ -262,6 +269,7 @@ jobs:
               - examples/ArduinoIoTCloud-Notecard
               - examples/ArduinoIoTCloud-Schedule
               - examples/utility/Provisioning
+              - examples/utility/Provisioning_2.0
           # UNO R4 WiFi
           - board:
               type: renesas_uno
@@ -274,6 +282,7 @@ jobs:
               - examples/ArduinoIoTCloud-NetConfig
               - examples/ArduinoIoTCloud-Notecard
               - examples/ArduinoIoTCloud-Schedule
+              - examples/utility/Provisioning_2.0
           # Nano ESP32
           - board:
               type: arduino_esp32
