@@ -13,7 +13,7 @@
 #include <Arduino_SecureElement.h>
 #include <utility/SElementArduinoCloudDeviceId.h>
 #include <utility/SElementArduinoCloudCertificate.h>
-#include "Utility/LEDFeedback/LEDFeedback.h"
+#include "utility/LEDFeedback.h"
 
 const char *SKETCH_VERSION = "0.1.0";
 

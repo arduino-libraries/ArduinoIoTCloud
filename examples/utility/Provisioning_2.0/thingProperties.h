@@ -12,9 +12,8 @@
 #include <ArduinoIoTCloud.h>
 #include <GenericConnectionHandler.h>
 #include <Arduino_KVStore.h>
-#include "NetworkConfigurator.h"
-#include "ConfiguratorAgents/agents/BLE/BLEAgent.h"
-#include "ConfiguratorAgents/agents/Serial/SerialAgent.h"
+#include "configuratorAgents/agents/BLEAgent.h"
+#include "configuratorAgents/agents/SerialAgent.h"
 
 GenericConnectionHandler ArduinoIoTPreferredConnection;
 KVStore kvStore;
