@@ -7,11 +7,14 @@
  ******************************************************************************/
 
 #include <catch2/catch_test_macros.hpp>
+#include <catch2/matchers/catch_matchers_vector.hpp>
+
 #include <string.h>
 
 #include <memory>
 
 #include <util/CBORTestUtil.h>
+#include <IoTCloudMessageEncoder.h>
 #include <MessageDecoder.h>
 
 /******************************************************************************
@@ -39,11 +42,11 @@ SCENARIO("Test the decoding of command messages") {
 
     size_t payload_length = sizeof(payload) / sizeof(uint8_t);
     CBORMessageDecoder decoder;
-    Decoder::Status err =  decoder.decode((Message*)&command, payload, payload_length);
+    MessageDecoder::Status err =  decoder.decode((Message*)&command, payload, payload_length);
     const char *thingIdToMatch = "e4494d55-872a-4fd2-9646-92f87949394c";
 
     THEN("The decode is successful") {
-      REQUIRE(err == Decoder::Status::Complete);
+      REQUIRE(err == MessageDecoder::Status::Complete);
       REQUIRE(strcmp(command.thingUpdateCmd.params.thing_id, thingIdToMatch) == 0);
       REQUIRE(command.c.id == ThingUpdateCmdId);
     }
@@ -68,11 +71,11 @@ SCENARIO("Test the decoding of command messages") {
 
     size_t payload_length = sizeof(payload) / sizeof(uint8_t);
     CBORMessageDecoder decoder;
-    Decoder::Status err =  decoder.decode((Message*)&command, payload, payload_length);
+    MessageDecoder::Status err =  decoder.decode((Message*)&command, payload, payload_length);
     const char *thingIdToMatch = "e4494d55-872a-4fd2-9646-92f87949394c";
 
     THEN("The decode is successful") {
-      REQUIRE(err == Decoder::Status::Complete);
+      REQUIRE(err == MessageDecoder::Status::Complete);
       REQUIRE(strcmp(command.thingDetachCmd.params.thing_id, thingIdToMatch) == 0);
       REQUIRE(command.c.id == ThingDetachCmdId);
     }
@@ -93,10 +96,10 @@ SCENARIO("Test the decoding of command messages") {
 
     size_t payload_length = sizeof(payload) / sizeof(uint8_t);
     CBORMessageDecoder decoder;
-    Decoder::Status err =  decoder.decode((Message*)&command, payload, payload_length);
+    MessageDecoder::Status err =  decoder.decode((Message*)&command, payload, payload_length);
 
     THEN("The decode is unsuccessful") {
-      REQUIRE(err == Decoder::Status::Error);
+      REQUIRE(err == MessageDecoder::Status::Error);
     }
   }
 
@@ -114,10 +117,10 @@ SCENARIO("Test the decoding of command messages") {
 
     size_t payload_length = sizeof(payload) / sizeof(uint8_t);
     CBORMessageDecoder decoder;
-    Decoder::Status err =  decoder.decode((Message*)&command, payload, payload_length);
+    MessageDecoder::Status err =  decoder.decode((Message*)&command, payload, payload_length);
 
     THEN("The decode is successful") {
-      REQUIRE(err == Decoder::Status::Error);
+      REQUIRE(err == MessageDecoder::Status::Error);
     }
   }
 
@@ -139,13 +142,131 @@ SCENARIO("Test the decoding of command messages") {
 
     size_t payload_length = sizeof(payload) / sizeof(uint8_t);
     CBORMessageDecoder decoder;
-    Decoder::Status err =  decoder.decode((Message*)&command, payload, payload_length);
+    MessageDecoder::Status err =  decoder.decode((Message*)&command, payload, payload_length);
 
     THEN("The decode is successful") {
-      REQUIRE(err == Decoder::Status::Complete);
+      REQUIRE(err == MessageDecoder::Status::Complete);
       REQUIRE(command.timezoneCommandDown.params.offset == (uint32_t)1708963873);
       REQUIRE(command.timezoneCommandDown.params.until == (uint32_t)2024579473);
       REQUIRE(command.c.id == TimezoneCommandDownId);
+    }
+  }
+
+  WHEN("Decode the TimezoneCommandDown message, but until is not present")
+  {
+    CommandDown command;
+
+    /*
+      DA 00010764       # tag(67840)
+        81              # array(1)
+            1A 65DCB821 # unsigned(1708963873)
+    */
+
+    uint8_t const payload[] = {0xDA, 0x00, 0x01, 0x09, 0x00, 0x81, 0x1A, 0x65,
+                               0xDC, 0xB8, 0x21};
+
+    size_t payload_length = sizeof(payload) / sizeof(uint8_t);
+    CBORMessageDecoder decoder;
+    MessageDecoder::Status err =  decoder.decode((Message*)&command, payload, payload_length);
+
+    THEN("The decode is unsuccessful") {
+      REQUIRE(err == MessageDecoder::Status::Error);
+    }
+  }
+
+  WHEN("Decode the TimezoneCommandDown message, but offset is incorrectly encoded")
+  {
+    CommandDown command;
+
+    /*
+      DA 00010764       # tag(67840)
+        81              # array(1)
+            1A 65DC     # unsigned(26076)
+    */
+
+    uint8_t const payload[] = {0xDA, 0x00, 0x01, 0x09, 0x00, 0x81, 0x1A,};
+
+    size_t payload_length = sizeof(payload) / sizeof(uint8_t);
+    CBORMessageDecoder decoder;
+    MessageDecoder::Status err =  decoder.decode((Message*)&command, payload, payload_length);
+
+    THEN("The decode is unsuccessful") {
+      REQUIRE(err == MessageDecoder::Status::Error);
+    }
+  }
+
+  WHEN("Decode the TimezoneCommandDown message, but offset is a byte array instead of an integer")
+  {
+    CommandDown command;
+
+    /*
+      DA 00010764                        # tag(67840)
+        81                               # array(2)
+            4D                           # bytes(13)
+              00010203040506070809101112 # "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\u0010\u0011\u0012"
+            1A 65DCB821                  # unsigned(1708963873)
+    */
+
+    uint8_t const payload[] = {0xDA, 0x00, 0x01, 0x09, 0x00, 0x81, 0x21, 0x4D,
+                               0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
+                               0x08, 0x09, 0x10, 0x11, 0x12, 0x1A, 0x65, 0xDC,
+                               0xB8,};
+
+    size_t payload_length = sizeof(payload) / sizeof(uint8_t);
+    CBORMessageDecoder decoder;
+    MessageDecoder::Status err =  decoder.decode((Message*)&command, payload, payload_length);
+
+    THEN("The decode is unsuccessful") {
+      REQUIRE(err == MessageDecoder::Status::Error);
+    }
+  }
+
+  WHEN("Decode the TimezoneCommandDown message, but until is a byte array instead of an integer")
+  {
+    CommandDown command;
+
+    /*
+      DA 00010764                        # tag(67840)
+        82                               # array(2)
+            1A 65DCB821                  # unsigned(1708963873)
+            4D                           # bytes(13)
+              00010203040506070809101112 # "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\u0010\u0011\u0012"
+    */
+
+    uint8_t const payload[] = {0xDA, 0x00, 0x01, 0x09, 0x00, 0x82, 0x1A, 0x65,
+                               0xDC, 0xB8, 0x21, 0x4D, 0x00, 0x01, 0x02, 0x03,
+                               0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x10, 0x11,
+                               0x12};
+
+    size_t payload_length = sizeof(payload) / sizeof(uint8_t);
+    CBORMessageDecoder decoder;
+    MessageDecoder::Status err =  decoder.decode((Message*)&command, payload, payload_length);
+
+    THEN("The decode is unsuccessful") {
+      REQUIRE(err == MessageDecoder::Status::Error);
+    }
+  }
+
+  WHEN("Decode the TimezoneCommandDown message, but until is incorrectly encoded")
+  {
+    CommandDown command;
+
+    /*
+      DA 00010764       # tag(67840)
+        82              # array(2)
+            1A 65DCB821 # unsigned(1708963873)
+            1A 78AC     # unsigned(30892)
+    */
+
+    uint8_t const payload[] = {0xDA, 0x00, 0x01, 0x09, 0x00, 0x82, 0x1A, 0x65,
+                               0xDC, 0xB8, 0x21, 0x1A, 0x78, 0xAC};
+
+    size_t payload_length = sizeof(payload) / sizeof(uint8_t);
+    CBORMessageDecoder decoder;
+    MessageDecoder::Status err =  decoder.decode((Message*)&command, payload, payload_length);
+
+    THEN("The decode is unsuccessful") {
+      REQUIRE(err == MessageDecoder::Status::Error);
     }
   }
 
@@ -169,27 +290,45 @@ SCENARIO("Test the decoding of command messages") {
 
     size_t payload_length = sizeof(payload) / sizeof(uint8_t);
     CBORMessageDecoder decoder;
-    Decoder::Status err =  decoder.decode((Message*)&command, payload, payload_length);
+    MessageDecoder::Status err =  decoder.decode((Message*)&command, payload, payload_length);
 
     THEN("The decode is successful") {
-      REQUIRE(err == Decoder::Status::Complete);
-      REQUIRE(command.lastValuesUpdateCmd.params.length == 13);
-      REQUIRE(command.lastValuesUpdateCmd.params.last_values[0] == (uint8_t)0x00);
-      REQUIRE(command.lastValuesUpdateCmd.params.last_values[1] == (uint8_t)0x01);
-      REQUIRE(command.lastValuesUpdateCmd.params.last_values[2] == (uint8_t)0x02);
-      REQUIRE(command.lastValuesUpdateCmd.params.last_values[3] == (uint8_t)0x03);
-      REQUIRE(command.lastValuesUpdateCmd.params.last_values[4] == (uint8_t)0x04);
-      REQUIRE(command.lastValuesUpdateCmd.params.last_values[5] == (uint8_t)0x05);
-      REQUIRE(command.lastValuesUpdateCmd.params.last_values[6] == (uint8_t)0x06);
-      REQUIRE(command.lastValuesUpdateCmd.params.last_values[7] == (uint8_t)0x07);
-      REQUIRE(command.lastValuesUpdateCmd.params.last_values[8] == (uint8_t)0x08);
-      REQUIRE(command.lastValuesUpdateCmd.params.last_values[9] == (uint8_t)0x09);
-      REQUIRE(command.lastValuesUpdateCmd.params.last_values[10] == (uint8_t)0x10);
-      REQUIRE(command.lastValuesUpdateCmd.params.last_values[11] == (uint8_t)0x11);
-      REQUIRE(command.lastValuesUpdateCmd.params.last_values[12] == (uint8_t)0x12);
+      REQUIRE(err == MessageDecoder::Status::Complete);
+
+      std::vector<int> last_values(command.lastValuesUpdateCmd.params.last_values,
+        command.lastValuesUpdateCmd.params.last_values+13);
+
+      REQUIRE_THAT(last_values,
+        Catch::Matchers::Equals(std::vector<int>{
+          0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x10, 0x11, 0x12,
+      }));
+
       REQUIRE(command.c.id == LastValuesUpdateCmdId);
     }
     free(command.lastValuesUpdateCmd.params.last_values);
+  }
+
+  WHEN("Decode the LastValuesUpdateCmd message, but lastvalues is an integer")
+  {
+    CommandDown command;
+
+    /*
+      DA 00010600                        # tag(67072)
+        81                               # array(1)
+            1A 65DCB821                  # unsigned(1708963873)
+
+    */
+
+    uint8_t const payload[] = {0xDA, 0x00, 0x01, 0x06, 0x00, 0x81, 0x1A, 0x65,
+                               0xDC, 0xB8, 0x21};
+
+    size_t payload_length = sizeof(payload) / sizeof(uint8_t);
+    CBORMessageDecoder decoder;
+    MessageDecoder::Status err =  decoder.decode((Message*)&command, payload, payload_length);
+
+    THEN("The decode is unsuccessful") {
+      REQUIRE(err == MessageDecoder::Status::Error);
+    }
   }
 
   /****************************************************************************/
@@ -249,83 +388,34 @@ SCENARIO("Test the decoding of command messages") {
 
     size_t payload_length = sizeof(payload) / sizeof(uint8_t);
     CBORMessageDecoder decoder;
-    Decoder::Status err =  decoder.decode((Message*)&command, payload, payload_length);
+    MessageDecoder::Status err =  decoder.decode((Message*)&command, payload, payload_length);
 
     uint8_t otaIdToMatch[ID_SIZE] = { 0xC7, 0x3C, 0xB0, 0x45, 0xF9, 0xC2, 0x43, 0x45,
                                       0x85, 0xAF, 0xFA, 0x36, 0xA3, 0x07, 0xBF, 0xE7};
     const char *urlToMatch   = "https://boards-int.oniudra.cc/storage/firmware/v1/df1eac9c7bd63473fffb117f9873703e4ec955931e267f26262b0949bc16dc49";
 
     THEN("The decode is successful") {
-      REQUIRE(err == Decoder::Status::Complete);
+      REQUIRE(err == MessageDecoder::Status::Complete);
       REQUIRE(memcmp(command.otaUpdateCmdDown.params.id, otaIdToMatch, ID_SIZE) == 0);
       REQUIRE(strcmp(command.otaUpdateCmdDown.params.url, urlToMatch) == 0);
-      // Initial SHA256 check
-      REQUIRE(command.otaUpdateCmdDown.params.initialSha256[0] == (uint8_t)0x00);
-      REQUIRE(command.otaUpdateCmdDown.params.initialSha256[1] == (uint8_t)0x00);
-      REQUIRE(command.otaUpdateCmdDown.params.initialSha256[2] == (uint8_t)0x00);
-      REQUIRE(command.otaUpdateCmdDown.params.initialSha256[3] == (uint8_t)0x00);
-      REQUIRE(command.otaUpdateCmdDown.params.initialSha256[4] == (uint8_t)0x00);
-      REQUIRE(command.otaUpdateCmdDown.params.initialSha256[5] == (uint8_t)0x00);
-      REQUIRE(command.otaUpdateCmdDown.params.initialSha256[6] == (uint8_t)0x00);
-      REQUIRE(command.otaUpdateCmdDown.params.initialSha256[7] == (uint8_t)0x00);
-      REQUIRE(command.otaUpdateCmdDown.params.initialSha256[8] == (uint8_t)0x00);
-      REQUIRE(command.otaUpdateCmdDown.params.initialSha256[9] == (uint8_t)0x00);
-      REQUIRE(command.otaUpdateCmdDown.params.initialSha256[10] == (uint8_t)0x00);
-      REQUIRE(command.otaUpdateCmdDown.params.initialSha256[11] == (uint8_t)0x00);
-      REQUIRE(command.otaUpdateCmdDown.params.initialSha256[12] == (uint8_t)0x00);
-      REQUIRE(command.otaUpdateCmdDown.params.initialSha256[13] == (uint8_t)0x00);
-      REQUIRE(command.otaUpdateCmdDown.params.initialSha256[14] == (uint8_t)0x00);
-      REQUIRE(command.otaUpdateCmdDown.params.initialSha256[15] == (uint8_t)0x00);
-      REQUIRE(command.otaUpdateCmdDown.params.initialSha256[16] == (uint8_t)0x00);
-      REQUIRE(command.otaUpdateCmdDown.params.initialSha256[17] == (uint8_t)0x00);
-      REQUIRE(command.otaUpdateCmdDown.params.initialSha256[18] == (uint8_t)0x00);
-      REQUIRE(command.otaUpdateCmdDown.params.initialSha256[19] == (uint8_t)0x00);
-      REQUIRE(command.otaUpdateCmdDown.params.initialSha256[20] == (uint8_t)0x00);
-      REQUIRE(command.otaUpdateCmdDown.params.initialSha256[21] == (uint8_t)0x00);
-      REQUIRE(command.otaUpdateCmdDown.params.initialSha256[22] == (uint8_t)0x00);
-      REQUIRE(command.otaUpdateCmdDown.params.initialSha256[23] == (uint8_t)0x00);
-      REQUIRE(command.otaUpdateCmdDown.params.initialSha256[24] == (uint8_t)0x00);
-      REQUIRE(command.otaUpdateCmdDown.params.initialSha256[25] == (uint8_t)0x00);
-      REQUIRE(command.otaUpdateCmdDown.params.initialSha256[26] == (uint8_t)0x00);
-      REQUIRE(command.otaUpdateCmdDown.params.initialSha256[27] == (uint8_t)0x00);
-      REQUIRE(command.otaUpdateCmdDown.params.initialSha256[28] == (uint8_t)0x00);
-      REQUIRE(command.otaUpdateCmdDown.params.initialSha256[29] == (uint8_t)0x00);
-      REQUIRE(command.otaUpdateCmdDown.params.initialSha256[30] == (uint8_t)0x00);
-      REQUIRE(command.otaUpdateCmdDown.params.initialSha256[31] == (uint8_t)0x00);
 
-      // Final SHA256 check
-      REQUIRE(command.otaUpdateCmdDown.params.finalSha256[0] == (uint8_t)0xdf);
-      REQUIRE(command.otaUpdateCmdDown.params.finalSha256[1] == (uint8_t)0x1e);
-      REQUIRE(command.otaUpdateCmdDown.params.finalSha256[2] == (uint8_t)0xac);
-      REQUIRE(command.otaUpdateCmdDown.params.finalSha256[3] == (uint8_t)0x9c);
-      REQUIRE(command.otaUpdateCmdDown.params.finalSha256[4] == (uint8_t)0x7b);
-      REQUIRE(command.otaUpdateCmdDown.params.finalSha256[5] == (uint8_t)0xd6);
-      REQUIRE(command.otaUpdateCmdDown.params.finalSha256[6] == (uint8_t)0x34);
-      REQUIRE(command.otaUpdateCmdDown.params.finalSha256[7] == (uint8_t)0x73);
-      REQUIRE(command.otaUpdateCmdDown.params.finalSha256[8] == (uint8_t)0xff);
-      REQUIRE(command.otaUpdateCmdDown.params.finalSha256[9] == (uint8_t)0xfb);
-      REQUIRE(command.otaUpdateCmdDown.params.finalSha256[10] == (uint8_t)0x11);
-      REQUIRE(command.otaUpdateCmdDown.params.finalSha256[11] == (uint8_t)0x7f);
-      REQUIRE(command.otaUpdateCmdDown.params.finalSha256[12] == (uint8_t)0x98);
-      REQUIRE(command.otaUpdateCmdDown.params.finalSha256[13] == (uint8_t)0x73);
-      REQUIRE(command.otaUpdateCmdDown.params.finalSha256[14] == (uint8_t)0x70);
-      REQUIRE(command.otaUpdateCmdDown.params.finalSha256[15] == (uint8_t)0x3e);
-      REQUIRE(command.otaUpdateCmdDown.params.finalSha256[16] == (uint8_t)0x4e);
-      REQUIRE(command.otaUpdateCmdDown.params.finalSha256[17] == (uint8_t)0xc9);
-      REQUIRE(command.otaUpdateCmdDown.params.finalSha256[18] == (uint8_t)0x55);
-      REQUIRE(command.otaUpdateCmdDown.params.finalSha256[19] == (uint8_t)0x93);
-      REQUIRE(command.otaUpdateCmdDown.params.finalSha256[20] == (uint8_t)0x1e);
-      REQUIRE(command.otaUpdateCmdDown.params.finalSha256[21] == (uint8_t)0x26);
-      REQUIRE(command.otaUpdateCmdDown.params.finalSha256[22] == (uint8_t)0x7f);
-      REQUIRE(command.otaUpdateCmdDown.params.finalSha256[23] == (uint8_t)0x26);
-      REQUIRE(command.otaUpdateCmdDown.params.finalSha256[24] == (uint8_t)0x26);
-      REQUIRE(command.otaUpdateCmdDown.params.finalSha256[25] == (uint8_t)0x2b);
-      REQUIRE(command.otaUpdateCmdDown.params.finalSha256[26] == (uint8_t)0x09);
-      REQUIRE(command.otaUpdateCmdDown.params.finalSha256[27] == (uint8_t)0x49);
-      REQUIRE(command.otaUpdateCmdDown.params.finalSha256[28] == (uint8_t)0xbc);
-      REQUIRE(command.otaUpdateCmdDown.params.finalSha256[29] == (uint8_t)0x16);
-      REQUIRE(command.otaUpdateCmdDown.params.finalSha256[30] == (uint8_t)0xdc);
-      REQUIRE(command.otaUpdateCmdDown.params.finalSha256[31] == (uint8_t)0x49);
+      std::vector<int> initialSha256(command.otaUpdateCmdDown.params.initialSha256,
+        command.otaUpdateCmdDown.params.initialSha256+32);
+
+      REQUIRE_THAT(initialSha256,
+        Catch::Matchers::Equals(std::vector<int>{
+          0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+          0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+      }));
+
+      std::vector<int> finalSha256(command.otaUpdateCmdDown.params.finalSha256,
+        command.otaUpdateCmdDown.params.finalSha256+32);
+
+      REQUIRE_THAT(finalSha256,
+        Catch::Matchers::Equals(std::vector<int>{
+          0xdf, 0x1e, 0xac, 0x9c, 0x7b, 0xd6, 0x34, 0x73, 0xff, 0xfb, 0x11, 0x7f, 0x98, 0x73, 0x70, 0x3e,
+          0x4e, 0xc9, 0x55, 0x93, 0x1e, 0x26, 0x7f, 0x26, 0x26, 0x2b, 0x09, 0x49, 0xbc, 0x16, 0xdc, 0x49
+      }));
 
       REQUIRE(command.c.id == OtaUpdateCmdDownId);
     }
@@ -388,10 +478,10 @@ SCENARIO("Test the decoding of command messages") {
 
     size_t payload_length = sizeof(payload) / sizeof(uint8_t);
     CBORMessageDecoder decoder;
-    Decoder::Status err =  decoder.decode((Message*)&command, payload, payload_length);
+    MessageDecoder::Status err =  decoder.decode((Message*)&command, payload, payload_length);
 
     THEN("The decode is successful") {
-      REQUIRE(err == Decoder::Status::Error);
+      REQUIRE(err == MessageDecoder::Status::Error);
     }
   }
 
@@ -452,10 +542,10 @@ SCENARIO("Test the decoding of command messages") {
 
     size_t payload_length = sizeof(payload) / sizeof(uint8_t);
     CBORMessageDecoder decoder;
-    Decoder::Status err =  decoder.decode((Message*)&command, payload, payload_length);
+    MessageDecoder::Status err =  decoder.decode((Message*)&command, payload, payload_length);
 
     THEN("The decode is successful") {
-      REQUIRE(err == Decoder::Status::Error);
+      REQUIRE(err == MessageDecoder::Status::Error);
     }
   }
 
@@ -511,10 +601,10 @@ SCENARIO("Test the decoding of command messages") {
 
     size_t payload_length = sizeof(payload) / sizeof(uint8_t);
     CBORMessageDecoder decoder;
-    Decoder::Status err =  decoder.decode((Message*)&command, payload, payload_length);
+    MessageDecoder::Status err =  decoder.decode((Message*)&command, payload, payload_length);
 
     THEN("The decode is successful") {
-      REQUIRE(err == Decoder::Status::Error);
+      REQUIRE(err == MessageDecoder::Status::Error);
     }
   }
 
@@ -570,10 +660,10 @@ SCENARIO("Test the decoding of command messages") {
 
     size_t payload_length = sizeof(payload) / sizeof(uint8_t);
     CBORMessageDecoder decoder;
-    Decoder::Status err =  decoder.decode((Message*)&command, payload, payload_length);
+    MessageDecoder::Status err =  decoder.decode((Message*)&command, payload, payload_length);
 
     THEN("The decode is successful") {
-      REQUIRE(err == Decoder::Status::Error);
+      REQUIRE(err == MessageDecoder::Status::Error);
     }
   }
 
@@ -596,10 +686,10 @@ SCENARIO("Test the decoding of command messages") {
 
     size_t payload_length = sizeof(payload) / sizeof(uint8_t);
     CBORMessageDecoder decoder;
-    Decoder::Status err =  decoder.decode((Message*)&command, payload, payload_length);
+    MessageDecoder::Status err =  decoder.decode((Message*)&command, payload, payload_length);
 
     THEN("The decode is unsuccessful - OtaBeginUp is not supported") {
-      REQUIRE(err == Decoder::Status::Error);
+      REQUIRE(err == MessageDecoder::Status::Error);
     }
   }
 
@@ -619,10 +709,10 @@ SCENARIO("Test the decoding of command messages") {
 
     size_t payload_length = sizeof(payload) / sizeof(uint8_t);
     CBORMessageDecoder decoder;
-    Decoder::Status err =  decoder.decode((Message*)&command, payload, payload_length);
+    MessageDecoder::Status err =  decoder.decode((Message*)&command, payload, payload_length);
 
     THEN("The decode is unsuccessful - ThingBeginCmd is not supported") {
-      REQUIRE(err == Decoder::Status::Error);
+      REQUIRE(err == MessageDecoder::Status::Error);
     }
   }
 
@@ -639,10 +729,10 @@ SCENARIO("Test the decoding of command messages") {
 
     size_t payload_length = sizeof(payload) / sizeof(uint8_t);
     CBORMessageDecoder decoder;
-    Decoder::Status err =  decoder.decode((Message*)&command, payload, payload_length);
+    MessageDecoder::Status err =  decoder.decode((Message*)&command, payload, payload_length);
 
     THEN("The decode is unsuccessful - LastValuesBeginCmd is not supported") {
-      REQUIRE(err == Decoder::Status::Error);
+      REQUIRE(err == MessageDecoder::Status::Error);
     }
   }
 
@@ -662,10 +752,10 @@ SCENARIO("Test the decoding of command messages") {
 
     size_t payload_length = sizeof(payload) / sizeof(uint8_t);
     CBORMessageDecoder decoder;
-    Decoder::Status err =  decoder.decode((Message*)&command, payload, payload_length);
+    MessageDecoder::Status err =  decoder.decode((Message*)&command, payload, payload_length);
 
     THEN("The decode is unsuccessful - DeviceBeginCmd is not supported") {
-      REQUIRE(err == Decoder::Status::Error);
+      REQUIRE(err == MessageDecoder::Status::Error);
     }
   }
 
@@ -690,10 +780,10 @@ SCENARIO("Test the decoding of command messages") {
 
     size_t payload_length = sizeof(payload) / sizeof(uint8_t);
     CBORMessageDecoder decoder;
-    Decoder::Status err =  decoder.decode((Message*)&command, payload, payload_length);
+    MessageDecoder::Status err =  decoder.decode((Message*)&command, payload, payload_length);
 
     THEN("The decode is unsuccessful - OtaProgressCmdUp is not supported") {
-      REQUIRE(err == Decoder::Status::Error);
+      REQUIRE(err == MessageDecoder::Status::Error);
     }
   }
 
@@ -710,10 +800,10 @@ SCENARIO("Test the decoding of command messages") {
 
     size_t payload_length = sizeof(payload) / sizeof(uint8_t);
     CBORMessageDecoder decoder;
-    Decoder::Status err =  decoder.decode((Message*)&command, payload, payload_length);
+    MessageDecoder::Status err =  decoder.decode((Message*)&command, payload, payload_length);
 
     THEN("The decode is unsuccessful - TimezoneCommandUp is not supported") {
-      REQUIRE(err == Decoder::Status::Error);
+      REQUIRE(err == MessageDecoder::Status::Error);
     }
   }
 
@@ -735,10 +825,10 @@ SCENARIO("Test the decoding of command messages") {
 
     size_t payload_length = sizeof(payload) / sizeof(uint8_t);
     CBORMessageDecoder decoder;
-    Decoder::Status err =  decoder.decode((Message*)&command, payload, payload_length);
+    MessageDecoder::Status err =  decoder.decode((Message*)&command, payload, payload_length);
 
     THEN("The decode is unsuccessful") {
-      REQUIRE(err == Decoder::Status::Error);
+      REQUIRE(err == MessageDecoder::Status::Error);
     }
   }
 
@@ -759,10 +849,10 @@ SCENARIO("Test the decoding of command messages") {
 
     size_t payload_length = sizeof(payload) / sizeof(uint8_t);
     CBORMessageDecoder decoder;
-    Decoder::Status err =  decoder.decode((Message*)&command, payload, payload_length);
+    MessageDecoder::Status err =  decoder.decode((Message*)&command, payload, payload_length);
 
     THEN("The decode is unsuccessful") {
-      REQUIRE(err == Decoder::Status::Error);
+      REQUIRE(err == MessageDecoder::Status::Error);
     }
   }
 
@@ -776,10 +866,10 @@ SCENARIO("Test the decoding of command messages") {
 
     size_t payload_length = sizeof(payload) / sizeof(uint8_t);
     CBORMessageDecoder decoder;
-    Decoder::Status err =  decoder.decode((Message*)&command, payload, payload_length);
+    MessageDecoder::Status err =  decoder.decode((Message*)&command, payload, payload_length);
 
     THEN("The decode is unsuccessful") {
-      REQUIRE(err == Decoder::Status::Error);
+      REQUIRE(err == MessageDecoder::Status::Error);
     }
   }
 
