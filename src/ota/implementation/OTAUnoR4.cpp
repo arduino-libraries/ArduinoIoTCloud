@@ -14,7 +14,6 @@
 #include "OTAUnoR4.h"
 
 #include <Arduino_DebugUtils.h>
-#include "tls/utility/SHA256.h"
 #include "fsp_common_api.h"
 #include "r_flash_lp.h"
 #include "WiFi.h"

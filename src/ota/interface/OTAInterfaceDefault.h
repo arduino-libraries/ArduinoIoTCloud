@@ -16,7 +16,7 @@
 
 #include <ArduinoHttpClient.h>
 #include <URLParser.h>
-#include "utility/lzss/lzss.h"
+#include <Arduino_Lzss.h>
 #include "OTAInterface.h"
 
 /**
@@ -87,7 +87,7 @@ protected:
     uint32_t          downloadedChunkSize;
 
     // LZSS decoder
-    LZSSDecoder       decoder;
+    arduino::lzss::Decoder       decoder;
 
     static constexpr size_t bufLen = 64;
     uint8_t buffer[bufLen];

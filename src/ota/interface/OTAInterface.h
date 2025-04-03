@@ -18,7 +18,7 @@
 
 #if OTA_ENABLED
 #include "../OTATypes.h"
-#include "tls/utility/SHA256.h"
+#include <Arduino_SHA256.h>
 
 #include <interfaces/CloudProcess.h>
 #include <Arduino_DebugUtils.h>

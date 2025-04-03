@@ -14,15 +14,41 @@ FetchContent_Declare(
   GIT_TAG        v3.4.0
 )
 
+FetchContent_Declare(
+  cloudutils
+  GIT_REPOSITORY      https://github.com/arduino-libraries/Arduino_CloudUtils.git
+  GIT_TAG             main
+)
+
 FetchContent_MakeAvailable(Catch2)
 
+FetchContent_MakeAvailable(cloudutils)
 ##########################################################################
 
 include_directories(include)
 include_directories(../../src)
+include_directories(../../src/message)
 include_directories(../../src/cbor)
 include_directories(../../src/property)
 include_directories(../../src/utility/time)
+
+# add_library(cloudutils STATIC IMPORTED GLOBAL)
+add_library(cloudutils INTERFACE)
+
+target_include_directories(
+  cloudutils INTERFACE
+  ${cloudutils_SOURCE_DIR}/src/
+)
+
+target_include_directories(
+  cloudutils INTERFACE
+  ${cloudutils_SOURCE_DIR}/src/cbor
+)
+
+target_include_directories(
+  cloudutils INTERFACE
+  ${cloudutils_SOURCE_DIR}/src/interfaces
+)
 
 ##########################################################################
 
@@ -53,7 +79,6 @@ set(TEST_SRCS
   src/test_writeOnly.cpp
   src/test_writeOnDemand.cpp
   src/test_writeOnChange.cpp
-  src/test_TimedAttempt.cpp
 )
 
 set(TEST_UTIL_SRCS
@@ -62,26 +87,26 @@ set(TEST_UTIL_SRCS
 )
 
 set(TEST_DUT_SRCS
-  ../../src/utility/time/TimedAttempt.cpp
   ../../src/property/Property.cpp
   ../../src/property/PropertyContainer.cpp
   ../../src/cbor/CBORDecoder.cpp
   ../../src/cbor/CBOREncoder.cpp
-  ../../src/cbor/MessageDecoder.cpp
-  ../../src/cbor/MessageEncoder.cpp
-  ../../src/cbor/CBOR.cpp
-  ../../src/cbor/lib/tinycbor/src/cborencoder.c
-  ../../src/cbor/lib/tinycbor/src/cborencoder_close_container_checked.c
-  ../../src/cbor/lib/tinycbor/src/cborerrorstrings.c
-  ../../src/cbor/lib/tinycbor/src/cborparser.c
-  ../../src/cbor/lib/tinycbor/src/cborparser_dup_string.c
-  ../../src/cbor/lib/tinycbor/src/cborpretty.c
-  ../../src/cbor/lib/tinycbor/src/cborpretty_stdio.c
-  ../../src/cbor/lib/tinycbor/src/cbortojson.c
-  ../../src/cbor/lib/tinycbor/src/cborvalidation.c
-  ../../src/cbor/lib/tinycbor/src/open_memstream.c
-)
+  ../../src/cbor/IoTCloudMessageDecoder.cpp
+  ../../src/cbor/IoTCloudMessageEncoder.cpp
 
+  ${cloudutils_SOURCE_DIR}/src/cbor/tinycbor/src/cborencoder.c
+  ${cloudutils_SOURCE_DIR}/src/cbor/tinycbor/src/cborencoder_close_container_checked.c
+  ${cloudutils_SOURCE_DIR}/src/cbor/tinycbor/src/cborerrorstrings.c
+  ${cloudutils_SOURCE_DIR}/src/cbor/tinycbor/src/cborparser.c
+  ${cloudutils_SOURCE_DIR}/src/cbor/tinycbor/src/cborparser_dup_string.c
+  ${cloudutils_SOURCE_DIR}/src/cbor/tinycbor/src/cborpretty.c
+  ${cloudutils_SOURCE_DIR}/src/cbor/tinycbor/src/cborpretty_stdio.c
+  ${cloudutils_SOURCE_DIR}/src/cbor/tinycbor/src/cbortojson.c
+  ${cloudutils_SOURCE_DIR}/src/cbor/tinycbor/src/cborvalidation.c
+  ${cloudutils_SOURCE_DIR}/src/cbor/tinycbor/src/open_memstream.c
+  ${cloudutils_SOURCE_DIR}/src/cbor/MessageDecoder.cpp
+  ${cloudutils_SOURCE_DIR}/src/cbor/MessageEncoder.cpp
+)
 ##########################################################################
 
 set(TEST_TARGET_SRCS
@@ -108,6 +133,7 @@ add_executable(
   ${TEST_TARGET_SRCS}
 )
 
+target_link_libraries( ${TEST_TARGET} cloudutils)
 target_link_libraries( ${TEST_TARGET} Catch2WithMain )
 
 ##########################################################################

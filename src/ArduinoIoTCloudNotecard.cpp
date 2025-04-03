@@ -25,8 +25,8 @@
 #include <NotecardConnectionHandler.h>
 
 #include "cbor/CBOREncoder.h"
-#include "cbor/MessageDecoder.h"
-#include "cbor/MessageEncoder.h"
+#include "cbor/IoTCloudMessageDecoder.h"
+#include "cbor/IoTCloudMessageEncoder.h"
 
 /******************************************************************************
  * CONSTANTS
@@ -309,7 +309,7 @@ void ArduinoIoTCloudNotecard::processCommand(const uint8_t *buf, size_t len)
   DEBUG_VERBOSE("ArduinoIoTCloudNotecard::%s [%d] received %d bytes", __FUNCTION__, millis(), len);
   CBORMessageDecoder decoder;
 
-  if (decoder.decode((Message*)&command, buf, len) != Decoder::Status::Error) {
+  if (decoder.decode((Message*)&command, buf, len) != MessageDecoder::Status::Error) {
     DEBUG_VERBOSE("ArduinoIoTCloudNotecard::%s [%d] received command id %d", __FUNCTION__, millis(), command.c.id);
     switch (command.c.id)
     {
@@ -429,7 +429,7 @@ void ArduinoIoTCloudNotecard::sendCommandMsgToCloud(Message * msg_)
   CBORMessageEncoder encoder;
   NotecardConnectionHandler *notecard_connection = reinterpret_cast<NotecardConnectionHandler *>(_connection);
 
-  if (encoder.encode(msg_, data, bytes_encoded) == Encoder::Status::Complete) {
+  if (encoder.encode(msg_, data, bytes_encoded) == MessageEncoder::Status::Complete) {
     if (CBOR_LORA_PAYLOAD_MAX_SIZE < bytes_encoded) {
       DEBUG_WARNING("Encoded %d bytes for Command Message. Exceeds maximum payload size of %d bytes, and cannot be sent to cloud.", bytes_encoded, CBOR_LORA_PAYLOAD_MAX_SIZE);
     } else if (bytes_encoded > 0) {

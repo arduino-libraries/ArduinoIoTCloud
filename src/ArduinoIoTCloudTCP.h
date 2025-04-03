@@ -41,8 +41,8 @@
   #include <ota/OTA.h>
 #endif
 
-#include "cbor/MessageDecoder.h"
-#include "cbor/MessageEncoder.h"
+#include "cbor/IoTCloudMessageDecoder.h"
+#include "cbor/IoTCloudMessageEncoder.h"
 
 /******************************************************************************
    CONSTANTS
