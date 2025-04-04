@@ -38,4 +38,10 @@
 
 #define BEAR_SSL_CLIENT_CHAIN_SIZE 1
 
+#if defined(ARDUINO_PORTENTA_H7_M7) || defined(ARDUINO_NICLA_VISION) || defined(ARDUINO_OPTA) ||\
+    defined(ARDUINO_GIGA) || defined(ARDUINO_NANO_RP2040_CONNECT)
+  /* Allows download from OTA storage API */
+  #define BEAR_SSL_CLIENT_IBUF_SIZE (16384 + 325)
+#endif
+
 #endif /* ARDUINO_BEARSSL_CONFIG_H_ */
