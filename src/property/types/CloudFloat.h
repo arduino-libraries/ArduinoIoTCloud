@@ -46,7 +46,10 @@ class CloudFloat : public Property {
       return _value;
     }
     virtual bool isDifferentFromCloud() {
-      return _value != _cloud_value && (abs(_value - _cloud_value) >= Property::_min_delta_property);
+      if (std::isnan(_value) || std::isnan(_cloud_value)) {
+        return std::isnan(_value) != std::isnan(_cloud_value);
+      }
+      return _value != _cloud_value && fabs(_value - _cloud_value) >= Property::_min_delta_property;
     }
     virtual void fromCloudToLocal() {
       _value = _cloud_value;
