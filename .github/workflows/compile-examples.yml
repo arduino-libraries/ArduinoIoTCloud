@@ -188,7 +188,8 @@ jobs:
               - name: ArduinoECCX08
               - name: Blues Wireless Notecard
               - name: RTCZero
-              - name: MKRNB
+              - source-url: https://github.com/fabik111/MKRNB
+                version: f514c2a497b80a1f1992f62156f4ba12569db464
               - source-url: https://github.com/adafruit/Adafruit_SleepyDog.git
             sketch-paths: |
               - examples/ArduinoIoTCloud-Notecard
