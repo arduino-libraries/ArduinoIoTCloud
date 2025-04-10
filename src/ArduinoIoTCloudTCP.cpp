@@ -325,7 +325,7 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_ConnectMqttBroker()
   /* Can't connect to the broker. Wait: 2s -> 4s -> 8s -> 16s -> 32s -> 32s ... */
   _connection_attempt.retry();
 
-#if defined (BOARD_STM32H7) && defined(BOARD_HAS_ECCX08)
+#if defined(BOARD_HAS_ECCX08) && !defined(BOARD_HAS_OFFLOADED_ECCX08)
   DEBUG_ERROR("ArduinoIoTCloudTCP::%s could not connect to %s:%d Mqtt error: %d TLS error: %d", __FUNCTION__, _brokerAddress.c_str(), _brokerPort, _mqttClient.connectError(), _brokerClient.errorCode());
 #else
   DEBUG_ERROR("ArduinoIoTCloudTCP::%s could not connect to %s:%d Error: %d", __FUNCTION__, _brokerAddress.c_str(), _brokerPort, _mqttClient.connectError());
