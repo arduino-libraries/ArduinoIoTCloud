@@ -28,7 +28,8 @@ private:
   enum class ClaimingReqEvents { NONE,
                                  GET_ID,
                                  RESET,
-                                 GET_BLE_MAC_ADDRESS };
+                                 GET_BLE_MAC_ADDRESS,
+                                 GET_PROV_SKETCH_VERSION};
   static inline ClaimingReqEvents _receivedEvent;
   ClaimingHandlerStates _state;
   AgentsManagerClass &_agentManager;
@@ -41,10 +42,12 @@ private:
   void getIdReqHandler();
   void resetStoredCredReqHandler();
   void getBLEMacAddressReqHandler();
+  void getProvSketchVersionReqHandler();
   ClearStoredCredentialsHandler _clearStoredCredentials;
   /* Callbacks for receiving commands */
   static void getIdRequestCb();
   static void setTimestamp(uint64_t ts);
   static void resetStoredCredRequestCb();
   static void getBLEMacAddressRequestCb();
+  static void getProvSketchVersionRequestCb();
 };

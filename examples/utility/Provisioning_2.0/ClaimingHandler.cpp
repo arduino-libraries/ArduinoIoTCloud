@@ -13,6 +13,8 @@
 #include "utility/HCI.h"
 #include <Arduino_HEX.h>
 
+extern const char *SKETCH_VERSION;
+
 ClaimingHandlerClass::ClaimingHandlerClass():
   _uhwid {nullptr},
   _state {ClaimingHandlerStates::END},
@@ -42,6 +44,10 @@ bool ClaimingHandlerClass::begin(SecureElement &secureElement, String &uhwid, Cl
   }
 
   if(!_agentManager.addRequestHandler(RequestType::GET_BLE_MAC_ADDRESS, getBLEMacAddressRequestCb)) {
+    return false;
+  }
+
+  if(!_agentManager.addRequestHandler(RequestType::GET_PROVISIONING_SKETCH_VERSION, getProvSketchVersionRequestCb)) {
     return false;
   }
 
@@ -76,9 +82,10 @@ void ClaimingHandlerClass::poll() {
   _agentManager.update();
 
   switch (_receivedEvent) {
-    case ClaimingReqEvents::GET_ID:              getIdReqHandler           (); break;
-    case ClaimingReqEvents::RESET:               resetStoredCredReqHandler (); break;
-    case ClaimingReqEvents::GET_BLE_MAC_ADDRESS: getBLEMacAddressReqHandler(); break;
+    case ClaimingReqEvents::GET_ID:                  getIdReqHandler               (); break;
+    case ClaimingReqEvents::RESET:                   resetStoredCredReqHandler     (); break;
+    case ClaimingReqEvents::GET_BLE_MAC_ADDRESS:     getBLEMacAddressReqHandler    (); break;
+    case ClaimingReqEvents::GET_PROV_SKETCH_VERSION: getProvSketchVersionReqHandler(); break;
   }
   _receivedEvent = ClaimingReqEvents::NONE;
   return;
@@ -149,6 +156,13 @@ void ClaimingHandlerClass::getBLEMacAddressReqHandler() {
   _agentManager.sendMsg(outputMsg);
 }
 
+void ClaimingHandlerClass::getProvSketchVersionReqHandler() {
+  ProvisioningOutputMessage outputMsg;
+  outputMsg.type = MessageOutputType::PROV_SKETCH_VERSION;
+  outputMsg.m.provSketchVersion = SKETCH_VERSION;
+  _agentManager.sendMsg(outputMsg);
+}
+
 void ClaimingHandlerClass::getIdRequestCb() {
   DEBUG_VERBOSE("CH Get ID request received");
   _receivedEvent = ClaimingReqEvents::GET_ID;
@@ -165,6 +179,11 @@ void ClaimingHandlerClass::resetStoredCredRequestCb() {
 void ClaimingHandlerClass::getBLEMacAddressRequestCb() {
   DEBUG_VERBOSE("CH Get BLE MAC address request received");
   _receivedEvent = ClaimingReqEvents::GET_BLE_MAC_ADDRESS;
+}
+
+void ClaimingHandlerClass::getProvSketchVersionRequestCb() {
+  DEBUG_VERBOSE("CH Get provisioning sketch version request received");
+  _receivedEvent = ClaimingReqEvents::GET_PROV_SKETCH_VERSION;
 }
 
 bool ClaimingHandlerClass::sendStatus(StatusMessage msg) {
