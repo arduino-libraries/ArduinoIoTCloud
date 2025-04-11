@@ -36,6 +36,20 @@
 /* If uncommented TA should be configured via constructor */
 //#define ARDUINO_BEARSSL_DISABLE_BUILTIN_TRUST_ANCHORS
 
+/* If uncommented disables br_sslio_close call.From BearSSL docs:
+ *
+ * br_sslio_close(): perform the SSL closure protocol. This entails sending a
+ * close_notify alert, and receiving a close_notify response.
+ *
+ * Note that a number of deployed SSL implementations do not follow the protocol
+ * for closure, and may drop the underlying socket abruptly. As such, errors are
+ * often reported by br_sslio_close().
+ *
+ * In case of mbed-os + ArduinoIoTCloud br_sslio_close is endless looping
+ * blocking sketch execution.
+ */
+#define ARDUINO_BEARSSL_DISABLE_TLS_CLOSE
+
 #define BEAR_SSL_CLIENT_CHAIN_SIZE 1
 
 #if defined(ARDUINO_PORTENTA_H7_M7) || defined(ARDUINO_NICLA_VISION) || defined(ARDUINO_OPTA) ||\
