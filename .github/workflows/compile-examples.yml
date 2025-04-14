@@ -22,9 +22,8 @@ jobs:
         # Install the ArduinoIoTCloud library from the repository
         - source-path: ./
         - source-url: https://github.com/fabik111/Arduino_ConnectionHandler.git
-          version: e8539870f2f8b7936f3126070b45055c38856bb1
-        - source-url: https://github.com/fabik111/ArduinoBLE.git
-          version: 82e2a28f871e97b313846cee6d9efed8943dca53
+          version: 0314cf54593029aea05bb8c179e40a26128f7d67
+        - name: ArduinoBLE
         - name: ArduinoHttpClient
         - name: Arduino_DebugUtils
         - name: ArduinoMqttClient
@@ -136,7 +135,7 @@ jobs:
               - name: Blues Wireless Notecard
               - name: RTCZero
               - source-url: https://github.com/andreagilardoni/WiFiNINA.git
-                version: ca7a9224f86b9aaf00de4f7feccea583a23b3d53
+                version: 31616ac5a30f6281c68f982bc39800771b2fbaeb
               - name: Arduino_JSON
               - source-url: https://github.com/adafruit/Adafruit_SleepyDog.git
             sketch-paths: |
@@ -188,8 +187,7 @@ jobs:
               - name: ArduinoECCX08
               - name: Blues Wireless Notecard
               - name: RTCZero
-              - source-url: https://github.com/fabik111/MKRNB
-                version: f514c2a497b80a1f1992f62156f4ba12569db464
+              - name: MKRNB
               - source-url: https://github.com/adafruit/Adafruit_SleepyDog.git
             sketch-paths: |
               - examples/ArduinoIoTCloud-Notecard
@@ -221,6 +219,7 @@ jobs:
               - name: arduino:mbed_nicla
             libraries: |
               - name: Blues Wireless Notecard
+              - name: ArduinoECCX08
             sketch-paths: |
               - examples/ArduinoIoTCloud-NetConfig
               - examples/ArduinoIoTCloud-DeferredOTA
@@ -271,6 +270,7 @@ jobs:
             libraries: |
               - name: Arduino_Cellular
               - name: Blues Wireless Notecard
+              - name: ArduinoECCX08
             sketch-paths: |
               - examples/ArduinoIoTCloud-NetConfig
               - examples/ArduinoIoTCloud-Notecard
@@ -285,6 +285,7 @@ jobs:
               - name: arduino:renesas_uno
             libraries: |
               - name: Blues Wireless Notecard
+              - name: ArduinoECCX08
             sketch-paths: |
               - examples/ArduinoIoTCloud-NetConfig
               - examples/ArduinoIoTCloud-Notecard
@@ -393,4 +394,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: provisioning-${{ matrix.board.artifact-name-suffix }}
-          path: ${{ runner.temp }}/arduino-cli-output/Provisioning*
+          path: ${{ runner.temp }}/arduino-cli-output/Provisioning_2.0*

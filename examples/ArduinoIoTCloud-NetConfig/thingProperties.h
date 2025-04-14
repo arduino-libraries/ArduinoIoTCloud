@@ -5,6 +5,7 @@
 #endif
 #include <ArduinoIoTCloud.h>
 #include <Arduino_ConnectionHandler.h>
+#include <GenericConnectionHandler.h>
 #include "ConfiguratorAgents/agents/BLE/BLEAgent.h"
 #include "ConfiguratorAgents/agents/Serial/SerialAgent.h"
 
