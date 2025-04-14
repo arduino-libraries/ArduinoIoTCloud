@@ -368,6 +368,9 @@ jobs:
             ${{ matrix.sketch-paths }}
           enable-deltas-report: "true"
           sketches-report-path: ${{ env.SKETCHES_REPORTS_PATH }}
+          cli-compile-flags: |
+            - --output-dir
+            - ${{ runner.temp }}/arduino-cli-output
 
       - name: Write data to size trends report spreadsheet
         # Update report on every push to the master branch
@@ -384,3 +387,10 @@ jobs:
         with:
           name: sketches-report-${{ matrix.board.artifact-name-suffix }}
           path: ${{ env.SKETCHES_REPORTS_PATH }}
+
+      - name: Save build artifact
+        if: github.event_name == 'pull_request'
+        uses: actions/upload-artifact@v4
+        with:
+          name: provisioning-${{ matrix.board.artifact-name-suffix }}
+          path: ${{ runner.temp }}/arduino-cli-output/Provisioning*
