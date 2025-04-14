@@ -29,7 +29,8 @@
    * Arduino Giga R1
    * OPTA
    */
-  #include <tls/BearSSLClient.h>
+  #include <ArduinoBearSSLConfig.h>
+  #include <ArduinoBearSSL.h>
   class TLSClientOta : public BearSSLClient {
 #elif defined(ARDUINO_PORTENTA_C33)
   /*

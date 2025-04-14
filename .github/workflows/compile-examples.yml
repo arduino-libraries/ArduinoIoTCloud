@@ -105,6 +105,7 @@ jobs:
               # Install samd platform via Boards Manager
               - name: arduino:samd
             libraries: |
+              - name: ArduinoBearSSL
               - name: ArduinoECCX08
               - name: Blues Wireless Notecard
               - name: RTCZero
@@ -122,6 +123,7 @@ jobs:
               - name: arduino:samd
               - name: arduino:mbed_nano
             libraries: |
+              - name: ArduinoBearSSL
               - name: ArduinoECCX08
               - name: Blues Wireless Notecard
               - name: RTCZero
@@ -154,6 +156,7 @@ jobs:
               # Install samd platform via Boards Manager
               - name: arduino:samd
             libraries: |
+              - name: ArduinoBearSSL
               - name: ArduinoECCX08
               - name: Blues Wireless Notecard
               - name: RTCZero
@@ -170,6 +173,7 @@ jobs:
               # Install samd platform via Boards Manager
               - name: arduino:samd
             libraries: |
+              - name: ArduinoBearSSL
               - name: ArduinoECCX08
               - name: Blues Wireless Notecard
               - name: RTCZero
@@ -186,6 +190,7 @@ jobs:
               # Install mbed_portenta platform via Boards Manager
               - name: arduino:mbed_portenta
             libraries: |
+              - name: ArduinoBearSSL
               - name: ArduinoECCX08
               - name: Arduino_Cellular
               - name: Blues Wireless Notecard
@@ -214,6 +219,7 @@ jobs:
               # Install mbed_opta platform via Boards Manager
               - name: arduino:mbed_opta
             libraries: |
+              - name: ArduinoBearSSL
               - name: ArduinoECCX08
               - name: Blues Wireless Notecard
             sketch-paths: |
@@ -228,6 +234,7 @@ jobs:
               # Install mbed_giga platform via Boards Manager
               - name: arduino:mbed_giga
             libraries: |
+              - name: ArduinoBearSSL
               - name: ArduinoECCX08
               - name: Blues Wireless Notecard
             sketch-paths: |
