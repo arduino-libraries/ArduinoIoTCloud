@@ -24,6 +24,7 @@ jobs:
         - source-url: https://github.com/fabik111/Arduino_ConnectionHandler.git
           version: 0314cf54593029aea05bb8c179e40a26128f7d67
         - name: ArduinoBLE
+        - name: Arduino_KVStore
         - name: ArduinoHttpClient
         - name: Arduino_DebugUtils
         - name: ArduinoMqttClient
@@ -31,8 +32,6 @@ jobs:
           version: f5a23964a1c70048e48d5ed2d2657004446f0e3d
         - source-url: https://github.com/fabik111/Arduino_CloudUtils.git
           version: a8b52eaf500c63b2e8bd3e4b6f6c77b70fc3e65d
-        - source-url: https://github.com/arduino-libraries/Arduino_KVStore.git
-        - source-url: https://github.com/arduino-libraries/Arduino_UniqueHWId.git
         - source-url: https://github.com/arduino-libraries/Arduino_NetworkConfigurator.git
       # sketch paths to compile (recursive) for all boards
       UNIVERSAL_SKETCH_PATHS: |
@@ -145,7 +144,6 @@ jobs:
               - examples/ArduinoIoTCloud-Schedule
               - examples/utility/Provisioning
               - examples/utility/SelfProvisioning
-              - examples/utility/Provisioning_2.0
           - board:
               type: wan
             platforms: |
@@ -210,7 +208,6 @@ jobs:
               - examples/ArduinoIoTCloud-Notecard
               - examples/ArduinoIoTCloud-Schedule
               - examples/utility/Provisioning
-              - examples/utility/Provisioning_2.0
           # Nicla Vision
           - board:
               type: mbed_nicla
@@ -219,14 +216,12 @@ jobs:
               - name: arduino:mbed_nicla
             libraries: |
               - name: Blues Wireless Notecard
-              - name: ArduinoECCX08
             sketch-paths: |
               - examples/ArduinoIoTCloud-NetConfig
               - examples/ArduinoIoTCloud-DeferredOTA
               - examples/ArduinoIoTCloud-Notecard
               - examples/ArduinoIoTCloud-Schedule
               - examples/utility/Provisioning
-              - examples/utility/Provisioning_2.0
           # Opta
           - board:
               type: mbed_opta
@@ -243,7 +238,6 @@ jobs:
               - examples/ArduinoIoTCloud-Notecard
               - examples/ArduinoIoTCloud-Schedule
               - examples/utility/Provisioning
-              - examples/utility/Provisioning_2.0
           # GIGA
           - board:
               type: mbed_giga
@@ -260,7 +254,6 @@ jobs:
               - examples/ArduinoIoTCloud-Notecard
               - examples/ArduinoIoTCloud-Schedule
               - examples/utility/Provisioning
-              - examples/utility/Provisioning_2.0
           # Portenta C33
           - board:
               type: renesas_portenta
@@ -270,13 +263,11 @@ jobs:
             libraries: |
               - name: Arduino_Cellular
               - name: Blues Wireless Notecard
-              - name: ArduinoECCX08
             sketch-paths: |
               - examples/ArduinoIoTCloud-NetConfig
               - examples/ArduinoIoTCloud-Notecard
               - examples/ArduinoIoTCloud-Schedule
               - examples/utility/Provisioning
-              - examples/utility/Provisioning_2.0
           # UNO R4 WiFi
           - board:
               type: renesas_uno
@@ -285,12 +276,10 @@ jobs:
               - name: arduino:renesas_uno
             libraries: |
               - name: Blues Wireless Notecard
-              - name: ArduinoECCX08
             sketch-paths: |
               - examples/ArduinoIoTCloud-NetConfig
               - examples/ArduinoIoTCloud-Notecard
               - examples/ArduinoIoTCloud-Schedule
-              - examples/utility/Provisioning_2.0
           # Nano ESP32
           - board:
               type: arduino_esp32
@@ -369,9 +358,6 @@ jobs:
             ${{ matrix.sketch-paths }}
           enable-deltas-report: "true"
           sketches-report-path: ${{ env.SKETCHES_REPORTS_PATH }}
-          cli-compile-flags: |
-            - --output-dir
-            - ${{ runner.temp }}/arduino-cli-output
 
       - name: Write data to size trends report spreadsheet
         # Update report on every push to the master branch
@@ -388,10 +374,3 @@ jobs:
         with:
           name: sketches-report-${{ matrix.board.artifact-name-suffix }}
           path: ${{ env.SKETCHES_REPORTS_PATH }}
-
-      - name: Save build artifact
-        if: github.event_name == 'pull_request'
-        uses: actions/upload-artifact@v4
-        with:
-          name: provisioning-${{ matrix.board.artifact-name-suffix }}
-          path: ${{ runner.temp }}/arduino-cli-output/Provisioning_2.0*
