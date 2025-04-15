@@ -23,7 +23,11 @@
 #define MAX_CSR_REQUEST_INTERVAL 180000
 #define MAX_CSR_REQUEST_INTERVAL_ATTEMPTS 15
 
+#ifdef COMPILE_TEST
+constexpr char *server = "boards-v2.oniudra.cc";
+#else
 constexpr char *server = "boards-v2.arduino.cc";
+#endif
 
 CSRHandlerClass::CSRHandlerClass() :
   _ledFeedback{LEDFeedbackClass::getInstance()},

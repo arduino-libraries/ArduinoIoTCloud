@@ -171,7 +171,11 @@ DeviceState handleBeginCloud() {
     NetworkConfigurator.enableAgent(ConfiguratorAgent::AgentTypes::BLE, false);
   }
   // Connect to Arduino IoT Cloud
+#ifdef COMPILE_TEST
+  ArduinoCloud.begin(ArduinoIoTPreferredConnection, false, "mqtts-sa.iot.oniudra.cc");
+#else
   ArduinoCloud.begin(ArduinoIoTPreferredConnection);
+#endif
   ArduinoCloud.printDebugInfo();
 
   return DeviceState::RUN;
