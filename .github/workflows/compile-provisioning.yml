@@ -1,0 +1,205 @@
+name: Compile Provisioning
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/compile-provisioning.yml"
+      - "examples/**"
+      - "src/**"
+  push:
+    paths:
+      - ".github/workflows/compile-provisioning.yml"
+      - "examples/**"
+      - "src/**"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    env:
+      # libraries to install for all boards
+      UNIVERSAL_LIBRARIES: |
+        # Install the ArduinoIoTCloud library from the repository
+        - source-path: ./
+        - source-url: https://github.com/fabik111/Arduino_ConnectionHandler.git
+          version: 0314cf54593029aea05bb8c179e40a26128f7d67
+        - name: ArduinoBLE
+        - name: ArduinoECCX08
+        - name: ArduinoBearSSL
+        - name: ArduinoHttpClient
+        - name: Arduino_DebugUtils
+        - name: ArduinoMqttClient
+        - source-url: https://github.com/fabik111/Arduino_SecureElement.git
+          version: f5a23964a1c70048e48d5ed2d2657004446f0e3d
+        - source-url: https://github.com/fabik111/Arduino_CloudUtils.git
+          version: a8b52eaf500c63b2e8bd3e4b6f6c77b70fc3e65d
+        - source-url: https://github.com/arduino-libraries/Arduino_KVStore.git
+        - source-url: https://github.com/arduino-libraries/Arduino_UniqueHWId.git
+        - source-url: https://github.com/arduino-libraries/Arduino_NetworkConfigurator.git
+      # sketch paths to compile (recursive) for all boards
+      UNIVERSAL_SKETCH_PATHS: |
+        - examples/utility/Provisioning_2.0
+      SKETCHES_REPORTS_PATH: sketches-reports
+
+    strategy:
+      fail-fast: false
+
+      matrix:
+        board:
+          - fqbn: arduino:samd:mkrwifi1010
+            type: nina
+            artifact-name-suffix: arduino-samd-mkrwifi1010
+          - fqbn: arduino:samd:nano_33_iot
+            type: nina
+            artifact-name-suffix: arduino-samd-nano_33_iot
+          - fqbn: arduino:mbed_portenta:envie_m7:split=100_0
+            type: mbed_portenta
+            artifact-name-suffix: arduino-mbed_portenta-envie_m7
+          - fqbn: arduino:mbed_nano:nanorp2040connect
+            type: nina
+            artifact-name-suffix: arduino-mbed_nano-nanorp2040connect
+          - fqbn: arduino:mbed_nicla:nicla_vision
+            type: mbed_nicla
+            artifact-name-suffix: arduino-mbed_nicla-nicla_vision
+          - fqbn: arduino:mbed_opta:opta
+            type: mbed_opta
+            artifact-name-suffix: arduino-mbed_opta-opta
+          - fqbn: arduino:mbed_giga:giga
+            type: mbed_giga
+            artifact-name-suffix: arduino-mbed_giga-giga
+          - fqbn: arduino:renesas_portenta:portenta_c33
+            type: renesas_portenta
+            artifact-name-suffix: arduino-renesas_portenta-portenta_c33
+          - fqbn: arduino:renesas_uno:unor4wifi
+            type: renesas_uno
+            artifact-name-suffix: arduino-renesas_uno-unor4wifi
+
+        # make board type-specific customizations to the matrix jobs
+        include:
+          # MKR WiFi 1010, Nano 33 IoT, Nano RP2040 Connect
+          - board:
+              type: nina
+            platforms: |
+              # Install samd and mbed_nano platform via Boards Manager
+              - name: arduino:samd
+              - name: arduino:mbed_nano
+            libraries: |
+              - name: RTCZero
+              - source-url: https://github.com/andreagilardoni/WiFiNINA.git
+                version: 31616ac5a30f6281c68f982bc39800771b2fbaeb
+              - name: Arduino_JSON
+              - source-url: https://github.com/adafruit/Adafruit_SleepyDog.git
+          # Portenta
+          - board:
+              type: mbed_portenta
+            platforms: |
+              # Install mbed_portenta platform via Boards Manager
+              - name: arduino:mbed_portenta
+            libraries: |
+              - name: Arduino_Cellular
+          # Nicla Vision
+          - board:
+              type: mbed_nicla
+            platforms: |
+              # Install mbed_nicla platform via Boards Manager
+              - name: arduino:mbed_nicla
+          # Opta
+          - board:
+              type: mbed_opta
+            platforms: |
+              # Install mbed_opta platform via Boards Manager
+              - name: arduino:mbed_opta
+          # GIGA
+          - board:
+              type: mbed_giga
+            platforms: |
+              # Install mbed_giga platform via Boards Manager
+              - name: arduino:mbed_giga
+          # Portenta C33
+          - board:
+              type: renesas_portenta
+            platforms: |
+              # Install renesas_portenta platform via Boards Manager
+              - name: arduino:renesas_portenta
+            libraries: |
+              - name: Arduino_Cellular
+          # UNO R4 WiFi
+          - board:
+              type: renesas_uno
+            platforms: |
+              # Install renesas_uno platform via Boards Manager
+              - name: arduino:renesas_uno
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Compile production provisioning sketch
+        uses: arduino/compile-sketches@v1
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          platforms: ${{ matrix.platforms }}
+          fqbn: ${{ matrix.board.fqbn }}
+          libraries: |
+            ${{ env.UNIVERSAL_LIBRARIES }}
+            ${{ matrix.libraries }}
+          sketch-paths: |
+            ${{ env.UNIVERSAL_SKETCH_PATHS }}
+            ${{ matrix.sketch-paths }}
+          enable-deltas-report: "true"
+          sketches-report-path: ${{ env.SKETCHES_REPORTS_PATH }}
+          cli-compile-flags: |
+            - --verbose
+            - --output-dir
+            - ${{ runner.temp }}/provisioning-prod
+
+      - name: Compile staging provisioning sketch
+        uses: arduino/compile-sketches@v1
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          platforms: ${{ matrix.platforms }}
+          fqbn: ${{ matrix.board.fqbn }}
+          libraries: |
+            ${{ env.UNIVERSAL_LIBRARIES }}
+            ${{ matrix.libraries }}
+          sketch-paths: |
+            ${{ env.UNIVERSAL_SKETCH_PATHS }}
+            ${{ matrix.sketch-paths }}
+          enable-deltas-report: "true"
+          sketches-report-path: ${{ env.SKETCHES_REPORTS_PATH }}
+          cli-compile-flags: |
+            - --verbose
+            - --build-property
+            - "build.extra_flags=-DCOMPILE_TEST=1"
+            - --output-dir
+            - ${{ runner.temp }}/provisioning-staging
+
+      - name: Write data to size trends report spreadsheet
+        # Update report on every push to the master branch
+        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+        uses: arduino/report-size-trends@main
+        with:
+          sketches-report-path: ${{ env.SKETCHES_REPORTS_PATH }}
+          google-key-file: ${{ secrets.GOOGLE_KEY_FILE }}
+          spreadsheet-id: 1I6NZkpZpf8KugBkE92adB1Z3_b7ZepOpCdYTOigJpN4
+
+      - name: Save memory usage change report as artifact
+        if: github.event_name == 'pull_request'
+        uses: actions/upload-artifact@v4
+        with:
+          name: sketches-report-${{ matrix.board.artifact-name-suffix }}
+          path: ${{ env.SKETCHES_REPORTS_PATH }}
+
+      - name: Save production artifact
+        if: github.event_name == 'pull_request'
+        uses: actions/upload-artifact@v4
+        with:
+          name: provisioning-prod-${{ matrix.board.artifact-name-suffix }}
+          path: ${{ runner.temp }}/provisioning-prod/
+
+      - name: Save staging artifact
+        if: github.event_name == 'pull_request'
+        uses: actions/upload-artifact@v4
+        with:
+          name: provisioning-staging-${{ matrix.board.artifact-name-suffix }}
+          path: ${{ runner.temp }}/provisioning-staging/
