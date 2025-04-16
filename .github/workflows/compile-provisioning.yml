@@ -21,21 +21,26 @@ jobs:
       UNIVERSAL_LIBRARIES: |
         # Install the ArduinoIoTCloud library from the repository
         - source-path: ./
-        - source-url: https://github.com/fabik111/Arduino_ConnectionHandler.git
-          version: 0314cf54593029aea05bb8c179e40a26128f7d67
         - name: ArduinoBLE
-        - name: ArduinoECCX08
-        - name: ArduinoBearSSL
+          version: 1.4.0
         - name: ArduinoHttpClient
+          version: 0.6.1
         - name: Arduino_DebugUtils
+          version: 1.4.0
         - name: ArduinoMqttClient
-        - source-url: https://github.com/fabik111/Arduino_SecureElement.git
-          version: f5a23964a1c70048e48d5ed2d2657004446f0e3d
-        - source-url: https://github.com/fabik111/Arduino_CloudUtils.git
-          version: a8b52eaf500c63b2e8bd3e4b6f6c77b70fc3e65d
-        - source-url: https://github.com/arduino-libraries/Arduino_KVStore.git
+          version: 0.1.8
+        - name: Arduino_KVStore
+          version: 1.0.0
+        - source-url: https://github.com/arduino-libraries/Arduino_ConnectionHandler.git
+          version: 0314cf54593029aea05bb8c179e40a26128f7d67
+        - source-url: https://github.com/arduino-libraries/Arduino_SecureElement.git
+          version: 4900febf84435c1a06bb13451bced3bac6f16e76
+        - source-url: https://github.com/arduino-libraries/Arduino_CloudUtils.git
+          version: 2e2facc2209b66905c180ec0058ef8b083912278
         - source-url: https://github.com/arduino-libraries/Arduino_UniqueHWId.git
+          version: 7e1bfeb586cac00f043c39997a1e9937ed8152b0
         - source-url: https://github.com/arduino-libraries/Arduino_NetworkConfigurator.git
+          version: d887ec0fd15d3d6bd427fa3e2c4f95b582f964a0
       # sketch paths to compile (recursive) for all boards
       UNIVERSAL_SKETCH_PATHS: |
         - examples/utility/Provisioning_2.0
@@ -82,53 +87,82 @@ jobs:
             platforms: |
               # Install samd and mbed_nano platform via Boards Manager
               - name: arduino:samd
+                version: 1.8.14
               - name: arduino:mbed_nano
+                version: 4.2.4
             libraries: |
               - name: RTCZero
-              - source-url: https://github.com/andreagilardoni/WiFiNINA.git
-                version: 31616ac5a30f6281c68f982bc39800771b2fbaeb
-              - name: Arduino_JSON
-              - source-url: https://github.com/adafruit/Adafruit_SleepyDog.git
+                version: 1.6.0
+              - name: ArduinoECCX08
+                version: 1.3.8
+              - name: Adafruit SleepyDog Library
+                version: 1.6.5
+              - source-url: https://github.com/arduino-libraries/ArduinoBearSSL.git
+                version: a891ad3cb15bca3d080adc8188a63277f92fa81c
+              - source-url: https://github.com/arduino-libraries/WiFiNINA.git
+                version: 69e786c5c73fe94b7f408853550f6f151cfc58b0
           # Portenta
           - board:
               type: mbed_portenta
             platforms: |
               # Install mbed_portenta platform via Boards Manager
               - name: arduino:mbed_portenta
+                version: 4.2.4
             libraries: |
               - name: Arduino_Cellular
+                version: 1.2.1
+              - name: ArduinoECCX08
+                version: 1.3.8
+              - source-url: https://github.com/arduino-libraries/ArduinoBearSSL.git
+                version: a891ad3cb15bca3d080adc8188a63277f92fa81c
           # Nicla Vision
           - board:
               type: mbed_nicla
             platforms: |
               # Install mbed_nicla platform via Boards Manager
               - name: arduino:mbed_nicla
+                version: 4.2.4
           # Opta
           - board:
               type: mbed_opta
             platforms: |
               # Install mbed_opta platform via Boards Manager
               - name: arduino:mbed_opta
+                version: 4.2.4
+            libraries: |
+              - name: ArduinoECCX08
+                version: 1.3.8
+              - source-url: https://github.com/arduino-libraries/ArduinoBearSSL.git
+                version: a891ad3cb15bca3d080adc8188a63277f92fa81c
           # GIGA
           - board:
               type: mbed_giga
             platforms: |
               # Install mbed_giga platform via Boards Manager
               - name: arduino:mbed_giga
+                version: 4.2.4
+            libraries: |
+              - name: ArduinoECCX08
+                version: 1.3.8
+              - source-url: https://github.com/arduino-libraries/ArduinoBearSSL.git
+                version: a891ad3cb15bca3d080adc8188a63277f92fa81c
           # Portenta C33
           - board:
               type: renesas_portenta
             platforms: |
               # Install renesas_portenta platform via Boards Manager
               - name: arduino:renesas_portenta
+                version: 1.4.1
             libraries: |
               - name: Arduino_Cellular
+                version: 1.2.1
           # UNO R4 WiFi
           - board:
               type: renesas_uno
             platforms: |
               # Install renesas_uno platform via Boards Manager
               - name: arduino:renesas_uno
+                version: 1.4.1
 
     steps:
       - name: Checkout
