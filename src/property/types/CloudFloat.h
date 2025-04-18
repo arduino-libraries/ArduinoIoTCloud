@@ -19,6 +19,7 @@
 #define CLOUDFLOAT_H_
 
 #include <math.h>
+#include "../math_utils.h"
 
 /******************************************************************************
    INCLUDE
@@ -46,7 +47,7 @@ class CloudFloat : public Property {
       return _value;
     }
     virtual bool isDifferentFromCloud() {
-      return _value != _cloud_value && (abs(_value - _cloud_value) >= Property::_min_delta_property);
+      return arduino::math::ieee754_different(_value, _cloud_value, Property::_min_delta_property);
     }
     virtual void fromCloudToLocal() {
       _value = _cloud_value;

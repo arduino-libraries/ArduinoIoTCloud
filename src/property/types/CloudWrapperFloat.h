@@ -19,6 +19,7 @@
 #define CLOUDWRAPPERFLOAT_H_
 
 #include <math.h>
+#include "../math_utils.h"
 
 /******************************************************************************
    INCLUDE
@@ -39,7 +40,7 @@ class CloudWrapperFloat : public CloudWrapperBase {
   public:
     CloudWrapperFloat(float& v) : _primitive_value(v), _cloud_value(v), _local_value(v) {}
     virtual bool isDifferentFromCloud() {
-      return _primitive_value != _cloud_value && (abs(_primitive_value - _cloud_value) >= Property::_min_delta_property);
+      return arduino::math::ieee754_different(_primitive_value, _cloud_value, Property::_min_delta_property);
     }
     virtual void fromCloudToLocal() {
       _primitive_value = _cloud_value;
