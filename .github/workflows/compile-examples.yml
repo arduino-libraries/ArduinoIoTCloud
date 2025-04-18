@@ -21,12 +21,18 @@ jobs:
       UNIVERSAL_LIBRARIES: |
         # Install the ArduinoIoTCloud library from the repository
         - source-path: ./
-        - name: Arduino_ConnectionHandler
+        - source-url: https://github.com/fabik111/Arduino_ConnectionHandler.git
+          version: 0314cf54593029aea05bb8c179e40a26128f7d67
+        - name: ArduinoBLE
         - name: ArduinoHttpClient
         - name: Arduino_DebugUtils
         - name: ArduinoMqttClient
-        - name: Arduino_SecureElement
-        - name: Arduino_CloudUtils
+        - source-url: https://github.com/pennam/Arduino_SecureElement.git
+          version: 4900febf84435c1a06bb13451bced3bac6f16e76
+        - source-url: https://github.com/arduino-libraries/Arduino_CloudUtils.git
+        - name: Arduino_KVStore
+        - source-url: https://github.com/arduino-libraries/Arduino_UniqueHWId.git
+        - source-url: https://github.com/arduino-libraries/Arduino_NetworkConfigurator.git
       # sketch paths to compile (recursive) for all boards
       UNIVERSAL_SKETCH_PATHS: |
         - examples/ArduinoIoTCloud-Advanced
@@ -127,15 +133,18 @@ jobs:
               - name: ArduinoECCX08
               - name: Blues Wireless Notecard
               - name: RTCZero
-              - name: WiFiNINA
+              - source-url: https://github.com/andreagilardoni/WiFiNINA.git
+                version: 31616ac5a30f6281c68f982bc39800771b2fbaeb
               - name: Arduino_JSON
               - source-url: https://github.com/adafruit/Adafruit_SleepyDog.git
             sketch-paths: |
+              - examples/ArduinoIoTCloud-NetConfig
               - examples/ArduinoIoTCloud-DeferredOTA
               - examples/ArduinoIoTCloud-Notecard
               - examples/ArduinoIoTCloud-Schedule
               - examples/utility/Provisioning
               - examples/utility/SelfProvisioning
+              - examples/utility/Provisioning_2.0
           - board:
               type: wan
             platforms: |
@@ -195,10 +204,12 @@ jobs:
               - name: Arduino_Cellular
               - name: Blues Wireless Notecard
             sketch-paths: |
+              - examples/ArduinoIoTCloud-NetConfig
               - examples/ArduinoIoTCloud-DeferredOTA
               - examples/ArduinoIoTCloud-Notecard
               - examples/ArduinoIoTCloud-Schedule
               - examples/utility/Provisioning
+              - examples/utility/Provisioning_2.0
           # Nicla Vision
           - board:
               type: mbed_nicla
@@ -207,11 +218,14 @@ jobs:
               - name: arduino:mbed_nicla
             libraries: |
               - name: Blues Wireless Notecard
+              - name: ArduinoECCX08
             sketch-paths: |
+              - examples/ArduinoIoTCloud-NetConfig
               - examples/ArduinoIoTCloud-DeferredOTA
               - examples/ArduinoIoTCloud-Notecard
               - examples/ArduinoIoTCloud-Schedule
               - examples/utility/Provisioning
+              - examples/utility/Provisioning_2.0
           # Opta
           - board:
               type: mbed_opta
@@ -223,10 +237,12 @@ jobs:
               - name: ArduinoECCX08
               - name: Blues Wireless Notecard
             sketch-paths: |
+              - examples/ArduinoIoTCloud-NetConfig
               - examples/ArduinoIoTCloud-DeferredOTA
               - examples/ArduinoIoTCloud-Notecard
               - examples/ArduinoIoTCloud-Schedule
               - examples/utility/Provisioning
+              - examples/utility/Provisioning_2.0
           # GIGA
           - board:
               type: mbed_giga
@@ -238,10 +254,12 @@ jobs:
               - name: ArduinoECCX08
               - name: Blues Wireless Notecard
             sketch-paths: |
+              - examples/ArduinoIoTCloud-NetConfig
               - examples/ArduinoIoTCloud-DeferredOTA
               - examples/ArduinoIoTCloud-Notecard
               - examples/ArduinoIoTCloud-Schedule
               - examples/utility/Provisioning
+              - examples/utility/Provisioning_2.0
           # Portenta C33
           - board:
               type: renesas_portenta
@@ -251,10 +269,13 @@ jobs:
             libraries: |
               - name: Arduino_Cellular
               - name: Blues Wireless Notecard
+              - name: ArduinoECCX08
             sketch-paths: |
+              - examples/ArduinoIoTCloud-NetConfig
               - examples/ArduinoIoTCloud-Notecard
               - examples/ArduinoIoTCloud-Schedule
               - examples/utility/Provisioning
+              - examples/utility/Provisioning_2.0
           # UNO R4 WiFi
           - board:
               type: renesas_uno
@@ -263,9 +284,12 @@ jobs:
               - name: arduino:renesas_uno
             libraries: |
               - name: Blues Wireless Notecard
+              - name: ArduinoECCX08
             sketch-paths: |
+              - examples/ArduinoIoTCloud-NetConfig
               - examples/ArduinoIoTCloud-Notecard
               - examples/ArduinoIoTCloud-Schedule
+              - examples/utility/Provisioning_2.0
           # Nano ESP32
           - board:
               type: arduino_esp32
@@ -344,6 +368,9 @@ jobs:
             ${{ matrix.sketch-paths }}
           enable-deltas-report: "true"
           sketches-report-path: ${{ env.SKETCHES_REPORTS_PATH }}
+          cli-compile-flags: |
+            - --output-dir
+            - ${{ runner.temp }}/arduino-cli-output
 
       - name: Write data to size trends report spreadsheet
         # Update report on every push to the master branch
@@ -360,3 +387,10 @@ jobs:
         with:
           name: sketches-report-${{ matrix.board.artifact-name-suffix }}
           path: ${{ env.SKETCHES_REPORTS_PATH }}
+
+      - name: Save build artifact
+        if: github.event_name == 'pull_request'
+        uses: actions/upload-artifact@v4
+        with:
+          name: provisioning-${{ matrix.board.artifact-name-suffix }}
+          path: ${{ runner.temp }}/arduino-cli-output/Provisioning_2.0*
