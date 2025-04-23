@@ -36,6 +36,7 @@ private:
   LEDFeedbackClass &_ledFeedback;
   static inline uint64_t _ts;
   SecureElement *_secureElement;
+  String generateToken();
 
   bool sendStatus(StatusMessage msg);
   /* Commands handlers */
