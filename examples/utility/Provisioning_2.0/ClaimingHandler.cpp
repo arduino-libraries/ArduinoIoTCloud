@@ -100,7 +100,7 @@ void ClaimingHandlerClass::getIdReqHandler() {
     idMsg.m.uhwid = _uhwidBytes;
     _agentManager.sendMsg(idMsg);
 
-    String token = getAIoTCloudJWT(*_secureElement, *_uhwid, _ts, 1);
+    String token = generateToken();
     if (token == "") {
       DEBUG_ERROR("CH::%s Error: token not created", __FUNCTION__);
       sendStatus(StatusMessage::ERROR);
@@ -112,6 +112,19 @@ void ClaimingHandlerClass::getIdReqHandler() {
     jwtMsg.m.jwt = token.c_str();
     _agentManager.sendMsg(jwtMsg);
     _ts = 0;
+
+    SElementJWS sejws;
+    String publicKey =  sejws.publicKey(*_secureElement, 1, false);
+    if (publicKey == "") {
+      DEBUG_ERROR("CH::%s Error: public key not created", __FUNCTION__);
+      sendStatus(StatusMessage::ERROR);
+      return;
+    }
+
+    //Send public key
+    ProvisioningOutputMessage publicKeyMsg = {MessageOutputType::PROV_PUBLIC_KEY};
+    publicKeyMsg.m.provPublicKey = publicKey.c_str();
+    _agentManager.sendMsg(publicKeyMsg);
   } else {
     DEBUG_ERROR("CH::%s Error: timestamp not provided" , __FUNCTION__);
     sendStatus(StatusMessage::PARAMS_NOT_FOUND);
@@ -186,7 +199,24 @@ void ClaimingHandlerClass::getProvSketchVersionRequestCb() {
   _receivedEvent = ClaimingReqEvents::GET_PROV_SKETCH_VERSION;
 }
 
-bool ClaimingHandlerClass::sendStatus(StatusMessage msg) {
-  ProvisioningOutputMessage statusMsg = { MessageOutputType::STATUS, { msg } };
-  return _agentManager.sendMsg(statusMsg);
+String ClaimingHandlerClass::generateToken()
+{
+  String token = getAIoTCloudJWT(*_secureElement, *_uhwid, _ts, 1);
+  if(token == "") {
+    byte publicKey[64];
+    DEBUG_INFO("Generating private key");
+    if(!_secureElement->generatePrivateKey(1, publicKey)){
+      DEBUG_ERROR("CH::%s Error: private key generation failed", __FUNCTION__);
+      return "";
+    }
+    token = getAIoTCloudJWT(*_secureElement, *_uhwid, _ts, 1);
+  }
+
+  return token;
+}
+
+bool ClaimingHandlerClass::sendStatus(StatusMessage msg)
+{
+    ProvisioningOutputMessage statusMsg = {MessageOutputType::STATUS, {msg}};
+    return _agentManager.sendMsg(statusMsg);
 }
