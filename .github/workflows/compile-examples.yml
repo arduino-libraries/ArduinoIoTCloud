@@ -22,17 +22,18 @@ jobs:
         # Install the ArduinoIoTCloud library from the repository
         - source-path: ./
         - source-url: https://github.com/fabik111/Arduino_ConnectionHandler.git
-          version: 0314cf54593029aea05bb8c179e40a26128f7d67
+          version: 54b93d64da130f653fb437819c22fb89b78732d0
         - name: ArduinoBLE
         - name: ArduinoHttpClient
         - name: Arduino_DebugUtils
         - name: ArduinoMqttClient
-        - source-url: https://github.com/pennam/Arduino_SecureElement.git
+        - source-url: https://github.com/arduino-libraries/Arduino_SecureElement.git
           version: 4900febf84435c1a06bb13451bced3bac6f16e76
         - source-url: https://github.com/arduino-libraries/Arduino_CloudUtils.git
         - name: Arduino_KVStore
         - source-url: https://github.com/arduino-libraries/Arduino_UniqueHWId.git
         - source-url: https://github.com/arduino-libraries/Arduino_NetworkConfigurator.git
+          version: 5da0abaf7b6ae23035fbf0028bf90ed2b049da76
       # sketch paths to compile (recursive) for all boards
       UNIVERSAL_SKETCH_PATHS: |
         - examples/ArduinoIoTCloud-Advanced
