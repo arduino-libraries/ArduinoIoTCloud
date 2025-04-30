@@ -33,7 +33,6 @@ jobs:
         - name: Arduino_KVStore
         - source-url: https://github.com/arduino-libraries/Arduino_UniqueHWId.git
         - source-url: https://github.com/arduino-libraries/Arduino_NetworkConfigurator.git
-          version: 5da0abaf7b6ae23035fbf0028bf90ed2b049da76
       # sketch paths to compile (recursive) for all boards
       UNIVERSAL_SKETCH_PATHS: |
         - examples/ArduinoIoTCloud-Advanced

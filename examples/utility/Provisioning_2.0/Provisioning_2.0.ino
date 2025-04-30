@@ -95,7 +95,7 @@ DeviceState handleHardwareCheck() {
 
   FlashFormatter flashFormatter;
   // Check if the board storage is properly formatted
-  if(!flashFormatter.checkandFormatPartition()) {
+  if(!flashFormatter.checkAndFormatPartition()) {
     DEBUG_ERROR("Sketch: Error partitioning storage");
     LEDFeedbackClass::getInstance().setMode(LEDFeedbackClass::LEDFeedbackMode::ERROR);
     sendStatus(StatusMessage::FAIL_TO_PARTITION_STORAGE);
