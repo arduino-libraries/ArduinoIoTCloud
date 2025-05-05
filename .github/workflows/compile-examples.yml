@@ -21,12 +21,18 @@ jobs:
       UNIVERSAL_LIBRARIES: |
         # Install the ArduinoIoTCloud library from the repository
         - source-path: ./
-        - name: Arduino_ConnectionHandler
+        - name: ArduinoBLE
+        - name: Arduino_KVStore
         - name: ArduinoHttpClient
         - name: Arduino_DebugUtils
         - name: ArduinoMqttClient
-        - name: Arduino_SecureElement
-        - name: Arduino_CloudUtils
+        - source-url: https://github.com/arduino-libraries/Arduino_ConnectionHandler.git
+          version: 0314cf54593029aea05bb8c179e40a26128f7d67
+        - source-url: https://github.com/arduino-libraries/Arduino_SecureElement.git
+          version: 4900febf84435c1a06bb13451bced3bac6f16e76
+        - source-url: https://github.com/arduino-libraries/Arduino_CloudUtils.git
+          version: 2e2facc2209b66905c180ec0058ef8b083912278
+        - source-url: https://github.com/arduino-libraries/Arduino_NetworkConfigurator.git
       # sketch paths to compile (recursive) for all boards
       UNIVERSAL_SKETCH_PATHS: |
         - examples/ArduinoIoTCloud-Advanced
@@ -105,12 +111,13 @@ jobs:
               # Install samd platform via Boards Manager
               - name: arduino:samd
             libraries: |
-              - name: ArduinoBearSSL
+              - source-url: https://github.com/arduino-libraries/ArduinoBearSSL.git
+                version: a891ad3cb15bca3d080adc8188a63277f92fa81c
               - name: ArduinoECCX08
               - name: Blues Wireless Notecard
               - name: RTCZero
               - name: WiFi101
-              - source-url: https://github.com/adafruit/Adafruit_SleepyDog.git
+              - name: Adafruit SleepyDog Library
             sketch-paths: |
               - examples/ArduinoIoTCloud-Notecard
               - examples/ArduinoIoTCloud-Schedule
@@ -123,14 +130,16 @@ jobs:
               - name: arduino:samd
               - name: arduino:mbed_nano
             libraries: |
-              - name: ArduinoBearSSL
+              - source-url: https://github.com/arduino-libraries/ArduinoBearSSL.git
+                version: a891ad3cb15bca3d080adc8188a63277f92fa81c
               - name: ArduinoECCX08
               - name: Blues Wireless Notecard
               - name: RTCZero
-              - name: WiFiNINA
-              - name: Arduino_JSON
-              - source-url: https://github.com/adafruit/Adafruit_SleepyDog.git
+              - source-url: https://github.com/arduino-libraries/WiFiNINA.git
+                version: 69e786c5c73fe94b7f408853550f6f151cfc58b0
+              - name: Adafruit SleepyDog Library
             sketch-paths: |
+              - examples/ArduinoIoTCloud-NetConfig
               - examples/ArduinoIoTCloud-DeferredOTA
               - examples/ArduinoIoTCloud-Notecard
               - examples/ArduinoIoTCloud-Schedule
@@ -146,7 +155,7 @@ jobs:
               - name: Blues Wireless Notecard
               - name: RTCZero
               - name: MKRWAN
-              - source-url: https://github.com/adafruit/Adafruit_SleepyDog.git
+              - name: Adafruit SleepyDog Library
             sketch-paths: |
               - examples/ArduinoIoTCloud-Notecard
           # GSM boards
@@ -156,12 +165,13 @@ jobs:
               # Install samd platform via Boards Manager
               - name: arduino:samd
             libraries: |
-              - name: ArduinoBearSSL
+              - source-url: https://github.com/arduino-libraries/ArduinoBearSSL.git
+                version: a891ad3cb15bca3d080adc8188a63277f92fa81c
               - name: ArduinoECCX08
               - name: Blues Wireless Notecard
               - name: RTCZero
               - name: MKRGSM
-              - source-url: https://github.com/adafruit/Adafruit_SleepyDog.git
+              - name: Adafruit SleepyDog Library
             sketch-paths: |
               - examples/ArduinoIoTCloud-Notecard
               - examples/ArduinoIoTCloud-Schedule
@@ -173,12 +183,13 @@ jobs:
               # Install samd platform via Boards Manager
               - name: arduino:samd
             libraries: |
-              - name: ArduinoBearSSL
+              - source-url: https://github.com/arduino-libraries/ArduinoBearSSL.git
+                version: a891ad3cb15bca3d080adc8188a63277f92fa81c
               - name: ArduinoECCX08
               - name: Blues Wireless Notecard
               - name: RTCZero
               - name: MKRNB
-              - source-url: https://github.com/adafruit/Adafruit_SleepyDog.git
+              - name: Adafruit SleepyDog Library
             sketch-paths: |
               - examples/ArduinoIoTCloud-Notecard
               - examples/ArduinoIoTCloud-Schedule
@@ -190,11 +201,13 @@ jobs:
               # Install mbed_portenta platform via Boards Manager
               - name: arduino:mbed_portenta
             libraries: |
-              - name: ArduinoBearSSL
+              - source-url: https://github.com/arduino-libraries/ArduinoBearSSL.git
+                version: a891ad3cb15bca3d080adc8188a63277f92fa81c
               - name: ArduinoECCX08
               - name: Arduino_Cellular
               - name: Blues Wireless Notecard
             sketch-paths: |
+              - examples/ArduinoIoTCloud-NetConfig
               - examples/ArduinoIoTCloud-DeferredOTA
               - examples/ArduinoIoTCloud-Notecard
               - examples/ArduinoIoTCloud-Schedule
@@ -208,6 +221,7 @@ jobs:
             libraries: |
               - name: Blues Wireless Notecard
             sketch-paths: |
+              - examples/ArduinoIoTCloud-NetConfig
               - examples/ArduinoIoTCloud-DeferredOTA
               - examples/ArduinoIoTCloud-Notecard
               - examples/ArduinoIoTCloud-Schedule
@@ -219,10 +233,12 @@ jobs:
               # Install mbed_opta platform via Boards Manager
               - name: arduino:mbed_opta
             libraries: |
-              - name: ArduinoBearSSL
+              - source-url: https://github.com/arduino-libraries/ArduinoBearSSL.git
+                version: a891ad3cb15bca3d080adc8188a63277f92fa81c
               - name: ArduinoECCX08
               - name: Blues Wireless Notecard
             sketch-paths: |
+              - examples/ArduinoIoTCloud-NetConfig
               - examples/ArduinoIoTCloud-DeferredOTA
               - examples/ArduinoIoTCloud-Notecard
               - examples/ArduinoIoTCloud-Schedule
@@ -234,10 +250,12 @@ jobs:
               # Install mbed_giga platform via Boards Manager
               - name: arduino:mbed_giga
             libraries: |
-              - name: ArduinoBearSSL
+              - source-url: https://github.com/arduino-libraries/ArduinoBearSSL.git
+                version: a891ad3cb15bca3d080adc8188a63277f92fa81c
               - name: ArduinoECCX08
               - name: Blues Wireless Notecard
             sketch-paths: |
+              - examples/ArduinoIoTCloud-NetConfig
               - examples/ArduinoIoTCloud-DeferredOTA
               - examples/ArduinoIoTCloud-Notecard
               - examples/ArduinoIoTCloud-Schedule
@@ -252,6 +270,7 @@ jobs:
               - name: Arduino_Cellular
               - name: Blues Wireless Notecard
             sketch-paths: |
+              - examples/ArduinoIoTCloud-NetConfig
               - examples/ArduinoIoTCloud-Notecard
               - examples/ArduinoIoTCloud-Schedule
               - examples/utility/Provisioning
@@ -264,6 +283,7 @@ jobs:
             libraries: |
               - name: Blues Wireless Notecard
             sketch-paths: |
+              - examples/ArduinoIoTCloud-NetConfig
               - examples/ArduinoIoTCloud-Notecard
               - examples/ArduinoIoTCloud-Schedule
           # Nano ESP32
