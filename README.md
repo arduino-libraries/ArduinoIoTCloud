@@ -96,3 +96,9 @@ Boards can authenticate to the ArduinoIoTCloud servers using 3 methods:
  * `DEVICE_CERTIFICATE` and `PRIVATE_KEY`. This values are stored inside the board secure element during the device provisioning phase. Boards that are using this method are: [`MKR 1000`](https://store.arduino.cc/arduino-mkr1000-wifi), [`MKR WiFi 1010`](https://store.arduino.cc/arduino-mkr-wifi-1010), [`MKR GSM 1400`](https://store.arduino.cc/arduino-mkr-gsm-1400-1415), [`MKR NB 1500`](https://store.arduino.cc/arduino-mkr-nb-1500-1413), [`Nano 33 IoT`](https://store.arduino.cc/arduino-nano-33-iot), [`Portenta H7`](https://store.arduino.cc/portenta-h7), [`Nano RP2040 Connect`](https://store.arduino.cc/products/arduino-nano-rp2040-connect), [`Nicla Vision`](https://store.arduino.cc/products/nicla-vision), [`OPTA WiFi`](https://store.arduino.cc/products/opta-wifi), [`OPTA RS485`](https://store.arduino.cc/products/opta-rs485), [`OPTA Lite`](https://store.arduino.cc/products/opta-lite), [`GIGA R1 WiFi`](https://store.arduino.cc/products/giga-r1-wifi), [`Portenta C33`](https://store.arduino.cc/products/portenta-c33)
 
  * `APP_EUI` and `APP_KEY`. This values are defined in the `thingProperties.h` file and included in the Sketch. Boards that are using this method are: [`MKR WAN 1300/1310`](https://store.arduino.cc/mkr-wan-1310)
+
+### License
+
+The ArduinoIoTCloud library is licensed under the GNU General Public License v3.0.
+
+You can be released from the requirements of the above license by purchasing a commercial license. Buying such a license is mandatory if you want to modify or otherwise use the software for commercial activities involving the Arduino software without disclosing the source code of your own applications. To purchase a commercial license, send an email to license@arduino.cc
