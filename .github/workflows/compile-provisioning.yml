@@ -40,7 +40,7 @@ jobs:
         - source-url: https://github.com/arduino-libraries/Arduino_UniqueHWId.git
           version: 7e1bfeb586cac00f043c39997a1e9937ed8152b0
         - source-url: https://github.com/arduino-libraries/Arduino_NetworkConfigurator.git
-          version: d887ec0fd15d3d6bd427fa3e2c4f95b582f964a0
+          version: f12fc4893ad3b342beca8eb1b55069e173dd78bd
       # sketch paths to compile (recursive) for all boards
       UNIVERSAL_SKETCH_PATHS: |
         - examples/utility/Provisioning_2.0
