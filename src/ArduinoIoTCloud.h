@@ -26,11 +26,11 @@
 
 #include <Arduino_ConnectionHandler.h>
 #if NETWORK_CONFIGURATOR_ENABLED
-#include <Arduino_NetworkConfigurator.h>
+  #include <Arduino_NetworkConfigurator.h>
 #endif
 
 #if defined(DEBUG_ERROR) || defined(DEBUG_WARNING) || defined(DEBUG_INFO) || defined(DEBUG_DEBUG) || defined(DEBUG_VERBOSE)
-#  include <Arduino_DebugUtils.h>
+  #include <Arduino_DebugUtils.h>
 #endif
 
 #include "AIoTC_Const.h"

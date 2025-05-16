@@ -182,7 +182,7 @@ int ArduinoIoTCloudTCP::begin(bool const enable_watchdog, String brokerAddress, 
   }
 #endif /* BOARD_HAS_OFFLOADED_ECCX08 */
 
-#if defined(ARDUINO_UNOWIFIR4)
+#if defined (ARDUINO_UNOWIFIR4)
   if (String(WiFi.firmwareVersion()) < String("0.2.0")) {
     DEBUG_ERROR("ArduinoIoTCloudTCP::%s In order to connect to Arduino IoT Cloud, WiFi firmware needs to be >= 0.2.0, current %s", __FUNCTION__, WiFi.firmwareVersion());
   }
@@ -306,7 +306,6 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_ConfigPhy()
 #else
   return State::Init;
 #endif
-
 }
 
 ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_Init()
