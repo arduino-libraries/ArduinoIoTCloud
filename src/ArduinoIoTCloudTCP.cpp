@@ -275,6 +275,9 @@ void ArduinoIoTCloudTCP::printDebugInfo()
   DEBUG_INFO("***** Arduino IoT Cloud - %s *****", AIOT_CONFIG_LIB_VERSION);
   DEBUG_INFO("Device ID: %s", getDeviceId().c_str());
   DEBUG_INFO("MQTT Broker: %s:%d", _brokerAddress.c_str(), _brokerPort);
+#if NETWORK_CONFIGURATOR_ENABLED
+  DEBUG_INFO("Network Configurator: %s", ANetworkConfigurator_LIB_VERSION);
+#endif
 }
 
 void ArduinoIoTCloudTCP::disconnect() {
