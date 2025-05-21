@@ -47,6 +47,11 @@ target_include_directories(
 
 target_include_directories(
   cloudutils INTERFACE
+  ${cloudutils_SOURCE_DIR}/src/cbor/utils
+)
+
+target_include_directories(
+  cloudutils INTERFACE
   ${cloudutils_SOURCE_DIR}/src/interfaces
 )
 
