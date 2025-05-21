@@ -25,9 +25,12 @@
 #include <AIoTC_Config.h>
 
 #include <Arduino_ConnectionHandler.h>
+#if NETWORK_CONFIGURATOR_ENABLED
+  #include <Arduino_NetworkConfigurator.h>
+#endif
 
 #if defined(DEBUG_ERROR) || defined(DEBUG_WARNING) || defined(DEBUG_INFO) || defined(DEBUG_DEBUG) || defined(DEBUG_VERBOSE)
-#  include <Arduino_DebugUtils.h>
+  #include <Arduino_DebugUtils.h>
 #endif
 
 #include "AIoTC_Const.h"
@@ -87,7 +90,7 @@ class ArduinoIoTCloudClass
     virtual void update        () = 0;
     virtual int  connected     () = 0;
     virtual void printDebugInfo() = 0;
-
+    virtual void disconnect    () { }
             void push();
             bool setTimestamp(String const & prop_name, unsigned long const timestamp);
 
@@ -101,6 +104,9 @@ class ArduinoIoTCloudClass
     inline unsigned long getInternalTime()              { return _time_service.getTime(); }
     inline unsigned long getLocalTime()                 { return _time_service.getLocalTime(); }
 
+    #if NETWORK_CONFIGURATOR_ENABLED
+    inline void setConfigurator(NetworkConfiguratorClass & configurator) { _configurator = &configurator; }
+    #endif
     void addCallback(ArduinoIoTCloudEvent const event, OnCloudEventCallback callback);
 
 #define addProperty( v, ...) addPropertyReal(v, #v, __VA_ARGS__)
@@ -146,6 +152,9 @@ class ArduinoIoTCloudClass
   protected:
 
     ConnectionHandler * _connection;
+    #if NETWORK_CONFIGURATOR_ENABLED
+    NetworkConfiguratorClass * _configurator;
+    #endif
     TimeServiceClass & _time_service;
     String _thing_id;
     String _lib_version;

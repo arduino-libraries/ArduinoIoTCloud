@@ -194,7 +194,11 @@ jobs:
               - name: ArduinoECCX08
               - name: Arduino_Cellular
               - name: Blues Wireless Notecard
+              - name: ArduinoBLE
+              - name: Arduino_KVStore
+              - name: Arduino_NetworkConfigurator
             sketch-paths: |
+              - examples/ArduinoIoTCloud-NetConfig
               - examples/ArduinoIoTCloud-DeferredOTA
               - examples/ArduinoIoTCloud-Notecard
               - examples/ArduinoIoTCloud-Schedule
@@ -207,7 +211,11 @@ jobs:
               - name: arduino:mbed_nicla
             libraries: |
               - name: Blues Wireless Notecard
+              - name: ArduinoBLE
+              - name: Arduino_KVStore
+              - name: Arduino_NetworkConfigurator
             sketch-paths: |
+              - examples/ArduinoIoTCloud-NetConfig
               - examples/ArduinoIoTCloud-DeferredOTA
               - examples/ArduinoIoTCloud-Notecard
               - examples/ArduinoIoTCloud-Schedule
@@ -222,7 +230,11 @@ jobs:
               - name: ArduinoBearSSL
               - name: ArduinoECCX08
               - name: Blues Wireless Notecard
+              - name: ArduinoBLE
+              - name: Arduino_KVStore
+              - name: Arduino_NetworkConfigurator
             sketch-paths: |
+              - examples/ArduinoIoTCloud-NetConfig
               - examples/ArduinoIoTCloud-DeferredOTA
               - examples/ArduinoIoTCloud-Notecard
               - examples/ArduinoIoTCloud-Schedule
@@ -237,7 +249,11 @@ jobs:
               - name: ArduinoBearSSL
               - name: ArduinoECCX08
               - name: Blues Wireless Notecard
+              - name: ArduinoBLE
+              - name: Arduino_KVStore
+              - name: Arduino_NetworkConfigurator
             sketch-paths: |
+              - examples/ArduinoIoTCloud-NetConfig
               - examples/ArduinoIoTCloud-DeferredOTA
               - examples/ArduinoIoTCloud-Notecard
               - examples/ArduinoIoTCloud-Schedule
@@ -251,7 +267,11 @@ jobs:
             libraries: |
               - name: Arduino_Cellular
               - name: Blues Wireless Notecard
+              - name: ArduinoBLE
+              - name: Arduino_KVStore
+              - name: Arduino_NetworkConfigurator
             sketch-paths: |
+              - examples/ArduinoIoTCloud-NetConfig
               - examples/ArduinoIoTCloud-Notecard
               - examples/ArduinoIoTCloud-Schedule
               - examples/utility/Provisioning
@@ -263,7 +283,11 @@ jobs:
               - name: arduino:renesas_uno
             libraries: |
               - name: Blues Wireless Notecard
+              - name: ArduinoBLE
+              - name: Arduino_KVStore
+              - name: Arduino_NetworkConfigurator
             sketch-paths: |
+              - examples/ArduinoIoTCloud-NetConfig
               - examples/ArduinoIoTCloud-Notecard
               - examples/ArduinoIoTCloud-Schedule
           # Nano ESP32
