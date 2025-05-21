@@ -667,6 +667,32 @@ SCENARIO("Test the decoding of command messages") {
     }
   }
 
+/****************************************************************************/
+
+  WHEN("Decode the OtaUpdateCmdDown message without url field")
+  {
+    CommandDown command;
+
+    /*
+      DA 00010100                             # tag(65792)
+        80                                    # array(1)
+            50                                # bytes(16)
+              C73CB045F9C2434585AFFA36A307BFE7"\xC7<\xB0E\xF9\xC2CE\x85\xAF\xFA6\xA3\a\xBF\xE7"
+
+    */
+    uint8_t const payload[] = {0xda, 0x00, 0x01, 0x01, 0x00, 0x81, 0x50, 0xc7,
+                               0x3c, 0xb0, 0x45, 0xf9, 0xc2, 0x43, 0x45, 0x85,
+                               0xaf, 0xfa, 0x36, 0xa3, 0x07, 0xbf, 0xe7};
+
+    size_t payload_length = sizeof(payload) / sizeof(uint8_t);
+    CBORMessageDecoder decoder;
+    MessageDecoder::Status err =  decoder.decode((Message*)&command, payload, payload_length);
+
+    THEN("The decode is unsuccessful") {
+      REQUIRE(err == MessageDecoder::Status::Error);
+    }
+  }
+
   /****************************************************************************/
 
   WHEN("Decode the OtaBeginUp message")
