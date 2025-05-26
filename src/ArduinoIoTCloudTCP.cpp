@@ -244,7 +244,7 @@ void ArduinoIoTCloudTCP::update()
    * the mqttClient. The state can be reached only after the mqttClient is connected to
    * the broker.
    */
-  if(_state <= State::Init){
+  if(_state <= State::ConnectPhy){
     return;
   }
 
@@ -264,7 +264,7 @@ void ArduinoIoTCloudTCP::update()
 
 int ArduinoIoTCloudTCP::connected()
 {
-  if (_state <= State::Init) {
+  if (_state <= State::ConnectPhy) {
     return 0;
   }
   return _mqttClient.connected();
@@ -281,7 +281,7 @@ void ArduinoIoTCloudTCP::printDebugInfo()
 }
 
 void ArduinoIoTCloudTCP::disconnect() {
-  if (_state == State::ConfigPhy || _state == State::Init) {
+  if (_state <= State::ConnectPhy) {
     return;
   }
 
