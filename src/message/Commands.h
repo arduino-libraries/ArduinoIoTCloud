@@ -17,6 +17,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <interfaces/message.h>
+#include <connectionHandlerModels/settings.h>
 
 /******************************************************************************
  * DEFINE
@@ -42,6 +43,7 @@ enum CommandId: MessageId {
   DeviceRegisteredCmdId,
   DeviceAttachedCmdId,
   DeviceDetachedCmdId,
+  DeviceNetConfigCmdUpId,
 
   /* Thing commands */
   LastValuesBeginCmdId,
@@ -143,6 +145,11 @@ struct TimezoneCommandDown {
     int32_t offset;
     uint32_t until;
   } params;
+};
+
+struct DeviceNetConfigCmdUp {
+  Command c;
+  models::NetworkSetting params;
 };
 
 union CommandDown {

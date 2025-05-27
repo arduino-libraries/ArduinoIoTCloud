@@ -15,6 +15,7 @@
  * INCLUDE
  ******************************************************************************/
 
+#include <ConnectionHandlerDefinitions.h>
 #include "./CBOR.h"
 #include <cbor/MessageEncoder.h>
 #include "message/Commands.h"
@@ -69,6 +70,38 @@ public:
   : CBORMessageEncoderInterface(CBORTimezoneCommandUp, TimezoneCommandUpId) {}
 protected:
   MessageEncoder::Status encode(CborEncoder* encoder, Message *msg) override;
+};
+
+class DeviceNetConfigCmdUpEncoder: public CBORMessageEncoderInterface {
+public:
+  DeviceNetConfigCmdUpEncoder()
+  : CBORMessageEncoderInterface(CBORDeviceNetConfigCmdUp, DeviceNetConfigCmdUpId) {}
+protected:
+  MessageEncoder::Status encode(CborEncoder* encoder, Message *msg) override;
+private:
+  void getEncodingParams(NetworkAdapter type, uint8_t *typeID, uint8_t *paramsNum);
+
+#if defined(BOARD_HAS_WIFI)
+  MessageEncoder::Status encodeWiFiNetwork(CborEncoder* encoder, models::WiFiSetting *config);
+#endif
+
+#if defined(BOARD_HAS_CATM1_NBIOT)
+  MessageEncoder::Status encodeCatM1Network(CborEncoder* encoder, models::CATM1Setting *config);
+#endif
+
+#if defined(BOARD_HAS_ETHERNET)
+  MessageEncoder::Status encodeEthernetNetwork(CborEncoder* encoder, models::EthernetSetting *config);
+  MessageEncoder::Status encodeIP(CborEncoder* encoder, const models::ip_addr *ip);
+#endif
+
+#if defined(BOARD_HAS_NB) || defined(BOARD_HAS_GSM) || defined(BOARD_HAS_CELLULAR)
+  MessageEncoder::Status encodeCellularNetwork(CborEncoder* encoder, models::CellularSetting *config);
+#endif
+
+#if defined(BOARD_HAS_LORA)
+  MessageEncoder::Status encodeLoRaNetwork(CborEncoder* encoder, models::LoraSetting *config);
+#endif
+
 };
 
 namespace cbor { namespace encoder { namespace iotcloud {
