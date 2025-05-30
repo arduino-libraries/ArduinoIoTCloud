@@ -105,6 +105,9 @@ int ArduinoIoTCloudNotecard::begin(ConnectionHandler &connection_, int interrupt
   // Configure the Device and Thing property containers
   _thing.begin();
   _device.begin();
+  _device.setGetNetworkSettingCbk([connection = this->_connection](models::NetworkSetting &setting) {
+    connection->getSetting(setting);
+  });
 
   return 1; // (true -> success)
 }
