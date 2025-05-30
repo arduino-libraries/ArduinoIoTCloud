@@ -165,7 +165,7 @@ int ArduinoIoTCloudTCP::begin(bool const enable_watchdog, String brokerAddress, 
   _messageTopicIn  = getTopic_messagein();
 
   _thing.begin();
-  _device.begin();
+  _device.begin(_connection);
 
 #if OTA_ENABLED && !defined(OFFLOADED_DOWNLOAD)
   _ota.setClient(&_otaClient);

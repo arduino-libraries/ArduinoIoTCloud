@@ -104,7 +104,7 @@ int ArduinoIoTCloudNotecard::begin(ConnectionHandler &connection_, int interrupt
 
   // Configure the Device and Thing property containers
   _thing.begin();
-  _device.begin();
+  _device.begin(_connection);
 
   return 1; // (true -> success)
 }

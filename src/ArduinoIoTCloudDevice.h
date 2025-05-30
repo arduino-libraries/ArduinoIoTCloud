@@ -18,6 +18,7 @@
 #include <Arduino_TimedAttempt.h>
 #include "interfaces/CloudProcess.h"
 #include "property/PropertyContainer.h"
+#include <Arduino_ConnectionHandler.h>
 
 /******************************************************************************
  * CLASS DECLARATION
@@ -30,7 +31,7 @@ public:
   virtual void update() override;
   virtual void handleMessage(Message* m) override;
 
-  virtual void begin();
+  virtual void begin(ConnectionHandler *connectionHandler);
   virtual int connected();
 
   inline PropertyContainer &getPropertyContainer() {
@@ -57,6 +58,7 @@ private:
   CommandId _command;
   TimedAttempt _attachAttempt;
   PropertyContainer _propertyContainer;
+  ConnectionHandler *_connectionHandler;
   unsigned int _propertyContainerIndex;
   bool _attached;
   bool _registered;
