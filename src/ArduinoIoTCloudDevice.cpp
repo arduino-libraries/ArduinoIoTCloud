@@ -28,13 +28,15 @@ _state{State::Init},
 _attachAttempt(0, 0),
 _propertyContainer(),
 _propertyContainerIndex(0),
+_connectionHandler(nullptr),
 _attached(false),
 _registered(false) {
 }
 
-void ArduinoCloudDevice::begin() {
+void ArduinoCloudDevice::begin(ConnectionHandler *connectionHandler) {
   _attachAttempt.begin(AIOT_CONFIG_THING_ID_REQUEST_RETRY_DELAY_ms,
                        AIOT_CONFIG_MAX_THING_ID_REQUEST_RETRY_DELAY_ms);
+  _connectionHandler = connectionHandler;
 }
 
 void ArduinoCloudDevice::update() {
@@ -108,6 +110,13 @@ ArduinoCloudDevice::State ArduinoCloudDevice::handleSendCapabilities() {
   /* Sends device capabilities message */
   DeviceBeginCmd deviceBegin = { DeviceBeginCmdId, AIOT_CONFIG_LIB_VERSION };
   deliver(reinterpret_cast<Message*>(&deviceBegin));
+
+  /* Send Network Configuration */
+  if(_connectionHandler != nullptr){
+    DeviceNetConfigCmdUp deviceNetConfig = { DeviceNetConfigCmdUpId };
+    _connectionHandler->getSetting(deviceNetConfig.params );
+    deliver(reinterpret_cast<Message*>(&deviceNetConfig));
+  }
 
   /* Subscribe to device topic to request */
   ThingBeginCmd thingBegin = { ThingBeginCmdId };
