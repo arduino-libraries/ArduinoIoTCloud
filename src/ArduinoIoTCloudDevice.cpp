@@ -117,6 +117,11 @@ ArduinoCloudDevice::State ArduinoCloudDevice::handleSendCapabilities() {
     deliver(reinterpret_cast<Message*>(&deviceNetConfig));
   }
 
+#if defined(BOARD_HAS_WIFI) && not defined(BOARD_ESP)
+  String WiFiFWVersion = WiFi.firmwareVersion();
+  VersionMessage versionMessage = { WiFiFWVersionMessageId, WiFiFWVersion.c_str() };
+  deliver(reinterpret_cast<Message*>(&versionMessage));
+#endif
   /* Subscribe to device topic to request */
   ThingBeginCmd thingBegin = { ThingBeginCmdId };
   deliver(reinterpret_cast<Message*>(&thingBegin));
