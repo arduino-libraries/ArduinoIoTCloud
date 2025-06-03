@@ -71,5 +71,12 @@ protected:
   MessageEncoder::Status encode(CborEncoder* encoder, Message *msg) override;
 };
 
+namespace cbor { namespace encoder { namespace iotcloud {
+  /**
+   * Some link time optimization may exclude these classes to be instantiated
+   * thus it may be required to reference them from outside of this file
+   */
+  void commandEncoders();
+}}}
 
 #endif /* ARDUINO_CBOR_MESSAGE_ENCODER_H_ */

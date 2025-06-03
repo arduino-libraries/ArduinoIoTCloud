@@ -72,7 +72,8 @@ ArduinoIoTCloudTCP::ArduinoIoTCloudTCP()
 , _get_ota_confirmation{nullptr}
 #endif /* OTA_ENABLED */
 {
-
+  cbor::encoder::iotcloud::commandEncoders();
+  cbor::decoder::iotcloud::commandDecoders();
 }
 
 /******************************************************************************

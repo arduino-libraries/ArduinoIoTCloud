@@ -159,3 +159,14 @@ static LastValuesBeginCommandEncoder  lastValuesBeginCommandEncoder;
 static DeviceBeginCommandEncoder      deviceBeginCommandEncoder;
 static OtaProgressCommandUpEncoder    otaProgressCommandUpEncoder;
 static TimezoneCommandUpEncoder       timezoneCommandUpEncoder;
+
+namespace cbor { namespace encoder { namespace iotcloud {
+  void commandEncoders() {
+    (void) otaBeginCommandEncoder;
+    (void) thingBeginCommandEncoder;
+    (void) lastValuesBeginCommandEncoder;
+    (void) deviceBeginCommandEncoder;
+    (void) otaProgressCommandUpEncoder;
+    (void) timezoneCommandUpEncoder;
+  }
+}}}
