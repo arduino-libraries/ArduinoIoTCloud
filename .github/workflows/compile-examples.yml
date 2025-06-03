@@ -21,7 +21,8 @@ jobs:
       UNIVERSAL_LIBRARIES: |
         # Install the ArduinoIoTCloud library from the repository
         - source-path: ./
-        - name: Arduino_ConnectionHandler
+        - source-url: https://github.com/fabik111/Arduino_ConnectionHandler.git
+          version: add-get-setting
         - name: ArduinoHttpClient
         - name: Arduino_DebugUtils
         - name: ArduinoMqttClient
