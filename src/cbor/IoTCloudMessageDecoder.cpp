@@ -176,3 +176,13 @@ static ThingUpdateCommandDecoder      thingUpdateCommandDecoder;
 static ThingDetachCommandDecoder      thingDetachCommandDecoder;
 static LastValuesUpdateCommandDecoder lastValuesUpdateCommandDecoder;
 static TimezoneCommandDownDecoder     timezoneCommandDownDecoder;
+
+namespace cbor { namespace decoder { namespace iotcloud {
+  void commandDecoders() {
+    (void) otaUpdateCommandDecoder;
+    (void) thingUpdateCommandDecoder;
+    (void) thingDetachCommandDecoder;
+    (void) lastValuesUpdateCommandDecoder;
+    (void) timezoneCommandDownDecoder;
+  }
+}}}
