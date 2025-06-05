@@ -34,7 +34,7 @@
   #include <utility/SElementArduinoCloudCertificate.h>
 #endif
 
-#include <tls/utility/TLSClientMqtt.h>
+#include <tls/utility/TLSClientBroker.h>
 #include <tls/utility/TLSClientOta.h>
 
 #if OTA_ENABLED
@@ -159,7 +159,7 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
     bool _writeCertOnConnect;
 #endif
 
-    TLSClientMqtt _brokerTLSClient;
+    TLSClientBroker _brokerTLSClient;
     MqttClient _mqttClient;
 
     String _messageTopicOut;

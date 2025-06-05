@@ -12,7 +12,7 @@
 
 #ifdef HAS_TCP
 
-#include "TLSClientMqtt.h"
+#include "TLSClientBroker.h"
 
 #if defined(BOARD_HAS_SECRET_KEY)
   #include "tls/AIoTCUPCert.h"
@@ -31,7 +31,7 @@
 #endif
 
 
-void TLSClientMqtt::begin(ConnectionHandler & connection, ArduinoIoTAuthenticationMode authMode) {
+void TLSClientBroker::begin(ConnectionHandler & connection, ArduinoIoTAuthenticationMode authMode) {
 
 #if defined(BOARD_HAS_OFFLOADED_ECCX08)
   /* Arduino Root CA is configured in nina-fw
