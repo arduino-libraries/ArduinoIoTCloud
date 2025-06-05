@@ -121,7 +121,7 @@ int ArduinoIoTCloudTCP::begin(ConnectionHandler & connection, bool const enableW
       }
     }
   #if !defined(BOARD_HAS_OFFLOADED_ECCX08)
-    _brokerClient.setEccSlot(static_cast<int>(SElementArduinoCloudSlot::Key), _cert.bytes(), _cert.length());
+    _brokerTLSClient.setEccSlot(static_cast<int>(SElementArduinoCloudSlot::Key), _cert.bytes(), _cert.length());
     #if  OTA_ENABLED
     _otaClient.setEccSlot(static_cast<int>(SElementArduinoCloudSlot::Key), _cert.bytes(), _cert.length());
     #endif
@@ -245,7 +245,7 @@ int ArduinoIoTCloudTCP::begin(bool const enableWatchdog, String brokerAddress, u
 
   _state = State::ConfigPhy;
 
-  _mqttClient.setClient(_brokerClient);
+  _mqttClient.setClient(_brokerTLSClient);
 
 #ifdef BOARD_HAS_SECRET_KEY
   if(_password.length())
@@ -316,7 +316,7 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_Init()
 {
   /* Setup broker TLS client */
   /* Setup broker TLS client */
-  _brokerClient.begin(*_connection, _authMode);
+  _brokerTLSClient.begin(*_connection, _authMode);
 
 #if  OTA_ENABLED
   /* Setup OTA TLS client */
@@ -393,7 +393,7 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_ConnectMqttBroker()
   _connection_attempt.retry();
 
 #if defined(BOARD_HAS_ECCX08) && !defined(BOARD_HAS_OFFLOADED_ECCX08)
-  DEBUG_ERROR("ArduinoIoTCloudTCP::%s could not connect to %s:%d Mqtt error: %d TLS error: %d", __FUNCTION__, _brokerAddress.c_str(), _brokerPort, _mqttClient.connectError(), _brokerClient.errorCode());
+  DEBUG_ERROR("ArduinoIoTCloudTCP::%s could not connect to %s:%d Mqtt error: %d TLS error: %d", __FUNCTION__, _brokerAddress.c_str(), _brokerPort, _mqttClient.connectError(), _brokerTLSClient.errorCode());
 #else
   DEBUG_ERROR("ArduinoIoTCloudTCP::%s could not connect to %s:%d Error: %d", __FUNCTION__, _brokerAddress.c_str(), _brokerPort, _mqttClient.connectError());
 #endif

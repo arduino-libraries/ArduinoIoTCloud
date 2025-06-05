@@ -159,7 +159,7 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
     bool _writeCertOnConnect;
 #endif
 
-    TLSClientMqtt _brokerClient;
+    TLSClientMqtt _brokerTLSClient;
     MqttClient _mqttClient;
 
     String _messageTopicOut;
