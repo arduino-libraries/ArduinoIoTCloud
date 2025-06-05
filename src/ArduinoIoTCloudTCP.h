@@ -75,7 +75,6 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
     virtual void disconnect    () override;
 
     int begin(ConnectionHandler & connection, bool const enable_watchdog = true, String brokerAddress = DEFAULT_BROKER_ADDRESS, uint16_t brokerPort = DEFAULT_BROKER_PORT_AUTO, bool auto_reconnect = true);
-    int begin(bool const enable_watchdog = true, String brokerAddress = DEFAULT_BROKER_ADDRESS, uint16_t brokerPort = DEFAULT_BROKER_PORT_AUTO, bool auto_reconnect = true);
 
 #if defined(BOARD_HAS_SECURE_ELEMENT)
     int updateCertificate(String authorityKeyIdentifier, String serialNumber, String notBefore, String notAfter, String signature);
@@ -117,6 +116,9 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
 #endif
 
   private:
+
+    int begin(bool const enable_watchdog = true, String brokerAddress = DEFAULT_BROKER_ADDRESS, uint16_t brokerPort = DEFAULT_BROKER_PORT_AUTO, bool auto_reconnect = true);
+
     static const int MQTT_TRANSMIT_BUFFER_SIZE = 256;
 
     enum class State

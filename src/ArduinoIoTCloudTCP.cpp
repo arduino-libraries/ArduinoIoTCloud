@@ -139,65 +139,6 @@ int ArduinoIoTCloudTCP::begin(ConnectionHandler & connection, bool const enable_
   return begin(enable_watchdog, _brokerAddress, _brokerPort, auto_reconnect);
 }
 
-int ArduinoIoTCloudTCP::begin(bool const enable_watchdog, String brokerAddress, uint16_t brokerPort, bool auto_reconnect)
-{
-  _enable_watchdog = enable_watchdog;
-  _brokerAddress = brokerAddress;
-  _brokerPort = brokerPort;
-  _auto_reconnect = auto_reconnect;
-
-  _state = State::ConfigPhy;
-
-  _mqttClient.setClient(_brokerClient);
-
-#ifdef BOARD_HAS_SECRET_KEY
-  if(_password.length())
-  {
-    _mqttClient.setUsernamePassword(getDeviceId(), _password);
-  }
-#endif
-
-  _mqttClient.onMessage(ArduinoIoTCloudTCP::onMessage);
-  _mqttClient.setKeepAliveInterval(30 * 1000);
-  _mqttClient.setConnectionTimeout(1500);
-  _mqttClient.setId(getDeviceId().c_str());
-
-  _messageTopicOut = getTopic_messageout();
-  _messageTopicIn  = getTopic_messagein();
-
-  _thing.begin();
-  _device.begin();
-
-#if OTA_ENABLED && !defined(OFFLOADED_DOWNLOAD)
-  _ota.setClient(&_otaClient);
-#endif // OTA_ENABLED && !defined(OFFLOADED_DOWNLOAD)
-
-#if OTA_ENABLED && defined(OTA_BASIC_AUTH)
-  _ota.setAuthentication(getDeviceId().c_str(), _password.c_str());
-#endif // OTA_ENABLED && !defined(OFFLOADED_DOWNLOAD) && defined(OTA_BASIC_AUTH)
-
-#ifdef BOARD_HAS_OFFLOADED_ECCX08
-  if (String(WiFi.firmwareVersion()) < String("1.6.0")) {
-    DEBUG_ERROR("ArduinoIoTCloudTCP::%s In order to connect to Arduino IoT Cloud, NINA firmware needs to be >= 1.6.0, current %s", __FUNCTION__, WiFi.firmwareVersion());
-    return 0;
-  }
-#endif /* BOARD_HAS_OFFLOADED_ECCX08 */
-
-#if defined (ARDUINO_UNOWIFIR4)
-  if (String(WiFi.firmwareVersion()) < String("0.2.0")) {
-    DEBUG_ERROR("ArduinoIoTCloudTCP::%s In order to connect to Arduino IoT Cloud, WiFi firmware needs to be >= 0.2.0, current %s", __FUNCTION__, WiFi.firmwareVersion());
-  }
-#endif
-
-#if NETWORK_CONFIGURATOR_ENABLED
-  if(_configurator != nullptr){
-    _configurator->enableAgent(ConfiguratorAgent::AgentTypes::BLE,false);
-    _configurator->begin();
-  }
-#endif
-  return 1;
-}
-
 void ArduinoIoTCloudTCP::update()
 {
   /* Feed the watchdog. If any of the functions called below
@@ -294,6 +235,65 @@ void ArduinoIoTCloudTCP::disconnect() {
 /******************************************************************************
  * PRIVATE MEMBER FUNCTIONS
  ******************************************************************************/
+
+int ArduinoIoTCloudTCP::begin(bool const enable_watchdog, String brokerAddress, uint16_t brokerPort, bool auto_reconnect)
+{
+  _enable_watchdog = enable_watchdog;
+  _brokerAddress = brokerAddress;
+  _brokerPort = brokerPort;
+  _auto_reconnect = auto_reconnect;
+
+  _state = State::ConfigPhy;
+
+  _mqttClient.setClient(_brokerClient);
+
+#ifdef BOARD_HAS_SECRET_KEY
+  if(_password.length())
+  {
+    _mqttClient.setUsernamePassword(getDeviceId(), _password);
+  }
+#endif
+
+  _mqttClient.onMessage(ArduinoIoTCloudTCP::onMessage);
+  _mqttClient.setKeepAliveInterval(30 * 1000);
+  _mqttClient.setConnectionTimeout(1500);
+  _mqttClient.setId(getDeviceId().c_str());
+
+  _messageTopicOut = getTopic_messageout();
+  _messageTopicIn  = getTopic_messagein();
+
+  _thing.begin();
+  _device.begin();
+
+#if OTA_ENABLED && !defined(OFFLOADED_DOWNLOAD)
+  _ota.setClient(&_otaClient);
+#endif // OTA_ENABLED && !defined(OFFLOADED_DOWNLOAD)
+
+#if OTA_ENABLED && defined(OTA_BASIC_AUTH)
+  _ota.setAuthentication(getDeviceId().c_str(), _password.c_str());
+#endif // OTA_ENABLED && !defined(OFFLOADED_DOWNLOAD) && defined(OTA_BASIC_AUTH)
+
+#ifdef BOARD_HAS_OFFLOADED_ECCX08
+  if (String(WiFi.firmwareVersion()) < String("1.6.0")) {
+    DEBUG_ERROR("ArduinoIoTCloudTCP::%s In order to connect to Arduino IoT Cloud, NINA firmware needs to be >= 1.6.0, current %s", __FUNCTION__, WiFi.firmwareVersion());
+    return 0;
+  }
+#endif /* BOARD_HAS_OFFLOADED_ECCX08 */
+
+#if defined (ARDUINO_UNOWIFIR4)
+  if (String(WiFi.firmwareVersion()) < String("0.2.0")) {
+    DEBUG_ERROR("ArduinoIoTCloudTCP::%s In order to connect to Arduino IoT Cloud, WiFi firmware needs to be >= 0.2.0, current %s", __FUNCTION__, WiFi.firmwareVersion());
+  }
+#endif
+
+#if NETWORK_CONFIGURATOR_ENABLED
+  if(_configurator != nullptr){
+    _configurator->enableAgent(ConfiguratorAgent::AgentTypes::BLE,false);
+    _configurator->begin();
+  }
+#endif
+  return 1;
+}
 
 ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_ConfigPhy()
 {
