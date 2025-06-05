@@ -74,7 +74,7 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
     virtual void printDebugInfo() override;
     virtual void disconnect    () override;
 
-    int begin(ConnectionHandler & connection, bool const enable_watchdog = true, String brokerAddress = DEFAULT_BROKER_ADDRESS, uint16_t brokerPort = DEFAULT_BROKER_PORT_AUTO, bool auto_reconnect = true);
+    int begin(ConnectionHandler & connection, bool const enableWatchdog = true, String brokerAddress = DEFAULT_BROKER_ADDRESS, uint16_t brokerPort = DEFAULT_BROKER_PORT_AUTO, bool autoReconnect = true);
 
 #if defined(BOARD_HAS_SECURE_ELEMENT)
     int updateCertificate(String authorityKeyIdentifier, String serialNumber, String notBefore, String notAfter, String signature);
@@ -117,7 +117,7 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
 
   private:
 
-    int begin(bool const enable_watchdog = true, String brokerAddress = DEFAULT_BROKER_ADDRESS, uint16_t brokerPort = DEFAULT_BROKER_PORT_AUTO, bool auto_reconnect = true);
+    int begin(bool const enableWatchdog = true, String brokerAddress = DEFAULT_BROKER_ADDRESS, uint16_t brokerPort = DEFAULT_BROKER_PORT_AUTO, bool autoReconnect = true);
 
     static const int MQTT_TRANSMIT_BUFFER_SIZE = 256;
 
@@ -145,8 +145,8 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
     uint8_t _mqtt_data_buf[MQTT_TRANSMIT_BUFFER_SIZE];
     int _mqtt_data_len;
     bool _mqtt_data_request_retransmit;
-    bool _enable_watchdog;
-    bool _auto_reconnect;
+    bool _enableWatchdog;
+    bool _autoReconnect;
 
 #if defined(BOARD_HAS_SECRET_KEY)
     String _password;

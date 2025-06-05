@@ -80,7 +80,7 @@ ArduinoIoTCloudTCP::ArduinoIoTCloudTCP()
  * PUBLIC MEMBER FUNCTIONS
  ******************************************************************************/
 
-int ArduinoIoTCloudTCP::begin(ConnectionHandler & connection, bool const enable_watchdog, String brokerAddress, uint16_t brokerPort, bool auto_reconnect)
+int ArduinoIoTCloudTCP::begin(ConnectionHandler & connection, bool const enableWatchdog, String brokerAddress, uint16_t brokerPort, bool autoReconnect)
 {
   _connection = &connection;
   _brokerAddress = brokerAddress;
@@ -136,7 +136,7 @@ int ArduinoIoTCloudTCP::begin(ConnectionHandler & connection, bool const enable_
 
   /* Setup retry timers */
   _connection_attempt.begin(AIOT_CONFIG_RECONNECTION_RETRY_DELAY_ms, AIOT_CONFIG_MAX_RECONNECTION_RETRY_DELAY_ms);
-  return begin(enable_watchdog, _brokerAddress, _brokerPort, auto_reconnect);
+  return begin(enableWatchdog, _brokerAddress, _brokerPort, autoReconnect);
 }
 
 void ArduinoIoTCloudTCP::update()
@@ -228,7 +228,7 @@ void ArduinoIoTCloudTCP::disconnect() {
   }
 
   _mqttClient.stop();
-  _auto_reconnect = false;
+  _autoReconnect = false;
   _state = State::Disconnect;
 }
 
@@ -236,12 +236,12 @@ void ArduinoIoTCloudTCP::disconnect() {
  * PRIVATE MEMBER FUNCTIONS
  ******************************************************************************/
 
-int ArduinoIoTCloudTCP::begin(bool const enable_watchdog, String brokerAddress, uint16_t brokerPort, bool auto_reconnect)
+int ArduinoIoTCloudTCP::begin(bool const enableWatchdog, String brokerAddress, uint16_t brokerPort, bool autoReconnect)
 {
-  _enable_watchdog = enable_watchdog;
+  _enableWatchdog = enableWatchdog;
   _brokerAddress = brokerAddress;
   _brokerPort = brokerPort;
-  _auto_reconnect = auto_reconnect;
+  _autoReconnect = autoReconnect;
 
   _state = State::ConfigPhy;
 
@@ -332,7 +332,7 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_Init()
    * set a rather large timeout at first.
    */
 #if defined (ARDUINO_ARCH_SAMD) || defined (ARDUINO_ARCH_MBED)
-  if (_enable_watchdog) {
+  if (_enableWatchdog) {
     /* Initialize watchdog hardware */
     watchdog_enable();
     /* Setup callbacks to feed the watchdog during offloaded network operations (connection/download)*/
@@ -448,7 +448,7 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_Disconnect()
   DEBUG_INFO("Disconnected from Arduino IoT Cloud");
   execCloudEventCallback(ArduinoIoTCloudEvent::DISCONNECT);
 
-  if(_auto_reconnect) {
+  if(_autoReconnect) {
     /* Setup timer for broker connection and restart */
     _connection_attempt.begin(AIOT_CONFIG_RECONNECTION_RETRY_DELAY_ms, AIOT_CONFIG_MAX_RECONNECTION_RETRY_DELAY_ms);
     return State::ConnectPhy;
