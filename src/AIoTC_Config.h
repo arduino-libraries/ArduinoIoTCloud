@@ -58,6 +58,12 @@
  * AUTOMATICALLY CONFIGURED DEFINES
  ******************************************************************************/
 
+#if defined(DEBUG_ERROR) || defined(DEBUG_WARNING) || defined(DEBUG_INFO) || defined(DEBUG_DEBUG) || defined(DEBUG_VERBOSE)
+  #define DEBUG_ENABLED (1)
+#else
+  #define DEBUG_ENABLED (0)
+#endif
+
 #if !defined(HAS_NOTECARD)
 
 #if defined(ARDUINO_SAMD_MKRWIFI1010) || defined(ARDUINO_SAMD_NANO_33_IOT)
@@ -148,8 +154,10 @@
   #define BOARD_STM32H7
 #endif
 
-#if defined(ARDUINO_PORTENTA_H7_M7) || defined(ARDUINO_NICLA_VISION) || defined(ARDUINO_OPTA) || defined(ARDUINO_GIGA) \
-  || defined(ARDUINO_UNOR4_WIFI) || defined(ARDUINO_PORTENTA_C33)
+#define CONNECTION_HANDLER_ENABLED (1)
+
+#if ((defined(BOARD_STM32H7) || defined(ARDUINO_UNOR4_WIFI) || defined(ARDUINO_PORTENTA_C33)) &&\
+     (defined(CONNECTION_HANDLER_ENABLED) && (CONNECTION_HANDLER_ENABLED == 1)))
   #define NETWORK_CONFIGURATOR_ENABLED (1)
 #else
   #define NETWORK_CONFIGURATOR_ENABLED (0)

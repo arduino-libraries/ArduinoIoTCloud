@@ -10,8 +10,11 @@
 
 #pragma once
 
-#include <Arduino_ConnectionHandler.h>
 #include <AIoTC_Config.h>
+#if CONNECTION_HANDLER_ENABLED
+  #include <Arduino_ConnectionHandler.h>
+#endif
+
 
 #if defined(BOARD_HAS_OFFLOADED_ECCX08)
   /*
@@ -69,6 +72,7 @@
 public:
   void begin(Client* client);
 
+#if CONNECTION_HANDLER_ENABLED
   static inline Client& getNewClient(NetworkAdapter net) {
     switch(net) {
 #ifdef BOARD_HAS_WIFI
@@ -97,4 +101,5 @@ public:
 #endif // BOARD_HAS_CELLULAR
     }
   }
+#endif // CONNECTION_HANDLER_ENABLED
 };

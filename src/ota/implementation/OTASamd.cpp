@@ -13,7 +13,9 @@
 #if defined(ARDUINO_ARCH_SAMD) && OTA_ENABLED
 #include "OTASamd.h"
 
-#include <Arduino_DebugUtils.h>
+#if DEBUG_ENABLED
+  #include <Arduino_DebugUtils.h>
+#endif
 #if OTA_STORAGE_SNU
 #  include <SNU.h>
 #  include <WiFiNINA.h> /* WiFiStorage */

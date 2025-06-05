@@ -13,7 +13,9 @@
 #if defined(ARDUINO_UNOR4_WIFI) && OTA_ENABLED
 #include "OTAUnoR4.h"
 
-#include <Arduino_DebugUtils.h>
+#if DEBUG_ENABLED
+  #include <Arduino_DebugUtils.h>
+#endif
 #include "fsp_common_api.h"
 #include "r_flash_lp.h"
 #include "WiFi.h"
