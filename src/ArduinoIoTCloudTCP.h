@@ -74,7 +74,9 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
     virtual void printDebugInfo() override;
     virtual void disconnect    () override;
 
-    int begin(ConnectionHandler & connection, bool const enableWatchdog = true, String brokerAddress = DEFAULT_BROKER_ADDRESS, uint16_t brokerPort = DEFAULT_BROKER_PORT_AUTO, bool autoReconnect = true);
+    int begin(ConnectionHandler& connection, bool const enableWatchdog = true, String brokerAddress = DEFAULT_BROKER_ADDRESS, uint16_t brokerPort = DEFAULT_BROKER_PORT_AUTO, bool autoReconnect = true);
+    int begin(Client& brokerClient, Client& otaClient, UDP& ntpClient, bool const enableWatchdog = true, String brokerAddress = DEFAULT_BROKER_ADDRESS, uint16_t brokerPort = DEFAULT_BROKER_PORT_AUTO, bool autoReconnect = true);
+    int begin(Client& brokerClient, UDP& ntpClient, bool const enableWatchdog = true, String brokerAddress = DEFAULT_BROKER_ADDRESS, uint16_t brokerPort = DEFAULT_BROKER_PORT_AUTO, bool autoReconnect = true);
 
 #if defined(BOARD_HAS_SECURE_ELEMENT)
     int updateCertificate(String authorityKeyIdentifier, String serialNumber, String notBefore, String notAfter, String signature);
@@ -159,8 +161,11 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
     bool _writeCertOnConnect;
 #endif
 
+    /* Base client from sketch or ConnectionHandler */
+    Client * _brokerClient;
     TLSClientBroker _brokerTLSClient;
     MqttClient _mqttClient;
+    UDP * _ntpClient;
 
     String _messageTopicOut;
     String _messageTopicIn;
@@ -168,6 +173,8 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
     String _dataTopicIn;
 
 #if OTA_ENABLED
+    /* Base client from sketch or ConnectionHandler */
+    Client * _otaClient;
     TLSClientOta _otaTLSClient;
     ArduinoCloudOTA _ota;
     onOTARequestCallbackFunc _get_ota_confirmation;

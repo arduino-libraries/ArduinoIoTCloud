@@ -80,63 +80,29 @@ ArduinoIoTCloudTCP::ArduinoIoTCloudTCP()
  * PUBLIC MEMBER FUNCTIONS
  ******************************************************************************/
 
-int ArduinoIoTCloudTCP::begin(ConnectionHandler & connection, bool const enableWatchdog, String brokerAddress, uint16_t brokerPort, bool autoReconnect)
+int ArduinoIoTCloudTCP::begin(ConnectionHandler& connection, bool const enableWatchdog, String brokerAddress, uint16_t brokerPort, bool autoReconnect)
 {
   _connection = &connection;
-  _brokerAddress = brokerAddress;
-
-  _authMode = ArduinoIoTAuthenticationMode::CERTIFICATE;
-#if defined (BOARD_HAS_SECRET_KEY)
-  /* If board supports and sketch is configured for username and password login */
-  if(_password.length()) {
-    _authMode = ArduinoIoTAuthenticationMode::PASSWORD;
-  }
+#if OTA_ENABLED
+  return begin(_connection->getClient(), TLSClientOta::getNewClient(_connection->getInterface()), _connection->getUDP(), enableWatchdog, brokerAddress, brokerPort, autoReconnect);
+#else
+  return begin(_connection->getClient(), _connection->getUDP(), enableWatchdog, brokerAddress, brokerPort, autoReconnect);
 #endif
+}
 
-  /* If board is configured for certificate authentication and mTLS */
-  if(_authMode == ArduinoIoTAuthenticationMode::CERTIFICATE)
-  {
-#if defined(BOARD_HAS_SECURE_ELEMENT)
-    if (!_selement.begin())
-    {
-      DEBUG_ERROR("ArduinoIoTCloudTCP::%s could not initialize secure element.", __FUNCTION__);
-  #if defined(ARDUINO_UNOWIFIR4)
-      if (String(WiFi.firmwareVersion()) < String("0.4.1")) {
-        DEBUG_ERROR("ArduinoIoTCloudTCP::%s In order to read device certificate, WiFi firmware needs to be >= 0.4.1, current %s", __FUNCTION__, WiFi.firmwareVersion());
-      }
-  #endif
-      return 0;
-    }
-    if (!SElementArduinoCloudDeviceId::read(_selement, getDeviceId(), SElementArduinoCloudSlot::DeviceId))
-    {
-      DEBUG_ERROR("ArduinoIoTCloudTCP::%s could not read device id.", __FUNCTION__);
-      return 0;
-    }
-    if (!_writeCertOnConnect) {
-      /* No update pending read certificate stored in secure element */
-      if (!SElementArduinoCloudCertificate::read(_selement, _cert, SElementArduinoCloudSlot::CompressedCertificate))
-      {
-        DEBUG_ERROR("ArduinoIoTCloudTCP::%s could not read device certificate.", __FUNCTION__);
-        return 0;
-      }
-    }
-  #if !defined(BOARD_HAS_OFFLOADED_ECCX08)
-    _brokerTLSClient.setEccSlot(static_cast<int>(SElementArduinoCloudSlot::Key), _cert.bytes(), _cert.length());
-    #if  OTA_ENABLED
-    _otaTLSClient.setEccSlot(static_cast<int>(SElementArduinoCloudSlot::Key), _cert.bytes(), _cert.length());
-    #endif
-  #endif
-    _brokerPort = (brokerPort == DEFAULT_BROKER_PORT_AUTO) ? DEFAULT_BROKER_PORT_SECURE_AUTH : brokerPort;
+int ArduinoIoTCloudTCP::begin(Client& brokerClient, Client& otaClient, UDP& ntpClient, bool const enableWatchdog, String brokerAddress, uint16_t brokerPort, bool autoReconnect)
+{
+#if OTA_ENABLED
+  _otaClient = &otaClient;
 #endif
-  }
-  else
-  {
-    _brokerPort = (brokerPort == DEFAULT_BROKER_PORT_AUTO) ? DEFAULT_BROKER_PORT_USER_PASS_AUTH : brokerPort;
-  }
+  return begin(brokerClient, ntpClient, enableWatchdog, brokerAddress, _brokerPort, autoReconnect);
+}
 
-  /* Setup retry timers */
-  _connection_attempt.begin(AIOT_CONFIG_RECONNECTION_RETRY_DELAY_ms, AIOT_CONFIG_MAX_RECONNECTION_RETRY_DELAY_ms);
-  return begin(enableWatchdog, _brokerAddress, _brokerPort, autoReconnect);
+int ArduinoIoTCloudTCP::begin(Client& brokerClient, UDP& ntpClient, bool const enableWatchdog, String brokerAddress, uint16_t brokerPort, bool autoReconnect)
+{
+  _brokerClient = &brokerClient;
+  _ntpClient = &ntpClient;
+  return begin(enableWatchdog, brokerAddress, brokerPort, autoReconnect);
 }
 
 void ArduinoIoTCloudTCP::update()
@@ -175,18 +141,21 @@ void ArduinoIoTCloudTCP::update()
   /* Poll the network configurator to check if it is updating the configuration.
    * The polling must be performed only if the the first configuration is completed.
    */
-  #if NETWORK_CONFIGURATOR_ENABLED
+#if NETWORK_CONFIGURATOR_ENABLED
   if(_configurator != nullptr && _state > State::Init && _configurator->update() == NetworkConfiguratorStates::UPDATING_CONFIG){
     _state = State::ConfigPhy;
   }
-  #endif
+#endif
 
 #if OTA_ENABLED
   /* OTA FSM needs to reach the Idle state before being able to run independently from
    * the mqttClient. The state can be reached only after the mqttClient is connected to
    * the broker.
+   *
+   * We also have to check that the OTA client is not null. It can happen if we don't
+   * use the ArduinoConnectionHandler library and the user doesn't provide it.
    */
-  if(_state <= State::ConnectPhy){
+  if ((_state <= State::ConnectPhy) || (_otaClient == nullptr)) {
     return;
   }
 
@@ -238,11 +207,61 @@ void ArduinoIoTCloudTCP::disconnect() {
 
 int ArduinoIoTCloudTCP::begin(bool const enableWatchdog, String brokerAddress, uint16_t brokerPort, bool autoReconnect)
 {
+  _authMode = ArduinoIoTAuthenticationMode::CERTIFICATE;
+#if defined (BOARD_HAS_SECRET_KEY)
+  /* If board supports and sketch is configured for username and password login */
+  if(_password.length()) {
+    _authMode = ArduinoIoTAuthenticationMode::PASSWORD;
+  }
+#endif
+
+  /* If board is configured for certificate authentication and mTLS */
+  if(_authMode == ArduinoIoTAuthenticationMode::CERTIFICATE)
+  {
+#if defined(BOARD_HAS_SECURE_ELEMENT)
+    if (!_selement.begin())
+    {
+      DEBUG_ERROR("ArduinoIoTCloudTCP::%s could not initialize secure element.", __FUNCTION__);
+  #if defined(ARDUINO_UNOWIFIR4)
+      if (String(WiFi.firmwareVersion()) < String("0.4.1")) {
+        DEBUG_ERROR("ArduinoIoTCloudTCP::%s In order to read device certificate, WiFi firmware needs to be >= 0.4.1, current %s", __FUNCTION__, WiFi.firmwareVersion());
+      }
+  #endif
+      return 0;
+    }
+    if (!SElementArduinoCloudDeviceId::read(_selement, getDeviceId(), SElementArduinoCloudSlot::DeviceId))
+    {
+      DEBUG_ERROR("ArduinoIoTCloudTCP::%s could not read device id.", __FUNCTION__);
+      return 0;
+    }
+    if (!_writeCertOnConnect) {
+      /* No update pending read certificate stored in secure element */
+      if (!SElementArduinoCloudCertificate::read(_selement, _cert, SElementArduinoCloudSlot::CompressedCertificate))
+      {
+        DEBUG_ERROR("ArduinoIoTCloudTCP::%s could not read device certificate.", __FUNCTION__);
+        return 0;
+      }
+    }
+  #if !defined(BOARD_HAS_OFFLOADED_ECCX08)
+    _brokerTLSClient.setEccSlot(static_cast<int>(SElementArduinoCloudSlot::Key), _cert.bytes(), _cert.length());
+    #if  OTA_ENABLED
+    _otaTLSClient.setEccSlot(static_cast<int>(SElementArduinoCloudSlot::Key), _cert.bytes(), _cert.length());
+    #endif
+  #endif
+    _brokerPort = (brokerPort == DEFAULT_BROKER_PORT_AUTO) ? DEFAULT_BROKER_PORT_SECURE_AUTH : brokerPort;
+#endif
+  }
+  else
+  {
+    _brokerPort = (brokerPort == DEFAULT_BROKER_PORT_AUTO) ? DEFAULT_BROKER_PORT_USER_PASS_AUTH : brokerPort;
+  }
+
+  /* Setup retry timers */
+  _connection_attempt.begin(AIOT_CONFIG_RECONNECTION_RETRY_DELAY_ms, AIOT_CONFIG_MAX_RECONNECTION_RETRY_DELAY_ms);
+
   _enableWatchdog = enableWatchdog;
   _brokerAddress = brokerAddress;
-  _brokerPort = brokerPort;
   _autoReconnect = autoReconnect;
-
   _state = State::ConfigPhy;
 
   _mqttClient.setClient(_brokerTLSClient);
@@ -283,6 +302,7 @@ int ArduinoIoTCloudTCP::begin(bool const enableWatchdog, String brokerAddress, u
 #if defined (ARDUINO_UNOWIFIR4)
   if (String(WiFi.firmwareVersion()) < String("0.2.0")) {
     DEBUG_ERROR("ArduinoIoTCloudTCP::%s In order to connect to Arduino IoT Cloud, WiFi firmware needs to be >= 0.2.0, current %s", __FUNCTION__, WiFi.firmwareVersion());
+    return 0;
   }
 #endif
 
@@ -302,10 +322,10 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_ConfigPhy()
     return State::Init;
   }
 
-  if(_configurator->update() == NetworkConfiguratorStates::CONFIGURED) {
-      _configurator->disconnectAgent();
-      return State::Init;
-    }
+  if (_configurator->update() == NetworkConfiguratorStates::CONFIGURED) {
+    _configurator->disconnectAgent();
+    return State::Init;
+  }
   return State::ConfigPhy;
 #else
   return State::Init;
@@ -315,12 +335,11 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_ConfigPhy()
 ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_Init()
 {
   /* Setup broker TLS client */
-  /* Setup broker TLS client */
-  _brokerTLSClient.begin(*_connection, _authMode);
+  _brokerTLSClient.begin(_brokerClient, _authMode);
 
 #if  OTA_ENABLED
   /* Setup OTA TLS client */
-  _otaTLSClient.begin(*_connection);
+  _otaTLSClient.begin(_otaClient);
 #endif
 
   /* Setup TimeService */

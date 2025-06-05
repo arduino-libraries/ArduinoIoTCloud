@@ -31,22 +31,28 @@
 #endif
 
 
-void TLSClientBroker::begin(ConnectionHandler & connection, ArduinoIoTAuthenticationMode authMode) {
+void TLSClientBroker::begin(Client* client, ArduinoIoTAuthenticationMode authMode) {
+
+/* Client* is coming from a reference in ArduinoIoTCloud::begin( .. )
+ * The Client must be instantiated in the user sketch, for example:
+ *   WiFiClientSecure client;
+ */
 
 #if defined(BOARD_HAS_OFFLOADED_ECCX08)
   /* Arduino Root CA is configured in nina-fw
    * https://github.com/arduino/nina-fw/blob/master/arduino/libraries/ArduinoBearSSL/src/BearSSLTrustAnchors.h
    */
   (void)authMode;
+  (void)client;
 #elif defined(BOARD_HAS_ECCX08)
   (void)authMode;
-  setClient(connection.getClient());
+  setClient(*client);
   setProfile(aiotc_client_profile_init);
   setTrustAnchors(ArduinoIoTCloudTrustAnchor, ArduinoIoTCloudTrustAnchor_NUM);
   ArduinoBearSSL.onGetTime(getTime);
 #elif defined(ARDUINO_PORTENTA_C33)
   (void)authMode;
-  setClient(connection.getClient());
+  setClient(*client);
   setCACert(AIoTSSCert);
 #elif defined(ARDUINO_NICLA_VISION)
   (void)authMode;
@@ -61,7 +67,7 @@ void TLSClientBroker::begin(ConnectionHandler & connection, ArduinoIoTAuthentica
    * also present in older firmware revisions
    * https://github.com/arduino/uno-r4-wifi-usb-bridge/blob/f09ca94fdcab845b8368d4435fdac9f6999d21d2/certificates/certificates.pem#L852
    */
-  (void)connection;
+  (void)client;
   /* Temporary force CACert to add new CA without rebuilding firmware */
   if (authMode == ArduinoIoTAuthenticationMode::CERTIFICATE) {
     setCACert(AIoTSSCert);

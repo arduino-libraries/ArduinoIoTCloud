@@ -59,7 +59,6 @@ public:
   static bool isTimeValid(unsigned long const time);
 
 private:
-
   ConnectionHandler * _con_hdl;
   bool _is_rtc_configured;
   bool _is_tz_configured;
