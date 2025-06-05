@@ -21,7 +21,9 @@
 #include <Arduino_SHA256.h>
 
 #include <interfaces/CloudProcess.h>
-#include <Arduino_DebugUtils.h>
+#if DEBUG_ENABLED
+  #include <Arduino_DebugUtils.h>
+#endif
 
 /******************************************************************************
  * CLASS DECLARATION

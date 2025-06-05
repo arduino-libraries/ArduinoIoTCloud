@@ -80,6 +80,7 @@ ArduinoIoTCloudTCP::ArduinoIoTCloudTCP()
  * PUBLIC MEMBER FUNCTIONS
  ******************************************************************************/
 
+#if CONNECTION_HANDLER_ENABLED
 int ArduinoIoTCloudTCP::begin(ConnectionHandler& connection, bool const enableWatchdog, String brokerAddress, uint16_t brokerPort, bool autoReconnect)
 {
   _connection = &connection;
@@ -89,6 +90,7 @@ int ArduinoIoTCloudTCP::begin(ConnectionHandler& connection, bool const enableWa
   return begin(_connection->getClient(), _connection->getUDP(), enableWatchdog, brokerAddress, brokerPort, autoReconnect);
 #endif
 }
+#endif
 
 int ArduinoIoTCloudTCP::begin(Client& brokerClient, Client& otaClient, UDP& ntpClient, bool const enableWatchdog, String brokerAddress, uint16_t brokerPort, bool autoReconnect)
 {
@@ -292,14 +294,15 @@ int ArduinoIoTCloudTCP::begin(bool const enableWatchdog, String brokerAddress, u
   _ota.setAuthentication(getDeviceId().c_str(), _password.c_str());
 #endif // OTA_ENABLED && !defined(OFFLOADED_DOWNLOAD) && defined(OTA_BASIC_AUTH)
 
-#ifdef BOARD_HAS_OFFLOADED_ECCX08
+
+#if defined(BOARD_HAS_OFFLOADED_ECCX08) && defined(CONNECTION_HANDLER_ENABLED) && (CONNECTION_HANDLER_ENABLED == 1)
   if (String(WiFi.firmwareVersion()) < String("1.6.0")) {
     DEBUG_ERROR("ArduinoIoTCloudTCP::%s In order to connect to Arduino IoT Cloud, NINA firmware needs to be >= 1.6.0, current %s", __FUNCTION__, WiFi.firmwareVersion());
     return 0;
   }
 #endif /* BOARD_HAS_OFFLOADED_ECCX08 */
 
-#if defined (ARDUINO_UNOWIFIR4)
+#if defined(ARDUINO_UNOWIFIR4) && defined(CONNECTION_HANDLER_ENABLED) && (CONNECTION_HANDLER_ENABLED == 1)
   if (String(WiFi.firmwareVersion()) < String("0.2.0")) {
     DEBUG_ERROR("ArduinoIoTCloudTCP::%s In order to connect to Arduino IoT Cloud, WiFi firmware needs to be >= 0.2.0, current %s", __FUNCTION__, WiFi.firmwareVersion());
     return 0;
@@ -342,8 +345,13 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_Init()
   _otaTLSClient.begin(_otaClient);
 #endif
 
+#if CONNECTION_HANDLER_ENABLED
   /* Setup TimeService */
-  _time_service.begin(_connection);
+  if (_connection != nullptr) {
+    _time_service.begin(_connection);
+  } else
+#endif
+  _time_service.begin(_ntpClient);
 
   /* Since we do not control what code the user inserts
    * between ArduinoIoTCloudTCP::begin() and the first
@@ -354,8 +362,12 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_Init()
   if (_enableWatchdog) {
     /* Initialize watchdog hardware */
     watchdog_enable();
-    /* Setup callbacks to feed the watchdog during offloaded network operations (connection/download)*/
-    watchdog_enable_network_feed(_connection->getInterface());
+#if CONNECTION_HANDLER_ENABLED
+    if (_connection != nullptr) {
+      /* Setup callbacks to feed the watchdog during offloaded network operations (connection/download)*/
+      watchdog_enable_network_feed(_connection->getInterface());
+    }
+#endif
   }
 #endif
 
@@ -364,13 +376,20 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_Init()
 
 ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_ConnectPhy()
 {
-  if (_connection->check() == NetworkConnectionState::CONNECTED)
-  {
-    if (!_connection_attempt.isRetry() || (_connection_attempt.isRetry() && _connection_attempt.isExpired()))
-      return State::SyncTime;
+#if CONNECTION_HANDLER_ENABLED
+  if (_connection == nullptr) {
+    return State::SyncTime;
   }
 
+  if (_connection->check() == NetworkConnectionState::CONNECTED) {
+    if (!_connection_attempt.isRetry() || (_connection_attempt.isRetry() && _connection_attempt.isExpired())) {
+      return State::SyncTime;
+    }
+  }
   return State::ConnectPhy;
+#else
+  return State::SyncTime;
+#endif
 }
 
 ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_SyncTime()

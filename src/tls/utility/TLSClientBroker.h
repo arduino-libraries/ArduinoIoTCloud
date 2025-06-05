@@ -10,8 +10,10 @@
 
 #pragma once
 
-#include <Arduino_ConnectionHandler.h>
 #include <AIoTC_Config.h>
+#if CONNECTION_HANDLER_ENABLED
+  #include <Arduino_ConnectionHandler.h>
+#endif
 
 enum class ArduinoIoTAuthenticationMode
 {

@@ -13,7 +13,9 @@
 #if defined(ARDUINO_NANO_RP2040_CONNECT) && OTA_ENABLED
 #include <SFU.h>
 #include "OTANanoRP2040.h"
-#include <Arduino_DebugUtils.h>
+#if DEBUG_ENABLED
+  #include <Arduino_DebugUtils.h>
+#endif
 #include "mbed.h"
 #include "utility/watchdog/Watchdog.h"
 

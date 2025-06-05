@@ -74,7 +74,9 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
     virtual void printDebugInfo() override;
     virtual void disconnect    () override;
 
+#if CONNECTION_HANDLER_ENABLED
     int begin(ConnectionHandler& connection, bool const enableWatchdog = true, String brokerAddress = DEFAULT_BROKER_ADDRESS, uint16_t brokerPort = DEFAULT_BROKER_PORT_AUTO, bool autoReconnect = true);
+#endif
     int begin(Client& brokerClient, Client& otaClient, UDP& ntpClient, bool const enableWatchdog = true, String brokerAddress = DEFAULT_BROKER_ADDRESS, uint16_t brokerPort = DEFAULT_BROKER_PORT_AUTO, bool autoReconnect = true);
     int begin(Client& brokerClient, UDP& ntpClient, bool const enableWatchdog = true, String brokerAddress = DEFAULT_BROKER_ADDRESS, uint16_t brokerPort = DEFAULT_BROKER_PORT_AUTO, bool autoReconnect = true);
 

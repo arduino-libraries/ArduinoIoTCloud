@@ -19,6 +19,10 @@
 #include "ArduinoIoTCloudDevice.h"
 #include "interfaces/CloudProcess.h"
 
+#if DEBUG_ENABLED
+  #include <Arduino_DebugUtils.h>
+#endif
+
 /******************************************************************************
    CTOR/DTOR
  ******************************************************************************/
