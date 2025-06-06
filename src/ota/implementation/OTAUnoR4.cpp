@@ -32,6 +32,7 @@ UNOR4OTACloudProcess::UNOR4OTACloudProcess(MessageStream *ms)
 }
 
 OTACloudProcessInterface::State UNOR4OTACloudProcess::resume(Message* msg) {
+  (void)msg;
   return OtaBegin;
 }
 
@@ -57,22 +58,25 @@ OTACloudProcessInterface::State UNOR4OTACloudProcess::startOTA() {
 }
 
 OTACloudProcessInterface::State UNOR4OTACloudProcess::fetch() {
-  int ota_err = OTAUpdate::OTA_ERROR_NONE;
-
   String fv = WiFi.firmwareVersion();
-  if(fv >= "0.5.0") {
+  /* Firmware supports non blocking OTA */
+  if (fv >= "0.5.0") {
     auto progress = ota.downloadProgress();
+    if (progress < 0) {
+      return OtaDownloadFail;
+    }
 
-    if((millis() - context->lastReportTime) > 5000) { // Report the download progress each X millisecond
+    if ((millis() - context->lastReportTime) > 5000) { // Report the download progress each X millisecond
       DEBUG_VERBOSE("OTA Download Progress %d/%d", progress, context->downloadSize);
 
       reportStatus(progress);
       context->lastReportTime = millis();
     }
 
-    if(progress < context->downloadSize) {
+    /* It is safe to cast progress here because we are sure that is positive */
+    if ((size_t)progress < context->downloadSize) {
       return Fetch;
-    } else if(progress > context->downloadSize || progress < 0) {
+    } else if ((size_t)progress > context->downloadSize) {
       return OtaDownloadFail;
     } else {
       return FlashOTA;
@@ -85,7 +89,6 @@ OTACloudProcessInterface::State UNOR4OTACloudProcess::fetch() {
     }
 
     DEBUG_VERBOSE("OTAUpdate::download() %d bytes downloaded", ota_download);
-
     return FlashOTA;
   }
 }
@@ -99,13 +102,18 @@ OTACloudProcessInterface::State UNOR4OTACloudProcess::flashOTA() {
   }
 
   /* Flash new firmware */
-  if ((ota_err = ota.update(UPDATE_FILE_NAME)) != OTAUpdate::OTA_ERROR_NONE) { // This reboots the MCU
+  if ((ota_err = ota.update(UPDATE_FILE_NAME)) != OTAUpdate::OTA_ERROR_NONE) {
     DEBUG_VERBOSE("OTAUpdate::update() failed with %d", ota_err);
     return convertUnor4ErrorToState(ota_err);
   }
+
+  /* This is never called because ota.uptade reboots the microcontroller */
+  return Resume;
 }
 
 OTACloudProcessInterface::State UNOR4OTACloudProcess::reboot() {
+  /* This is never called; the microcontroller reboots in flashOTA state */
+  return Resume;
 }
 
 void UNOR4OTACloudProcess::reset() {

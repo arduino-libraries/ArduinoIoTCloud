@@ -106,6 +106,7 @@ OTACloudProcessInterface::State OTACloudProcessInterface::otaBegin() {
 
   struct OtaBeginUp msg = {
     OtaBeginUpId,
+    {}
   };
 
   SHA256 sha256_calc;
@@ -199,6 +200,7 @@ void OTACloudProcessInterface::reportStatus(int32_t state_data) {
 
   struct OtaProgressCmdUp msg = {
     OtaProgressCmdUpId,
+    {}
   };
 
   memcpy(msg.params.id, context->id, ID_SIZE);
