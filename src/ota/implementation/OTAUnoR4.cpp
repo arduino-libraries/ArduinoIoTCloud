@@ -32,6 +32,7 @@ UNOR4OTACloudProcess::UNOR4OTACloudProcess(MessageStream *ms)
 }
 
 OTACloudProcessInterface::State UNOR4OTACloudProcess::resume(Message* msg) {
+  (void)msg;
   return OtaBegin;
 }
 
