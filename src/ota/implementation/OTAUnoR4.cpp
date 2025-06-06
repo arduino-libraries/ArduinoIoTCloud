@@ -98,10 +98,13 @@ OTACloudProcessInterface::State UNOR4OTACloudProcess::flashOTA() {
   }
 
   /* Flash new firmware */
-  if ((ota_err = ota.update(UPDATE_FILE_NAME)) != OTAUpdate::OTA_ERROR_NONE) { // This reboots the MCU
+  if ((ota_err = ota.update(UPDATE_FILE_NAME)) != OTAUpdate::OTA_ERROR_NONE) {
     DEBUG_VERBOSE("OTAUpdate::update() failed with %d", ota_err);
     return convertUnor4ErrorToState(ota_err);
   }
+
+  /* This is never called because ota.uptade reboots the microcontroller */
+  return Resume;
 }
 
 OTACloudProcessInterface::State UNOR4OTACloudProcess::reboot() {
