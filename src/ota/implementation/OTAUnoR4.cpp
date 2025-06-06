@@ -58,8 +58,6 @@ OTACloudProcessInterface::State UNOR4OTACloudProcess::startOTA() {
 }
 
 OTACloudProcessInterface::State UNOR4OTACloudProcess::fetch() {
-  int ota_err = OTAUpdate::OTA_ERROR_NONE;
-
   String fv = WiFi.firmwareVersion();
   if(fv >= "0.5.0") {
     auto progress = ota.downloadProgress();
