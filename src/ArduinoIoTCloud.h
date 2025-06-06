@@ -24,12 +24,15 @@
 
 #include <AIoTC_Config.h>
 
-#include <Arduino_ConnectionHandler.h>
+#if CONNECTION_HANDLER_ENABLED
+  #include <Arduino_ConnectionHandler.h>
+#endif
+
 #if NETWORK_CONFIGURATOR_ENABLED
   #include <Arduino_NetworkConfigurator.h>
 #endif
 
-#if defined(DEBUG_ERROR) || defined(DEBUG_WARNING) || defined(DEBUG_INFO) || defined(DEBUG_DEBUG) || defined(DEBUG_VERBOSE)
+#if DEBUG_ENABLED
   #include <Arduino_DebugUtils.h>
 #endif
 
@@ -99,14 +102,16 @@ class ArduinoIoTCloudClass
     inline void     setDeviceId(String const device_id) { _device_id = device_id; };
     inline String & getDeviceId()                       { return _device_id; };
 
+#if CONNECTION_HANDLER_ENABLED
     inline ConnectionHandler * getConnection()          { return _connection; }
+#endif
 
     inline unsigned long getInternalTime()              { return _time_service.getTime(); }
     inline unsigned long getLocalTime()                 { return _time_service.getLocalTime(); }
 
-    #if NETWORK_CONFIGURATOR_ENABLED
+#if NETWORK_CONFIGURATOR_ENABLED
     inline void setConfigurator(NetworkConfiguratorClass & configurator) { _configurator = &configurator; }
-    #endif
+#endif
     void addCallback(ArduinoIoTCloudEvent const event, OnCloudEventCallback callback);
 
 #define addProperty( v, ...) addPropertyReal(v, #v, __VA_ARGS__)
@@ -151,11 +156,13 @@ class ArduinoIoTCloudClass
 
   protected:
 
-    ConnectionHandler * _connection;
-    #if NETWORK_CONFIGURATOR_ENABLED
-    NetworkConfiguratorClass * _configurator;
-    #endif
     TimeServiceClass & _time_service;
+#if CONNECTION_HANDLER_ENABLED
+    ConnectionHandler * _connection;
+#endif
+#if NETWORK_CONFIGURATOR_ENABLED
+    NetworkConfiguratorClass * _configurator;
+#endif
     String _thing_id;
     String _lib_version;
 

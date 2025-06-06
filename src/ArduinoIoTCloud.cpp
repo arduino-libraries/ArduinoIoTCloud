@@ -26,11 +26,13 @@
  ******************************************************************************/
 
 ArduinoIoTCloudClass::ArduinoIoTCloudClass()
-: _connection{nullptr}
+: _time_service(TimeService)
+#if CONNECTION_HANDLER_ENABLED
+,_connection{nullptr}
+#endif
 #if NETWORK_CONFIGURATOR_ENABLED
 , _configurator{nullptr}
 #endif
-, _time_service(TimeService)
 , _thing_id{"xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"}
 , _lib_version{AIOT_CONFIG_LIB_VERSION}
 , _device_id{"xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"}

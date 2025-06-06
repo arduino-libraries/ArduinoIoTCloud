@@ -23,8 +23,8 @@
 
 #include <AIoTC_Config.h>
 
-#if defined(DEBUG_ERROR) || defined(DEBUG_WARNING) || defined(DEBUG_INFO) || defined(DEBUG_DEBUG) || defined(DEBUG_VERBOSE)
-#  include <Arduino_DebugUtils.h>
+#if DEBUG_ENABLED
+  #include <Arduino_DebugUtils.h>
 #endif
 
 #ifdef ARDUINO_ARCH_SAMD

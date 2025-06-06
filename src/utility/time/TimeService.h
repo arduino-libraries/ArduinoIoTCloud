@@ -23,7 +23,9 @@
  **************************************************************************************/
 
 #include <AIoTC_Config.h>
-#include <Arduino_ConnectionHandler.h>
+#if CONNECTION_HANDLER_ENABLED
+  #include <Arduino_ConnectionHandler.h>
+#endif
 
 /******************************************************************************
  * TYPEDEF
@@ -42,7 +44,11 @@ public:
 
   TimeServiceClass();
 
-  void          begin  (ConnectionHandler * con_hdl);
+#if CONNECTION_HANDLER_ENABLED
+  void          begin(ConnectionHandler * con_hdl);
+#endif
+  void          begin(UDP * ntp_client);
+  void          begin();
   unsigned long getTime();
   void          setTime(unsigned long time);
   unsigned long getLocalTime();
@@ -60,7 +66,6 @@ public:
 
 private:
 
-  ConnectionHandler * _con_hdl;
   bool _is_rtc_configured;
   bool _is_tz_configured;
   long _timezone_offset;
@@ -68,6 +73,10 @@ private:
   unsigned long _last_sync_tick;
   unsigned long _sync_interval_ms;
   syncTimeFunctionPtr _sync_func;
+#if CONNECTION_HANDLER_ENABLED
+  ConnectionHandler * _con_hdl;
+#endif
+  UDP * _ntp_client;
 
 #if defined(HAS_NOTECARD) || defined(HAS_TCP)
   unsigned long getRemoteTime();

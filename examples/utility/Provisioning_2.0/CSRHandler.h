@@ -10,7 +10,7 @@
 #include <Arduino.h>
 #include <Arduino_ConnectionHandler.h>
 #include <Arduino_SecureElement.h>
-#include <tls/utility/TLSClientMqtt.h>
+#include <tls/utility/TLSClientBroker.h>
 #include <ArduinoHttpClient.h>
 #include "utility/LEDFeedback.h"
 #define JITTER_BASE 0
@@ -55,7 +55,7 @@ private:
   ECP256Certificate *_certForCSR;
   ConnectionHandler *_connectionHandler;
   SecureElement *_secureElement;
-  TLSClientMqtt *_tlsClient;
+  TLSClientBroker *_tlsClient;
   HttpClient *_client;
   LEDFeedbackClass &_ledFeedback;
   void updateNextRequestAt();
