@@ -105,6 +105,8 @@ OTACloudProcessInterface::State UNOR4OTACloudProcess::flashOTA() {
 }
 
 OTACloudProcessInterface::State UNOR4OTACloudProcess::reboot() {
+  /* This is never called; the microcontroller reboots in flashOTA state */
+  return Resume;
 }
 
 void UNOR4OTACloudProcess::reset() {
