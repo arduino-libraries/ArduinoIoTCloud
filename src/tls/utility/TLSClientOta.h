@@ -73,6 +73,9 @@ public:
   void begin(Client* client);
 
 #if CONNECTION_HANDLER_ENABLED
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wswitch"
+#pragma GCC diagnostic ignored "-Wreturn-type"
   static inline Client& getNewClient(NetworkAdapter net) {
     switch(net) {
 #ifdef BOARD_HAS_WIFI
@@ -101,5 +104,6 @@ public:
 #endif // BOARD_HAS_CELLULAR
     }
   }
+#pragma GCC diagnostic pop
 #endif // CONNECTION_HANDLER_ENABLED
 };
