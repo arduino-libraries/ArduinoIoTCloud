@@ -19,7 +19,6 @@
  * INCLUDE
  **************************************************************************************/
 
-
 #include <time.h>
 
 #include "AIoTC_Config.h"
@@ -27,23 +26,29 @@
 #include "NTPUtils.h"
 #include "TimeService.h"
 
-#if defined(HAS_NOTECARD) || defined(ARDUINO_ARCH_ESP8266) || defined (ARDUINO_RASPBERRY_PI_PICO_W)
+#if defined(BOARD_HAS_HW_RTC)
+  #if defined(ARDUINO_ARCH_SAMD)
+    #include <RTCZero.h>
+  #endif
+  #if defined(ARDUINO_ARCH_MBED)
+    #include <mbed_rtc_time.h>
+  #endif
+  #if defined(ARDUINO_ARCH_RENESAS)
+    #include <RTC.h>
+  #endif
+#else
   #include "RTCMillis.h"
-#elif defined(ARDUINO_ARCH_SAMD)
-  #include <RTCZero.h>
-#elif defined(ARDUINO_ARCH_MBED)
-  #include <mbed_rtc_time.h>
-#elif defined(ARDUINO_ARCH_RENESAS)
-  #include "RTC.h"
 #endif
 
 /**************************************************************************************
  * GLOBAL VARIABLES
  **************************************************************************************/
 
-#if defined(HAS_NOTECARD) || defined(ARDUINO_ARCH_ESP8266) || defined (ARDUINO_RASPBERRY_PI_PICO_W)
+#if !defined(BOARD_HAS_HW_RTC)
 RTCMillis rtc;
-#elif defined(ARDUINO_ARCH_SAMD)
+#endif
+
+#if defined(BOARD_HAS_HW_RTC) && defined(ARDUINO_ARCH_SAMD)
 RTCZero rtc;
 #endif
 
@@ -53,49 +58,71 @@ RTCZero rtc;
 
 time_t cvt_time(char const * time);
 
-#if defined(HAS_NOTECARD)
-void notecard_initRTC();
-void notecard_setRTC(unsigned long time);
-unsigned long notecard_getRTC();
-#else
+/**************************************************************************************
+ * RTC PRIVATE FUNCTION DEFINITION
+ **************************************************************************************/
 
-#ifdef ARDUINO_ARCH_SAMD
-void samd_initRTC();
-void samd_setRTC(unsigned long time);
-unsigned long samd_getRTC();
+#if defined(BOARD_HAS_HW_RTC)
+  #if defined(ARDUINO_ARCH_SAMD)
+static inline void _initRTC() {
+  rtc.begin();
+}
+static inline void _setRTC(unsigned long time) {
+  rtc.setEpoch(time);
+}
+static inline unsigned long _getRTC() {
+  return rtc.getEpoch();
+}
+  #endif
+  #if defined(ARDUINO_ARCH_MBED)
+static inline void _initRTC() {
+  /* Nothing to do */
+}
+static inline void _setRTC(unsigned long time) {
+  set_time(time);
+}
+static inline unsigned long _getRTC() {
+  return time(NULL);
+}
+  #endif
+  #if defined(ARDUINO_ARCH_RENESAS)
+static inline void _initRTC() {
+  RTC.begin();
+}
+static inline void _setRTC(unsigned long time) {
+  RTCTime t(time);
+  RTC.setTime(t);
+}
+static inline unsigned long _getRTC() {
+  RTCTime t;
+  RTC.getTime(t);
+  return t.getUnixTime();
+}
+  #endif
+  #if defined(ARDUINO_ARCH_ESP32)
+static inline void _initRTC() {
+  //configTime(0, 0, "time.arduino.cc", "pool.ntp.org", "time.nist.gov");
+}
+static inline void _setRTC(unsigned long time) {
+  const timeval epoch = {(time_t)time, 0};
+  settimeofday(&epoch, 0);
+}
+static inline unsigned long _getRTC() {
+  return time(NULL);
+}
+  #endif
+#else /* !BOARD_HAS_HW_RTC */
+  #pragma message "No hardware RTC implementation found, using soft RTC"
+static inline void _initRTC() {
+  rtc.begin();
+}
+static inline void _setRTC(unsigned long time) {
+  rtc.set(time);
+}
+static inline unsigned long _getRTC() {
+  return rtc.get();
+}
 #endif
-
-#ifdef ARDUINO_ARCH_MBED
-void mbed_initRTC();
-void mbed_setRTC(unsigned long time);
-unsigned long mbed_getRTC();
-#endif
-
-#ifdef ARDUINO_ARCH_ESP32
-void esp32_initRTC();
-void esp32_setRTC(unsigned long time);
-unsigned long esp32_getRTC();
-#endif
-
-#ifdef ARDUINO_ARCH_ESP8266
-void esp8266_initRTC();
-void esp8266_setRTC(unsigned long time);
-unsigned long esp8266_getRTC();
-#endif
-
-#ifdef ARDUINO_ARCH_RENESAS
-void renesas_initRTC();
-void renesas_setRTC(unsigned long time);
-unsigned long renesas_getRTC();
-#endif
-
-#ifdef ARDUINO_RASPBERRY_PI_PICO_W
-void pico_w_initRTC();
-void pico_w_setRTC(unsigned long time);
-unsigned long pico_w_getRTC();
-#endif
-
-#endif /* HAS_NOTECARD */
 
 /**************************************************************************************
  * DEFINES
@@ -349,65 +376,17 @@ bool TimeServiceClass::isTimeZoneOffsetValid(long const offset)
 
 void TimeServiceClass::initRTC()
 {
-#if defined (HAS_NOTECARD)
-  notecard_initRTC();
-#elif defined (ARDUINO_ARCH_SAMD)
-  samd_initRTC();
-#elif defined (ARDUINO_ARCH_MBED)
-  mbed_initRTC();
-#elif defined (ARDUINO_ARCH_ESP32)
-  esp32_initRTC();
-#elif defined (ARDUINO_ARCH_ESP8266)
-  esp8266_initRTC();
-#elif defined (ARDUINO_ARCH_RENESAS)
-  renesas_initRTC();
-#elif defined (ARDUINO_RASPBERRY_PI_PICO_W)
-  pico_w_initRTC();
-#else
-  #error "RTC not available for this architecture"
-#endif
+  _initRTC();
 }
 
 void TimeServiceClass::setRTC(unsigned long time)
 {
-#if defined (HAS_NOTECARD)
-  notecard_setRTC(time);
-#elif defined (ARDUINO_ARCH_SAMD)
-  samd_setRTC(time);
-#elif defined (ARDUINO_ARCH_MBED)
-  mbed_setRTC(time);
-#elif defined (ARDUINO_ARCH_ESP32)
-  esp32_setRTC(time);
-#elif defined (ARDUINO_ARCH_ESP8266)
-  esp8266_setRTC(time);
-#elif defined (ARDUINO_ARCH_RENESAS)
-  renesas_setRTC(time);
-#elif defined (ARDUINO_RASPBERRY_PI_PICO_W)
-  pico_w_setRTC(time);
-#else
-  #error "RTC not available for this architecture"
-#endif
+  _setRTC(time);
 }
 
 unsigned long TimeServiceClass::getRTC()
 {
-#if defined (HAS_NOTECARD)
-  return notecard_getRTC();
-#elif defined (ARDUINO_ARCH_SAMD)
-  return samd_getRTC();
-#elif defined (ARDUINO_ARCH_MBED)
-  return mbed_getRTC();
-#elif defined (ARDUINO_ARCH_ESP32)
-  return esp32_getRTC();
-#elif defined (ARDUINO_ARCH_ESP8266)
-  return esp8266_getRTC();
-#elif defined (ARDUINO_ARCH_RENESAS)
-  return renesas_getRTC();
-#elif defined (ARDUINO_RASPBERRY_PI_PICO_W)
-  return pico_w_getRTC();
-#else
-  #error "RTC not available for this architecture"
-#endif
+  return _getRTC();
 }
 
 /**************************************************************************************
@@ -449,131 +428,6 @@ time_t cvt_time(char const * time)
 
   return build_time;
 }
-
-#ifdef HAS_NOTECARD
-void notecard_initRTC()
-{
-  rtc.begin();
-}
-
-void notecard_setRTC(unsigned long time)
-{
-  rtc.set(time);
-}
-
-unsigned long notecard_getRTC()
-{
-  return rtc.get();
-}
-#else
-
-#ifdef ARDUINO_ARCH_SAMD
-void samd_initRTC()
-{
-  rtc.begin();
-}
-
-void samd_setRTC(unsigned long time)
-{
-  rtc.setEpoch(time);
-}
-
-unsigned long samd_getRTC()
-{
-  return rtc.getEpoch();
-}
-#endif
-
-#ifdef ARDUINO_ARCH_MBED
-void mbed_initRTC()
-{
-  /* Nothing to do */
-}
-
-void mbed_setRTC(unsigned long time)
-{
-  set_time(time);
-}
-
-unsigned long mbed_getRTC()
-{
-  return time(NULL);
-}
-#endif
-
-#ifdef ARDUINO_ARCH_ESP32
-void esp32_initRTC()
-{
-  //configTime(0, 0, "time.arduino.cc", "pool.ntp.org", "time.nist.gov");
-}
-
-void esp32_setRTC(unsigned long time)
-{
-  const timeval epoch = {(time_t)time, 0};
-  settimeofday(&epoch, 0);
-}
-
-unsigned long esp32_getRTC()
-{
-  return time(NULL);
-}
-#endif
-
-#ifdef ARDUINO_ARCH_ESP8266
-void esp8266_initRTC()
-{
-  rtc.begin();
-}
-
-void esp8266_setRTC(unsigned long time)
-{
-  rtc.set(time);
-}
-
-unsigned long esp8266_getRTC()
-{
-  return rtc.get();
-}
-#endif
-
-#ifdef ARDUINO_ARCH_RENESAS
-void renesas_initRTC()
-{
-  RTC.begin();
-}
-
-void renesas_setRTC(unsigned long time)
-{
-  RTCTime t(time);
-  RTC.setTime(t);
-}
-
-unsigned long renesas_getRTC()
-{
-  RTCTime t;
-  RTC.getTime(t);
-  return t.getUnixTime();
-}
-#endif
-
-#ifdef ARDUINO_RASPBERRY_PI_PICO_W
-void pico_w_initRTC()
-{
-  rtc.begin();
-}
-
-void pico_w_setRTC(unsigned long time)
-{
-  rtc.set(time);
-}
-
-unsigned long pico_w_getRTC()
-{
-  return rtc.get();
-}
-#endif
-
-#endif /* HAS_NOTECARD */
 
 /******************************************************************************
  * EXTERN DEFINITION
