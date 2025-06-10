@@ -34,6 +34,12 @@
   #define NTP_USE_RANDOM_PORT     (1)
 #endif
 
+// include directives must be ordered in such a way that this always comes first,
+// otherwise the log level will be incorrectly set
+#ifndef DEBUG_LEVEL
+  #define DEBUG_LEVEL DEBUG_LEVEL_INFO
+#endif // DEBUG_LEVEL
+
 #if defined __has_include
   #if !__has_include (<Arduino_DebugUtils.h>)
     #define DEBUG_ERROR     (void) 0
@@ -41,15 +47,13 @@
     #define DEBUG_INFO      (void) 0
     #define DEBUG_DEBUG     (void) 0
     #define DEBUG_VERBOSE   (void) 0
+  #else
+    #include <Arduino_DebugUtils.h>
   #endif
 #endif
 
-// include directives must be ordered in such a way that this always comes first,
-// otherwise the log level will be incorrectly set
-#ifndef DEBUG_LEVEL
-  #define DEBUG_LEVEL DEBUG_LEVEL_INFO
-#endif // DEBUG_LEVEL
-#include <Arduino_DebugUtils.h>
+
+
 
 /******************************************************************************
  * AUTOMATICALLY CONFIGURED DEFINES
