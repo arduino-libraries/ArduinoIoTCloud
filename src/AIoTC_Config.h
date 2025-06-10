@@ -49,7 +49,7 @@
 #ifndef DEBUG_LEVEL
   #define DEBUG_LEVEL DEBUG_LEVEL_INFO
 #endif // DEBUG_LEVEL
-// #include <Arduino_DebugUtils.h>
+#include <Arduino_DebugUtils.h>
 
 /******************************************************************************
  * AUTOMATICALLY CONFIGURED DEFINES
