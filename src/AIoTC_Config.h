@@ -47,13 +47,10 @@
     #define DEBUG_INFO      (void) 0
     #define DEBUG_DEBUG     (void) 0
     #define DEBUG_VERBOSE   (void) 0
-  #else
+  #else if defined(__cplusplus)
     #include <Arduino_DebugUtils.h>
   #endif
 #endif
-
-
-
 
 /******************************************************************************
  * AUTOMATICALLY CONFIGURED DEFINES
