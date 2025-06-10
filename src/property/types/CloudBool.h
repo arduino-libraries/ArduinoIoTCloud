@@ -36,11 +36,12 @@ class CloudBool : public Property {
     bool  _value,
           _cloud_value;
   public:
-    CloudBool()                                           {
+    CloudBool() {
       CloudBool(false);
     }
     CloudBool(bool v) : _value(v), _cloud_value(v) {}
-    operator bool() const                             {
+    CloudBool(const CloudBool &v) = default;
+    operator bool() const {
       return _value;
     }
     virtual bool isDifferentFromCloud() {
