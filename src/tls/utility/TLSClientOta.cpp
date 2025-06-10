@@ -30,18 +30,25 @@
   }
 #endif
 
-void TLSClientOta::begin(ConnectionHandler &connection) {
+void TLSClientOta::begin(Client* client) {
+
+/* Client* is coming from a reference in ArduinoIoTCloud::begin( .. )
+ * The Client must be instantiated in the user sketch, for example:
+ *   WiFiClientSecure client;
+ */
+
 #if defined(BOARD_HAS_OFFLOADED_ECCX08)
   /* AWS Root CAs are configured in nina-fw
    * https://github.com/arduino/nina-fw/blob/master/data/roots.pem
    */
+  (void)client;
 #elif defined(BOARD_HAS_ECCX08)
-  setClient(*getNewClient(connection.getInterface()));
+  setClient(*client);
   setProfile(aiotc_client_profile_init);
   setTrustAnchors(ArduinoIoTCloudTrustAnchor, ArduinoIoTCloudTrustAnchor_NUM);
   ArduinoBearSSL.onGetTime(getTime);
 #elif defined(ARDUINO_PORTENTA_C33)
-  setClient(*getNewClient(connection.getInterface()));
+  setClient(*client);
   setCACert(AIoTSSCert);
 #elif defined(ARDUINO_NICLA_VISION)
   appendCustomCACert(AIoTSSCert);
@@ -51,7 +58,7 @@ void TLSClientOta::begin(ConnectionHandler &connection) {
   /* AWS Root CAs are configured in uno-r4-wifi-usb-bridge/libraries/Arduino_ESP32_OTA
    * https://github.com/arduino-libraries/Arduino_ESP32_OTA/blob/fc755e7d1d3946232107e2590662ee08d6ccdec4/src/tls/amazon_root_ca.h
    */
-  (void)connection;
+  (void)client;
 #elif defined(ARDUINO_RASPBERRY_PI_PICO_W)
     setCACert(AIoTUPCert);
 #elif defined(ARDUINO_ARCH_ESP32)

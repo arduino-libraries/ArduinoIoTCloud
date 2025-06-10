@@ -22,6 +22,10 @@
 #include "property/types/CloudWrapperInt.h"
 #include "property/types/CloudWrapperUnsignedInt.h"
 
+#if DEBUG_ENABLED
+  #include <Arduino_DebugUtils.h>
+#endif
+
 /******************************************************************************
  * CTOR/DTOR
  ******************************************************************************/

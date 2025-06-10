@@ -34,7 +34,7 @@
   #include <utility/SElementArduinoCloudCertificate.h>
 #endif
 
-#include <tls/utility/TLSClientMqtt.h>
+#include <tls/utility/TLSClientBroker.h>
 #include <tls/utility/TLSClientOta.h>
 
 #if OTA_ENABLED
@@ -74,8 +74,11 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
     virtual void printDebugInfo() override;
     virtual void disconnect    () override;
 
-    int begin(ConnectionHandler & connection, bool const enable_watchdog = true, String brokerAddress = DEFAULT_BROKER_ADDRESS, uint16_t brokerPort = DEFAULT_BROKER_PORT_AUTO, bool auto_reconnect = true);
-    int begin(bool const enable_watchdog = true, String brokerAddress = DEFAULT_BROKER_ADDRESS, uint16_t brokerPort = DEFAULT_BROKER_PORT_AUTO, bool auto_reconnect = true);
+#if CONNECTION_HANDLER_ENABLED
+    int begin(ConnectionHandler& connection, bool const enableWatchdog = true, String brokerAddress = DEFAULT_BROKER_ADDRESS, uint16_t brokerPort = DEFAULT_BROKER_PORT_AUTO, bool autoReconnect = true);
+#endif
+    int begin(Client& brokerClient, Client& otaClient, UDP& ntpClient, bool const enableWatchdog = true, String brokerAddress = DEFAULT_BROKER_ADDRESS, uint16_t brokerPort = DEFAULT_BROKER_PORT_AUTO, bool autoReconnect = true);
+    int begin(Client& brokerClient, UDP& ntpClient, bool const enableWatchdog = true, String brokerAddress = DEFAULT_BROKER_ADDRESS, uint16_t brokerPort = DEFAULT_BROKER_PORT_AUTO, bool autoReconnect = true);
 
 #if defined(BOARD_HAS_SECURE_ELEMENT)
     int updateCertificate(String authorityKeyIdentifier, String serialNumber, String notBefore, String notAfter, String signature);
@@ -117,6 +120,9 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
 #endif
 
   private:
+
+    int begin(bool const enableWatchdog = true, String brokerAddress = DEFAULT_BROKER_ADDRESS, uint16_t brokerPort = DEFAULT_BROKER_PORT_AUTO, bool autoReconnect = true);
+
     static const int MQTT_TRANSMIT_BUFFER_SIZE = 256;
 
     enum class State
@@ -143,8 +149,8 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
     uint8_t _mqtt_data_buf[MQTT_TRANSMIT_BUFFER_SIZE];
     int _mqtt_data_len;
     bool _mqtt_data_request_retransmit;
-    bool _enable_watchdog;
-    bool _auto_reconnect;
+    bool _enableWatchdog;
+    bool _autoReconnect;
 
 #if defined(BOARD_HAS_SECRET_KEY)
     String _password;
@@ -157,8 +163,11 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
     bool _writeCertOnConnect;
 #endif
 
-    TLSClientMqtt _brokerClient;
+    /* Base client from sketch or ConnectionHandler */
+    Client * _brokerClient;
+    TLSClientBroker _brokerTLSClient;
     MqttClient _mqttClient;
+    UDP * _ntpClient;
 
     String _messageTopicOut;
     String _messageTopicIn;
@@ -166,7 +175,9 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
     String _dataTopicIn;
 
 #if OTA_ENABLED
-    TLSClientOta _otaClient;
+    /* Base client from sketch or ConnectionHandler */
+    Client * _otaClient;
+    TLSClientOta _otaTLSClient;
     ArduinoCloudOTA _ota;
     onOTARequestCallbackFunc _get_ota_confirmation;
 #endif /* OTA_ENABLED */

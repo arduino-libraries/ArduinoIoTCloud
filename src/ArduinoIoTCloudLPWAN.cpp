@@ -70,7 +70,7 @@ int ArduinoIoTCloudLPWAN::begin(ConnectionHandler& connection, bool retry)
 {
   _connection = &connection;
   _retryEnable = retry;
-  _time_service.begin(nullptr);
+  _time_service.begin();
   return 1;
 }
 

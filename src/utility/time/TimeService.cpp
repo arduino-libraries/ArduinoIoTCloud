@@ -37,6 +37,10 @@
   #include "RTC.h"
 #endif
 
+#if DEBUG_ENABLED
+  #include <Arduino_DebugUtils.h>
+#endif
+
 /**************************************************************************************
  * GLOBAL VARIABLES
  **************************************************************************************/
@@ -116,14 +120,17 @@ static time_t const EPOCH = 0;
  **************************************************************************************/
 
 TimeServiceClass::TimeServiceClass()
-: _con_hdl(nullptr)
-, _is_rtc_configured(false)
+: _is_rtc_configured(false)
 , _is_tz_configured(false)
 , _timezone_offset(24 * 60 * 60)
 , _timezone_dst_until(0)
 , _last_sync_tick(0)
 , _sync_interval_ms(TIMESERVICE_NTP_SYNC_TIMEOUT_ms)
 , _sync_func(nullptr)
+#if CONNECTION_HANDLER_ENABLED
+, _con_hdl(nullptr)
+#endif
+, _ntp_client(nullptr)
 {
 
 }
@@ -132,9 +139,26 @@ TimeServiceClass::TimeServiceClass()
  * PUBLIC MEMBER FUNCTIONS
  **************************************************************************************/
 
+#if CONNECTION_HANDLER_ENABLED
 void TimeServiceClass::begin(ConnectionHandler * con_hdl)
 {
   _con_hdl = con_hdl;
+#ifdef HAS_TCP
+  begin(&_con_hdl->getUDP());
+#else
+  begin();
+#endif
+}
+#endif
+
+void TimeServiceClass::begin(UDP * ntp_client)
+{
+  _ntp_client = ntp_client;
+  begin();
+}
+
+void TimeServiceClass::begin()
+{
   initRTC();
 #ifdef HAS_LORA
   setRTC(EPOCH_AT_COMPILE_TIME);
@@ -293,11 +317,12 @@ unsigned long TimeServiceClass::getTimeFromString(const String& input)
 #if defined(HAS_NOTECARD) || defined(HAS_TCP)
 bool TimeServiceClass::connected()
 {
-  if(_con_hdl == nullptr) {
-    return false;
-  } else {
+#if CONNECTION_HANDLER_ENABLED
+  if(_con_hdl != nullptr) {
     return _con_hdl->check() == NetworkConnectionState::CONNECTED;
   }
+#endif
+  return true;  // If no connection handler is used, assume we are connected
 }
 
 unsigned long TimeServiceClass::getRemoteTime()
@@ -308,8 +333,14 @@ unsigned long TimeServiceClass::getRemoteTime()
      * This is the most reliable time source and it will
      * ensure a correct behaviour of the library.
      */
-    if(_con_hdl->getInterface() != NetworkAdapter::CELL) {
-      unsigned long const ntp_time = NTPUtils::getTime(_con_hdl->getUDP());
+    bool use_ntp = true;
+#if CONNECTION_HANDLER_ENABLED
+    if((_con_hdl != nullptr) && (_con_hdl->getInterface() != NetworkAdapter::CELL)) {
+      use_ntp = false;
+    }
+#endif
+    if (use_ntp && (_ntp_client != nullptr)) {
+      unsigned long const ntp_time = NTPUtils::getTime(*_ntp_client);
       if(isTimeValid(ntp_time)) {
         return ntp_time;
       }
@@ -317,16 +348,19 @@ unsigned long TimeServiceClass::getRemoteTime()
     DEBUG_WARNING("TimeServiceClass::%s cannot get time from NTP, fallback on connection handler", __FUNCTION__);
 #endif  /* HAS_TCP */
 
+#if CONNECTION_HANDLER_ENABLED
     /* As fallback if NTP request fails try to obtain the
      * network time using the connection handler.
      */
-    unsigned long const connection_time = _con_hdl->getTime();
-    if(isTimeValid(connection_time)) {
-      return connection_time;
+    if (_con_hdl != nullptr) {
+      unsigned long const connection_time = _con_hdl->getTime();
+      if(isTimeValid(connection_time)) {
+        return connection_time;
+      }
+      DEBUG_WARNING("TimeServiceClass::%s cannot get time from connection handler", __FUNCTION__);
     }
-    DEBUG_WARNING("TimeServiceClass::%s cannot get time from connection handler", __FUNCTION__);
+#endif
   }
-
   /* Return known invalid value because we are not connected */
   return EPOCH;
 }
