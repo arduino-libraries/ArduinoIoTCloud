@@ -1,5 +1,5 @@
 /*
-  This file is part of the Arduino_SecureElement library.
+  This file is part of the ArduinoIoTCloud library.
 
   Copyright (c) 2024 Arduino SA
 
