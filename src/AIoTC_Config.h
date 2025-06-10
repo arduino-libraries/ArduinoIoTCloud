@@ -47,7 +47,7 @@
     #define DEBUG_INFO      (void) 0
     #define DEBUG_DEBUG     (void) 0
     #define DEBUG_VERBOSE   (void) 0
-  #else if defined(__cplusplus)
+  #elif defined(__cplusplus)
     #include <Arduino_DebugUtils.h>
   #endif
 #endif
