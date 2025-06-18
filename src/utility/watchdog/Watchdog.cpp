@@ -23,8 +23,8 @@
 
 #include <AIoTC_Config.h>
 
-#if defined(DEBUG_ERROR) || defined(DEBUG_WARNING) || defined(DEBUG_INFO) || defined(DEBUG_DEBUG) || defined(DEBUG_VERBOSE)
-#  include <Arduino_DebugUtils.h>
+#if DEBUG_ENABLED
+  #include <Arduino_DebugUtils.h>
 #endif
 
 #ifdef ARDUINO_ARCH_SAMD
@@ -108,6 +108,7 @@ static void mbed_watchdog_reset()
   }
 }
 
+#if CONNECTION_HANDLER_ENABLED
 static void mbed_watchdog_enable_network_feed(NetworkAdapter ni)
 {
   if (ni == NetworkAdapter::ETHERNET) {
@@ -128,6 +129,7 @@ static void mbed_watchdog_enable_network_feed(NetworkAdapter ni)
 #endif
   }
 }
+#endif /* (CONNECTION_HANDLER_ENABLED) */
 #endif /* ARDUINO_ARCH_MBED */
 
 #if defined (ARDUINO_ARCH_SAMD) || defined (ARDUINO_ARCH_MBED)
@@ -149,6 +151,7 @@ void watchdog_reset()
 #endif
 }
 
+#if CONNECTION_HANDLER_ENABLED
 void watchdog_enable_network_feed(NetworkAdapter ni)
 {
   /* Setup WiFi NINA watchdog feed callback function */
@@ -162,4 +165,5 @@ void watchdog_enable_network_feed(NetworkAdapter ni)
   mbed_watchdog_enable_network_feed(ni);
 #endif
 }
+#endif /* (CONNECTION_HANDLER_ENABLED) */
 #endif /* (ARDUINO_ARCH_SAMD) || (ARDUINO_ARCH_MBED) */

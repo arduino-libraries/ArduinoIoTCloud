@@ -10,8 +10,10 @@
 
 #pragma once
 
-#include <Arduino_ConnectionHandler.h>
 #include <AIoTC_Config.h>
+#if CONNECTION_HANDLER_ENABLED
+  #include <Arduino_ConnectionHandler.h>
+#endif
 
 enum class ArduinoIoTAuthenticationMode
 {
@@ -25,7 +27,7 @@ enum class ArduinoIoTAuthenticationMode
    * Arduino NANO 33 IoT  - WiFi
    */
   #include "WiFiSSLClient.h"
-  class TLSClientMqtt : public WiFiBearSSLClient {
+  class TLSClientBroker : public WiFiBearSSLClient {
 #elif defined(BOARD_HAS_ECCX08)
   /*
    * Arduino MKR GSM 1400
@@ -37,31 +39,31 @@ enum class ArduinoIoTAuthenticationMode
    */
   #include <ArduinoBearSSLConfig.h>
   #include <ArduinoBearSSL.h>
-  class TLSClientMqtt : public BearSSLClient {
+  class TLSClientBroker : public BearSSLClient {
 #elif defined(ARDUINO_PORTENTA_C33)
   /*
    * Arduino Portenta C33
    */
   #include <SSLClient.h>
-  class TLSClientMqtt : public SSLClient {
+  class TLSClientBroker : public SSLClient {
 #elif defined(ARDUINO_NICLA_VISION)
   /*
    * Arduino Nicla Vision
    */
   #include <WiFiSSLSE050Client.h>
-  class TLSClientMqtt : public WiFiSSLSE050Client {
+  class TLSClientBroker : public WiFiSSLSE050Client {
 #elif defined(ARDUINO_EDGE_CONTROL)
   /*
    * Arduino Edge Control
    */
   #include <GSMSSLClient.h>
-  class TLSClientMqtt : public GSMSSLClient {
+  class TLSClientBroker : public GSMSSLClient {
 #elif defined(ARDUINO_UNOR4_WIFI)
   /*
    * Arduino UNO R4 WiFi
    */
   #include <WiFiSSLClient.h>
-  class TLSClientMqtt : public WiFiSSLClient {
+  class TLSClientBroker : public WiFiSSLClient {
 #elif defined(BOARD_ESP) || defined(ARDUINO_RASPBERRY_PI_PICO_W)
   /*
    * ESP32*
@@ -69,10 +71,10 @@ enum class ArduinoIoTAuthenticationMode
    * PICOW
    */
   #include <WiFiClientSecure.h>
-  class TLSClientMqtt : public WiFiClientSecure {
+  class TLSClientBroker : public WiFiClientSecure {
 #endif
 
 public:
-  void begin(ConnectionHandler & connection, ArduinoIoTAuthenticationMode authMode = ArduinoIoTAuthenticationMode::CERTIFICATE);
+  void begin(Client* client, ArduinoIoTAuthenticationMode authMode = ArduinoIoTAuthenticationMode::CERTIFICATE);
 
 };

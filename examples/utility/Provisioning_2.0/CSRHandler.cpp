@@ -85,7 +85,7 @@ bool CSRHandlerClass::begin(ConnectionHandler &connectionHandler, SecureElement 
   _fw_version = WiFi.firmwareVersion();
 #endif
   if(!_tlsClient){
-    _tlsClient = new TLSClientMqtt();
+    _tlsClient = new TLSClientBroker();
   }
   _tlsClient->begin(*_connectionHandler);
   _tlsClient->setTimeout(RESPONSE_TIMEOUT);

@@ -22,7 +22,10 @@
  * INCLUDE
  ******************************************************************************/
 
-#include <Arduino_ConnectionHandler.h>
+#include <AIoTC_Config.h>
+#if CONNECTION_HANDLER_ENABLED
+  #include <Arduino_ConnectionHandler.h>
+#endif
 
 /******************************************************************************
  * FUNCTION DECLARATION
@@ -31,7 +34,9 @@
 #if defined (ARDUINO_ARCH_SAMD) || defined (ARDUINO_ARCH_MBED)
 void watchdog_enable();
 void watchdog_reset();
+#if CONNECTION_HANDLER_ENABLED
 void watchdog_enable_network_feed(NetworkAdapter ni);
+#endif
 #endif /* (ARDUINO_ARCH_SAMD) || (ARDUINO_ARCH_MBED) */
 
 #endif /* ARDUINO_AIOTC_UTILITY_WATCHDOG_H_ */
