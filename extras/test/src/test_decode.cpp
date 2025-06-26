@@ -19,13 +19,7 @@
 #include "types/CloudWrapperInt.h"
 #include "types/CloudWrapperString.h"
 #include "types/automation/CloudColoredLight.h"
-#include "types/automation/CloudContactSensor.h"
 #include "types/automation/CloudDimmedLight.h"
-#include "types/automation/CloudLight.h"
-#include "types/automation/CloudMotionSensor.h"
-#include "types/automation/CloudSmartPlug.h"
-#include "types/automation/CloudSwitch.h"
-#include "types/automation/CloudTemperatureSensor.h"
 #include "types/automation/CloudTelevision.h"
 
 using namespace Catch;

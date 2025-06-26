@@ -115,6 +115,7 @@ set(TEST_UTIL_SRCS
 
 set(TEST_DUT_SRCS
   ../../src/property/Property.cpp
+  ../../src/property/types/PropertyPrimitive.cpp
   ../../src/property/PropertyContainer.cpp
   ../../src/cbor/CBORDecoder.cpp
   ../../src/cbor/CBOREncoder.cpp

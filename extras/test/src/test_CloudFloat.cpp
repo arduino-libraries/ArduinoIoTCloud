@@ -10,7 +10,7 @@
 
 #include <CBORDecoder.h>
 
-#include <property/types/CloudFloat.h>
+#include <property/PropertyContainer.h>
 
 /**************************************************************************************
   TEST CODE
