@@ -117,10 +117,6 @@ enum class Permission {
   Read, Write, ReadWrite
 };
 
-enum class Type {
-  Bool, Int, Float, String
-};
-
 enum class UpdatePolicy {
   OnChange, TimeInterval, OnDemand
 };
