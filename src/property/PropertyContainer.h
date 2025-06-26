@@ -108,7 +108,7 @@ Property & addPropertyToContainer(PropertyContainer & prop_cont,
                                   int propertyIdentifier = -1,
                                   GetTimeCallbackFunc func = getTime);
 
-  
+
 Property * getProperty(PropertyContainer & prop_cont, String const & name);
 Property * getProperty(PropertyContainer & prop_cont, int const identifier);
 
