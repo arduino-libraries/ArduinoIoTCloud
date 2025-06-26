@@ -10,11 +10,6 @@
 
 #include <PropertyContainer.h>
 
-#include <types/CloudInt.h>
-#include <types/CloudBool.h>
-#include <types/CloudFloat.h>
-#include <types/CloudString.h>
-
 /**************************************************************************************
    TEST CODE
  **************************************************************************************/

@@ -30,10 +30,8 @@
 #undef min
 #include <list>
 
-#include "types/CloudBool.h"
-#include "types/CloudFloat.h"
-#include "types/CloudInt.h"
-#include "types/CloudUnsignedInt.h"
+#include "types/PropertyPrimitive.h"
+
 #include "types/CloudString.h"
 #include "types/CloudLocation.h"
 #include "types/CloudSchedule.h"
@@ -41,13 +39,7 @@
 #include "types/CloudWrapperBase.h"
 
 #include "types/automation/CloudColoredLight.h"
-#include "types/automation/CloudContactSensor.h"
 #include "types/automation/CloudDimmedLight.h"
-#include "types/automation/CloudLight.h"
-#include "types/automation/CloudMotionSensor.h"
-#include "types/automation/CloudSmartPlug.h"
-#include "types/automation/CloudSwitch.h"
-#include "types/automation/CloudTemperatureSensor.h"
 #include "types/automation/CloudTelevision.h"
 
 /******************************************************************************
@@ -61,6 +53,11 @@ extern "C" unsigned long getTime();
  ******************************************************************************/
 
 typedef std::list<Property *> PropertyContainer;
+
+typedef PropertyPrimitive<bool>           CloudBool;
+typedef PropertyPrimitive<float>          CloudFloat;
+typedef PropertyPrimitive<int>            CloudInt;
+typedef PropertyPrimitive<unsigned int>   CloudUnsignedInt;
 
 typedef CloudFloat CloudEnergy;
 typedef CloudFloat CloudForce;
@@ -92,6 +89,13 @@ typedef CloudFloat CloudPressure;
 typedef CloudInt   CloudInformationContent;
 typedef CloudFloat CloudPercentage;
 typedef CloudFloat CloudRelativeHumidity;
+
+typedef CloudBool  CloudContactSensor;
+typedef CloudBool  CloudLight;
+typedef CloudBool  CloudMotionSensor;
+typedef CloudBool  CloudSmartPlug;
+typedef CloudBool  CloudSwitch;
+typedef CloudFloat CloudTemperatureSensor;
 
 /******************************************************************************
    FUNCTION DECLARATION
