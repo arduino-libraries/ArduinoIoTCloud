@@ -92,43 +92,47 @@ void ClaimingHandlerClass::poll() {
 }
 
 void ClaimingHandlerClass::getIdReqHandler() {
-  if (_ts != 0) {
-    byte _uhwidBytes[32];
-    hex::decode(_uhwid->c_str(), _uhwidBytes, _uhwid->length());
-    //Send UHWID
-    ProvisioningOutputMessage idMsg = {MessageOutputType::UHWID};
-    idMsg.m.uhwid = _uhwidBytes;
-    _agentManager.sendMsg(idMsg);
-
-    String token = generateToken();
-    if (token == "") {
-      DEBUG_ERROR("CH::%s Error: token not created", __FUNCTION__);
-      sendStatus(StatusMessage::ERROR);
-      return;
-    }
-
-    //Send JWT
-    ProvisioningOutputMessage jwtMsg = {MessageOutputType::JWT};
-    jwtMsg.m.jwt = token.c_str();
-    _agentManager.sendMsg(jwtMsg);
-    _ts = 0;
-
-    SElementJWS sejws;
-    String publicKey =  sejws.publicKey(*_secureElement, 1, false);
-    if (publicKey == "") {
-      DEBUG_ERROR("CH::%s Error: public key not created", __FUNCTION__);
-      sendStatus(StatusMessage::ERROR);
-      return;
-    }
-
-    //Send public key
-    ProvisioningOutputMessage publicKeyMsg = {MessageOutputType::PROV_PUBLIC_KEY};
-    publicKeyMsg.m.provPublicKey = publicKey.c_str();
-    _agentManager.sendMsg(publicKeyMsg);
-  } else {
+  if (_ts == 0) {
     DEBUG_ERROR("CH::%s Error: timestamp not provided" , __FUNCTION__);
     sendStatus(StatusMessage::PARAMS_NOT_FOUND);
+    return;
   }
+
+  byte _uhwidBytes[32];
+  hex::decode(_uhwid->c_str(), _uhwidBytes, _uhwid->length());
+
+  String token = generateToken();
+  if (token == "") {
+    DEBUG_ERROR("CH::%s Error: token not created", __FUNCTION__);
+    sendStatus(StatusMessage::ERROR);
+    return;
+  }
+
+  SElementJWS sejws;
+  String publicKey =  sejws.publicKey(*_secureElement, 1, false);
+  if (publicKey == "") {
+    DEBUG_ERROR("CH::%s Error: public key not created", __FUNCTION__);
+    sendStatus(StatusMessage::ERROR);
+    return;
+  }
+
+  //Send public key
+  ProvisioningOutputMessage publicKeyMsg = {MessageOutputType::PROV_PUBLIC_KEY};
+  publicKeyMsg.m.provPublicKey = publicKey.c_str();
+  _agentManager.sendMsg(publicKeyMsg);
+
+
+  //Send UHWID
+  ProvisioningOutputMessage idMsg = {MessageOutputType::UHWID};
+  idMsg.m.uhwid = _uhwidBytes;
+  _agentManager.sendMsg(idMsg);
+
+  //Send JWT
+  ProvisioningOutputMessage jwtMsg = {MessageOutputType::JWT};
+  jwtMsg.m.jwt = token.c_str();
+  _agentManager.sendMsg(jwtMsg);
+  _ts = 0;
+
 }
 
 void ClaimingHandlerClass::resetStoredCredReqHandler() {
