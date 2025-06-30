@@ -54,10 +54,15 @@ extern "C" unsigned long getTime();
 
 typedef std::list<Property *> PropertyContainer;
 
-typedef PropertyPrimitive<bool>           CloudBool;
-typedef PropertyPrimitive<float>          CloudFloat;
-typedef PropertyPrimitive<int>            CloudInt;
-typedef PropertyPrimitive<unsigned int>   CloudUnsignedInt;
+typedef PropertyPrimitive<bool>              CloudBool;
+typedef PropertyPrimitive<float>             CloudFloat;
+typedef PropertyPrimitive<int>               CloudInt;
+typedef PropertyPrimitive<unsigned int>      CloudUnsignedInt;
+
+typedef CloudWrapperProperty<bool>           CloudWrapperBool;
+typedef CloudWrapperProperty<float>          CloudWrapperFloat;
+typedef CloudWrapperProperty<int>            CloudWrapperInt;
+typedef CloudWrapperProperty<unsigned int>   CloudWrapperUnsignedInt;
 
 typedef CloudFloat CloudEnergy;
 typedef CloudFloat CloudForce;
