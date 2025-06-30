@@ -11,9 +11,6 @@
 #include <memory>
 
 #include <util/CBORTestUtil.h>
-#include "types/CloudWrapperBool.h"
-#include "types/CloudWrapperFloat.h"
-#include "types/CloudWrapperInt.h"
 #include "types/CloudWrapperString.h"
 
 /**************************************************************************************

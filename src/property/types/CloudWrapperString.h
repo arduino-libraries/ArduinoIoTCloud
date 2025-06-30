@@ -40,25 +40,25 @@ class CloudWrapperString : public CloudWrapperBase {
       _cloud_value(v),
       _local_value(v) {
     }
-    virtual bool isDifferentFromCloud() {
+    bool isDifferentFromCloud() override {
       return _primitive_value != _cloud_value;
     }
-    virtual void fromCloudToLocal() {
+    void fromCloudToLocal() override {
       _primitive_value = _cloud_value;
     }
-    virtual void fromLocalToCloud() {
+    void fromLocalToCloud() override {
       _cloud_value = _primitive_value;
     }
-    virtual CborError appendAttributesToCloud(CborEncoder *encoder) {
+    CborError appendAttributesToCloud(CborEncoder *encoder) override {
       return appendAttribute(_primitive_value, "", encoder);
     }
-    virtual void setAttributesFromCloud() {
+    void setAttributesFromCloud() override {
       setAttribute(_cloud_value, "");
     }
-    virtual bool isPrimitive() {
+    bool isPrimitive() override {
       return true;
     }
-    virtual bool isChangedLocally() {
+    bool isChangedLocally() override {
       return _primitive_value != _local_value;
     }
 };
