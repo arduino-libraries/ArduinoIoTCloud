@@ -1,3 +1,5 @@
+#pragma once
+
 #include "../Property.h"
 
 template<typename T>
@@ -187,7 +189,7 @@ public:
         return PropertyPrimitive(v) >>= iw;
     }
 
-private:
+protected:
     T   _value,
         _cloud_value;
 };
