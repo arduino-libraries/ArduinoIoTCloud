@@ -318,11 +318,11 @@ class Schedule {
       if(isScheduleFixed(msk) || isScheduleOneShot(msk)) {
         return true;
       }
-      
+
       if(isScheduleWeekly(msk)) {
         unsigned int currentDayMask = getCurrentDayMask(now);
         unsigned int scheduleMask = getScheduleWeekMask(msk);
-        
+
         if((currentDayMask & scheduleMask) != 0) {
           return true;
         }
