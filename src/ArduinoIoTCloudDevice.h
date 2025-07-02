@@ -18,6 +18,8 @@
 #include <Arduino_TimedAttempt.h>
 #include "interfaces/CloudProcess.h"
 #include "property/PropertyContainer.h"
+#include <Arduino_ConnectionHandler.h>
+#include <connectionHandlerModels/settings.h>
 
 /******************************************************************************
  * CLASS DECLARATION
@@ -25,6 +27,8 @@
 
 class ArduinoCloudDevice : public CloudProcess {
 public:
+
+  typedef std::function<void(models::NetworkSetting&)> GetNetworkSettingCbk;
 
   ArduinoCloudDevice(MessageStream* stream);
   virtual void update() override;
@@ -43,6 +47,10 @@ public:
     return _attached;
   };
 
+  void setGetNetworkSettingCbk(GetNetworkSettingCbk cbk) {
+    _getNetConfigCallback = cbk;
+  }
+
 
 private:
 
@@ -57,6 +65,7 @@ private:
   CommandId _command;
   TimedAttempt _attachAttempt;
   PropertyContainer _propertyContainer;
+  GetNetworkSettingCbk _getNetConfigCallback;
   unsigned int _propertyContainerIndex;
   bool _attached;
   bool _registered;

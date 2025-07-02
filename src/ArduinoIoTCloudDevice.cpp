@@ -28,6 +28,7 @@ _state{State::Init},
 _attachAttempt(0, 0),
 _propertyContainer(),
 _propertyContainerIndex(0),
+_getNetConfigCallback(nullptr),
 _attached(false),
 _registered(false) {
 }
@@ -108,6 +109,13 @@ ArduinoCloudDevice::State ArduinoCloudDevice::handleSendCapabilities() {
   /* Sends device capabilities message */
   DeviceBeginCmd deviceBegin = { DeviceBeginCmdId, AIOT_CONFIG_LIB_VERSION };
   deliver(reinterpret_cast<Message*>(&deviceBegin));
+
+  /* Send Network Configuration */
+  if(_getNetConfigCallback){
+    DeviceNetConfigCmdUp deviceNetConfig = { DeviceNetConfigCmdUpId };
+    _getNetConfigCallback(deviceNetConfig.params );
+    deliver(reinterpret_cast<Message*>(&deviceNetConfig));
+  }
 
   /* Subscribe to device topic to request */
   ThingBeginCmd thingBegin = { ThingBeginCmdId };

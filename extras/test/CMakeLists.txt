@@ -20,9 +20,17 @@ FetchContent_Declare(
   GIT_TAG             main
 )
 
+FetchContent_Declare(
+  connectionhandler
+  GIT_REPOSITORY      https://github.com/arduino-libraries/Arduino_ConnectionHandler.git
+  GIT_TAG             master
+)
+
 FetchContent_MakeAvailable(Catch2)
 
 FetchContent_MakeAvailable(cloudutils)
+
+FetchContent_MakeAvailable(connectionhandler)
 ##########################################################################
 
 include_directories(include)
@@ -53,6 +61,18 @@ target_include_directories(
 target_include_directories(
   cloudutils INTERFACE
   ${cloudutils_SOURCE_DIR}/src/interfaces
+)
+
+add_library(connectionhandler INTERFACE)
+
+target_include_directories(
+    connectionhandler INTERFACE
+  ${connectionhandler_SOURCE_DIR}/src/
+)
+
+target_include_directories(
+    connectionhandler INTERFACE
+  ${connectionhandler_SOURCE_DIR}/src/connectionHandlerModels
 )
 
 ##########################################################################
@@ -126,12 +146,13 @@ set(TEST_TARGET_SRCS
 
 ##########################################################################
 
+add_compile_definitions(BOARD_HAS_LORA BOARD_HAS_CATM1_NBIOT BOARD_HAS_WIFI BOARD_HAS_ETHERNET BOARD_HAS_CELLULAR BOARD_HAS_NB BOARD_HAS_GSM)
 add_compile_definitions(HOST HAS_TCP)
 add_compile_options(-Wall -Wextra -Wpedantic -Werror)
 add_compile_options(-Wno-cast-function-type)
 
 set(CMAKE_C_FLAGS   ${CMAKE_C_FLAGS}   "--coverage")
-set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "--coverage -Wno-deprecated-copy")
+set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "--coverage -Wno-deprecated-copy -Wno-missing-field-initializers")
 
 ##########################################################################
 
@@ -140,6 +161,7 @@ add_executable(
   ${TEST_TARGET_SRCS}
 )
 
+target_link_libraries( ${TEST_TARGET} connectionhandler)
 target_link_libraries( ${TEST_TARGET} cloudutils)
 target_link_libraries( ${TEST_TARGET} Catch2WithMain )
 
