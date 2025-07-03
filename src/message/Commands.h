@@ -17,6 +17,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <interfaces/message.h>
+#include <cbor/standards/StandardMessages.h>
 #include <connectionHandlerModels/settings.h>
 
 /******************************************************************************
