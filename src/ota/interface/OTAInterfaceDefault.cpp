@@ -14,8 +14,6 @@
 #include "OTAInterfaceDefault.h"
 #include "../OTA.h"
 
-static uint32_t crc_update(uint32_t crc, const void * data, size_t data_len);
-
 OTADefaultCloudProcessInterface::OTADefaultCloudProcessInterface(MessageStream *ms, Client* client)
 : OTACloudProcessInterface(ms)
 , client(client)
