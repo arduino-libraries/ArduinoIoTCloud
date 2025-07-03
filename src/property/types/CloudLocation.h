@@ -63,7 +63,7 @@ class CloudLocation : public Property {
   public:
     CloudLocation() : _value(0, 0), _cloud_value(0, 0) {}
     CloudLocation(float lat, float lon) : _value(lat, lon), _cloud_value(lat, lon) {}
-    virtual bool isDifferentFromCloud() {
+    bool isDifferentFromCloud() override {
       float const distance = Location::distance(_value, _cloud_value);
       return _value != _cloud_value && (abs(distance) >= Property::_min_delta_property);
     }
@@ -83,18 +83,18 @@ class CloudLocation : public Property {
       return _value;
     }
 
-    virtual void fromCloudToLocal() {
+    void fromCloudToLocal() override {
       _value = _cloud_value;
     }
-    virtual void fromLocalToCloud() {
+    void fromLocalToCloud() override {
       _cloud_value = _value;
     }
-    virtual CborError appendAttributesToCloud(CborEncoder *encoder) {
+    CborError appendAttributesToCloud(CborEncoder *encoder) override {
       CHECK_CBOR_MULTI(appendAttribute(_value.lat, "lat", encoder));
       CHECK_CBOR_MULTI(appendAttribute(_value.lon, "lon", encoder));
       return CborNoError;
     }
-    virtual void setAttributesFromCloud() {
+    void setAttributesFromCloud() override {
       setAttribute(_cloud_value.lat, "lat");
       setAttribute(_cloud_value.lon, "lon");
     }

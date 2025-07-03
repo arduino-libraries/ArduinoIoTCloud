@@ -23,15 +23,51 @@
  ******************************************************************************/
 
 #include <Arduino.h>
-#include "../Property.h"
+#include "PropertyPrimitive.h"
 
 /******************************************************************************
    CLASS DECLARATION
  ******************************************************************************/
 
-class CloudWrapperBase : public Property {
+class CloudWrapperBaseInterface {
   public:
     virtual bool isChangedLocally() = 0;
+};
+
+class CloudWrapperBase : public Property, public CloudWrapperBaseInterface {
+  public:
+    virtual bool isChangedLocally() = 0;
+};
+
+template<typename T>
+class CloudWrapperProperty : public PropertyPrimitive<T>, public CloudWrapperBaseInterface {
+public:
+    CloudWrapperProperty(T& value)
+    : PropertyPrimitive<T>(value), _primitive_value(value) { }
+
+    bool isDifferentFromCloud() override {
+      return _primitive_value != PropertyPrimitive<T>::_cloud_value;
+    }
+
+    void fromCloudToLocal() override {
+      _primitive_value = PropertyPrimitive<T>::_cloud_value;
+    }
+    void fromLocalToCloud() override {
+      PropertyPrimitive<T>::_cloud_value = _primitive_value;
+    }
+
+    CborError appendAttributesToCloud(CborEncoder *encoder) override {
+      return PropertyPrimitive<T>::appendAttribute(_primitive_value, "", encoder);
+    }
+    void setAttributesFromCloud() override {
+      PropertyPrimitive<T>::setAttribute(PropertyPrimitive<T>::_cloud_value, "");
+    }
+
+    bool isChangedLocally() override {
+      return _primitive_value != PropertyPrimitive<T>::_value;
+    }
+protected:
+    T &_primitive_value;
 };
 
 

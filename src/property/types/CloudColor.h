@@ -161,7 +161,7 @@ class CloudColor : public Property {
     CloudColor() : _value(0, 0, 0), _cloud_value(0, 0, 0) {}
     CloudColor(float hue, float saturation, float brightness) : _value(hue, saturation, brightness), _cloud_value(hue, saturation, brightness) {}
 
-    virtual bool isDifferentFromCloud() {
+    bool isDifferentFromCloud() override {
 
       return _value != _cloud_value;
     }
@@ -182,19 +182,19 @@ class CloudColor : public Property {
       return _value;
     }
 
-    virtual void fromCloudToLocal() {
+    void fromCloudToLocal() override {
       _value = _cloud_value;
     }
-    virtual void fromLocalToCloud() {
+    void fromLocalToCloud() override {
       _cloud_value = _value;
     }
-    virtual CborError appendAttributesToCloud(CborEncoder *encoder) {
+    CborError appendAttributesToCloud(CborEncoder *encoder) override {
       CHECK_CBOR_MULTI(appendAttribute(_value.hue, "hue", encoder));
       CHECK_CBOR_MULTI(appendAttribute(_value.sat, "sat", encoder));
       CHECK_CBOR_MULTI(appendAttribute(_value.bri, "bri", encoder));
       return CborNoError;
     }
-    virtual void setAttributesFromCloud() {
+    void setAttributesFromCloud() override {
       setAttribute(_cloud_value.hue, "hue");
       setAttribute(_cloud_value.sat, "sat");
       setAttribute(_cloud_value.bri, "bri");

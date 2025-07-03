@@ -19,8 +19,6 @@
 
 #include "ArduinoIoTCloudThing.h"
 #include "interfaces/CloudProcess.h"
-#include "property/types/CloudWrapperInt.h"
-#include "property/types/CloudWrapperUnsignedInt.h"
 
 /******************************************************************************
  * CTOR/DTOR

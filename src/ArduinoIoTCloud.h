@@ -39,10 +39,6 @@
 
 #include "property/Property.h"
 #include "property/PropertyContainer.h"
-#include "property/types/CloudWrapperBool.h"
-#include "property/types/CloudWrapperFloat.h"
-#include "property/types/CloudWrapperInt.h"
-#include "property/types/CloudWrapperUnsignedInt.h"
 #include "property/types/CloudWrapperString.h"
 
 #include "utility/time/TimeService.h"
