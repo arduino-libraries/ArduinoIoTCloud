@@ -167,7 +167,9 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
+      - name: Clear cache
+        run: |
+          rm -rf ~/.cache
       - name: Compile production provisioning sketch
         uses: arduino/compile-sketches@v1
         with:
