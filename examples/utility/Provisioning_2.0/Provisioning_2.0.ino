@@ -59,7 +59,7 @@ void setup() {
   initProperties();
   AgentsManagerClass::getInstance().begin();
   LEDFeedbackClass::getInstance().begin();
-  DEBUG_INFO("Starting Provisioning");
+  DEBUG_INFO("Starting Provisioning version %s", SKETCH_VERSION);
 }
 
 void sendStatus(StatusMessage msg) {
