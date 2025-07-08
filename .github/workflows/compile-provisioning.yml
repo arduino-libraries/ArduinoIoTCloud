@@ -183,6 +183,7 @@ jobs:
           enable-deltas-report: "true"
           sketches-report-path: ${{ env.SKETCHES_REPORTS_PATH }}
           cli-compile-flags: |
+            - --clean
             - --verbose
             - --output-dir
             - ${{ runner.temp }}/provisioning-prod
@@ -202,6 +203,7 @@ jobs:
           enable-deltas-report: "true"
           sketches-report-path: ${{ env.SKETCHES_REPORTS_PATH }}
           cli-compile-flags: |
+            - --clean
             - --verbose
             - --build-property
             - "build.extra_flags=-DCOMPILE_TEST=1"
