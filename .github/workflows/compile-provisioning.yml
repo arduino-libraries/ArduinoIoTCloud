@@ -43,7 +43,7 @@ jobs:
           version: 6278b97dd9b8549e9a5b2f2aff1a35d4ae06501a
       # sketch paths to compile (recursive) for all boards
       UNIVERSAL_SKETCH_PATHS: |
-        - examples/utility/Provisioning_2.0
+        - examples/utility/Provisioning_3.0
       SKETCHES_REPORTS_PATH: sketches-reports
 
     strategy:
