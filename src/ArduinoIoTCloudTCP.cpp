@@ -216,6 +216,7 @@ void ArduinoIoTCloudTCP::update()
   switch (_state)
   {
   case State::ConfigPhy:            next_state = handle_ConfigPhy();            break;
+  case State::UpdatePhy:            next_state = handle_UpdatePhy();            break;
   case State::Init:                 next_state = handle_Init();                 break;
   case State::ConnectPhy:           next_state = handle_ConnectPhy();           break;
   case State::SyncTime:             next_state = handle_SyncTime();             break;
@@ -240,7 +241,7 @@ void ArduinoIoTCloudTCP::update()
    */
   #if NETWORK_CONFIGURATOR_ENABLED
   if(_configurator != nullptr && _state > State::Init && _configurator->update() == NetworkConfiguratorStates::UPDATING_CONFIG){
-    _state = State::ConfigPhy;
+    _state = State::UpdatePhy;
   }
   #endif
 
@@ -311,6 +312,19 @@ ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_ConfigPhy()
       return State::Init;
     }
   return State::ConfigPhy;
+#else
+  return State::Init;
+#endif
+}
+
+ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_UpdatePhy()
+{
+#if NETWORK_CONFIGURATOR_ENABLED
+  if(_configurator->update() == NetworkConfiguratorStates::CONFIGURED) {
+      _configurator->disconnectAgent();
+      return State::Disconnect;
+    }
+  return State::UpdatePhy;
 #else
   return State::Init;
 #endif
