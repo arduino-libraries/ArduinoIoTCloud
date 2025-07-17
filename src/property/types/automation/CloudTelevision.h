@@ -226,8 +226,14 @@ class CloudTelevision : public Property {
       setAttribute(_cloud_value.swi, "swi");
       setAttribute(_cloud_value.vol, "vol");
       setAttribute(_cloud_value.mut, "mut");
+/* PlaybackCommands and InputValue are enum of type int so we can safely disable
+ * strict aliasing warnings here.
+ */
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wstrict-aliasing"
       setAttribute((int&)_cloud_value.pbc, "pbc");
       setAttribute((int&)_cloud_value.inp, "inp");
+#pragma GCC diagnostic pop
       setAttribute(_cloud_value.cha, "cha");
     }
 };
