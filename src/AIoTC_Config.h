@@ -142,6 +142,12 @@
   #define BOARD_HAS_SECURE_ELEMENT
 #endif
 
+#if (defined(ARDUINO_ARCH_SAMD) || defined(ARDUINO_ARCH_MBED) ||\
+     defined(ARDUINO_ARCH_RENESAS) || defined(ARDUINO_ARCH_ESP32)) &&\
+     !defined(ARDUINO_ARCH_ZEPHYR)
+  #define BOARD_HAS_HW_RTC
+#endif
+
 #endif // HAS_NOTECARD
 
 #if defined(ARDUINO_PORTENTA_H7_M7) || defined(ARDUINO_NICLA_VISION) || defined(ARDUINO_OPTA) || defined(ARDUINO_GIGA)

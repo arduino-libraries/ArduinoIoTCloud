@@ -18,7 +18,7 @@
 #ifndef ARDUINO_IOT_CLOUD_RTC_MILLIS_H_
 #define ARDUINO_IOT_CLOUD_RTC_MILLIS_H_
 
-#if defined(HAS_NOTECARD) || defined(ARDUINO_ARCH_ESP8266) || defined (ARDUINO_RASPBERRY_PI_PICO_W)
+#if !defined(BOARD_HAS_HW_RTC)
 
 /**************************************************************************************
  * INCLUDE
@@ -45,6 +45,6 @@ private:
 
 };
 
-#endif /* HAS_NOTECARD || ARDUINO_ARCH_ESP8266 || ARDUINO_RASPBERRY_PI_PICO_W */
+#endif /* BOARD_HAS_HW_RTC */
 
 #endif /* ARDUINO_IOT_CLOUD_RTC_MILLIS_H_ */
