@@ -29,18 +29,18 @@
    CLASS DECLARATION
  ******************************************************************************/
 
-// class CloudWrapperBaseInterface {
-//   public:
-//     virtual bool isChangedLocally() = 0;
-// };
+class CloudWrapperBaseInterface {
+  public:
+    virtual bool isChangedLocally() = 0;
+};
 
-class CloudWrapperBase : public Property {
+class CloudWrapperBase : public Property, public CloudWrapperBaseInterface {
   public:
     virtual bool isChangedLocally() = 0;
 };
 
 template<typename T>
-class CloudWrapperProperty : public CloudWrapperBase {
+class CloudWrapperProperty : public PropertyPrimitive<T>, public CloudWrapperBaseInterface {
 public:
     CloudWrapperProperty(T& value)
     : PropertyPrimitive<T>(value), _primitive_value(value) { }
