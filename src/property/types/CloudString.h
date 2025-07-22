@@ -49,19 +49,19 @@ class CloudString : public Property {
     void clear() {
       _value = PropertyActions::CLEAR;
     }
-    virtual bool isDifferentFromCloud() {
+    bool isDifferentFromCloud() override {
       return _value != _cloud_value;
     }
-    virtual void fromCloudToLocal() {
+    void fromCloudToLocal() override {
       _value = _cloud_value;
     }
-    virtual void fromLocalToCloud() {
+    void fromLocalToCloud() override {
       _cloud_value = _value;
     }
-    virtual CborError appendAttributesToCloud(CborEncoder *encoder) {
+    CborError appendAttributesToCloud(CborEncoder *encoder) override {
       return appendAttribute(_value, "", encoder);
     }
-    virtual void setAttributesFromCloud() {
+    void setAttributesFromCloud() override {
       setAttribute(_cloud_value, "");
     }
     //modifiers
