@@ -5,13 +5,11 @@
 template<typename T>
 class PropertyPrimitive: public Property {
 public:
-    PropertyPrimitive() {
-        PropertyPrimitive(0);
-    }
-    PropertyPrimitive(T v) : _value(v), _cloud_value(v) {}
-    operator T() const {
-        return _value;
-    }
+    PropertyPrimitive(T v=0) : _value(v), _cloud_value(v) {}
+    PropertyPrimitive(PropertyPrimitive<T> &&) = default;
+
+    PropertyPrimitive(const PropertyPrimitive<T>&) = delete;
+
     bool isDifferentFromCloud() override {
         return _value != _cloud_value && (abs(float(_value - _cloud_value)) >= Property::_min_delta_property);
     }
@@ -28,168 +26,58 @@ public:
         setAttribute(_cloud_value, "");
     }
 
-    //modifiers
-    PropertyPrimitive& operator=(T v) {
-        _value = v;
-        updateLocalTimestamp();
+    inline PropertyPrimitive& operator=(const T& v) {
+        updateValue(v);
         return *this;
     }
-    PropertyPrimitive& operator=(PropertyPrimitive v) {
-        return operator=((T)v);
-    }
-    PropertyPrimitive& operator+=(T v) {
-        return operator=(_value += v);
-    }
-    PropertyPrimitive& operator-=(T v) {
-        return operator=(_value -= v);
-    }
-    PropertyPrimitive& operator*=(T v) {
-        return operator=(_value *= v);
-    }
-    PropertyPrimitive& operator/=(T v) {
-        return operator=(_value /= v);
-    }
-    PropertyPrimitive& operator%=(T v) {
-        return operator=(_value %= v);
-    }
-    PropertyPrimitive& operator++() {
-        return operator=(++_value);
-    }
-    PropertyPrimitive& operator--() {
-        return operator=(--_value);
-    }
-    PropertyPrimitive operator++(int) {
-        operator=(_value + 1);
-        return PropertyPrimitive(_value);
-    }
-    PropertyPrimitive operator--(int) {
-        operator=(_value - 1);
-        return PropertyPrimitive(_value);
-    }
-    PropertyPrimitive& operator&=(T v) {
-        return operator=(_value &= v);
-    }
-    PropertyPrimitive& operator|=(T v) {
-        return operator=(_value |= v);
-    }
-    PropertyPrimitive& operator^=(T v) {
-        return operator=(_value ^= v);
-    }
-    PropertyPrimitive& operator<<=(T v) {
-        return operator=(_value <<= v);
-    }
-    PropertyPrimitive& operator>>=(T v) {
-        return operator=(_value >>= v);
+
+    inline PropertyPrimitive& operator=(const PropertyPrimitive &v) {
+        updateValue(v._value);
+        return *this;
     }
 
-    //accessors
-    PropertyPrimitive operator+() const {
-        return PropertyPrimitive(+_value);
-    }
-    PropertyPrimitive operator-() const {
-        return PropertyPrimitive(-_value);
-    }
-    PropertyPrimitive operator!() const {
-        return PropertyPrimitive(!_value);
-    }
-    PropertyPrimitive operator~() const {
-        return PropertyPrimitive(~_value);
+    PropertyPrimitive& operator=(PropertyPrimitive &&) = default;
+
+    inline operator T() const {
+        return _value;
     }
 
-    //friends
-    // TODO second parameter should not be T, but another template?
-    friend PropertyPrimitive operator+(PropertyPrimitive iw, PropertyPrimitive v) {
-        return iw += v; // FIXME this should return a new property primitive
+    inline PropertyPrimitive& operator+=(const T& v) {
+        updateValue(_value + v);
+        return *this;
     }
-    friend PropertyPrimitive operator+(PropertyPrimitive iw, T v) { // TODO may not be required -> T can become property primitive
-        return iw += v;
+
+    inline PropertyPrimitive& operator-=(const T& v) {
+        updateValue(_value - v);
+        return *this;
     }
-    friend PropertyPrimitive operator+(T v, PropertyPrimitive iw) { // TODO may not be required -> T can become property primitive
-        return PropertyPrimitive(v) += iw; // FIXME this doesn't seem to make sense
+
+    inline PropertyPrimitive& operator/=(const T& v) {
+        updateValue(_value / v);
+        return *this;
     }
-    friend PropertyPrimitive operator-(PropertyPrimitive iw, PropertyPrimitive v) {
-        return iw -= v;
+
+    inline PropertyPrimitive& operator*=(const T& v) {
+        updateValue(_value * v);
+        return *this;
     }
-    friend PropertyPrimitive operator-(PropertyPrimitive iw, T v) {
-        return iw -= v;
+
+    inline PropertyPrimitive& operator++(int) {
+        updateValue(_value + 1);
+        return *this;
     }
-    friend PropertyPrimitive operator-(T v, PropertyPrimitive iw) {
-        return PropertyPrimitive(v) -= iw;
-    }
-    friend PropertyPrimitive operator*(PropertyPrimitive iw, PropertyPrimitive v) {
-        return iw *= v;
-    }
-    friend PropertyPrimitive operator*(PropertyPrimitive iw, T v) {
-        return iw *= v;
-    }
-    friend PropertyPrimitive operator*(T v, PropertyPrimitive iw) {
-        return PropertyPrimitive(v) *= iw;
-    }
-    friend PropertyPrimitive operator/(PropertyPrimitive iw, PropertyPrimitive v) {
-        return iw /= v;
-    }
-    friend PropertyPrimitive operator/(PropertyPrimitive iw, T v) {
-        return iw /= v;
-    }
-    friend PropertyPrimitive operator/(T v, PropertyPrimitive iw) {
-        return PropertyPrimitive(v) /= iw;
-    }
-    friend PropertyPrimitive operator%(PropertyPrimitive iw, PropertyPrimitive v) {
-        return iw %= v;
-    }
-    friend PropertyPrimitive operator%(PropertyPrimitive iw, T v) {
-        return iw %= v;
-    }
-    friend PropertyPrimitive operator%(T v, PropertyPrimitive iw) {
-        return PropertyPrimitive(v) %= iw;
-    }
-    friend PropertyPrimitive operator&(PropertyPrimitive iw, PropertyPrimitive v) {
-        return iw &= v;
-    }
-    friend PropertyPrimitive operator&(PropertyPrimitive iw, T v) {
-        return iw &= v;
-    }
-    friend PropertyPrimitive operator&(T v, PropertyPrimitive iw) {
-        return PropertyPrimitive(v) &= iw;
-    }
-    friend PropertyPrimitive operator|(PropertyPrimitive iw, PropertyPrimitive v) {
-        return iw |= v;
-    }
-    friend PropertyPrimitive operator|(PropertyPrimitive iw, T v) {
-        return iw |= v;
-    }
-    friend PropertyPrimitive operator|(T v, PropertyPrimitive iw) {
-        return PropertyPrimitive(v) |= iw;
-    }
-    friend PropertyPrimitive operator^(PropertyPrimitive iw, PropertyPrimitive v) {
-        return iw ^= v;
-    }
-    friend PropertyPrimitive operator^(PropertyPrimitive iw, T v) {
-        return iw ^= v;
-    }
-    friend PropertyPrimitive operator^(T v, PropertyPrimitive iw) {
-        return PropertyPrimitive(v) ^= iw;
-    }
-    friend PropertyPrimitive operator<<(PropertyPrimitive iw, PropertyPrimitive v) {
-        return iw <<= v;
-    }
-    friend PropertyPrimitive operator<<(PropertyPrimitive iw, T v) {
-        return iw <<= v;
-    }
-    friend PropertyPrimitive operator<<(T v, PropertyPrimitive iw) {
-        return PropertyPrimitive(v) <<= iw;
-    }
-    friend PropertyPrimitive operator>>(PropertyPrimitive iw, PropertyPrimitive v) {
-        return iw >>= v;
-    }
-    friend PropertyPrimitive operator>>(PropertyPrimitive iw, T v) {
-        return iw >>= v;
-    }
-    friend PropertyPrimitive operator>>(T v, PropertyPrimitive iw) {
-        return PropertyPrimitive(v) >>= iw;
+
+    inline PropertyPrimitive& operator--(int) {
+        updateValue(_value - 1);
+        return *this;
     }
 
 protected:
+    inline void updateValue(const T& v) {
+        _value = v;
+        updateLocalTimestamp();
+    }
+
     T   _value,
         _cloud_value;
 };
