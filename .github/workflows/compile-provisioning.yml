@@ -39,8 +39,8 @@ jobs:
           version: 1.1.1
         - source-url: https://github.com/arduino-libraries/Arduino_UniqueHWId.git
           version: 7e1bfeb586cac00f043c39997a1e9937ed8152b0
-        - name: Arduino_NetworkConfigurator
-          version: 0.3.1
+        - source-url: https://github.com/arduino-libraries/Arduino_NetworkConfigurator.git
+          version: 49f96f87f09c2a551fc9fb4f39e1c5f8e7f7f4bc
       # sketch paths to compile (recursive) for all boards
       UNIVERSAL_SKETCH_PATHS: |
         - examples/utility/Provisioning_2.0
