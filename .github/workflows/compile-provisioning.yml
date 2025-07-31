@@ -19,8 +19,9 @@ jobs:
     env:
       # libraries to install for all boards
       UNIVERSAL_LIBRARIES: |
-        # Install the ArduinoIoTCloud library from the repository
-        - source-path: ./
+        # Install the ArduinoIoTCloud library from the commit
+        - source-url: https://github.com/fabik111/ArduinoIoTCloud.git
+          version: a3ec0743923b8bcfd93b6302e4986ff568d0e7ab
         - name: ArduinoBLE
           version: 1.4.0
         - name: ArduinoHttpClient
@@ -237,14 +238,14 @@ jobs:
           path: ${{ env.SKETCHES_REPORTS_PATH }}
 
       - name: Save production artifact
-        if: github.event_name == 'pull_request'
+        if: github.event_name == 'push'
         uses: actions/upload-artifact@v4
         with:
           name: provisioning-prod-${{ matrix.board.artifact-name-suffix }}
           path: ${{ runner.temp }}/provisioning-prod/
 
       - name: Save staging artifact
-        if: github.event_name == 'pull_request'
+        if: github.event_name == 'push'
         uses: actions/upload-artifact@v4
         with:
           name: provisioning-staging-${{ matrix.board.artifact-name-suffix }}
