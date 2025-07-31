@@ -238,14 +238,12 @@ jobs:
           path: ${{ env.SKETCHES_REPORTS_PATH }}
 
       - name: Save production artifact
-        if: github.event_name == 'push'
         uses: actions/upload-artifact@v4
         with:
           name: provisioning-prod-${{ matrix.board.artifact-name-suffix }}
           path: ${{ runner.temp }}/provisioning-prod/
 
       - name: Save staging artifact
-        if: github.event_name == 'push'
         uses: actions/upload-artifact@v4
         with:
           name: provisioning-staging-${{ matrix.board.artifact-name-suffix }}
