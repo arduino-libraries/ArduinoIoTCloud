@@ -191,7 +191,7 @@ jobs:
           sketch-paths: |
             ${{ env.UNIVERSAL_SKETCH_PATHS }}
             ${{ matrix.sketch-paths }}
-          enable-deltas-report: "true"
+          enable-deltas-report: "false"
           sketches-report-path: ${{ env.SKETCHES_REPORTS_PATH }}
           cli-compile-flags: |
             - --clean
@@ -211,7 +211,7 @@ jobs:
           sketch-paths: |
             ${{ env.UNIVERSAL_SKETCH_PATHS }}
             ${{ matrix.sketch-paths }}
-          enable-deltas-report: "true"
+          enable-deltas-report: "false"
           sketches-report-path: ${{ env.SKETCHES_REPORTS_PATH }}
           cli-compile-flags: |
             - --clean
