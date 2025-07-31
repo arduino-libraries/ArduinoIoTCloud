@@ -15,7 +15,7 @@
 #include <utility/SElementArduinoCloudCertificate.h>
 #include "utility/LEDFeedback.h"
 
-const char *SKETCH_VERSION = "0.1.0";
+const char *SKETCH_VERSION = "0.3.2";
 
 enum class DeviceState {
     HARDWARE_CHECK,
@@ -59,7 +59,7 @@ void setup() {
   initProperties();
   AgentsManagerClass::getInstance().begin();
   LEDFeedbackClass::getInstance().begin();
-  DEBUG_INFO("Starting Provisioning");
+  DEBUG_INFO("Starting Provisioning version %s", SKETCH_VERSION);
 }
 
 void sendStatus(StatusMessage msg) {
