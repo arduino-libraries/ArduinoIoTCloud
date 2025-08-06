@@ -13,6 +13,8 @@
 #include "utility/HCI.h"
 #include <Arduino_HEX.h>
 
+#define SLOT_BOARD_PRIVATE_KEY 1
+
 extern const char *SKETCH_VERSION;
 
 ClaimingHandlerClass::ClaimingHandlerClass():
@@ -109,7 +111,7 @@ void ClaimingHandlerClass::getIdReqHandler() {
   }
 
   SElementJWS sejws;
-  String publicKey =  sejws.publicKey(*_secureElement, 1, false);
+  String publicKey =  sejws.publicKey(*_secureElement, SLOT_BOARD_PRIVATE_KEY, false);
   if (publicKey == "") {
     DEBUG_ERROR("CH::%s Error: public key not created", __FUNCTION__);
     sendStatus(StatusMessage::ERROR);
@@ -203,24 +205,22 @@ void ClaimingHandlerClass::getProvSketchVersionRequestCb() {
   _receivedEvent = ClaimingReqEvents::GET_PROV_SKETCH_VERSION;
 }
 
-String ClaimingHandlerClass::generateToken()
-{
-  String token = getAIoTCloudJWT(*_secureElement, *_uhwid, _ts, 1);
+String ClaimingHandlerClass::generateToken() {
+  String token = getAIoTCloudJWT(*_secureElement, *_uhwid, _ts, SLOT_BOARD_PRIVATE_KEY);
   if(token == "") {
     byte publicKey[64];
     DEBUG_INFO("Generating private key");
-    if(!_secureElement->generatePrivateKey(1, publicKey)){
+    if(!_secureElement->generatePrivateKey(SLOT_BOARD_PRIVATE_KEY, publicKey)){
       DEBUG_ERROR("CH::%s Error: private key generation failed", __FUNCTION__);
       return "";
     }
-    token = getAIoTCloudJWT(*_secureElement, *_uhwid, _ts, 1);
+    token = getAIoTCloudJWT(*_secureElement, *_uhwid, _ts, SLOT_BOARD_PRIVATE_KEY);
   }
 
   return token;
 }
 
-bool ClaimingHandlerClass::sendStatus(StatusMessage msg)
-{
+bool ClaimingHandlerClass::sendStatus(StatusMessage msg) {
     ProvisioningOutputMessage statusMsg = {MessageOutputType::STATUS, {msg}};
     return _agentManager.sendMsg(statusMsg);
 }
