@@ -112,6 +112,7 @@ class Schedule {
   public:
     ScheduleTimeType frm, to, len, msk;
     Schedule(ScheduleTimeType s, ScheduleTimeType e, ScheduleTimeType d, ScheduleConfigurationType m): frm(s), to(e), len(d), msk(m) {}
+    Schedule(const Schedule& aSchedule) = default;
 
     bool isActive() {
 
