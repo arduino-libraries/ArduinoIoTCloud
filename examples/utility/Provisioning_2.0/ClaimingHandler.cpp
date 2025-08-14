@@ -12,6 +12,7 @@
 #include <ArduinoBLE.h>
 #include "utility/HCI.h"
 #include <Arduino_HEX.h>
+#include "ANetworkConfigurator_Config.h"
 
 #define SLOT_BOARD_PRIVATE_KEY 1
 
@@ -148,8 +149,14 @@ void ClaimingHandlerClass::resetStoredCredReqHandler() {
 }
 
 void ClaimingHandlerClass::getBLEMacAddressReqHandler() {
-  uint8_t mac[6] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+  /* Set the default MAC address as ff:ff:ff:ff:ff:ff for compatibility
+   * with the Arduino IoT Cloud WebUI
+   */
+  uint8_t mac[6] = { 0xff, 0xff, 0xff, 0xff, 0xff, 0xff };
 
+#ifdef ARDUINO_OPTA
+  if(_getPid_() == OPTA_WIFI_PID) {
+#endif
   bool activated = false;
   ConfiguratorAgent * connectedAgent = _agentManager.getConnectedAgent();
   if(!_agentManager.isAgentEnabled(ConfiguratorAgent::AgentTypes::BLE) || (connectedAgent != nullptr &&
@@ -168,7 +175,9 @@ void ClaimingHandlerClass::getBLEMacAddressReqHandler() {
   if (activated) {
     BLE.end();
   }
-
+#ifdef ARDUINO_OPTA
+  }
+#endif
   ProvisioningOutputMessage outputMsg;
   outputMsg.type = MessageOutputType::BLE_MAC_ADDRESS;
   outputMsg.m.BLEMacAddress = mac;
