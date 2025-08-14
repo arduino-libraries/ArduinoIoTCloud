@@ -149,7 +149,10 @@ void ClaimingHandlerClass::resetStoredCredReqHandler() {
 }
 
 void ClaimingHandlerClass::getBLEMacAddressReqHandler() {
-  uint8_t mac[6] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+  /* Set the default MAC address as ff:ff:ff:ff:ff:ff for compatibility
+   * with the Arduino IoT Cloud WebUI
+   */
+  uint8_t mac[6] = { 0xff, 0xff, 0xff, 0xff, 0xff, 0xff };
 
 #ifdef ARDUINO_OPTA
   if(_getPid_() == OPTA_WIFI_PID) {
