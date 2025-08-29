@@ -36,10 +36,11 @@ class CloudInt : public Property {
     int _value,
         _cloud_value;
   public:
-    CloudInt()                                          {
+    CloudInt() {
       CloudInt(0);
     }
     CloudInt(int v) : _value(v), _cloud_value(v) {}
+    CloudInt(const CloudInt& v) = default;
     operator int() const {
       return _value;
     }

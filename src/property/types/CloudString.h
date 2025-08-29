@@ -36,13 +36,14 @@ class CloudString : public Property {
     String  _value,
             _cloud_value;
   public:
-    CloudString()                                {
+    CloudString() {
       CloudString("");
     }
-    CloudString(const char *v)                   {
+    CloudString(const char *v) {
       CloudString(String(v));
     }
     CloudString(String v) : _value(v), _cloud_value(v) {}
+    CloudString(const CloudString& v) = default;
     operator String() const {
       return _value;
     }
