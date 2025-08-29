@@ -161,6 +161,21 @@
   #define NETWORK_CONFIGURATOR_ENABLED (0)
 #endif
 
+#ifdef HAS_TCP
+  #ifndef MQTT_TX_BUFFER_SIZE
+    #define MQTT_TX_BUFFER_SIZE 256
+  #endif // MQTT_TX_BUFFER_SIZE
+
+  #ifndef STRING_PROPERTY_MAX_SIZE
+    // 6 represents the expected overhead of a string property inside a cbor
+    #define STRING_PROPERTY_MAX_SIZE MQTT_TX_BUFFER_SIZE - 6
+  #endif // STRING_PROPERTY_MAX_SIZE
+#else
+  #ifndef STRING_PROPERTY_MAX_SIZE
+    #define STRING_PROPERTY_MAX_SIZE 50
+  #endif // STRING_PROPERTY_MAX_SIZE
+#endif // HAS_TCP
+
 /******************************************************************************
  * CONSTANTS
  ******************************************************************************/
