@@ -23,7 +23,7 @@
  ******************************************************************************/
 
 #include <Arduino.h>
-#include "../Property.h"
+#include "PropertyPrimitive.h"
 
 /******************************************************************************
    CLASS DECLARATION
@@ -32,6 +32,39 @@
 class CloudWrapperBase : public Property {
   public:
     virtual bool isChangedLocally() = 0;
+};
+
+template<typename T>
+class CloudWrapperProperty : public CloudWrapperBase {
+public:
+    CloudWrapperProperty(T& value)
+    : _primitive_value(value), _value(value), _cloud_value(value) { }
+
+    bool isDifferentFromCloud() override {
+      return _primitive_value != _cloud_value;
+    }
+
+    void fromCloudToLocal() override {
+      _primitive_value = _cloud_value;
+    }
+    void fromLocalToCloud() override {
+      _cloud_value = _primitive_value;
+    }
+
+    CborError appendAttributesToCloud(CborEncoder *encoder) override {
+      return appendAttribute(_primitive_value, "", encoder);
+    }
+    void setAttributesFromCloud() override {
+      setAttribute(_cloud_value, "");
+    }
+
+    bool isChangedLocally() override {
+      return _primitive_value != _value;
+    }
+protected:
+    T   &_primitive_value,
+        _value,
+        _cloud_value;
 };
 
 

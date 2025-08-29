@@ -318,11 +318,11 @@ class Schedule {
       if(isScheduleFixed(msk) || isScheduleOneShot(msk)) {
         return true;
       }
-      
+
       if(isScheduleWeekly(msk)) {
         unsigned int currentDayMask = getCurrentDayMask(now);
         unsigned int scheduleMask = getScheduleWeekMask(msk);
-        
+
         if((currentDayMask & scheduleMask) != 0) {
           return true;
         }
@@ -384,7 +384,7 @@ class CloudSchedule : public Property {
     CloudSchedule() : _value(0, 0, 0, 0), _cloud_value(0, 0, 0, 0) {}
     CloudSchedule(unsigned int frm, unsigned int to, unsigned int len, unsigned int msk) : _value(frm, to, len, msk), _cloud_value(frm, to, len, msk) {}
 
-    virtual bool isDifferentFromCloud() {
+    bool isDifferentFromCloud() override {
 
       return _value != _cloud_value;
     }
@@ -410,20 +410,20 @@ class CloudSchedule : public Property {
       return _value.isActive();
     }
 
-    virtual void fromCloudToLocal() {
+    void fromCloudToLocal() override {
       _value = _cloud_value;
     }
-    virtual void fromLocalToCloud() {
+    void fromLocalToCloud() override {
       _cloud_value = _value;
     }
-    virtual CborError appendAttributesToCloud(CborEncoder *encoder) {
+    CborError appendAttributesToCloud(CborEncoder *encoder) override {
       CHECK_CBOR_MULTI(appendAttribute(_value.frm, "frm", encoder));
       CHECK_CBOR_MULTI(appendAttribute(_value.to, "to", encoder));
       CHECK_CBOR_MULTI(appendAttribute(_value.len, "len", encoder));
       CHECK_CBOR_MULTI(appendAttribute(_value.msk, "msk", encoder));
       return CborNoError;
     }
-    virtual void setAttributesFromCloud() {
+    void setAttributesFromCloud() override {
       setAttribute(_cloud_value.frm, "frm");
       setAttribute(_cloud_value.to, "to");
       setAttribute(_cloud_value.len, "len");
