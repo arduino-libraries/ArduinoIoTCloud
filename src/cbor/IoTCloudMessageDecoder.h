@@ -12,7 +12,7 @@
 #define ARDUINO_CBOR_MESSAGE_DECODER_H_
 
 /******************************************************************************
-   INCLUDE
+  INCLUDE
  ******************************************************************************/
 
 #include "./CBOR.h"
@@ -20,7 +20,7 @@
 #include "message/Commands.h"
 
 /******************************************************************************
-   CLASS DECLARATION
+  CLASS DECLARATION
  ******************************************************************************/
 
 class OtaUpdateCommandDecoder: public CBORMessageDecoderInterface {

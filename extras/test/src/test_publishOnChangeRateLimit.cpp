@@ -1,23 +1,27 @@
 /*
-   Copyright (c) 2019 Arduino.  All rights reserved.
+  This file is part of the ArduinoIoTCloud library.
+
+  Copyright (c) 2019 Arduino SA
+
+  This Source Code Form is subject to the terms of the Mozilla Public
+  License, v. 2.0. If a copy of the MPL was not distributed with this
+  file, You can obtain one at http://mozilla.org/MPL/2.0/.
 */
 
-/**************************************************************************************
-   INCLUDE
- **************************************************************************************/
+/******************************************************************************
+  INCLUDE
+ ******************************************************************************/
 
 #include <catch2/catch_test_macros.hpp>
-
 #include <util/CBORTestUtil.h>
 
-/**************************************************************************************
-   TEST CODE
- **************************************************************************************/
+/******************************************************************************
+  TEST CODE
+ ******************************************************************************/
 
 SCENARIO("An Arduino cloud property is published on value change but the update rate is limited", "[ArduinoCloudThing::publishOnChange]")
 {
   PropertyContainer property_container;
-    
   CloudInt test = 0;
   int const MIN_DELTA = 0;
   unsigned long const MIN_TIME_BETWEEN_UPDATES_ms = 500; /* No updates faster than 500 ms */

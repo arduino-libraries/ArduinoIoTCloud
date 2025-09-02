@@ -1,18 +1,23 @@
 /*
-   Copyright (c) 2019 Arduino.  All rights reserved.
+  This file is part of the ArduinoIoTCloud library.
+
+  Copyright (c) 2019 Arduino SA
+
+  This Source Code Form is subject to the terms of the Mozilla Public
+  License, v. 2.0. If a copy of the MPL was not distributed with this
+  file, You can obtain one at http://mozilla.org/MPL/2.0/.
 */
 
-/**************************************************************************************
-   INCLUDE
- **************************************************************************************/
+/******************************************************************************
+  INCLUDE
+ ******************************************************************************/
 
 #include <catch2/catch_test_macros.hpp>
-
 #include <property/types/CloudLocation.h>
 
-/**************************************************************************************
+/******************************************************************************
   TEST CODE
- **************************************************************************************/
+ ******************************************************************************/
 
 SCENARIO("Testing cloud type 'Location' Ctor", "[Location::Location]")
 {
@@ -28,7 +33,7 @@ SCENARIO("Testing cloud type 'Location' Ctor", "[Location::Location]")
   }
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 
 SCENARIO("Testing cloud type 'Location' assignment operator", "[Location::operator =]")
 {
@@ -45,7 +50,7 @@ SCENARIO("Testing cloud type 'Location' assignment operator", "[Location::operat
   }
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 
 SCENARIO("Testing cloud type 'Location' operator -", "[Location::operator -]")
 {
@@ -62,7 +67,7 @@ SCENARIO("Testing cloud type 'Location' operator -", "[Location::operator -]")
   }
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 
 SCENARIO("Testing cloud type 'Location' comparison operator ==", "[Location::operator ==]")
 {
@@ -85,7 +90,7 @@ SCENARIO("Testing cloud type 'Location' comparison operator ==", "[Location::ope
   }
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 
 SCENARIO("Testing cloud type 'Location' comparison operator !=", "[Location::operator !=]")
 {
@@ -108,7 +113,7 @@ SCENARIO("Testing cloud type 'Location' comparison operator !=", "[Location::ope
   }
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 
 SCENARIO("Testing cloud type 'Location' function distance for calculating Euclidean 2d distance between two points", "[Location::distance]")
 {

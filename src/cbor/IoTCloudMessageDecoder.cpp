@@ -9,7 +9,7 @@
 */
 
 /******************************************************************************
-    INCLUDE
+  INCLUDE
  ******************************************************************************/
 
 #include <Arduino.h>
@@ -19,7 +19,7 @@
 #include <AIoTC_Config.h>
 
 /******************************************************************************
-    MESSAGE DECODE FUNCTIONS
+  MESSAGE DECODE FUNCTIONS
  ******************************************************************************/
 
 MessageDecoder::Status ThingUpdateCommandDecoder::decode(CborValue* iter, Message *msg) {

@@ -1,24 +1,28 @@
 /*
-   Copyright (c) 2019 Arduino.  All rights reserved.
+  This file is part of the ArduinoIoTCloud library.
+
+  Copyright (c) 2019 Arduino SA
+
+  This Source Code Form is subject to the terms of the Mozilla Public
+  License, v. 2.0. If a copy of the MPL was not distributed with this
+  file, You can obtain one at http://mozilla.org/MPL/2.0/.
 */
 
-/**************************************************************************************
-   INCLUDE
- **************************************************************************************/
+/******************************************************************************
+  INCLUDE
+ ******************************************************************************/
 
 #include <catch2/catch_test_macros.hpp>
-
 #include <util/CBORTestUtil.h>
 #include <AIoTC_Const.h>
 
-/**************************************************************************************
-   TEST CODE
- **************************************************************************************/
+/******************************************************************************
+  TEST CODE
+ ******************************************************************************/
 
 SCENARIO("A Arduino cloud property is published periodically", "[ArduinoCloudThing::publishEvery]")
 {
   PropertyContainer property_container;
-    
   CloudBool test = true;
   unsigned long const PUBLISH_INTERVAL_SEC = 1 * SECONDS;
 

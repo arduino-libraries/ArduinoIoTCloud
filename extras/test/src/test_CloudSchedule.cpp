@@ -1,38 +1,43 @@
 /*
-   Copyright (c) 2021 Arduino.  All rights reserved.
+  This file is part of the ArduinoIoTCloud library.
+
+  Copyright (c) 2019 Arduino SA
+
+  This Source Code Form is subject to the terms of the Mozilla Public
+  License, v. 2.0. If a copy of the MPL was not distributed with this
+  file, You can obtain one at http://mozilla.org/MPL/2.0/.
 */
 
-/**************************************************************************************
-   INCLUDE
- **************************************************************************************/
+/******************************************************************************
+  INCLUDE
+ ******************************************************************************/
 
 #include <catch2/catch_test_macros.hpp>
-
 #include <property/types/CloudSchedule.h>
 
 unsigned long time_now = 1;
 
-/**************************************************************************************
- * TimeServiceClass Fake CTOR
- **************************************************************************************/
+/******************************************************************************
+  TimeServiceClass Fake CTOR
+ ******************************************************************************/
 
 TimeServiceClass::TimeServiceClass() {}
 
-/**************************************************************************************
- * TimeServiceClass Fake Methods
- **************************************************************************************/
+/******************************************************************************
+  TimeServiceClass Fake Methods
+ ******************************************************************************/
 
 unsigned long TimeServiceClass::getLocalTime() {return time_now;}
 
-/**************************************************************************************
- * TimeService Fake local instance
- **************************************************************************************/
+/******************************************************************************
+  TimeService Fake local instance
+ ******************************************************************************/
 
 TimeServiceClass TimeService;
 
-/**************************************************************************************
+/******************************************************************************
   TEST CODE
- **************************************************************************************/
+ ******************************************************************************/
 
 SCENARIO("Testing cloud type 'Schedule' Ctor", "[Schedule::Schedule]")
 {
@@ -54,7 +59,7 @@ SCENARIO("Testing cloud type 'Schedule' Ctor", "[Schedule::Schedule]")
   }
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 
 SCENARIO("Setup a schedule that repeats each 20 minutes and test isActive Method", "[Schedule::isActive]")
 {
@@ -138,7 +143,7 @@ SCENARIO("Setup a schedule that repeats each 20 minutes and test isActive Method
   }
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 
 SCENARIO("Setup a weekly schedule and test isActive Method", "[Schedule::isActive]")
 {
@@ -198,7 +203,7 @@ SCENARIO("Setup a weekly schedule and test isActive Method", "[Schedule::isActiv
   }
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 
 SCENARIO("Setup a monthly schedule and test isActive Method", "[Schedule::isActive]")
 {
@@ -346,7 +351,7 @@ SCENARIO("Setup a monthly schedule and test isActive Method", "[Schedule::isActi
   }
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 
 SCENARIO("Setup a yearly schedule and test isActive Method", "[Schedule::isActive]")
 {
@@ -430,7 +435,7 @@ SCENARIO("Setup a yearly schedule and test isActive Method", "[Schedule::isActiv
   }
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 
 SCENARIO("Setup a one shot schedule and test isActive Method", "[Schedule::isActive]")
 {
@@ -512,4 +517,3 @@ SCENARIO("Setup a one shot schedule and test isActive Method", "[Schedule::isAct
     }
   }
 }
-

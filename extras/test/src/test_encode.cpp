@@ -1,10 +1,16 @@
 /*
-   Copyright (c) 2019 Arduino.  All rights reserved.
+  This file is part of the ArduinoIoTCloud library.
+
+  Copyright (c) 2019 Arduino SA
+
+  This Source Code Form is subject to the terms of the Mozilla Public
+  License, v. 2.0. If a copy of the MPL was not distributed with this
+  file, You can obtain one at http://mozilla.org/MPL/2.0/.
 */
 
-/**************************************************************************************
-   INCLUDE
- **************************************************************************************/
+/******************************************************************************
+  INCLUDE
+ ******************************************************************************/
 
 #include <catch2/catch_test_macros.hpp>
 
@@ -16,12 +22,11 @@
 #include "types/CloudWrapperInt.h"
 #include "types/CloudWrapperString.h"
 
-/**************************************************************************************
-   TEST CODE
- **************************************************************************************/
+/******************************************************************************
+  TEST CODE
+ ******************************************************************************/
 
 SCENARIO("Arduino Cloud Properties are encoded", "[ArduinoCloudThing::encode-1]") {
-  /************************************************************************************/
 
   WHEN("A 'bool' property is added")
   {
@@ -36,8 +41,6 @@ SCENARIO("Arduino Cloud Properties are encoded", "[ArduinoCloudThing::encode-1]"
     std::vector<uint8_t> const actual = cbor::encode(property_container);
     REQUIRE(actual == expected);
   }
-
-  /************************************************************************************/
 
   WHEN("A 'bool' property is added - light payload")
   {
@@ -55,8 +58,6 @@ SCENARIO("Arduino Cloud Properties are encoded", "[ArduinoCloudThing::encode-1]"
     REQUIRE(actual == expected);
   }
 
-  /************************************************************************************/
-
   WHEN("A 'int' property is added")
   {
     PropertyContainer property_container;
@@ -71,8 +72,6 @@ SCENARIO("Arduino Cloud Properties are encoded", "[ArduinoCloudThing::encode-1]"
     REQUIRE(actual == expected);
   }
 
-  /************************************************************************************/
-
   WHEN("A 'float' property is added")
   {
     PropertyContainer property_container;
@@ -86,8 +85,6 @@ SCENARIO("Arduino Cloud Properties are encoded", "[ArduinoCloudThing::encode-1]"
     std::vector<uint8_t> const actual = cbor::encode(property_container);
     REQUIRE(actual == expected);
   }
-
-  /************************************************************************************/
 
   WHEN("A 'String' property is added")
   {
@@ -104,8 +101,6 @@ SCENARIO("Arduino Cloud Properties are encoded", "[ArduinoCloudThing::encode-1]"
     REQUIRE(actual == expected);
   }
 
-  /************************************************************************************/
-
   WHEN("A 'Location' property is added")
   {
     PropertyContainer property_container;
@@ -120,8 +115,6 @@ SCENARIO("Arduino Cloud Properties are encoded", "[ArduinoCloudThing::encode-1]"
     REQUIRE(actual == expected);
   }
 
-  /************************************************************************************/
-
   WHEN("A 'Color' property is added")
   {
     PropertyContainer property_container;
@@ -135,8 +128,6 @@ SCENARIO("Arduino Cloud Properties are encoded", "[ArduinoCloudThing::encode-1]"
     std::vector<uint8_t> const actual = cbor::encode(property_container);
     REQUIRE(actual == expected);
   }
-
-  /************************************************************************************/
 
   WHEN("A 'Color' property is added - light payload")
   {
@@ -154,8 +145,6 @@ SCENARIO("Arduino Cloud Properties are encoded", "[ArduinoCloudThing::encode-1]"
     REQUIRE(actual == expected);
   }
 
-  /************************************************************************************/
-
   WHEN("A 'ColoredLight' property is added")
   {
     PropertyContainer property_container;
@@ -169,8 +158,6 @@ SCENARIO("Arduino Cloud Properties are encoded", "[ArduinoCloudThing::encode-1]"
     std::vector<uint8_t> const actual = cbor::encode(property_container);
     REQUIRE(actual == expected);
   }
-
-  /************************************************************************************/
 
   WHEN("A 'Television' property is added")
   {
@@ -186,8 +173,6 @@ SCENARIO("Arduino Cloud Properties are encoded", "[ArduinoCloudThing::encode-1]"
     REQUIRE(actual == expected);
   }
 
-  /************************************************************************************/
-
   WHEN("A 'DimmedLight' property is added")
   {
     PropertyContainer property_container;
@@ -201,8 +186,6 @@ SCENARIO("Arduino Cloud Properties are encoded", "[ArduinoCloudThing::encode-1]"
     std::vector<uint8_t> const actual = cbor::encode(property_container);
     REQUIRE(actual == expected);
   }
-
-  /************************************************************************************/
 
   WHEN("A light property is added")
   {
@@ -219,8 +202,6 @@ SCENARIO("Arduino Cloud Properties are encoded", "[ArduinoCloudThing::encode-1]"
     REQUIRE(actual == expected);
   }
 
-  /************************************************************************************/
-
   WHEN("A contact sensor property is added")
   {
     PropertyContainer property_container;
@@ -235,8 +216,6 @@ SCENARIO("Arduino Cloud Properties are encoded", "[ArduinoCloudThing::encode-1]"
     std::vector<uint8_t> const actual = cbor::encode(property_container);
     REQUIRE(actual == expected);
   }
-
-  /************************************************************************************/
 
   WHEN("A motion sensor property is added")
   {
@@ -253,8 +232,6 @@ SCENARIO("Arduino Cloud Properties are encoded", "[ArduinoCloudThing::encode-1]"
     REQUIRE(actual == expected);
   }
 
-  /************************************************************************************/
-
   WHEN("A smart plug property is added")
   {
     PropertyContainer property_container;
@@ -269,8 +246,6 @@ SCENARIO("Arduino Cloud Properties are encoded", "[ArduinoCloudThing::encode-1]"
     std::vector<uint8_t> const actual = cbor::encode(property_container);
     REQUIRE(actual == expected);
   }
-
-  /************************************************************************************/
 
   WHEN("A Temperature property is added")
   {
@@ -287,8 +262,6 @@ SCENARIO("Arduino Cloud Properties are encoded", "[ArduinoCloudThing::encode-1]"
     REQUIRE(actual == expected);
   }
 
-  /************************************************************************************/
-
   WHEN("A switch property is added")
   {
     PropertyContainer property_container;
@@ -304,8 +277,6 @@ SCENARIO("Arduino Cloud Properties are encoded", "[ArduinoCloudThing::encode-1]"
     REQUIRE(actual == expected);
   }
 
-  /************************************************************************************/
-
   WHEN("A time property is added")
   {
     PropertyContainer property_container;
@@ -319,8 +290,6 @@ SCENARIO("Arduino Cloud Properties are encoded", "[ArduinoCloudThing::encode-1]"
     std::vector<uint8_t> const actual = cbor::encode(property_container);
     REQUIRE(actual == expected);
   }
-
-  /************************************************************************************/
 
   WHEN("A 'Schedule' property is added")
   {
@@ -338,12 +307,10 @@ SCENARIO("Arduino Cloud Properties are encoded", "[ArduinoCloudThing::encode-1]"
     REQUIRE(actual == expected);
   }
 
-  /************************************************************************************/
-
   WHEN("Multiple properties are added")
   {
     PropertyContainer property_container;
-        
+
     CloudInt    int_test = 1;
     CloudBool   bool_test = false;
     CloudFloat  float_test = 2.0f;
@@ -363,12 +330,10 @@ SCENARIO("Arduino Cloud Properties are encoded", "[ArduinoCloudThing::encode-1]"
     REQUIRE(actual == expected);
   }
 
-  /************************************************************************************/
-
   WHEN("Multiple primitive properties are added")
   {
     PropertyContainer property_container;
-        
+
     int    int_test = 1;
     bool   bool_test = false;
     float  float_test = 2.0f;
@@ -394,8 +359,6 @@ SCENARIO("Arduino Cloud Properties are encoded", "[ArduinoCloudThing::encode-1]"
     std::vector<uint8_t> const actual = cbor::encode(property_container);
     REQUIRE(actual == expected);
   }
-
-  /************************************************************************************/
 
   WHEN("The size of the encoded properties is exceeding the CBOR buffer size")
   {
@@ -441,8 +404,6 @@ SCENARIO("Arduino Cloud Properties are encoded", "[ArduinoCloudThing::encode-1]"
     std::vector<uint8_t> const actual_2 = cbor::encode(property_container);
     REQUIRE(actual_2 == expected_2);
   }
-
-  /************************************************************************************/
 
   WHEN("The size of the encoded properties is exceeding the CBOR buffer size and includes a multivalue property")
   {
@@ -493,9 +454,6 @@ SCENARIO("Arduino Cloud Properties are encoded", "[ArduinoCloudThing::encode-1]"
     REQUIRE(actual_2 == expected_2);
   }
 
-
-  /************************************************************************************/
-
   WHEN("The size of a single encoded properties is exceeding the CBOR buffer size")
   {
     PropertyContainer property_container;
@@ -515,5 +473,4 @@ SCENARIO("Arduino Cloud Properties are encoded", "[ArduinoCloudThing::encode-1]"
     std::vector<uint8_t> const actual_1 = cbor::encode(property_container);
     REQUIRE(actual_1 == expected_1);
   }
-
 }

@@ -1,29 +1,30 @@
 /*
-   Copyright (c) 2024 Arduino.  All rights reserved.
+  This file is part of the ArduinoIoTCloud library.
+
+  Copyright (c) 2019 Arduino SA
+
+  This Source Code Form is subject to the terms of the Mozilla Public
+  License, v. 2.0. If a copy of the MPL was not distributed with this
+  file, You can obtain one at http://mozilla.org/MPL/2.0/.
 */
 
 /******************************************************************************
-   INCLUDE
+  INCLUDE
  ******************************************************************************/
 
 #include <catch2/catch_test_macros.hpp>
-
 #include <memory>
-
 #include <util/CBORTestUtil.h>
 #include <IoTCloudMessageEncoder.h>
 #include <MessageEncoder.h>
 #include <catch2/matchers/catch_matchers_vector.hpp>
 #include <ConnectionHandlerDefinitions.h>
-//#include <connectionHandlerModels/settings.h>
-
 
 /******************************************************************************
-   TEST CODE
+  TEST CODE
  ******************************************************************************/
 
 SCENARIO("Test the encoding of command messages") {
-  /****************************************************************************/
 
   WHEN("Encode the OtaBeginUp message")
   {
@@ -102,8 +103,6 @@ SCENARIO("Test the encoding of command messages") {
     REQUIRE(err == MessageEncoder::Status::Error);
   }
 
-  /****************************************************************************/
-
   WHEN("Encode the ThingBeginCmd message")
   {
     ThingBeginCmd command;
@@ -179,8 +178,6 @@ SCENARIO("Test the encoding of command messages") {
     REQUIRE(err == MessageEncoder::Status::Error);
   }
 
-  /****************************************************************************/
-
   WHEN("Encode the LastValuesBeginCmd message")
   {
     LastValuesBeginCmd command;
@@ -221,8 +218,6 @@ SCENARIO("Test the encoding of command messages") {
     //    80       # array(0)
     REQUIRE(err == MessageEncoder::Status::Error);
   }
-
-    /**************************************************************************/
 
   WHEN("Encode the DeviceBeginCmd message")
   {
@@ -297,8 +292,6 @@ SCENARIO("Test the encoding of command messages") {
     //          322E302E30 # "2.0.0"
     REQUIRE(err == MessageEncoder::Status::Error);
   }
-
-  /****************************************************************************/
 
   WHEN("Encode the OtaProgressCmdUp message")
   {
@@ -490,8 +483,6 @@ SCENARIO("Test the encoding of command messages") {
     REQUIRE(err == MessageEncoder::Status::Error);
   }
 
-  /****************************************************************************/
-
   WHEN("Encode the TimezoneCommandUp message")
   {
     TimezoneCommandUp command;
@@ -533,8 +524,6 @@ SCENARIO("Test the encoding of command messages") {
     REQUIRE(err == MessageEncoder::Status::Error);
   }
 
-  /****************************************************************************/
-
   WHEN("Encode the ThingUpdateCmdId message")
   {
     ThingUpdateCmd command;
@@ -554,8 +543,6 @@ SCENARIO("Test the encoding of command messages") {
     }
   }
 
-  /****************************************************************************/
-
   WHEN("Encode the TimezoneCommandDown message")
   {
     TimezoneCommandDown command;
@@ -574,8 +561,6 @@ SCENARIO("Test the encoding of command messages") {
       REQUIRE(err == MessageEncoder::Status::Error);
     }
   }
-
-  /****************************************************************************/
 
   WHEN("Encode the LastValuesUpdateCmd message")
   {
@@ -598,8 +583,6 @@ SCENARIO("Test the encoding of command messages") {
     }
   }
 
-  /****************************************************************************/
-
   WHEN("Encode the OtaUpdateCmdDown message")
   {
     OtaUpdateCmdDown command;
@@ -616,8 +599,6 @@ SCENARIO("Test the encoding of command messages") {
     }
   }
 
-  /****************************************************************************/
-
   WHEN("Encode the ThingDetachCmd message")
   {
     ThingDetachCmd command;
@@ -633,8 +614,6 @@ SCENARIO("Test the encoding of command messages") {
       REQUIRE(err == MessageEncoder::Status::Error);
     }
   }
-
-  /****************************************************************************/
 
   WHEN("Encode a message with unknown command Id")
   {
@@ -682,7 +661,6 @@ SCENARIO("Test the encoding of command messages") {
         REQUIRE(memcmp(buffer, expected_result, sizeof(expected_result)) == 0);
     }
   }
-
 
   WHEN("Encode the DeviceNetConfigCmdUp message with Wifi and buffer without enough space")
   {
@@ -739,7 +717,7 @@ SCENARIO("Test the encoding of command messages") {
     }
   }
 
-    WHEN("Encode the DeviceNetConfigCmdUp message with LoRa buffer without enough space")
+  WHEN("Encode the DeviceNetConfigCmdUp message with LoRa buffer without enough space")
   {
     DeviceNetConfigCmdUp command;
     command.c.id = CommandId::DeviceNetConfigCmdUpId;
@@ -1239,7 +1217,6 @@ SCENARIO("Test the encoding of command messages") {
     uint8_t netmask[] = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
     command.params.eth.netmask.type = IPType::IPv6;
     memcpy(command.params.eth.netmask.bytes, netmask, sizeof(netmask));
-
 
     uint8_t buffer[12];
     size_t bytes_encoded = sizeof(buffer);

@@ -10,7 +10,7 @@
 
 
 /******************************************************************************
- * INCLUDE
+  INCLUDE
  ******************************************************************************/
 
 #include <AIoTC_Config.h>
@@ -23,7 +23,7 @@
 #include "property/types/CloudWrapperUnsignedInt.h"
 
 /******************************************************************************
- * CTOR/DTOR
+  CTOR/DTOR
  ******************************************************************************/
 ArduinoCloudThing::ArduinoCloudThing(MessageStream* ms)
 : CloudProcess(ms),
@@ -38,7 +38,7 @@ _utcOffsetExpireTimeProperty(nullptr) {
 }
 
 /******************************************************************************
- * PUBLIC MEMBER FUNCTIONS
+  PUBLIC MEMBER FUNCTIONS
  ******************************************************************************/
 
 void ArduinoCloudThing::begin() {

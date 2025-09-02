@@ -9,7 +9,7 @@
 */
 
 /******************************************************************************
- * INCLUDE
+  INCLUDE
  ******************************************************************************/
 
 #include "AIoTC_Config.h"
@@ -29,7 +29,7 @@
 #include "cbor/IoTCloudMessageEncoder.h"
 
 /******************************************************************************
- * CONSTANTS
+  CONSTANTS
  ******************************************************************************/
 
 static size_t const CBOR_MSG_BUFFER_SIZE = 256;
@@ -38,7 +38,7 @@ static size_t const DEFAULT_READ_INTERVAL_MS = 1000;   // 1 second
 static size_t const FAILSAFE_READ_INTERVAL_MS = 15000; // 15 seconds
 
 /******************************************************************************
- * LOCAL MODULE FUNCTIONS
+  LOCAL MODULE FUNCTIONS
  ******************************************************************************/
 
 unsigned long getTime()
@@ -52,7 +52,7 @@ void ISR_dataAvailable(void)
 }
 
 /******************************************************************************
- * CTOR/DTOR
+  CTOR/DTOR
  ******************************************************************************/
 
 ArduinoIoTCloudNotecard::ArduinoIoTCloudNotecard()
@@ -71,7 +71,7 @@ ArduinoIoTCloudNotecard::ArduinoIoTCloudNotecard()
 }
 
 /******************************************************************************
- * PUBLIC MEMBER FUNCTIONS
+  PUBLIC MEMBER FUNCTIONS
  ******************************************************************************/
 
 int ArduinoIoTCloudNotecard::begin(ConnectionHandler &connection_, int interrupt_pin_)
@@ -149,7 +149,7 @@ void ArduinoIoTCloudNotecard::update()
 }
 
 /******************************************************************************
- * PRIVATE STATE MACHINE FUNCTIONS
+  PRIVATE STATE MACHINE FUNCTIONS
  ******************************************************************************/
 
 ArduinoIoTCloudNotecard::State ArduinoIoTCloudNotecard::handle_ConnectPhy()
@@ -228,7 +228,7 @@ ArduinoIoTCloudNotecard::State ArduinoIoTCloudNotecard::handle_Disconnect()
 }
 
 /******************************************************************************
- * PRIVATE SUPPORT FUNCTIONS
+  PRIVATE SUPPORT FUNCTIONS
  ******************************************************************************/
 
 void ArduinoIoTCloudNotecard::attachThing(String thingId)
@@ -476,7 +476,7 @@ void ArduinoIoTCloudNotecard::sendThingPropertyContainerToCloud()
 }
 
 /******************************************************************************
- * EXTERN DEFINITION
+  EXTERN DEFINITION
  ******************************************************************************/
 
 ArduinoIoTCloudNotecard ArduinoCloud;

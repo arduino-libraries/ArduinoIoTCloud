@@ -12,7 +12,7 @@
 #define ARDUINO_IOT_CLOUD_DEVICE_H
 
 /******************************************************************************
- * INCLUDE
+  INCLUDE
  ******************************************************************************/
 
 #include <Arduino_TimedAttempt.h>
@@ -22,7 +22,7 @@
 #include <connectionHandlerModels/settings.h>
 
 /******************************************************************************
- * CLASS DECLARATION
+  CLASS DECLARATION
  ******************************************************************************/
 
 class ArduinoCloudDevice : public CloudProcess {

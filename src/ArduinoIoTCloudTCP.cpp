@@ -1,22 +1,15 @@
 /*
-   This file is part of ArduinoIoTCloud.
+  This file is part of the ArduinoIoTCloud library.
 
-   Copyright 2019 ARDUINO SA (http://www.arduino.cc/)
+  Copyright (c) 2019 Arduino SA
 
-   This software is released under the GNU General Public License version 3,
-   which covers the main part of arduino-cli.
-   The terms of this license can be found at:
-   https://www.gnu.org/licenses/gpl-3.0.en.html
-
-   You can be released from the requirements of the above licenses by purchasing
-   a commercial license. Buying such a license is mandatory if you want to modify or
-   otherwise use the software for commercial activities involving the Arduino
-   software without disclosing the source code of your own applications. To purchase
-   a commercial license, send an email to license@arduino.cc.
+  This Source Code Form is subject to the terms of the Mozilla Public
+  License, v. 2.0. If a copy of the MPL was not distributed with this
+  file, You can obtain one at http://mozilla.org/MPL/2.0/.
 */
 
 /******************************************************************************
- * INCLUDE
+  INCLUDE
  ******************************************************************************/
 
 #include <AIoTC_Config.h>
@@ -44,7 +37,7 @@ unsigned long getTime()
 }
 
 /******************************************************************************
-   CTOR/DTOR
+  CTOR/DTOR
  ******************************************************************************/
 
 ArduinoIoTCloudTCP::ArduinoIoTCloudTCP()
@@ -77,7 +70,7 @@ ArduinoIoTCloudTCP::ArduinoIoTCloudTCP()
 }
 
 /******************************************************************************
- * PUBLIC MEMBER FUNCTIONS
+  PUBLIC MEMBER FUNCTIONS
  ******************************************************************************/
 
 int ArduinoIoTCloudTCP::begin(ConnectionHandler & connection, bool const enable_watchdog, String brokerAddress, uint16_t brokerPort, bool auto_reconnect)
@@ -297,7 +290,7 @@ void ArduinoIoTCloudTCP::disconnect() {
 }
 
 /******************************************************************************
- * PRIVATE MEMBER FUNCTIONS
+  PRIVATE MEMBER FUNCTIONS
  ******************************************************************************/
 
 ArduinoIoTCloudTCP::State ArduinoIoTCloudTCP::handle_ConfigPhy()
@@ -723,7 +716,7 @@ int ArduinoIoTCloudTCP::updateCertificate(String authorityKeyIdentifier, String 
 #endif
 
 /******************************************************************************
-* EXTERN DEFINITION
+ EXTERN DEFINITION
 ******************************************************************************/
 
 ArduinoIoTCloudTCP ArduinoCloud;

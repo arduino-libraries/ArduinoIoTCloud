@@ -9,7 +9,7 @@
 */
 
 /******************************************************************************
- * INCLUDE
+  INCLUDE
  ******************************************************************************/
 
 #include <time.h>
@@ -34,7 +34,7 @@
 #endif
 
 /******************************************************************************
- * GLOBAL VARIABLES
+  GLOBAL VARIABLES
  ******************************************************************************/
 
 #if !defined(BOARD_HAS_HW_RTC)
@@ -46,13 +46,13 @@ RTCZero rtc;
 #endif
 
 /******************************************************************************
- * INTERNAL FUNCTION DECLARATION
+  INTERNAL FUNCTION DECLARATION
  ******************************************************************************/
 
 time_t cvt_time(char const * time);
 
 /******************************************************************************
- * RTC PRIVATE FUNCTION DEFINITION
+  RTC PRIVATE FUNCTION DEFINITION
  ******************************************************************************/
 
 #if defined(BOARD_HAS_HW_RTC)
@@ -118,13 +118,13 @@ static inline unsigned long _getRTC() {
 #endif
 
 /******************************************************************************
- * DEFINES
+  DEFINES
  ******************************************************************************/
 
 #define EPOCH_AT_COMPILE_TIME cvt_time(__DATE__)
 
 /******************************************************************************
- * CONSTANTS
+  CONSTANTS
  ******************************************************************************/
 
 /* Default NTP synch is scheduled each 24 hours from startup */
@@ -132,7 +132,7 @@ static time_t const TIMESERVICE_NTP_SYNC_TIMEOUT_ms = DAYS * 1000;
 static time_t const EPOCH = 0;
 
 /******************************************************************************
- * CTOR/DTOR
+  CTOR/DTOR
  ******************************************************************************/
 
 TimeServiceClass::TimeServiceClass()
@@ -149,7 +149,7 @@ TimeServiceClass::TimeServiceClass()
 }
 
 /******************************************************************************
- * PUBLIC MEMBER FUNCTIONS
+  PUBLIC MEMBER FUNCTIONS
  ******************************************************************************/
 
 void TimeServiceClass::begin(ConnectionHandler * con_hdl)
@@ -307,7 +307,7 @@ unsigned long TimeServiceClass::getTimeFromString(const String& input)
   return mktime(&t);
 }
 /******************************************************************************
- * PRIVATE MEMBER FUNCTIONS
+  PRIVATE MEMBER FUNCTIONS
  ******************************************************************************/
 
 #if defined(HAS_NOTECARD) || defined(HAS_TCP)
@@ -383,7 +383,7 @@ unsigned long TimeServiceClass::getRTC()
 }
 
 /******************************************************************************
- * INTERNAL FUNCTION DEFINITION
+  INTERNAL FUNCTION DEFINITION
  ******************************************************************************/
 
 time_t cvt_time(char const * time)
@@ -423,7 +423,7 @@ time_t cvt_time(char const * time)
 }
 
 /******************************************************************************
- * EXTERN DEFINITION
+  EXTERN DEFINITION
  ******************************************************************************/
 
 TimeServiceClass TimeService;
