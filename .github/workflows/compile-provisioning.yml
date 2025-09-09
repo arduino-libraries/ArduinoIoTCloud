@@ -216,7 +216,7 @@ jobs:
             - --clean
             - --verbose
             - --build-property
-            - "build.extra_flags=-DCOMPILE_TEST=1"
+            - "compiler.cpp.extra_flags=-DCOMPILE_TEST=1"
             - --output-dir
             - ${{ runner.temp }}/provisioning-staging
       - name: Write data to size trends report spreadsheet
