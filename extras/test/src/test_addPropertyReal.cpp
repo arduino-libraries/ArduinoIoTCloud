@@ -1,23 +1,27 @@
 /*
-   Copyright (c) 2019 Arduino.  All rights reserved.
+  This file is part of the ArduinoIoTCloud library.
+
+  Copyright (c) 2019 Arduino SA
+
+  This Source Code Form is subject to the terms of the Mozilla Public
+  License, v. 2.0. If a copy of the MPL was not distributed with this
+  file, You can obtain one at http://mozilla.org/MPL/2.0/.
 */
 
-/**************************************************************************************
-   INCLUDE
- **************************************************************************************/
+/******************************************************************************
+  INCLUDE
+ ******************************************************************************/
 
 #include <catch2/catch_test_macros.hpp>
-
 #include <PropertyContainer.h>
-
 #include <types/CloudInt.h>
 #include <types/CloudBool.h>
 #include <types/CloudFloat.h>
 #include <types/CloudString.h>
 
-/**************************************************************************************
-   TEST CODE
- **************************************************************************************/
+/******************************************************************************
+  TEST CODE
+ ******************************************************************************/
 
 SCENARIO("The same arduino cloud properties are added multiple times", "[ArduinoCloudThing::addPropertyToContainer]")
 {
@@ -34,8 +38,6 @@ SCENARIO("The same arduino cloud properties are added multiple times", "[Arduino
     }
   }
 
-  /**************************************************************************************/
-
   WHEN("the same int property is added multiple times")
   {
     PropertyContainer property_container;
@@ -50,8 +52,6 @@ SCENARIO("The same arduino cloud properties are added multiple times", "[Arduino
     }
   }
 
-  /**************************************************************************************/
-
   WHEN("the same float property is added multiple times")
   {
     PropertyContainer property_container;
@@ -65,8 +65,6 @@ SCENARIO("The same arduino cloud properties are added multiple times", "[Arduino
       REQUIRE(float_property_ptr_1 == float_property_ptr_2);
     }
   }
-
-  /**************************************************************************************/
 
   WHEN("the same String property is added multiple times")
   {

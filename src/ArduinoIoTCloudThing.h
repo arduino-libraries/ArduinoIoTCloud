@@ -13,7 +13,7 @@
 #define ARDUINO_IOT_CLOUD_THING_H
 
 /******************************************************************************
- * INCLUDE
+  INCLUDE
  ******************************************************************************/
 
 #include <Arduino_TimedAttempt.h>
@@ -21,7 +21,7 @@
 #include "property/PropertyContainer.h"
 
 /******************************************************************************
- * CLASS DECLARATION
+  CLASS DECLARATION
  ******************************************************************************/
 
 class ArduinoCloudThing : public CloudProcess {

@@ -24,7 +24,6 @@ ESP32OTACloudProcess::ESP32OTACloudProcess(MessageStream *ms, Client* client)
 
 }
 
-
 OTACloudProcessInterface::State ESP32OTACloudProcess::resume(Message* msg) {
   return OtaBegin;
 }

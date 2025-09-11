@@ -1,29 +1,34 @@
 /*
-   Copyright (c) 2019 Arduino.  All rights reserved.
+  This file is part of the ArduinoIoTCloud library.
+
+  Copyright (c) 2019 Arduino SA
+
+  This Source Code Form is subject to the terms of the Mozilla Public
+  License, v. 2.0. If a copy of the MPL was not distributed with this
+  file, You can obtain one at http://mozilla.org/MPL/2.0/.
 */
 
-/**************************************************************************************
-   INCLUDE
- **************************************************************************************/
+/******************************************************************************
+  INCLUDE
+ ******************************************************************************/
 
 #include <catch2/catch_test_macros.hpp>
-
 #include <util/CBORTestUtil.h>
 #include <CBORDecoder.h>
 #include <PropertyContainer.h>
 #include "types/CloudWrapperBool.h"
 #include <memory>
 
-/**************************************************************************************
-   GLOBAL CONSTANTS
- **************************************************************************************/
+/******************************************************************************
+  GLOBAL CONSTANTS
+ ******************************************************************************/
 
 static bool callback_called_protocol_v1 = false;
 static bool callback_called_protocol_v2 = false;
 
-/**************************************************************************************
-   TEST HELPER FUNCTIONS
- **************************************************************************************/
+/******************************************************************************
+  TEST HELPER FUNCTIONS
+ ******************************************************************************/
 
 void externalCallbackV1()
 {
@@ -35,9 +40,9 @@ void externalCallbackV2()
   callback_called_protocol_v2 = true;
 }
 
-/**************************************************************************************
-   TEST CODE
- **************************************************************************************/
+/******************************************************************************
+  TEST CODE
+ ******************************************************************************/
 
 SCENARIO("A callback is registered via 'onUpdate' to be called on property change", "[ArduinoCloudThing::decode]")
 {
@@ -54,7 +59,7 @@ SCENARIO("A callback is registered via 'onUpdate' to be called on property chang
   REQUIRE(callback_called_protocol_v2 == true);
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 
 static CloudBool switch_turned_on       = false;
 static CloudBool switch_callback_called = false;
@@ -90,7 +95,7 @@ SCENARIO("A (boolean) property is manipulated in the callback to its origin stat
   REQUIRE(actual == expected);
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 
 static bool sync_callback_called = false;
 static bool change_callback_called = false;
@@ -129,7 +134,7 @@ SCENARIO("After a connection/reconnection an incoming cbor payload is processed 
   REQUIRE(test == true);
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 
 SCENARIO("After a connection/reconnection an incoming cbor payload is processed and the synchronization callback is executed. The sync callback apply the AUTO_SYNC policy (the most recent value between the local one and the cloud one is finally assigned to the property). The onUpdate function is called if the cloud value is the most recent one. In this scenario the most updated value is the local one.")
 {
@@ -153,6 +158,8 @@ SCENARIO("After a connection/reconnection an incoming cbor payload is processed 
 
   REQUIRE(test == false);
 }
+
+/******************************************************************************/
 
 SCENARIO("Primitive property: After a connection/reconnection an incoming cbor payload is processed and the synchronization callback is executed. The sync callback applies the AUTO_SYNC policy (the most recent value between the local one and the cloud one is finally assigned to the property). The onUpdate function is called if the cloud value is the most recent one. In this scenario the most updated value is the cloud one.")
 {
@@ -180,7 +187,7 @@ SCENARIO("Primitive property: After a connection/reconnection an incoming cbor p
   REQUIRE(test == true);
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 
 SCENARIO("Primitive property: After a connection/reconnection an incoming cbor payload is processed and the synchronization callback is executed. The sync callback apply the AUTO_SYNC policy (the most recent value between the local one and the cloud one is finally assigned to the property). The onUpdate function is called if the cloud value is the most recent one. In this scenario the most updated value is the local one.")
 {
@@ -207,6 +214,8 @@ SCENARIO("Primitive property: After a connection/reconnection an incoming cbor p
 
   REQUIRE(test == false);
 }
+
+/******************************************************************************/
 
 SCENARIO("Object property: After a connection/reconnection an incoming cbor payload is processed and the synchronization callback is executed. The sync callback applies the AUTO_SYNC policy (the most recent value between the local one and the cloud one is finally assigned to the property). The onUpdate function is called if the cloud value is the most recent one. In this scenario the most updated value is the cloud one.")
 {
@@ -235,7 +244,7 @@ SCENARIO("Object property: After a connection/reconnection an incoming cbor payl
   REQUIRE(verify);
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 
 SCENARIO("Object property: After a connection/reconnection an incoming cbor payload is processed and the synchronization callback is executed. The sync callback apply the AUTO_SYNC policy (the most recent value between the local one and the cloud one is finally assigned to the property). The onUpdate function is called if the cloud value is the most recent one. In this scenario the most updated value is the local one.")
 {
@@ -264,7 +273,7 @@ SCENARIO("Object property: After a connection/reconnection an incoming cbor payl
   REQUIRE(verify);
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 
 void force_device_sync_callback(Property& property)
 {
@@ -293,7 +302,7 @@ SCENARIO("After a connection/reconnection an incoming cbor payload is processed 
   REQUIRE(test == false);
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 
 void force_cloud_sync_callback(Property& property)
 {
@@ -322,7 +331,7 @@ SCENARIO("After a connection/reconnection an incoming cbor payload is processed 
   REQUIRE(test == true);
 }
 
-/**************************************************************************************/
+/******************************************************************************/
 
 SCENARIO("After a connection/reconnection an incoming cbor payload is processed. Any synchronization function is passed to the property so the value in the incoming message is discarded")
 {

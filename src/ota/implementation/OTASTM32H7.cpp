@@ -69,7 +69,6 @@ OTACloudProcessInterface::State STM32H7OTACloudProcess::startOTA() {
   return OTADefaultCloudProcessInterface::startOTA();
 }
 
-
 OTACloudProcessInterface::State STM32H7OTACloudProcess::flashOTA() {
   fclose(decompressed);
   decompressed = nullptr;
@@ -198,6 +197,5 @@ void* STM32H7OTACloudProcess::appStartAddress() {
 uint32_t STM32H7OTACloudProcess::appSize() {
   return ((&__etext - (uint32_t*)appStartAddress()) + (&_edata - &_sdata))*sizeof(void*);
 }
-
 
 #endif // defined(BOARD_STM32H7) && OTA_ENABLED

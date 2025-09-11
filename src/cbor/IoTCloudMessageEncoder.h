@@ -12,7 +12,7 @@
 #define ARDUINO_CBOR_MESSAGE_ENCODER_H_
 
 /******************************************************************************
- * INCLUDE
+  INCLUDE
  ******************************************************************************/
 
 #include <ConnectionHandlerDefinitions.h>
@@ -21,7 +21,7 @@
 #include "message/Commands.h"
 
 /******************************************************************************
- * CLASS DECLARATION
+  CLASS DECLARATION
  ******************************************************************************/
 
 class OtaBeginCommandEncoder: public CBORMessageEncoderInterface {
