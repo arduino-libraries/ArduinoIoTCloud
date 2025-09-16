@@ -184,6 +184,6 @@
   #define AIOT_CONFIG_LASTVALUES_SYNC_MAX_RETRY_CNT                  (10UL)
 #endif
 
-#define AIOT_CONFIG_LIB_VERSION "2.7.0"
+#define AIOT_CONFIG_LIB_VERSION "2.8.0"
 
 #endif /* ARDUINO_AIOTC_CONFIG_H_ */
