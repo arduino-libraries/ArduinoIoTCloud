@@ -15,7 +15,7 @@
 #include <utility/SElementArduinoCloudCertificate.h>
 #include "utility/LEDFeedback.h"
 
-const char *SKETCH_VERSION = "0.4.0";
+const char *SKETCH_VERSION = "0.4.1";
 
 enum class DeviceState {
     HARDWARE_CHECK,
