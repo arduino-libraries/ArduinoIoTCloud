@@ -16,7 +16,7 @@
 #include "utility/LEDFeedback.h"
 #include "FactoryTester.h"
 
-const char *SKETCH_VERSION = "0.4.1";
+const char *SKETCH_VERSION = "0.5.0";
 
 enum class DeviceState {
     HARDWARE_CHECK,
