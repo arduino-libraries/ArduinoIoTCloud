@@ -15,9 +15,16 @@
 #include <utility/SElementArduinoCloudCertificate.h>
 #include "utility/LEDFeedback.h"
 #include "FactoryTester.h"
+#if defined(ARDUINO_OPTA)
+#include "OptaFactoryTest.h"
+#endif
+
 const char *SKETCH_VERSION = "0.5.0";
 
 enum class DeviceState {
+  #if defined(ARDUINO_OPTA)
+    OPTA_TEST,
+  #endif
     HARDWARE_CHECK,
     BEGIN,
     NETWORK_CONFIG,
@@ -62,6 +69,20 @@ void setup() {
   LedFactoryTest();
   #endif
 
+  #if defined(ARDUINO_OPTA)
+  OptaFactoryTest.begin();
+  OptaFactoryTest.optaIDTest();
+  uint32_t start = millis();
+  while(millis() - start < 2000){
+    if(OptaFactoryTest.poll() == true){
+      pinMode(LEDG, OUTPUT);
+      ResetInput::getInstance().begin();
+       _state = DeviceState::OPTA_TEST;
+      return;
+    }
+  }
+  #endif
+
   AgentsManagerClass::getInstance().begin();
   LEDFeedbackClass::getInstance().begin();
   DEBUG_INFO("Starting Provisioning version %s", SKETCH_VERSION);
@@ -71,6 +92,22 @@ void sendStatus(StatusMessage msg) {
   ProvisioningOutputMessage outMsg = { MessageOutputType::STATUS, { msg } };
   AgentsManagerClass::getInstance().sendMsg(outMsg);
 }
+
+#if defined(ARDUINO_OPTA)
+uint32_t lastLedStatusChanged = 0;
+bool ledactive = false;
+DeviceState handleOptaTest() {
+
+  if(millis() - lastLedStatusChanged > 250){
+    lastLedStatusChanged = millis();
+    ledactive = !ledactive;
+    digitalWrite(LEDG, ledactive);
+  }
+
+  OptaFactoryTest.poll();
+  return DeviceState::OPTA_TEST;
+}
+#endif
 
 DeviceState handleHardwareCheck() {
   // Init the secure element
@@ -221,6 +258,9 @@ DeviceState handleError() {
 
 void loop() {
   switch (_state) {
+    #if defined(ARDUINO_OPTA)
+    case DeviceState::OPTA_TEST:        _state = handleOptaTest     (); break;
+    #endif
     case DeviceState::HARDWARE_CHECK:  _state = handleHardwareCheck(); break;
     case DeviceState::BEGIN:           _state = handleBegin        (); break;
     case DeviceState::NETWORK_CONFIG : _state = handleNetworkConfig(); break;
@@ -230,4 +270,11 @@ void loop() {
     case DeviceState::ERROR:           _state = handleError        (); break;
     default:                                                           break;
   }
+
+  #if defined(ARDUINO_OPTA)
+  if(_state == DeviceState::NETWORK_CONFIG || _state == DeviceState::RUN){
+    OptaFactoryTest.poll();
+  }
+  #endif
+
 }
