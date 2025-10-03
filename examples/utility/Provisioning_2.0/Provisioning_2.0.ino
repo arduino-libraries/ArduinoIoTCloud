@@ -97,14 +97,18 @@ void sendStatus(StatusMessage msg) {
 uint32_t lastLedStatusChanged = 0;
 bool ledactive = false;
 DeviceState handleOptaTest() {
-
-  if(millis() - lastLedStatusChanged > 250){
-    lastLedStatusChanged = millis();
-    ledactive = !ledactive;
-    digitalWrite(LEDG, ledactive);
+  bool running = OptaFactoryTest.poll();
+  if(!running){
+    digitalWrite(LEDG, LOW);
+    digitalWrite(LEDR, HIGH);
+  } else {
+    if(millis() - lastLedStatusChanged > 250){
+      lastLedStatusChanged = millis();
+      ledactive = !ledactive;
+      digitalWrite(LEDG, ledactive);
+    }
   }
 
-  OptaFactoryTest.poll();
   return DeviceState::OPTA_TEST;
 }
 #endif
