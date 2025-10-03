@@ -73,7 +73,7 @@ void setup() {
   OptaFactoryTest.begin();
   OptaFactoryTest.optaIDTest();
   uint32_t start = millis();
-  while(millis() - start < 2000){
+  while(millis() - start < 500){
     if(OptaFactoryTest.poll() == true){
       pinMode(LEDG, OUTPUT);
       ResetInput::getInstance().begin();
