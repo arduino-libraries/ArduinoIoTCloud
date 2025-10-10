@@ -81,6 +81,10 @@ void setup() {
       return;
     }
   }
+  if(_getPid_() != OPTA_WIFI_PID) {
+    //Force blinking green LED if not OPTA WiFi
+    LEDFeedbackClass::getInstance().setMode(LEDFeedbackClass::LEDFeedbackMode::BLE_AVAILABLE);
+  }
   #endif
 
   AgentsManagerClass::getInstance().begin();
