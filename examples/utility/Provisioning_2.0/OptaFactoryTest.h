@@ -24,7 +24,7 @@ private:
   bool _all_on = false;
   bool _rs485_test_done = false;
   bool _test_running = false;
-  OptaBoardInfo *_info;
+  OptaBoardInfo *_info = nullptr;
   uint32_t _ms10 = 0;
   uint32_t _ms100 = 0;
   uint32_t _nextBoardInfoPrint = 0;

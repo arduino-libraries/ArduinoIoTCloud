@@ -59,11 +59,12 @@ void OptaFactoryTestClass::begin() {
 
   /* Set ADC resolution to 12 bits */
   analogReadResolution(12);
-  SCB_DisableDCache();
+  do{
+    _info = boardInfo();
+  } while (_info == nullptr);
 
 }
 void OptaFactoryTestClass::optaIDTest() {
-  _info = boardInfo();
   if(_info->magic == 0xB5)
   {
     if(_info->vid == VID_FINDER)
@@ -299,6 +300,9 @@ void OptaFactoryTestClass::inputManage(void)
     digitalWrite(LEDG, LOW);
     digitalWrite(LEDB, LOW);
     _all_on = false;
+    if(_info->_board_functionalities.rs485 == 0) {
+      _test_running = false;
+    }
   }
 }
 
