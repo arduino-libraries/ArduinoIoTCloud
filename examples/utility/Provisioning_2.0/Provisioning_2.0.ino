@@ -19,7 +19,7 @@
 #include "OptaFactoryTest.h"
 #endif
 
-const char *SKETCH_VERSION = "0.5.0";
+const char *SKETCH_VERSION = "0.6.0";
 
 enum class DeviceState {
   #if defined(ARDUINO_OPTA)
