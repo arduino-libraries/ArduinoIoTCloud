@@ -197,7 +197,7 @@ bool TimeServiceClass::sync()
   if(_sync_func) {
     utc = _sync_func();
   } else {
-#if defined(HAS_NOTECARD) || defined(HAS_TCP)
+#if defined(HAS_TCP)
     utc = getRemoteTime();
 #elif defined(HAS_LORA)
     /* Just keep incrementing stored RTC value starting from EPOCH_AT_COMPILE_TIME */
@@ -310,7 +310,7 @@ unsigned long TimeServiceClass::getTimeFromString(const String& input)
   PRIVATE MEMBER FUNCTIONS
  ******************************************************************************/
 
-#if defined(HAS_NOTECARD) || defined(HAS_TCP)
+#if defined(HAS_TCP)
 bool TimeServiceClass::connected()
 {
   if(_con_hdl == nullptr) {
@@ -351,7 +351,7 @@ unsigned long TimeServiceClass::getRemoteTime()
   return EPOCH;
 }
 
-#endif  /* HAS_NOTECARD || HAS_TCP */
+#endif  /* HAS_TCP */
 
 bool TimeServiceClass::isTimeValid(unsigned long const time)
 {

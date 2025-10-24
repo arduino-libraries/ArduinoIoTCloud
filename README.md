@@ -15,7 +15,6 @@ The `ArduinoIoTCloud` library is the central element of the firmware enabling ce
 * **5G**: [`MKR NB 1500`](https://store.arduino.cc/arduino-mkr-nb-1500-1413)
 * **LoRa**: [`MKR WAN 1300/1310`](https://store.arduino.cc/mkr-wan-1310)
 * **Ethernet**: [`Portenta H7`](https://store.arduino.cc/products/portenta-h7) + [`Vision Shield Ethernet`](https://store.arduino.cc/products/arduino-portenta-vision-shield-ethernet), [`Portenta Max Carrier`](https://store.arduino.cc/products/portenta-max-carrier), [`Portenta Breakout`](https://store.arduino.cc/collections/portenta-family/products/portenta-breakout), [`Portenta Machine Control`](https://store.arduino.cc/collections/portenta-family/products/portenta-machine-control), [`OPTA WiFi`](https://store.arduino.cc/products/opta-wifi), [`OPTA RS485`](https://store.arduino.cc/products/opta-rs485), [`OPTA Lite`](https://store.arduino.cc/products/opta-lite), [`Portenta C33`](https://store.arduino.cc/products/portenta-c33) + [`Vision Shield Ethernet`](https://store.arduino.cc/products/arduino-portenta-vision-shield-ethernet)
-* **Notecard**: [Provides Cellular/LoRa/Satellite/Wi-Fi to any modern board/architecture](examples/ArduinoIoTCloud-Notecard/README.md)
 
 ### How?
 1) Register your Arduino IoT Cloud capable board via [Arduino IoT Cloud](https://create.arduino.cc/iot) (Devices Section).
