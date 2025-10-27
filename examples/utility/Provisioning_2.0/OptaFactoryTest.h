@@ -19,11 +19,16 @@ private:
   void rs485Manage();
   void printInfo();
   void printModel();
+  static void endCallback();
+  static void buttonCallbackRS485();
+  void showRS485SuccessResult();
   static void rs485Rcv();
   static inline uint32_t _rs485_pulse = 0;
   bool _all_on = false;
   bool _rs485_test_done = false;
-  bool _test_running = false;
+  static inline bool _test_running = false;
+  static inline bool _rs485_ok = false;
+  static inline bool _showRS485Result = false;
   OptaBoardInfo *_info = nullptr;
   uint32_t _ms10 = 0;
   uint32_t _ms100 = 0;

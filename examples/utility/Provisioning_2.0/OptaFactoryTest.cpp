@@ -8,7 +8,7 @@
 
 #ifdef ARDUINO_OPTA
 #include "OptaFactoryTest.h"
-
+#include "utility/ResetInput.h"
 
 #define VID_FINDER            0x35D1
 #define VID_ARDUINO           0x2341
@@ -62,6 +62,11 @@ void OptaFactoryTestClass::begin() {
   do{
     _info = boardInfo();
   } while (_info == nullptr);
+  if(_info->_board_functionalities.rs485 == 1){
+    ResetInput::getInstance().setPinChangedCallback(buttonCallbackRS485);
+  } else {
+    ResetInput::getInstance().setPinChangedCallback(endCallback);
+  }
 
 }
 void OptaFactoryTestClass::optaIDTest() {
@@ -183,6 +188,10 @@ bool OptaFactoryTestClass::poll() {
 
   }
 
+  if (_showRS485Result){
+    showRS485SuccessResult();
+  }
+
   if (_nextBoardInfoPrint < millis())
   {
     _nextBoardInfoPrint = millis() + 3000;
@@ -300,14 +309,10 @@ void OptaFactoryTestClass::inputManage(void)
     digitalWrite(LEDG, LOW);
     digitalWrite(LEDB, LOW);
     _all_on = false;
-    if(_info->_board_functionalities.rs485 == 0) {
-      _test_running = false;
-    }
   }
 }
 
 void OptaFactoryTestClass::rs485Manage() {
-  bool rs485_ok = false;
   uint32_t t_rs485_pulse = 0;
   digitalWrite(MY_RS485_RE_PIN, HIGH);
   digitalWrite(MY_RS485_DE_PIN, HIGH);
@@ -355,21 +360,12 @@ void OptaFactoryTestClass::rs485Manage() {
       if((_rs485_pulse == N_PULSE) || (_rs485_pulse == N_PULSE + 1))
       {
         Serial.println("RS485 check OK");
-        rs485_ok = true;
+        _rs485_test_done = true;
+        _rs485_ok = true;
       }
     }
   }
 
-  if(rs485_ok == true)
-  {
-    digitalWrite(RL1, HIGH);
-    digitalWrite(LED1_SYS, HIGH);
-    delay(1000);
-    digitalWrite(RL1, LOW);
-    digitalWrite(LED1_SYS, LOW);
-    _rs485_test_done = true;
-    _test_running = false;
-  }
 }
 
 
@@ -486,6 +482,37 @@ void OptaFactoryTestClass::printModel(void)
     } break;
   }
   Serial.println(" <<<\n");
+}
+
+void OptaFactoryTestClass::endCallback() {
+  if(digitalRead(BTN_USER) == HIGH)
+  {
+    _test_running = false;
+  }
+}
+
+void OptaFactoryTestClass::buttonCallbackRS485()
+{
+
+  if(digitalRead(BTN_USER) == LOW && _rs485_ok == true)
+  {
+    _showRS485Result = true;
+  }
+}
+
+void OptaFactoryTestClass::showRS485SuccessResult() {
+  digitalWrite(RL1, HIGH);
+  digitalWrite(LED1_SYS, HIGH);
+  digitalWrite(RL4, HIGH);
+  digitalWrite(LED4_SYS, HIGH);
+  delay(1000);
+  digitalWrite(RL1, LOW);
+  digitalWrite(LED1_SYS, LOW);
+  digitalWrite(RL4, LOW);
+  digitalWrite(LED4_SYS, LOW);
+  _test_running = false;
+  _showRS485Result = false;
+
 }
 
 void OptaFactoryTestClass::rs485Rcv() {
