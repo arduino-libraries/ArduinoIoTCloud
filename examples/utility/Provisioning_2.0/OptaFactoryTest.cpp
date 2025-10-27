@@ -59,10 +59,10 @@ void OptaFactoryTestClass::begin() {
 
   /* Set ADC resolution to 12 bits */
   analogReadResolution(12);
-  do{
+  do {
     _info = boardInfo();
   } while (_info == nullptr);
-  if(_info->_board_functionalities.rs485 == 1){
+  if(_info->_board_functionalities.rs485 == 1) {
     ResetInput::getInstance().setPinChangedCallback(buttonCallbackRS485);
   } else {
     ResetInput::getInstance().setPinChangedCallback(endCallback);
@@ -70,26 +70,19 @@ void OptaFactoryTestClass::begin() {
 
 }
 void OptaFactoryTestClass::optaIDTest() {
-  if(_info->magic == 0xB5)
-  {
-    if(_info->vid == VID_FINDER)
-    {
-      if(_info->pid == PID_BASIC)
-      {
+  if(_info->magic == 0xB5) {
+    if(_info->vid == VID_FINDER) {
+      if(_info->pid == PID_BASIC) {
         digitalWrite(RL4, HIGH);
         digitalWrite(LED4_SYS, HIGH);
       }
-      else
-      {
-        if(_info->pid == PID_PLUS)
-        {
+      else {
+        if(_info->pid == PID_PLUS) {
           digitalWrite(RL3, HIGH);
           digitalWrite(LED3_SYS, HIGH);
         }
-        else
-        {
-          if(_info->pid == PID_ADVANCED)
-          {
+        else {
+          if(_info->pid == PID_ADVANCED) {
             digitalWrite(RL4, HIGH);
             digitalWrite(LED4_SYS, HIGH);
             digitalWrite(RL3, HIGH);
@@ -98,28 +91,21 @@ void OptaFactoryTestClass::optaIDTest() {
         }
       }
     }
-    else
-    {
-      if(_info->vid == VID_ARDUINO)
-      {
-        if(_info->pid == PID_BASIC)
-        {
+    else {
+      if(_info->vid == VID_ARDUINO) {
+        if(_info->pid == PID_BASIC) {
           digitalWrite(RL2, HIGH);
           digitalWrite(LED2_SYS, HIGH);
         }
-        else
-        {
-          if(_info->pid == PID_PLUS)
-          {
+        else {
+          if(_info->pid == PID_PLUS) {
             digitalWrite(RL2, HIGH);
             digitalWrite(LED2_SYS, HIGH);
             digitalWrite(RL4, HIGH);
             digitalWrite(LED4_SYS, HIGH);
           }
-          else
-          {
-            if(_info->pid == PID_ADVANCED)
-            {
+          else {
+            if(_info->pid == PID_ADVANCED) {
               digitalWrite(RL2, HIGH);
               digitalWrite(LED2_SYS, HIGH);
               digitalWrite(RL3, HIGH);
@@ -141,14 +127,12 @@ void OptaFactoryTestClass::optaIDTest() {
   }
 
   /* Turn ON all LED */
-  for(uint8_t i = 0; i < N_LED; i++)
-  {
+  for(uint8_t i = 0; i < N_LED; i++) {
     digitalWrite(n_led[i], HIGH);
     delay(50);
   }
   /* Turn OFF all LED */
-  for(uint8_t i = 0; i < N_LED; i++)
-  {
+  for(uint8_t i = 0; i < N_LED; i++) {
     digitalWrite(n_led[i], LOW);
     delay(50);
   }
@@ -175,33 +159,29 @@ void OptaFactoryTestClass::optaIDTest() {
 }
 
 bool OptaFactoryTestClass::poll() {
-  if(_ms10 < millis())
-  {
+  if(_ms10 < millis()) {
     _ms10 = millis() + 10;
     ledManage();
   }
-  if(_ms100 < millis())
-  {
+  if(_ms100 < millis()) {
     _ms100 = millis() + 100;
 
     inputManage();
 
   }
 
-  if (_showRS485Result){
+  if (_showRS485Result) {
     showRS485SuccessResult();
   }
 
-  if (_nextBoardInfoPrint < millis())
-  {
+  if (_nextBoardInfoPrint < millis()) {
     _nextBoardInfoPrint = millis() + 3000;
     Serial.print(millis());
     Serial.println("ms");
     printModel();
   }
 
-  if(_nextRS485Run < millis() && _info->_board_functionalities.rs485 == 1 && _rs485_test_done == false)
-  {
+  if(_nextRS485Run < millis() && _info->_board_functionalities.rs485 == 1 && _rs485_test_done == false) {
     _nextRS485Run = millis() + 1000;
     rs485Manage();
   }
@@ -211,8 +191,7 @@ bool OptaFactoryTestClass::poll() {
 void OptaFactoryTestClass::ledManage(void)
 {
   /* Run every 10ms */
-  if(_all_on)
-  {
+  if(_all_on) {
     digitalWrite(LEDR, HIGH);
     digitalWrite(LEDG, HIGH);
     digitalWrite(LEDB, HIGH);
@@ -222,89 +201,74 @@ void OptaFactoryTestClass::ledManage(void)
 void OptaFactoryTestClass::inputManage(void)
 {
   /* Read all analog input values */
-  for(uint8_t i = 0; i < N_ANALOG_INPUTS; i++)
-  {
+  for(uint8_t i = 0; i < N_ANALOG_INPUTS; i++) {
     v_input[i] = analogRead(n_input[i]) * (3.3 / 4095.0);
   }
-  if(v_input[0] >= ANALOG_THS)
-  {
+  if(v_input[0] >= ANALOG_THS) {
     _test_running = true;
     digitalWrite(RL1, HIGH);
     digitalWrite(LED1_SYS, HIGH);
   }
-  if(v_input[1] >= ANALOG_THS)
-  {
+  if(v_input[1] >= ANALOG_THS) {
     digitalWrite(RL2, HIGH);
     digitalWrite(LED2_SYS, HIGH);
   }
-  if(v_input[2] >= ANALOG_THS)
-  {
+  if(v_input[2] >= ANALOG_THS) {
     digitalWrite(RL3, HIGH);
     digitalWrite(LED3_SYS, HIGH);
   }
-  if(v_input[3] >= ANALOG_THS)
-  {
+  if(v_input[3] >= ANALOG_THS) {
     digitalWrite(RL4, HIGH);
     digitalWrite(LED4_SYS, HIGH);
   }
-  if(v_input[4] >= ANALOG_THS)
-  {
+  if(v_input[4] >= ANALOG_THS) {
     digitalWrite(RL1, HIGH);
     digitalWrite(LED1_SYS, HIGH);
     digitalWrite(RL2, HIGH);
     digitalWrite(LED2_SYS, HIGH);
   }
-  if(v_input[5] >= ANALOG_THS)
-  {
+  if(v_input[5] >= ANALOG_THS) {
     digitalWrite(RL3, HIGH);
     digitalWrite(LED3_SYS, HIGH);
     digitalWrite(RL4, HIGH);
     digitalWrite(LED4_SYS, HIGH);
   }
-  if(v_input[6] >= ANALOG_THS)
-  {
+  if(v_input[6] >= ANALOG_THS) {
     digitalWrite(RL1, HIGH);
     digitalWrite(LED1_SYS, HIGH);
     digitalWrite(RL3, HIGH);
     digitalWrite(LED3_SYS, HIGH);
   }
-  if(v_input[7] >= ANALOG_THS)
-  {
+  if(v_input[7] >= ANALOG_THS) {
     digitalWrite(RL2, HIGH);
     digitalWrite(LED2_SYS, HIGH);
     digitalWrite(RL4, HIGH);
     digitalWrite(LED4_SYS, HIGH);
   }
 
-  if((v_input[0] < ANALOG_THS) && (v_input[4] < ANALOG_THS) && (v_input[6] < ANALOG_THS))
-  {
+  if((v_input[0] < ANALOG_THS) && (v_input[4] < ANALOG_THS) && (v_input[6] < ANALOG_THS)) {
     digitalWrite(RL1, LOW);
     digitalWrite(LED1_SYS, LOW);
   }
-  if((v_input[1] < ANALOG_THS) && (v_input[4] < ANALOG_THS) && (v_input[7] < ANALOG_THS))
-  {
+  if((v_input[1] < ANALOG_THS) && (v_input[4] < ANALOG_THS) && (v_input[7] < ANALOG_THS)) {
     digitalWrite(RL2, LOW);
     digitalWrite(LED2_SYS, LOW);
   }
-  if((v_input[2] < ANALOG_THS) && (v_input[5] < ANALOG_THS) && (v_input[6] < ANALOG_THS))
-  {
+  if((v_input[2] < ANALOG_THS) && (v_input[5] < ANALOG_THS) && (v_input[6] < ANALOG_THS)) {
     digitalWrite(RL3, LOW);
     digitalWrite(LED3_SYS, LOW);
   }
-  if((v_input[3] < ANALOG_THS) && (v_input[5] < ANALOG_THS) && (v_input[7] < ANALOG_THS))
-  {
+  if((v_input[3] < ANALOG_THS) && (v_input[5] < ANALOG_THS) && (v_input[7] < ANALOG_THS)) {
     digitalWrite(RL4, LOW);
     digitalWrite(LED4_SYS, LOW);
   }
-  if((v_input[0] >= ANALOG_THS) && (v_input[1] >= ANALOG_THS) && (v_input[2] >= ANALOG_THS) && (v_input[3] >= ANALOG_THS) && (v_input[4] >= ANALOG_THS) && (v_input[5] >= ANALOG_THS) && (v_input[6] >= ANALOG_THS) && (v_input[7] >= ANALOG_THS))
-  {
+  if((v_input[0] >= ANALOG_THS) && (v_input[1] >= ANALOG_THS) && (v_input[2] >= ANALOG_THS) && (v_input[3] >= ANALOG_THS) && (v_input[4] >= ANALOG_THS) && (v_input[5] >= ANALOG_THS) && (v_input[6] >= ANALOG_THS) && (v_input[7] >= ANALOG_THS)) {
     digitalWrite(LEDR, HIGH);
     digitalWrite(LEDG, HIGH);
     digitalWrite(LEDB, HIGH);
     _all_on = true;
   }
-  else if( _all_on == true )
-  {
+  else if( _all_on == true ) {
     digitalWrite(LEDR, LOW);
     digitalWrite(LEDG, LOW);
     digitalWrite(LEDB, LOW);
@@ -318,8 +282,7 @@ void OptaFactoryTestClass::rs485Manage() {
   digitalWrite(MY_RS485_DE_PIN, HIGH);
   delay(10);
 
-  for(uint32_t i = 0; i < N_PULSE; i++)
-  {
+  for(uint32_t i = 0; i < N_PULSE; i++) {
     digitalWrite(MY_RS485_TX_PIN, HIGH);
     delay(1);
     digitalWrite(MY_RS485_TX_PIN, LOW);
@@ -331,23 +294,19 @@ void OptaFactoryTestClass::rs485Manage() {
 
   /* Search start of incoming transmission */
   _rs485_pulse = 0;
-  while((_rs485_pulse == 0) && (t_rs485_pulse < 200))
-  {
+  while((_rs485_pulse == 0) && (t_rs485_pulse < 200)) {
     t_rs485_pulse++;
     delay(1);
   }
 
   _rs485_pulse = 0;
 
-  if(t_rs485_pulse < 200)
-  {
+  if(t_rs485_pulse < 200) {
     /* Receive data */
     t_rs485_pulse = 0;
     uint32_t rs485_pulse_old = 0;
-    for(t_rs485_pulse = 0; t_rs485_pulse < 20; t_rs485_pulse++)
-    {
-      if(rs485_pulse_old != _rs485_pulse)
-      {
+    for(t_rs485_pulse = 0; t_rs485_pulse < 20; t_rs485_pulse++) {
+      if(rs485_pulse_old != _rs485_pulse) {
         rs485_pulse_old = _rs485_pulse;
         t_rs485_pulse = 0;
       }
@@ -355,10 +314,8 @@ void OptaFactoryTestClass::rs485Manage() {
     }
 
     /* End of receiving */
-    if(_rs485_pulse > 0)
-    {
-      if((_rs485_pulse == N_PULSE) || (_rs485_pulse == N_PULSE + 1))
-      {
+    if(_rs485_pulse > 0) {
+      if((_rs485_pulse == N_PULSE) || (_rs485_pulse == N_PULSE + 1)) {
         Serial.println("RS485 check OK");
         _rs485_test_done = true;
         _rs485_ok = true;
@@ -376,8 +333,7 @@ void OptaFactoryTestClass::printInfo() {
   Serial.print("**********************************\n");
   Serial.print("\n");
 
-  if(_info->magic == 0xB5)
-  {
+  if(_info->magic == 0xB5) {
     printModel();
 
     Serial.println("VID: 0x" + String(_info->vid, HEX));
@@ -386,24 +342,19 @@ void OptaFactoryTestClass::printInfo() {
     char mac_address_char[18];
     uint8_t idx_mac_address_char = 0;
     uint8_t a;
-    for(uint8_t i = 0; i < 6; i++)
-    {
+    for(uint8_t i = 0; i < 6; i++) {
       a = _info->mac_address[i] >> 4;
-      for(uint8_t b = 0; b < 2; b++)
-      {
-        if(a <= 9)
-        {
+      for(uint8_t b = 0; b < 2; b++) {
+        if(a <= 9) {
           mac_address_char[idx_mac_address_char] = a + 0x30;
         }
-        else
-        {
+        else {
           mac_address_char[idx_mac_address_char] = a + 0x37;
         }
         idx_mac_address_char++;
         a = _info->mac_address[i] & 0x0F;
       }
-      if(i < 5)
-      {
+      if(i < 5) {
         mac_address_char[idx_mac_address_char++] = ':';
       }
     }
@@ -420,13 +371,11 @@ void OptaFactoryTestClass::printInfo() {
 
 void OptaFactoryTestClass::printModel(void)
 {
-  switch(_info->vid)
-  {
+  switch(_info->vid) {
     case VID_FINDER:
     {
       Serial.print(">>> Finder OPTA ");
-      switch(_info->pid)
-      {
+      switch(_info->pid) {
         case PID_BASIC:
         {
           Serial.print("Basic");
@@ -452,8 +401,7 @@ void OptaFactoryTestClass::printModel(void)
     case VID_ARDUINO:
     {
       Serial.print(">>> Arduino OPTA ");
-      switch(_info->pid)
-      {
+      switch(_info->pid) {
         case PID_BASIC:
         {
           Serial.print("Lite - AFX00003");
@@ -485,8 +433,7 @@ void OptaFactoryTestClass::printModel(void)
 }
 
 void OptaFactoryTestClass::endCallback() {
-  if(digitalRead(BTN_USER) == HIGH)
-  {
+  if(digitalRead(BTN_USER) == HIGH) {
     _test_running = false;
   }
 }
@@ -494,8 +441,7 @@ void OptaFactoryTestClass::endCallback() {
 void OptaFactoryTestClass::buttonCallbackRS485()
 {
 
-  if(digitalRead(BTN_USER) == LOW && _rs485_ok == true)
-  {
+  if(digitalRead(BTN_USER) == LOW && _rs485_ok == true) {
     _showRS485Result = true;
   }
 }

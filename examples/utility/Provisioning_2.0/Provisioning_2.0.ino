@@ -17,9 +17,11 @@
 #include "FactoryTester.h"
 #if defined(ARDUINO_OPTA)
 #include "OptaFactoryTest.h"
+#define TIMEOUT_FOR_START_TEST_INPUT 500
+#define TEST_LED_BLINKING_INTERVAL_MS 250
 #endif
 
-const char *SKETCH_VERSION = "0.6.0";
+const char *SKETCH_VERSION = "0.6.1";
 
 enum class DeviceState {
   #if defined(ARDUINO_OPTA)
@@ -73,7 +75,7 @@ void setup() {
   OptaFactoryTest.begin();
   OptaFactoryTest.optaIDTest();
   uint32_t start = millis();
-  while(millis() - start < 500){
+  while(millis() - start < TIMEOUT_FOR_START_TEST_INPUT){
     if(OptaFactoryTest.poll() == true){
       pinMode(LEDG, OUTPUT);
       ResetInput::getInstance().begin();
@@ -106,7 +108,7 @@ DeviceState handleOptaTest() {
     digitalWrite(LEDG, LOW);
     digitalWrite(LEDR, HIGH);
   } else {
-    if(millis() - lastLedStatusChanged > 250){
+    if(millis() - lastLedStatusChanged > TEST_LED_BLINKING_INTERVAL_MS){
       lastLedStatusChanged = millis();
       ledactive = !ledactive;
       digitalWrite(LEDG, ledactive);
