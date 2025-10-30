@@ -48,10 +48,6 @@ getBrokerPort	KEYWORD2
 setOTAStorage	KEYWORD2
 reconnect	KEYWORD2
 
-# ArduinoIoTCloudNotecard.h
-begin	KEYWORD2
-setNotecardPollingInterval	KEYWORD2
-
 # OTA
 onOTARequestCallbackFunc	KEYWORD2
 onOTARequestCb	KEYWORD2

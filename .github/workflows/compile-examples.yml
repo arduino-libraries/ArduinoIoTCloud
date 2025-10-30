@@ -107,12 +107,10 @@ jobs:
             libraries: |
               - name: ArduinoBearSSL
               - name: ArduinoECCX08
-              - name: Blues Wireless Notecard
               - name: RTCZero
               - name: WiFi101
               - source-url: https://github.com/adafruit/Adafruit_SleepyDog.git
             sketch-paths: |
-              - examples/ArduinoIoTCloud-Notecard
               - examples/ArduinoIoTCloud-Schedule
               - examples/utility/Provisioning
           # MKR WiFi 1010, Nano 33 IoT, Nano RP2040 Connect
@@ -125,14 +123,12 @@ jobs:
             libraries: |
               - name: ArduinoBearSSL
               - name: ArduinoECCX08
-              - name: Blues Wireless Notecard
               - name: RTCZero
               - name: WiFiNINA
               - name: Arduino_JSON
               - source-url: https://github.com/adafruit/Adafruit_SleepyDog.git
             sketch-paths: |
               - examples/ArduinoIoTCloud-DeferredOTA
-              - examples/ArduinoIoTCloud-Notecard
               - examples/ArduinoIoTCloud-Schedule
               - examples/utility/Provisioning
               - examples/utility/SelfProvisioning
@@ -143,12 +139,9 @@ jobs:
               - name: arduino:samd
             libraries: |
               - name: ArduinoECCX08
-              - name: Blues Wireless Notecard
               - name: RTCZero
               - name: MKRWAN
               - source-url: https://github.com/adafruit/Adafruit_SleepyDog.git
-            sketch-paths: |
-              - examples/ArduinoIoTCloud-Notecard
           # GSM boards
           - board:
               type: gsm
@@ -158,12 +151,10 @@ jobs:
             libraries: |
               - name: ArduinoBearSSL
               - name: ArduinoECCX08
-              - name: Blues Wireless Notecard
               - name: RTCZero
               - name: MKRGSM
               - source-url: https://github.com/adafruit/Adafruit_SleepyDog.git
             sketch-paths: |
-              - examples/ArduinoIoTCloud-Notecard
               - examples/ArduinoIoTCloud-Schedule
               - examples/utility/Provisioning
           # NB boards
@@ -175,12 +166,10 @@ jobs:
             libraries: |
               - name: ArduinoBearSSL
               - name: ArduinoECCX08
-              - name: Blues Wireless Notecard
               - name: RTCZero
               - name: MKRNB
               - source-url: https://github.com/adafruit/Adafruit_SleepyDog.git
             sketch-paths: |
-              - examples/ArduinoIoTCloud-Notecard
               - examples/ArduinoIoTCloud-Schedule
               - examples/utility/Provisioning
           # Portenta
@@ -193,14 +182,12 @@ jobs:
               - name: ArduinoBearSSL
               - name: ArduinoECCX08
               - name: Arduino_Cellular
-              - name: Blues Wireless Notecard
               - name: ArduinoBLE
               - name: Arduino_KVStore
               - name: Arduino_NetworkConfigurator
             sketch-paths: |
               - examples/ArduinoIoTCloud-NetConfig
               - examples/ArduinoIoTCloud-DeferredOTA
-              - examples/ArduinoIoTCloud-Notecard
               - examples/ArduinoIoTCloud-Schedule
               - examples/utility/Provisioning
           # Nicla Vision
@@ -210,14 +197,12 @@ jobs:
               # Install mbed_nicla platform via Boards Manager
               - name: arduino:mbed_nicla
             libraries: |
-              - name: Blues Wireless Notecard
               - name: ArduinoBLE
               - name: Arduino_KVStore
               - name: Arduino_NetworkConfigurator
             sketch-paths: |
               - examples/ArduinoIoTCloud-NetConfig
               - examples/ArduinoIoTCloud-DeferredOTA
-              - examples/ArduinoIoTCloud-Notecard
               - examples/ArduinoIoTCloud-Schedule
               - examples/utility/Provisioning
           # Opta
@@ -229,14 +214,12 @@ jobs:
             libraries: |
               - name: ArduinoBearSSL
               - name: ArduinoECCX08
-              - name: Blues Wireless Notecard
               - name: ArduinoBLE
               - name: Arduino_KVStore
               - name: Arduino_NetworkConfigurator
             sketch-paths: |
               - examples/ArduinoIoTCloud-NetConfig
               - examples/ArduinoIoTCloud-DeferredOTA
-              - examples/ArduinoIoTCloud-Notecard
               - examples/ArduinoIoTCloud-Schedule
               - examples/utility/Provisioning
           # GIGA
@@ -248,14 +231,12 @@ jobs:
             libraries: |
               - name: ArduinoBearSSL
               - name: ArduinoECCX08
-              - name: Blues Wireless Notecard
               - name: ArduinoBLE
               - name: Arduino_KVStore
               - name: Arduino_NetworkConfigurator
             sketch-paths: |
               - examples/ArduinoIoTCloud-NetConfig
               - examples/ArduinoIoTCloud-DeferredOTA
-              - examples/ArduinoIoTCloud-Notecard
               - examples/ArduinoIoTCloud-Schedule
               - examples/utility/Provisioning
           # Portenta C33
@@ -266,13 +247,11 @@ jobs:
               - name: arduino:renesas_portenta
             libraries: |
               - name: Arduino_Cellular
-              - name: Blues Wireless Notecard
               - name: ArduinoBLE
               - name: Arduino_KVStore
               - name: Arduino_NetworkConfigurator
             sketch-paths: |
               - examples/ArduinoIoTCloud-NetConfig
-              - examples/ArduinoIoTCloud-Notecard
               - examples/ArduinoIoTCloud-Schedule
               - examples/utility/Provisioning
           # UNO R4 WiFi
@@ -282,13 +261,11 @@ jobs:
               # Install renesas_uno platform via Boards Manager
               - name: arduino:renesas_uno
             libraries: |
-              - name: Blues Wireless Notecard
               - name: ArduinoBLE
               - name: Arduino_KVStore
               - name: Arduino_NetworkConfigurator
             sketch-paths: |
               - examples/ArduinoIoTCloud-NetConfig
-              - examples/ArduinoIoTCloud-Notecard
               - examples/ArduinoIoTCloud-Schedule
           # Nano ESP32
           - board:
@@ -296,11 +273,8 @@ jobs:
             platforms: |
               # Install arduino_esp32 platform via Boards Manager
               - name: arduino:esp32
-            libraries: |
-              - name: Blues Wireless Notecard
             sketch-paths: |
               - examples/ArduinoIoTCloud-DeferredOTA
-              - examples/ArduinoIoTCloud-Notecard
               - examples/ArduinoIoTCloud-Schedule
           # Edge Control
           - board:
@@ -308,10 +282,7 @@ jobs:
             platforms: |
               # Install mbed_edge platform via Boards Manager
               - name: arduino:mbed_edge
-            libraries: |
-              - name: Blues Wireless Notecard
             sketch-paths: |
-              - examples/ArduinoIoTCloud-Notecard
               - examples/ArduinoIoTCloud-Schedule
           # ESP8266 boards
           - board:
@@ -332,11 +303,8 @@ jobs:
               # Install ESP32 platform via Boards Manager
               - name: esp32:esp32
                 source-url: https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json
-            libraries: |
-              - name: Blues Wireless Notecard
             sketch-paths: |
               - examples/ArduinoIoTCloud-DeferredOTA
-              - examples/ArduinoIoTCloud-Notecard
               - examples/ArduinoIoTCloud-Schedule
           # PicoW
           - board:
