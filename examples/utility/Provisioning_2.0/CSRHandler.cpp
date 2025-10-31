@@ -193,6 +193,42 @@ uint32_t CSRHandlerClass::getTimestamp() {
   return ts;
 }
 
+bool CSRHandlerClass::parseDateFromStr(char *str) {
+  char *tok[3];
+  int i = 1;
+  tok[0] = strtok(str, "-");
+  for (; i < 3; i++) {
+    char *t = strtok(NULL, "-");
+    if(t == NULL){
+      break;
+    }
+    tok[i] = t;
+  }
+  if (i < 3) {
+    return false;
+  }
+
+  char *day = strtok(tok[2], "T");
+  char *time = strtok(NULL, "T");
+
+  if(time == NULL){
+    return false;
+  }
+
+  char *hour = strtok(time, ":");
+
+  if(strlen(tok[0]) != 4 || strlen(tok[1]) != 2 || strlen(day) != 2 || strlen(hour) != 2){
+    return false;
+  }
+
+  _issueYear = atoi(tok[0]);
+  _issueMonth = atoi(tok[1]);
+  _issueDay = atoi(day);
+  _issueHour = atoi(hour);
+
+  return true;
+}
+
 CSRHandlerClass::CSRHandlerStates CSRHandlerClass::handleBuildCSR() {
   if (!_certForCSR) {
     _certForCSR = new ECP256Certificate();
@@ -296,7 +332,7 @@ CSRHandlerClass::CSRHandlerStates CSRHandlerClass::handleParseResponse() {
   if(i < 6 || strlen(token[0]) != 36 || strlen(token[1]) != 40
    || strlen(token[2]) < 10 || strlen(token[3]) != 32
    || strlen(token[4]) != 64 || strlen(token[5]) != 64
-   || sscanf(token[2], "%4d-%2d-%2dT%2d", &_issueYear, &_issueMonth, &_issueDay, &_issueHour) != 4){
+   || !parseDateFromStr(token[2])){
     updateNextRequestAt();
     DEBUG_ERROR("CSRH::%s Error parsing response, retrying in %d ms", __FUNCTION__, _nextRequestAt - millis());
     return CSRHandlerStates::REQUEST_SIGNATURE;
