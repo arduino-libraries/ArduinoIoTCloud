@@ -1271,36 +1271,6 @@ SCENARIO("Test the encoding of command messages") {
     }
   }
 
-  WHEN("Encode the DeviceNetConfigCmdUp message with Notecard")
-  {
-    DeviceNetConfigCmdUp command;
-    command.c.id = CommandId::DeviceNetConfigCmdUpId;
-
-    command.params.type = NetworkAdapter::NOTECARD;
-
-    uint8_t buffer[512];
-    size_t bytes_encoded = sizeof(buffer);
-
-    CBORMessageEncoder encoder;
-    MessageEncoder::Status err = encoder.encode((Message*)&command, buffer, bytes_encoded);
-
-    uint8_t expected_result[] = {
-      0xda, 0x00, 0x01, 0x11, 0x00, 0x81,
-      0x08
-    };
-
-    // Test the encoding is
-    // DA 00011100                          # tag(73728)
-    //   81                                 # array(1)
-    //      08                              # unsigned(8)
-
-    THEN("The encoding is successful") {
-        REQUIRE(err == MessageEncoder::Status::Complete);
-        REQUIRE(bytes_encoded == sizeof(expected_result));
-        REQUIRE(memcmp(buffer, expected_result, sizeof(expected_result)) == 0);
-    }
-  }
-
   WHEN("Encode the DeviceNetConfigCmdUp message with None")
   {
     DeviceNetConfigCmdUp command;

@@ -163,9 +163,7 @@ class ArduinoIoTCloudClass
     OnCloudEventCallback _cloud_event_callback[3];
 };
 
-#if defined(HAS_NOTECARD)
-  #include "ArduinoIoTCloudNotecard.h"
-#elif defined(HAS_TCP)
+#if defined(HAS_TCP)
   #include "ArduinoIoTCloudTCP.h"
 #elif defined(HAS_LORA)
   #include "ArduinoIoTCloudLPWAN.h"
