@@ -63,6 +63,7 @@ private:
   uint32_t jitter(uint32_t base = JITTER_BASE, uint32_t max = JITTER_MAX);
   bool postRequest(const char *url, String &postData);
   uint32_t getTimestamp();
+  bool parseDateFromStr(char *str);
   CSRHandlerStates handleBuildCSR();
   CSRHandlerStates handleRequestSignature();
   CSRHandlerStates handleWaitingResponse();
