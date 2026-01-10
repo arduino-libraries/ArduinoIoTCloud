@@ -12,6 +12,7 @@
 #include <ArduinoIoTCloud.h>
 #include <GenericConnectionHandler.h>
 #include <Arduino_KVStore.h>
+#include "Arduino_NetworkConfigurator.h"
 #include "configuratorAgents/agents/BLEAgent.h"
 #include "configuratorAgents/agents/SerialAgent.h"
 
