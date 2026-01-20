@@ -1,0 +1,248 @@
+name: Compile Provisioning
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/compile-provisioning.yml"
+      - "examples/**"
+      - "src/**"
+  push:
+    paths:
+      - ".github/workflows/compile-provisioning.yml"
+      - "examples/**"
+      - "src/**"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    env:
+      # libraries to install for all boards
+      UNIVERSAL_LIBRARIES: |
+        # Install the ArduinoIoTCloud library from the repository
+        - source-path: ./
+        - source-url: https://github.com/pennam/ArduinoBLE.git
+          version: 5915fa2df776e6eb7e9e5afd896ed3d1c048c9c0
+        - name: ArduinoHttpClient
+          version: 0.6.1
+        - name: Arduino_DebugUtils
+          version: 1.4.0
+        - name: ArduinoMqttClient
+          version: 0.1.8
+        - name: Arduino_KVStore
+          version: 1.0.0
+        - source-url: https://github.com/pennam/Arduino_ConnectionHandler.git
+          version: 0f0f4a4ce718fcf2066a092a92cc2fdcd4d8bedd
+        - name: Arduino_SecureElement
+          version: 0.4.0
+        - name: Arduino_CloudUtils
+          version: 1.1.1
+        - source-url: https://github.com/arduino-libraries/Arduino_UniqueHWId.git
+          version: 7e1bfeb586cac00f043c39997a1e9937ed8152b0
+        - source-url: https://github.com/arduino-libraries/Arduino_NetworkConfigurator.git
+          version: 3499628000f2b652e856db406e4e02140bf267a6
+      # sketch paths to compile (recursive) for all boards
+      UNIVERSAL_SKETCH_PATHS: |
+        - examples/utility/Provisioning_2.0
+      SKETCHES_REPORTS_PATH: sketches-reports
+
+    strategy:
+      fail-fast: false
+
+      matrix:
+        board:
+          - fqbn: arduino:samd:mkrwifi1010
+            type: nina
+            artifact-name-suffix: arduino-samd-mkrwifi1010
+          - fqbn: arduino:samd:nano_33_iot
+            type: nina
+            artifact-name-suffix: arduino-samd-nano_33_iot
+          - fqbn: arduino:mbed_portenta:envie_m7:split=100_0
+            type: mbed_portenta
+            artifact-name-suffix: arduino-mbed_portenta-envie_m7
+          - fqbn: arduino:mbed_nano:nanorp2040connect
+            type: nina
+            artifact-name-suffix: arduino-mbed_nano-nanorp2040connect
+          - fqbn: arduino:mbed_nicla:nicla_vision
+            type: mbed_nicla
+            artifact-name-suffix: arduino-mbed_nicla-nicla_vision
+          - fqbn: arduino:mbed_opta:opta
+            type: mbed_opta
+            artifact-name-suffix: arduino-mbed_opta-opta
+          - fqbn: arduino:mbed_giga:giga
+            type: mbed_giga
+            artifact-name-suffix: arduino-mbed_giga-giga
+          - fqbn: arduino:renesas_portenta:portenta_c33
+            type: renesas_portenta
+            artifact-name-suffix: arduino-renesas_portenta-portenta_c33
+          - fqbn: arduino:renesas_uno:unor4wifi
+            type: renesas_uno
+            artifact-name-suffix: arduino-renesas_uno-unor4wifi
+
+        # make board type-specific customizations to the matrix jobs
+        include:
+          # MKR WiFi 1010, Nano 33 IoT, Nano RP2040 Connect
+          - board:
+              type: nina
+            platforms: |
+              # Install samd and mbed_nano platform via Boards Manager
+              - name: arduino:samd
+                version: 1.8.14
+              - name: arduino:mbed_nano
+                version: 4.3.1
+            libraries: |
+              - name: RTCZero
+                version: 1.6.0
+              - name: ArduinoECCX08
+                version: 1.3.9
+              - name: Adafruit SleepyDog Library
+                version: 1.6.5
+              - name: ArduinoBearSSL
+                version: 1.7.6
+              - source-url: https://github.com/pennam/WiFiNINA.git
+                version: b9a8d705f85fef8c19862c32e314367d4bba5734
+              - source-url: https://github.com/arduino-libraries/SpiNINA.git
+                version: 4c8f2956b1b9cd421583393421c6c9276ba27614
+          # Portenta
+          - board:
+              type: mbed_portenta
+            platforms: |
+              # Install mbed_portenta platform via Boards Manager
+              - name: arduino:mbed_portenta
+                version: 4.3.1
+            libraries: |
+              - source-url: https://github.com/pennam/Arduino_Cellular.git
+                version: bfbd25791d200b113d640e16eed43ce547ab0b0c
+              - name: ArduinoECCX08
+                version: 1.3.9
+              - name: StreamDebugger
+                version: 1.0.1
+              - name: TinyGsm
+                version: 0.12.0
+              - name: ArduinoBearSSL
+                version: 1.7.6
+          # Nicla Vision
+          - board:
+              type: mbed_nicla
+            platforms: |
+              # Install mbed_nicla platform via Boards Manager
+              - name: arduino:mbed_nicla
+                version: 4.3.1
+          # Opta
+          - board:
+              type: mbed_opta
+            platforms: |
+              # Install mbed_opta platform via Boards Manager
+              - name: arduino:mbed_opta
+                version: 4.3.1
+            libraries: |
+              - name: ArduinoECCX08
+                version: 1.3.9
+              - name: ArduinoBearSSL
+                version: 1.7.6
+          # GIGA
+          - board:
+              type: mbed_giga
+            platforms: |
+              # Install mbed_giga platform via Boards Manager
+              - name: arduino:mbed_giga
+                version: 4.3.1
+            libraries: |
+              - name: ArduinoECCX08
+                version: 1.3.9
+              - name: ArduinoBearSSL
+                version: 1.7.6
+          # Portenta C33
+          - board:
+              type: renesas_portenta
+            platforms: |
+              # Install renesas_portenta platform via Boards Manager
+              - name: arduino:renesas_portenta
+                version: 1.4.1
+            libraries: |
+              - source-url: https://github.com/pennam/Arduino_Cellular.git
+                version: bfbd25791d200b113d640e16eed43ce547ab0b0c
+              - name: StreamDebugger
+                version: 1.0.1
+              - name: TinyGsm
+                version: 0.12.0
+          # UNO R4 WiFi
+          - board:
+              type: renesas_uno
+            platforms: |
+              # Install renesas_uno platform via Boards Manager
+              - name: arduino:renesas_uno
+                version: 1.4.1
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Clear cache
+        run: |
+          rm -rf ~/.cache
+      - name: Compile production provisioning sketch
+        uses: arduino/compile-sketches@v1
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          platforms: ${{ matrix.platforms }}
+          fqbn: ${{ matrix.board.fqbn }}
+          libraries: |
+            ${{ env.UNIVERSAL_LIBRARIES }}
+            ${{ matrix.libraries }}
+          sketch-paths: |
+            ${{ env.UNIVERSAL_SKETCH_PATHS }}
+            ${{ matrix.sketch-paths }}
+          enable-deltas-report: "false"
+          sketches-report-path: ${{ env.SKETCHES_REPORTS_PATH }}
+          cli-compile-flags: |
+            - --clean
+            - --verbose
+            - --output-dir
+            - ${{ runner.temp }}/provisioning-prod
+      - name: Compile staging provisioning sketch
+        uses: arduino/compile-sketches@v1
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          platforms: ${{ matrix.platforms }}
+          fqbn: ${{ matrix.board.fqbn }}
+          libraries: |
+            ${{ env.UNIVERSAL_LIBRARIES }}
+            ${{ matrix.libraries }}
+          sketch-paths: |
+            ${{ env.UNIVERSAL_SKETCH_PATHS }}
+            ${{ matrix.sketch-paths }}
+          enable-deltas-report: "false"
+          sketches-report-path: ${{ env.SKETCHES_REPORTS_PATH }}
+          cli-compile-flags: |
+            - --clean
+            - --verbose
+            - --build-property
+            - "compiler.cpp.extra_flags=-DCOMPILE_TEST=1"
+            - --output-dir
+            - ${{ runner.temp }}/provisioning-staging
+      - name: Write data to size trends report spreadsheet
+        # Update report on every push to the master branch
+        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+        uses: arduino/report-size-trends@main
+        with:
+          sketches-report-path: ${{ env.SKETCHES_REPORTS_PATH }}
+          google-key-file: ${{ secrets.GOOGLE_KEY_FILE }}
+          spreadsheet-id: 1I6NZkpZpf8KugBkE92adB1Z3_b7ZepOpCdYTOigJpN4
+
+      - name: Save memory usage change report as artifact
+        if: github.event_name == 'pull_request'
+        uses: actions/upload-artifact@v4
+        with:
+          name: sketches-report-${{ matrix.board.artifact-name-suffix }}
+          path: ${{ env.SKETCHES_REPORTS_PATH }}
+
+      - name: Save production artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: provisioning-prod-${{ matrix.board.artifact-name-suffix }}
+          path: ${{ runner.temp }}/provisioning-prod/
+
+      - name: Save staging artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: provisioning-staging-${{ matrix.board.artifact-name-suffix }}
+          path: ${{ runner.temp }}/provisioning-staging/
