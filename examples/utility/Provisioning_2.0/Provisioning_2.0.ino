@@ -14,8 +14,9 @@
 #include <utility/SElementArduinoCloudDeviceId.h>
 #include <utility/SElementArduinoCloudCertificate.h>
 #include "utility/LEDFeedback.h"
+#include "FactoryTester.h"
 
-const char *SKETCH_VERSION = "0.4.1";
+const char *SKETCH_VERSION = "0.5.0";
 
 enum class DeviceState {
     HARDWARE_CHECK,
@@ -57,6 +58,11 @@ void setup() {
   setDebugMessageLevel(4);
 
   initProperties();
+
+  #if !defined(ARDUINO_OPTA) && !defined(ARDUINO_UNOR4_WIFI)
+  LedFactoryTest();
+  #endif
+
   AgentsManagerClass::getInstance().begin();
   LEDFeedbackClass::getInstance().begin();
   DEBUG_INFO("Starting Provisioning version %s", SKETCH_VERSION);
