@@ -125,6 +125,10 @@ jobs:
               - name: ArduinoECCX08
               - name: RTCZero
               - name: WiFiNINA
+              - name: Arduino_SpiNINA
+              - name: ArduinoBLE
+              - name: Arduino_KVStore
+              - name: Arduino_NetworkConfigurator
               - name: Arduino_JSON
               - source-url: https://github.com/adafruit/Adafruit_SleepyDog.git
             sketch-paths: |
