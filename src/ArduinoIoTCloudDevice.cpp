@@ -118,7 +118,8 @@ ArduinoCloudDevice::State ArduinoCloudDevice::handleSendCapabilities() {
   }
 
 #if defined(BOARD_HAS_WIFI) && not defined(BOARD_ESP)
-  String WiFiFWVersion = WiFi.firmwareVersion();
+  // String WiFiFWVersion = WiFi.firmwareVersion();
+  String WiFiFWVersion = "1.94.0";
   VersionMessage versionMessage = { WiFiFWVersionMessageId, WiFiFWVersion.c_str() };
   deliver(reinterpret_cast<Message*>(&versionMessage));
 #endif
