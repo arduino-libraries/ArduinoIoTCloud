@@ -45,13 +45,15 @@
   AUTOMATICALLY CONFIGURED DEFINES
  ******************************************************************************/
 
-#if defined(ARDUINO_SAMD_MKRWIFI1010) || defined(ARDUINO_SAMD_NANO_33_IOT)
+#if (defined(ARDUINO_SAMD_MKRWIFI1010) || defined(ARDUINO_SAMD_NANO_33_IOT)) && \
+  !defined(ARDUINO_ARCH_ZEPHYR)
   #define OTA_STORAGE_SNU         (1)
 #else
   #define OTA_STORAGE_SNU         (0)
 #endif
 
-#if defined(ARDUINO_NANO_RP2040_CONNECT)
+#if (defined(ARDUINO_NANO_RP2040_CONNECT)) && \
+  !defined(ARDUINO_ARCH_ZEPHYR)
   #define OTA_STORAGE_SFU         (1)
 #else
   #define OTA_STORAGE_SFU         (0)
@@ -63,13 +65,15 @@
   #define OTA_STORAGE_SSU         (0)
 #endif
 
-#if defined(ARDUINO_PORTENTA_H7_M7) || defined(ARDUINO_NICLA_VISION) || defined(ARDUINO_OPTA) || defined(ARDUINO_GIGA)
+#if (defined(ARDUINO_PORTENTA_H7_M7) || defined(ARDUINO_NICLA_VISION) || defined(ARDUINO_OPTA) || defined(ARDUINO_GIGA)) && \
+  !defined(ARDUINO_ARCH_ZEPHYR)
   #define OTA_STORAGE_PORTENTA_QSPI   (1)
 #else
   #define OTA_STORAGE_PORTENTA_QSPI   (0)
 #endif
 
-#if defined(ARDUINO_ARCH_ESP32) || defined(ARDUINO_UNOR4_WIFI)
+#if (defined(ARDUINO_ARCH_ESP32) || defined(ARDUINO_UNOR4_WIFI)) && \
+  !defined(ARDUINO_ARCH_ZEPHYR)
   #define OTA_STORAGE_ESP         (1)
 #endif
 
@@ -79,8 +83,8 @@
   #define OTA_ENABLED             (0)
 #endif
 
-#if defined(ARDUINO_SAMD_MKRGSM1400) || defined(ARDUINO_SAMD_MKR1000) ||   \
-  defined(ARDUINO_SAMD_MKRNB1500) || defined(ARDUINO_PORTENTA_H7_M7)      ||   \
+#if defined(ARDUINO_SAMD_MKRGSM1400) || defined(ARDUINO_SAMD_MKR1000) || \
+  defined(ARDUINO_SAMD_MKRNB1500) || defined(ARDUINO_PORTENTA_H7_M7) || \
   defined (ARDUINO_NANO_RP2040_CONNECT) || defined(ARDUINO_OPTA) || \
   defined(ARDUINO_GIGA)
   #define BOARD_HAS_ECCX08
@@ -123,13 +127,17 @@
   #define HAS_TCP
 #endif
 
+#if defined(ARDUINO_ARCH_ZEPHYR)
+  #define NETWORK_CONFIGURATOR_ENABLED (0)
+  #define HAS_TCP
+#endif
+
 #if defined(BOARD_HAS_SOFTSE) || defined(BOARD_HAS_OFFLOADED_ECCX08) || defined(BOARD_HAS_ECCX08) || defined(BOARD_HAS_SE050)
   #define BOARD_HAS_SECURE_ELEMENT
 #endif
 
-#if (defined(ARDUINO_ARCH_SAMD) || defined(ARDUINO_ARCH_MBED) ||\
-     defined(ARDUINO_ARCH_RENESAS) || defined(ARDUINO_ARCH_ESP32)) &&\
-     !defined(ARDUINO_ARCH_ZEPHYR)
+#if defined(ARDUINO_ARCH_SAMD) || defined(ARDUINO_ARCH_MBED) ||\
+    defined(ARDUINO_ARCH_RENESAS) || defined(ARDUINO_ARCH_ESP32) || defined(ARDUINO_ARCH_ZEPHYR)
   #define BOARD_HAS_HW_RTC
 #endif
 
@@ -137,9 +145,10 @@
   #define BOARD_STM32H7
 #endif
 
-#if defined(ARDUINO_PORTENTA_H7_M7) || defined(ARDUINO_NICLA_VISION) || defined(ARDUINO_OPTA) || defined(ARDUINO_GIGA) \
+#if (defined(ARDUINO_PORTENTA_H7_M7) || defined(ARDUINO_NICLA_VISION) || defined(ARDUINO_OPTA) || defined(ARDUINO_GIGA) \
   || defined(ARDUINO_UNOR4_WIFI) || defined(ARDUINO_PORTENTA_C33) || defined(ARDUINO_NANO_RP2040_CONNECT) \
-  || defined(ARDUINO_SAMD_MKRWIFI1010) || defined(ARDUINO_SAMD_NANO_33_IOT)
+  || defined(ARDUINO_SAMD_MKRWIFI1010) || defined(ARDUINO_SAMD_NANO_33_IOT)) && \
+  !defined(ARDUINO_ARCH_ZEPHYR)
   #define NETWORK_CONFIGURATOR_ENABLED (1)
 #else
   #define NETWORK_CONFIGURATOR_ENABLED (0)
