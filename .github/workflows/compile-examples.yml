@@ -94,7 +94,26 @@ jobs:
           - fqbn: "rp2040:rp2040:rpipicow"
             type: rp2040
             artifact-name-suffix: rp2040-rp2040-rpipicow
-
+          - fqbn: "arduino:zephyr_main:portentah7"
+            platform-name: arduino:zephyr_main
+            artifact-name-suffix: arduino-zephyr_main-portentah7
+            type: zephyr
+          - fqbn: "arduino:zephyr_main:portentac33"
+            platform-name: arduino:zephyr_main
+            artifact-name-suffix: arduino-zephyr_main-portentac33
+            type: zephyr
+          - fqbn: "arduino:zephyr_main:nicla_vision"
+            platform-name: arduino:zephyr_main
+            artifact-name-suffix: arduino-zephyr_main-nicla_vision
+            type: zephyr
+          - fqbn: "arduino:zephyr_main:giga"
+            platform-name: arduino:zephyr_main
+            artifact-name-suffix: arduino-zephyr_main-giga
+            type: zephyr
+          - fqbn: "arduino:zephyr_main:opta"
+            platform-name: arduino:zephyr_main
+            artifact-name-suffix: arduino-zephyr_main-opta
+            type: zephyr
 
         # make board type-specific customizations to the matrix jobs
         include:
@@ -318,6 +337,20 @@ jobs:
               # Install rp2040 platform via Boards Manager
               - name: rp2040:rp2040
                 source-url: https://github.com/earlephilhower/arduino-pico/releases/download/global/package_rp2040_index.json
+          # zephyr boards
+          - board:
+              type: zephyr
+            platforms: |
+              # Install zephyr_main platform via Boards Manager
+              - name: arduino:zephyr_main
+            libraries: |
+              - name: ArduinoBearSSL
+              - name: ArduinoECCX08
+              - name: Arduino_SE05X
+            sketch-paths: |
+              - examples/ArduinoIoTCloud-Advanced
+              - examples/ArduinoIoTCloud-Basic
+              - examples/ArduinoIoTCloud-Callbacks
 
     steps:
       - name: Checkout
