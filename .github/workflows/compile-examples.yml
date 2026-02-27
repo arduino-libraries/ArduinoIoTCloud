@@ -352,7 +352,7 @@ jobs:
 
       - name: Save memory usage change report as artifact
         if: github.event_name == 'pull_request'
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: sketches-report-${{ matrix.board.artifact-name-suffix }}
           path: ${{ env.SKETCHES_REPORTS_PATH }}
