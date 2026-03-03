@@ -94,7 +94,15 @@ jobs:
           - fqbn: "rp2040:rp2040:rpipicow"
             type: rp2040
             artifact-name-suffix: rp2040-rp2040-rpipicow
-
+          - fqbn: "arduino:zephyr_main:portentah7"
+            platform-name: arduino:zephyr_main
+            artifact-name-suffix: arduino-zephyr_main-portentah7
+          - fqbn: "arduino:zephyr_main:giga"
+            platform-name: arduino:zephyr_main
+            artifact-name-suffix: arduino-zephyr_main-giga
+          - fqbn: "arduino:zephyr_main:opta"
+            platform-name: arduino:zephyr_main
+            artifact-name-suffix: arduino-zephyr_main-opta
 
         # make board type-specific customizations to the matrix jobs
         include:
