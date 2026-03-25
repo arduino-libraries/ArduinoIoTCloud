@@ -63,9 +63,6 @@ jobs:
           - fqbn: arduino:mbed_giga:giga
             type: mbed_giga
             artifact-name-suffix: arduino-mbed_giga-giga
-          - fqbn: arduino:renesas_portenta:portenta_c33
-            type: renesas_portenta
-            artifact-name-suffix: arduino-renesas_portenta-portenta_c33
           - fqbn: arduino:renesas_uno:unor4wifi
             type: renesas_uno
             artifact-name-suffix: arduino-renesas_uno-unor4wifi
@@ -152,22 +149,6 @@ jobs:
                 version: 1.3.9
               - name: ArduinoBearSSL
                 version: 1.7.6
-              - name: ArduinoBLE
-                version: 1.4.0
-          # Portenta C33
-          - board:
-              type: renesas_portenta
-            platforms: |
-              # Install renesas_portenta platform via Boards Manager
-              - name: arduino:renesas_portenta
-                version: 1.4.1
-            libraries: |
-              - source-url: https://github.com/pennam/Arduino_Cellular.git
-                version: bfbd25791d200b113d640e16eed43ce547ab0b0c
-              - name: StreamDebugger
-                version: 1.0.1
-              - name: TinyGsm
-                version: 0.12.0
               - name: ArduinoBLE
                 version: 1.4.0
           # UNO R4 WiFi
