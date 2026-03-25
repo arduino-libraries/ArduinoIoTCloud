@@ -82,7 +82,14 @@ bool CSRHandlerClass::begin(ConnectionHandler &connectionHandler, SecureElement 
   _uhwid = &uhwid;
 
 #ifdef BOARD_HAS_WIFI
+  // Skip if the Opta board doesn't have the WiFi module
+  #if defined(ARDUINO_OPTA)
+  if(_getPid_() == _BOARD_PRODUCTID){
+  #endif
   _fw_version = WiFi.firmwareVersion();
+  #if defined(ARDUINO_OPTA)
+  }
+  #endif
 #endif
   if(!_tlsClient){
     _tlsClient = new TLSClientMqtt();
