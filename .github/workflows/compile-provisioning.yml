@@ -26,12 +26,12 @@ jobs:
           version: 0f0f4a4ce718fcf2066a092a92cc2fdcd4d8bedd
         - name: Arduino_SecureElement
           version: 0.4.0
-        - source-url: https://github.com/fabik111/Arduino_CloudUtils.git
-          version: 8c27fdec4cf1ed27a1b943346a35dcc8a7ad77bf
+        - name: Arduino_CloudUtils
+          version: 1.1.2
         - source-url: https://github.com/arduino-libraries/Arduino_UniqueHWId.git
           version: 7e1bfeb586cac00f043c39997a1e9937ed8152b0
-        - source-url: https://github.com/arduino-libraries/Arduino_NetworkConfigurator.git
-          version: 4faf81fa99593a7d0fab1796880a4ea460019b7d
+        - name: Arduino_NetworkConfigurator
+          version: 0.5.1
       # sketch paths to compile (recursive) for all boards
       UNIVERSAL_SKETCH_PATHS: |
         - examples/utility/Provisioning_2.0
@@ -90,12 +90,12 @@ jobs:
                 version: 1.6.5
               - name: ArduinoBearSSL
                 version: 1.7.6
-              - source-url: https://github.com/pennam/WiFiNINA.git
-                version: b9a8d705f85fef8c19862c32e314367d4bba5734
-              - source-url: https://github.com/arduino-libraries/SpiNINA.git
-                version: 4c8f2956b1b9cd421583393421c6c9276ba27614
-              - source-url: https://github.com/pennam/ArduinoBLE.git
-                version: 5915fa2df776e6eb7e9e5afd896ed3d1c048c9c0
+              - name: WiFiNINA
+                version: 2.0.1
+              - name: Arduino_SpiNINA
+                version: 0.0.2
+              - name: ArduinoBLE
+                version: 2.0.0
           # Portenta
           - board:
               type: mbed_portenta
