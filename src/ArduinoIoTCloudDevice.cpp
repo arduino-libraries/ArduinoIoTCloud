@@ -118,7 +118,17 @@ ArduinoCloudDevice::State ArduinoCloudDevice::handleSendCapabilities() {
   }
 
 #if defined(BOARD_HAS_WIFI) && not defined(BOARD_ESP)
-  String WiFiFWVersion = WiFi.firmwareVersion();
+  String WiFiFWVersion = "";
+  // Skip if the Opta board doesn't have the WiFi module
+#if defined(ARDUINO_OPTA)
+  if(_getPid_() == _BOARD_PRODUCTID){
+#endif
+
+  WiFiFWVersion = WiFi.firmwareVersion();
+
+#if defined(ARDUINO_OPTA)
+  }
+#endif
   VersionMessage versionMessage = { WiFiFWVersionMessageId, WiFiFWVersion.c_str() };
   deliver(reinterpret_cast<Message*>(&versionMessage));
 #endif
