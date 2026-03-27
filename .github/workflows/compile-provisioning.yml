@@ -27,7 +27,7 @@ jobs:
         - name: Arduino_SecureElement
           version: 0.4.0
         - name: Arduino_CloudUtils
-          version: 1.1.2
+          version: 1.1.3
         - source-url: https://github.com/arduino-libraries/Arduino_UniqueHWId.git
           version: 7e1bfeb586cac00f043c39997a1e9937ed8152b0
         - name: Arduino_NetworkConfigurator
@@ -121,6 +121,8 @@ jobs:
               - name: arduino:mbed_nicla
                 version: 4.3.1
             libraries: |
+              - name: ArduinoBearSSL
+                version: 1.7.6
               - name: ArduinoBLE
                 version: 1.4.0
           # Opta
@@ -129,7 +131,7 @@ jobs:
             platforms: |
               # Install mbed_opta platform via Boards Manager
               - name: arduino:mbed_opta
-                version: 4.3.1
+                version: 4.6.0
             libraries: |
               - name: ArduinoECCX08
                 version: 1.3.9
