@@ -218,19 +218,19 @@ jobs:
 
       - name: Save memory usage change report as artifact
         if: github.event_name == 'pull_request'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: sketches-report-${{ matrix.board.artifact-name-suffix }}
           path: ${{ env.SKETCHES_REPORTS_PATH }}
 
       - name: Save production artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: provisioning-prod-${{ matrix.board.artifact-name-suffix }}
           path: ${{ runner.temp }}/provisioning-prod/
 
       - name: Save staging artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: provisioning-staging-${{ matrix.board.artifact-name-suffix }}
           path: ${{ runner.temp }}/provisioning-staging/
