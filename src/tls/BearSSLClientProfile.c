@@ -13,7 +13,7 @@
  ******************************************************************************/
 
 #include <AIoTC_Config.h>
-#ifdef BOARD_HAS_ECCX08
+#ifdef BOARD_HAS_SECURE_ELEMENT
 
 #include "bearssl/inner.h"
 
@@ -88,4 +88,4 @@ void aiotc_client_profile_init(br_ssl_client_context *cc, br_x509_minimal_contex
   br_ssl_engine_set_default_aes_gcm(&cc->eng);
 }
 
-#endif /* #ifdef BOARD_HAS_ECCX08 */
+#endif /* #ifdef BOARD_HAS_SECURE_ELEMENT */

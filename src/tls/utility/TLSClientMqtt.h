@@ -26,7 +26,7 @@ enum class ArduinoIoTAuthenticationMode
    */
   #include "WiFiSSLClient.h"
   class TLSClientMqtt : public WiFiBearSSLClient {
-#elif defined(BOARD_HAS_ECCX08)
+#elif defined(BOARD_HAS_SECURE_ELEMENT)
   /*
    * Arduino MKR GSM 1400
    * Arduino MKR NB 1500
@@ -38,18 +38,6 @@ enum class ArduinoIoTAuthenticationMode
   #include <ArduinoBearSSLConfig.h>
   #include <ArduinoBearSSL.h>
   class TLSClientMqtt : public BearSSLClient {
-#elif defined(ARDUINO_PORTENTA_C33)
-  /*
-   * Arduino Portenta C33
-   */
-  #include <SSLClient.h>
-  class TLSClientMqtt : public SSLClient {
-#elif defined(ARDUINO_NICLA_VISION)
-  /*
-   * Arduino Nicla Vision
-   */
-  #include <WiFiSSLSE050Client.h>
-  class TLSClientMqtt : public WiFiSSLSE050Client {
 #elif defined(ARDUINO_EDGE_CONTROL)
   /*
    * Arduino Edge Control

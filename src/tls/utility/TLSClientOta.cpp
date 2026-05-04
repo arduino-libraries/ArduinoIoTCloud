@@ -22,7 +22,7 @@
   #include "tls/AIoTCSSCert.h"
 #endif
 
-#ifdef BOARD_HAS_ECCX08
+#ifdef BOARD_HAS_SECURE_ELEMENT
   #include "tls/BearSSLTrustAnchors.h"
   #include "tls/BearSSLClientProfile.h"
   extern "C" {
@@ -35,7 +35,7 @@ void TLSClientOta::begin(ConnectionHandler &connection) {
   /* AWS Root CAs are configured in nina-fw
    * https://github.com/arduino/nina-fw/blob/master/data/roots.pem
    */
-#elif defined(BOARD_HAS_ECCX08)
+#elif defined(BOARD_HAS_SECURE_ELEMENT)
   setClient(*getNewClient(connection.getInterface()));
   setProfile(aiotc_client_profile_init);
   setTrustAnchors(ArduinoIoTCloudTrustAnchor, ArduinoIoTCloudTrustAnchor_NUM);
@@ -43,8 +43,6 @@ void TLSClientOta::begin(ConnectionHandler &connection) {
 #elif defined(ARDUINO_PORTENTA_C33)
   setClient(*getNewClient(connection.getInterface()));
   setCACert(AIoTSSCert);
-#elif defined(ARDUINO_NICLA_VISION)
-  appendCustomCACert(AIoTSSCert);
 #elif defined(ARDUINO_EDGE_CONTROL)
   appendCustomCACert(AIoTUPCert);
 #elif defined(ARDUINO_UNOR4_WIFI)
