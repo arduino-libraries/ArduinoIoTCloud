@@ -16,11 +16,11 @@
  ******************************************************************************/
 
 #include <AIoTC_Config.h>
-#ifdef BOARD_HAS_ECCX08
+#ifdef BOARD_HAS_SECURE_ELEMENT
 
 extern "C" void aiotc_client_profile_init(br_ssl_client_context *cc, br_x509_minimal_context *xc, const br_x509_trust_anchor *trust_anchors, size_t trust_anchors_num);
 
-#endif /* #ifdef BOARD_HAS_ECCX08 */
+#endif /* #ifdef BOARD_HAS_SECURE_ELEMENT */
 
 #endif /* _BEAR_SSL_CLIENT_PROFILE_H_ */
 
