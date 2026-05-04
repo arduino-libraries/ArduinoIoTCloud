@@ -28,9 +28,9 @@
 #endif
 
 #include <tls/utility/TLSClientMqtt.h>
-#include <tls/utility/TLSClientOta.h>
 
 #if OTA_ENABLED
+  #include <tls/utility/TLSClientOta.h>
   #include <ota/OTA.h>
 #endif
 
