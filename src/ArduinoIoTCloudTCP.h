@@ -51,14 +51,6 @@ static constexpr uint16_t DEFAULT_BROKER_PORT_AUTO = 0;
 
 typedef bool (*onOTARequestCallbackFunc)(void);
 
-#if defined(BOARD_HAS_SECURE_ELEMENT)
-#ifdef SECURE_ELEMENT_GI
-using SecureElement_t = SecureElementClass;
-#else
-using SecureElement_t = SecureElement;
-#endif
-#endif // BOARD_HAS_SECURE_ELEMENT
-
 /******************************************************************************
   CLASS DECLARATION
  ******************************************************************************/
@@ -153,7 +145,6 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
 #endif
 
 #if defined(BOARD_HAS_SECURE_ELEMENT)
-    SecureElement_t _selement;
     ECP256Certificate _cert;
     /* Flag used to store updated device certificate after broker connection has succeeded */
     bool _writeCertOnConnect;
