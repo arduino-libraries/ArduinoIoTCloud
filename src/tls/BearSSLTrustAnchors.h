@@ -16,7 +16,7 @@
  ******************************************************************************/
 
 #include <AIoTC_Config.h>
-#ifdef BOARD_HAS_ECCX08
+#ifdef BOARD_HAS_SECURE_ELEMENT
 
 #include "bearssl/bearssl_ssl.h"
 
@@ -98,6 +98,6 @@ static const br_x509_trust_anchor ArduinoIoTCloudTrustAnchor[2] = {
 
 #define ArduinoIoTCloudTrustAnchor_NUM (2)
 
-#endif /* #ifdef BOARD_HAS_ECCX08 */
+#endif /* #ifdef BOARD_HAS_SECURE_ELEMENT */
 
 #endif /* _BEAR_SSL_TRUST_ANCHOR_H_ */

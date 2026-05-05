@@ -18,11 +18,11 @@
   #include "tls/AIoTCUPCert.h"
 #endif
 
-#if defined(BOARD_HAS_SE050) || defined(BOARD_HAS_SOFTSE)
+#if defined(BOARD_HAS_SOFTSE)
   #include "tls/AIoTCSSCert.h"
 #endif
 
-#ifdef BOARD_HAS_ECCX08
+#ifdef BOARD_HAS_SECURE_ELEMENT
   #include "tls/BearSSLTrustAnchors.h"
   #include "tls/BearSSLClientProfile.h"
   extern "C" {
@@ -38,19 +38,12 @@ void TLSClientMqtt::begin(ConnectionHandler & connection, ArduinoIoTAuthenticati
    * https://github.com/arduino/nina-fw/blob/master/arduino/libraries/ArduinoBearSSL/src/BearSSLTrustAnchors.h
    */
   (void)authMode;
-#elif defined(BOARD_HAS_ECCX08)
+#elif defined(BOARD_HAS_SECURE_ELEMENT)
   (void)authMode;
   setClient(connection.getClient());
   setProfile(aiotc_client_profile_init);
   setTrustAnchors(ArduinoIoTCloudTrustAnchor, ArduinoIoTCloudTrustAnchor_NUM);
   ArduinoBearSSL.onGetTime(getTime);
-#elif defined(ARDUINO_PORTENTA_C33)
-  (void)authMode;
-  setClient(connection.getClient());
-  setCACert(AIoTSSCert);
-#elif defined(ARDUINO_NICLA_VISION)
-  (void)authMode;
-  appendCustomCACert(AIoTSSCert);
 #elif defined(ARDUINO_EDGE_CONTROL)
   (void)authMode;
   appendCustomCACert(AIoTUPCert);

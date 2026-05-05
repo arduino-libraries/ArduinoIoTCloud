@@ -28,9 +28,9 @@
 #endif
 
 #include <tls/utility/TLSClientMqtt.h>
-#include <tls/utility/TLSClientOta.h>
 
 #if OTA_ENABLED
+  #include <tls/utility/TLSClientOta.h>
   #include <ota/OTA.h>
 #endif
 
@@ -145,7 +145,6 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
 #endif
 
 #if defined(BOARD_HAS_SECURE_ELEMENT)
-    SecureElement _selement;
     ECP256Certificate _cert;
     /* Flag used to store updated device certificate after broker connection has succeeded */
     bool _writeCertOnConnect;

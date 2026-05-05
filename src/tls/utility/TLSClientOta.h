@@ -20,7 +20,7 @@
    */
   #include "WiFiSSLClient.h"
   class TLSClientOta : public WiFiBearSSLClient {
-#elif defined(BOARD_HAS_ECCX08)
+#elif defined(BOARD_HAS_SECURE_ELEMENT)
   /*
    * Arduino MKR GSM 1400
    * Arduino MKR NB 1500
@@ -38,12 +38,6 @@
    */
   #include <SSLClient.h>
   class TLSClientOta : public SSLClient {
-#elif defined(ARDUINO_NICLA_VISION)
-  /*
-   * Arduino Nicla Vision
-   */
-  #include <WiFiSSLSE050Client.h>
-  class TLSClientOta : public WiFiSSLSE050Client {
 #elif defined(ARDUINO_EDGE_CONTROL)
   /*
    * Arduino Edge Control
