@@ -26,8 +26,8 @@ jobs:
           version: 0f0f4a4ce718fcf2066a092a92cc2fdcd4d8bedd
         - name: Arduino_SecureElement
           version: 0.4.0
-        - name: Arduino_CloudUtils
-          version: 1.1.2
+        - source-url: https://github.com/fabik111/Arduino_CloudUtils.git
+          version: 59cf50864ee2d4b219f916ce9e502a814e763ede
         - source-url: https://github.com/arduino-libraries/Arduino_UniqueHWId.git
           version: 7e1bfeb586cac00f043c39997a1e9937ed8152b0
         - name: Arduino_NetworkConfigurator
