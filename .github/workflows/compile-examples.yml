@@ -201,6 +201,7 @@ jobs:
               # Install mbed_nicla platform via Boards Manager
               - name: arduino:mbed_nicla
             libraries: |
+              - name: ArduinoBearSSL
               - name: ArduinoBLE
               - name: Arduino_KVStore
               - name: Arduino_NetworkConfigurator

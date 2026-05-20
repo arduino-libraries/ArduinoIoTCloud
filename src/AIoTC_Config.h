@@ -127,6 +127,10 @@
   #define BOARD_HAS_SECURE_ELEMENT
 #endif
 
+#if defined(BOARD_HAS_ECCX08) || defined(BOARD_HAS_SE050)
+  #define BOARD_USE_BEARSSL
+#endif
+
 #if (defined(ARDUINO_ARCH_SAMD) || defined(ARDUINO_ARCH_MBED) ||\
      defined(ARDUINO_ARCH_RENESAS) || defined(ARDUINO_ARCH_ESP32)) &&\
      !defined(ARDUINO_ARCH_ZEPHYR)
