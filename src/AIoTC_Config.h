@@ -63,7 +63,8 @@
   #define OTA_STORAGE_SSU         (0)
 #endif
 
-#if defined(ARDUINO_PORTENTA_H7_M7) || defined(ARDUINO_NICLA_VISION) || defined(ARDUINO_OPTA) || defined(ARDUINO_GIGA)
+#if (defined(ARDUINO_PORTENTA_H7_M7) || defined(ARDUINO_NICLA_VISION) || defined(ARDUINO_OPTA) || defined(ARDUINO_GIGA)) \
+  && !defined(ARDUINO_ARCH_ZEPHYR)
   #define OTA_STORAGE_PORTENTA_QSPI   (1)
 #else
   #define OTA_STORAGE_PORTENTA_QSPI   (0)
@@ -73,7 +74,15 @@
   #define OTA_STORAGE_ESP         (1)
 #endif
 
-#if (OTA_STORAGE_SFU || OTA_STORAGE_SNU || OTA_STORAGE_PORTENTA_QSPI || OTA_STORAGE_ESP)
+#if defined(ARDUINO_ARCH_ZEPHYR) && \
+  (defined(ARDUINO_PORTENTA_H7_M7) || defined(ARDUINO_NICLA_VISION) || \
+   defined(ARDUINO_OPTA) || defined(ARDUINO_GIGA) || defined(ARDUINO_PORTENTA_C33))
+  #define OTA_STORAGE_ZEPHYR      (1)
+#else
+  #define OTA_STORAGE_ZEPHYR      (0)
+#endif
+
+#if (OTA_STORAGE_SFU || OTA_STORAGE_SNU || OTA_STORAGE_PORTENTA_QSPI || OTA_STORAGE_ESP || OTA_STORAGE_ZEPHYR)
   #define OTA_ENABLED             (1)
 #else
   #define OTA_ENABLED             (0)
@@ -137,7 +146,8 @@
   #define BOARD_HAS_HW_RTC
 #endif
 
-#if defined(ARDUINO_PORTENTA_H7_M7) || defined(ARDUINO_NICLA_VISION) || defined(ARDUINO_OPTA) || defined(ARDUINO_GIGA)
+#if (defined(ARDUINO_PORTENTA_H7_M7) || defined(ARDUINO_NICLA_VISION) || defined(ARDUINO_OPTA) || defined(ARDUINO_GIGA)) \
+  && !defined(ARDUINO_ARCH_ZEPHYR)
   #define BOARD_STM32H7
 #endif
 
