@@ -22,6 +22,13 @@ using ArduinoCloudOTA = SAMDOTACloudProcess;
 // constexpr uint32_t OtaMagicNumber = 0x23418054; // MKR_WIFI_1010
 constexpr uint32_t OtaMagicNumber = 0x23418057; // NANO_33_IOT
 
+#elif defined(ARDUINO_ARCH_ZEPHYR)
+
+#include "implementation/OTAZephyr.h"
+using ArduinoCloudOTA = ZephyrOTACloudProcess;
+
+constexpr uint32_t OtaMagicNumber = ARDUINO_ZEPHYR_OTA_MAGIC;
+
 #elif defined(ARDUINO_NANO_RP2040_CONNECT)
 #include "implementation/OTANanoRP2040.h"
 using ArduinoCloudOTA = NANO_RP2040OTACloudProcess;
