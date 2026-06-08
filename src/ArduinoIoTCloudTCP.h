@@ -55,6 +55,7 @@ typedef bool (*onOTARequestCallbackFunc)(void);
 #ifdef SECURE_ELEMENT_GI
 using SecureElement_t = SecureElementClass;
 #else
+#warning "Please update Arduino_SecureElement library from library manager"
 using SecureElement_t = SecureElement;
 #endif
 #endif // BOARD_HAS_SECURE_ELEMENT
