@@ -130,11 +130,13 @@ jobs:
               - name: Arduino_KVStore
               - name: Arduino_NetworkConfigurator
               - name: Arduino_JSON
+              - source-url: https://github.com/arduino-libraries/Arduino_UniqueHWId.git
               - source-url: https://github.com/adafruit/Adafruit_SleepyDog.git
             sketch-paths: |
               - examples/ArduinoIoTCloud-DeferredOTA
               - examples/ArduinoIoTCloud-Schedule
               - examples/utility/Provisioning
+              - examples/utility/Provisioning_2.0
               - examples/utility/SelfProvisioning
           - board:
               type: wan
@@ -189,11 +191,13 @@ jobs:
               - name: ArduinoBLE
               - name: Arduino_KVStore
               - name: Arduino_NetworkConfigurator
+              - source-url: https://github.com/arduino-libraries/Arduino_UniqueHWId.git
             sketch-paths: |
               - examples/ArduinoIoTCloud-NetConfig
               - examples/ArduinoIoTCloud-DeferredOTA
               - examples/ArduinoIoTCloud-Schedule
               - examples/utility/Provisioning
+              - examples/utility/Provisioning_2.0
           # Nicla Vision
           - board:
               type: mbed_nicla
@@ -205,11 +209,13 @@ jobs:
               - name: ArduinoBLE
               - name: Arduino_KVStore
               - name: Arduino_NetworkConfigurator
+              - source-url: https://github.com/arduino-libraries/Arduino_UniqueHWId.git
             sketch-paths: |
               - examples/ArduinoIoTCloud-NetConfig
               - examples/ArduinoIoTCloud-DeferredOTA
               - examples/ArduinoIoTCloud-Schedule
               - examples/utility/Provisioning
+              - examples/utility/Provisioning_2.0
           # Opta
           - board:
               type: mbed_opta
@@ -222,11 +228,13 @@ jobs:
               - name: ArduinoBLE
               - name: Arduino_KVStore
               - name: Arduino_NetworkConfigurator
+              - source-url: https://github.com/arduino-libraries/Arduino_UniqueHWId.git
             sketch-paths: |
               - examples/ArduinoIoTCloud-NetConfig
               - examples/ArduinoIoTCloud-DeferredOTA
               - examples/ArduinoIoTCloud-Schedule
               - examples/utility/Provisioning
+              - examples/utility/Provisioning_2.0
           # GIGA
           - board:
               type: mbed_giga
@@ -239,11 +247,13 @@ jobs:
               - name: ArduinoBLE
               - name: Arduino_KVStore
               - name: Arduino_NetworkConfigurator
+              - source-url: https://github.com/arduino-libraries/Arduino_UniqueHWId.git
             sketch-paths: |
               - examples/ArduinoIoTCloud-NetConfig
               - examples/ArduinoIoTCloud-DeferredOTA
               - examples/ArduinoIoTCloud-Schedule
               - examples/utility/Provisioning
+              - examples/utility/Provisioning_2.0
           # Portenta C33
           - board:
               type: renesas_portenta
