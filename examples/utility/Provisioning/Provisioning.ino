@@ -23,14 +23,12 @@ void setup() {
   Serial.begin(9600);
   while (!Serial);
 
-  SecureElement secureElement;
-
-  if (!secureElement.begin()) {
+  if (!SecureElement.begin()) {
     Serial.println("No crypto present!");
     while (1);
   }
 
-  if (!secureElement.locked()) {
+  if (!SecureElement.locked()) {
     /* WARNING: This string is parsed from IoTCloud frontend */
     String lockConfirm = promptAndReadLine("Your crypto is unlocked, would you like to lock it (y/N): ");
     lockConfirm.toLowerCase();
@@ -40,13 +38,13 @@ void setup() {
       while (1);
     }
 
-    if (!secureElement.writeConfiguration()) {
+    if (!SecureElement.writeConfiguration()) {
       /* WARNING: This string is parsed from IoTCloud frontend */
       Serial.println("Writing crypto configuration failed!");
       while (1);
     }
 
-    if (!secureElement.lock()) {
+    if (!SecureElement.lock()) {
       /* WARNING: This string is parsed from IoTCloud frontend */
       Serial.println("Locking crypto configuration failed!");
       while (1);
@@ -76,7 +74,7 @@ void setup() {
   String deviceId = promptAndReadLine("Please enter the device id: ");
   Certificate.setSubjectCommonName(deviceId);
 
-  if (!SElementCSR::build(secureElement, Certificate, (int)SElementArduinoCloudSlot::Key, true)) {
+  if (!SElementCSR::build(SecureElement, Certificate, (int)SElementArduinoCloudSlot::Key, true)) {
     /* WARNING: This string is parsed from IoTCloud frontend */
     Serial.println("Error generating CSR!");
     while (1);
@@ -112,7 +110,7 @@ void setup() {
   hexStringToBytes(authorityKeyIdentifier, authorityKeyIdentifierBytes, sizeof(authorityKeyIdentifierBytes));
   hexStringToBytes(signature, signatureBytes, sizeof(signatureBytes));
 
-  if (!SElementArduinoCloudDeviceId::write(secureElement, deviceId, SElementArduinoCloudSlot::DeviceId)) {
+  if (!SElementArduinoCloudDeviceId::write(SecureElement, deviceId, SElementArduinoCloudSlot::DeviceId)) {
     Serial.println("Error storing device ID!");
     while (1);
   }
@@ -137,12 +135,12 @@ void setup() {
   Certificate.setIssueHour(issueHour.toInt());
   Certificate.setExpireYears(expireYears.toInt());
 
-  if (!SElementArduinoCloudCertificate::build(secureElement, Certificate, static_cast<int>(SElementArduinoCloudSlot::Key))) {
+  if (!SElementArduinoCloudCertificate::build(SecureElement, Certificate, static_cast<int>(SElementArduinoCloudSlot::Key))) {
     Serial.println("Error building cert!");
     while (1);
   }
 
-  if (!SElementArduinoCloudCertificate::write(secureElement, Certificate, SElementArduinoCloudSlot::CompressedCertificate)) {
+  if (!SElementArduinoCloudCertificate::write(SecureElement, Certificate, SElementArduinoCloudSlot::CompressedCertificate)) {
     Serial.println("Error storing cert!");
     while (1);
   }

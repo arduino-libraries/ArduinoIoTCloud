@@ -88,8 +88,6 @@ char server[] = "api2.arduino.cc";  // server address
 WiFiSSLClient client;
 int status = WL_IDLE_STATUS;
 
-SecureElement secureElement;
-
 void setup() {
   Serial.begin(9600);
   while (!Serial);
@@ -115,20 +113,20 @@ void setup() {
   Serial.print("IP Address: ");
   Serial.println(ip);
 
-  while (!secureElement.begin()) {
+  while (!SecureElement.begin()) {
     Serial.println("No secureElement present!");
     delay(100);
   }
 
-  if (!secureElement.locked()) {
+  if (!SecureElement.locked()) {
 
-    if (!secureElement.writeConfiguration()) {
+    if (!SecureElement.writeConfiguration()) {
       Serial.println("Writing secureElement configuration failed!");
       Serial.println("Stopping Provisioning");
       while (1);
     }
 
-    if (!secureElement.lock()) {
+    if (!SecureElement.lock()) {
       Serial.println("Locking secureElement configuration failed!");
       Serial.println("Stopping Provisioning");
       while (1);
@@ -139,7 +137,7 @@ void setup() {
   }
 
   //Random number for device name
-  board_name += String(secureElement.random(65535));
+  board_name += String(SecureElement.random(65535));
   Serial.print("Device Name: ");
   Serial.println(board_name);
   //Board Serial Number
@@ -172,7 +170,7 @@ void setup() {
 
   Certificate.setSubjectCommonName(deviceId);
 
-  if (!SElementCSR::build(secureElement, Certificate, static_cast<int>(SElementArduinoCloudSlot::Key), true)) {
+  if (!SElementCSR::build(SecureElement, Certificate, static_cast<int>(SElementArduinoCloudSlot::Key), true)) {
     Serial.println("Error generating CSR!");
     while (1);
   }
@@ -222,7 +220,7 @@ void setup() {
   hexStringToBytes(authorityKeyIdentifier, authorityKeyIdentifierBytes, sizeof(authorityKeyIdentifierBytes));
   hexStringToBytes(signature, signatureBytes, sizeof(signatureBytes));
 
-  if (!secureElement.writeSlot(static_cast<int>(SElementArduinoCloudSlot::DeviceId), deviceIdBytes, sizeof(deviceIdBytes))) {
+  if (!SecureElement.writeSlot(static_cast<int>(SElementArduinoCloudSlot::DeviceId), deviceIdBytes, sizeof(deviceIdBytes))) {
     Serial.println("Error storing device id!");
     while (1);
   }
@@ -246,12 +244,12 @@ void setup() {
   Certificate.setIssueHour(issueHour.toInt());
   Certificate.setExpireYears(expireYears.toInt());
 
-  if (!SElementArduinoCloudCertificate::build(secureElement, Certificate, static_cast<int>(SElementArduinoCloudSlot::Key))) {
+  if (!SElementArduinoCloudCertificate::build(SecureElement, Certificate, static_cast<int>(SElementArduinoCloudSlot::Key))) {
     Serial.println("Error building secureElement compressed cert!");
     while (1);
   }
 
-  if (!SElementArduinoCloudCertificate::write(secureElement, Certificate, SElementArduinoCloudSlot::CompressedCertificate)) {
+  if (!SElementArduinoCloudCertificate::write(SecureElement, Certificate, SElementArduinoCloudSlot::CompressedCertificate)) {
     Serial.println("Error storing cert!");
     while (1);
   }
