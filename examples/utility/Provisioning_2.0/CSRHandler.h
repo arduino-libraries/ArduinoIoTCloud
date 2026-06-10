@@ -32,7 +32,7 @@ public:
     ERROR,
     END
   };
-  bool begin(ConnectionHandler &connectionHandler, SecureElement &secureElement, String &uhwid);
+  bool begin(ConnectionHandler &connectionHandler, SecureElementClass &secureElement, String &uhwid);
   void end();
   CSRHandlerStates poll();
 private:
@@ -54,7 +54,7 @@ private:
 
   ECP256Certificate *_certForCSR;
   ConnectionHandler *_connectionHandler;
-  SecureElement *_secureElement;
+  SecureElementClass  *_secureElement;
   TLSClientMqtt *_tlsClient;
   HttpClient *_client;
   LEDFeedbackClass &_ledFeedback;

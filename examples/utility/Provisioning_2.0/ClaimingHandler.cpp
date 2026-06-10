@@ -29,7 +29,7 @@ ClaimingHandlerClass::ClaimingHandlerClass():
   _ts = 0;
 }
 
-bool ClaimingHandlerClass::begin(SecureElement &secureElement, String &uhwid, ClearStoredCredentialsHandler clearStoredCredentials) {
+bool ClaimingHandlerClass::begin(SecureElementClass &secureElement, String &uhwid, ClearStoredCredentialsHandler clearStoredCredentials) {
   if(_state != ClaimingHandlerStates::END) {
     return true;
   }

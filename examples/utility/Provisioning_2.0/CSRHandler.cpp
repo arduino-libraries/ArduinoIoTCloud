@@ -68,7 +68,7 @@ CSRHandlerClass::~CSRHandlerClass() {
   }
 }
 
-bool CSRHandlerClass::begin(ConnectionHandler &connectionHandler, SecureElement &secureElement, String &uhwid) {
+bool CSRHandlerClass::begin(ConnectionHandler &connectionHandler, SecureElementClass &secureElement, String &uhwid) {
   if(_state != CSRHandlerStates::END) {
     return true;
   }
