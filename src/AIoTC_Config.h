@@ -21,24 +21,22 @@
   #define NTP_USE_RANDOM_PORT     (1)
 #endif
 
-#ifndef DEBUG_ERROR
-  #define DEBUG_ERROR(fmt, ...) Debug.print(DBG_ERROR, fmt, ## __VA_ARGS__)
-#endif
+// include directives must be ordered in such a way that this always comes first,
+// otherwise the log level will be incorrectly set
+#ifndef DEBUG_LEVEL
+  #define DEBUG_LEVEL DEBUG_LEVEL_INFO
+#endif // DEBUG_LEVEL
 
-#ifndef DEBUG_WARNING
-  #define DEBUG_WARNING(fmt, ...) Debug.print(DBG_WARNING, fmt, ## __VA_ARGS__)
-#endif
-
-#ifndef DEBUG_INFO
-  #define DEBUG_INFO(fmt, ...) Debug.print(DBG_INFO, fmt, ## __VA_ARGS__)
-#endif
-
-#ifndef DEBUG_DEBUG
-  #define DEBUG_DEBUG(fmt, ...) Debug.print(DBG_DEBUG, fmt, ## __VA_ARGS__)
-#endif
-
-#ifndef DEBUG_VERBOSE
-  #define DEBUG_VERBOSE(fmt, ...) //Debug.print(DBG_VERBOSE, fmt, ## __VA_ARGS__)
+#if defined __has_include
+  #if !__has_include (<Arduino_DebugUtils.h>)
+    #define DEBUG_ERROR     (void) 0
+    #define DEBUG_WARNING   (void) 0
+    #define DEBUG_INFO      (void) 0
+    #define DEBUG_DEBUG     (void) 0
+    #define DEBUG_VERBOSE   (void) 0
+  #elif defined(__cplusplus)
+    #include <Arduino_DebugUtils.h>
+  #endif
 #endif
 
 /******************************************************************************

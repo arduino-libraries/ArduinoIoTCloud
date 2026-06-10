@@ -24,6 +24,8 @@ jobs:
         - name: Arduino_ConnectionHandler
         - name: ArduinoHttpClient
         - name: Arduino_DebugUtils
+        - source-url: https://github.com/arduino-libraries/Arduino_DebugUtils.git
+          version: logging-improvements
         - name: ArduinoMqttClient
         - name: Arduino_SecureElement
         - name: Arduino_CloudUtils
