@@ -16,7 +16,7 @@ typedef bool (*ClearStoredCredentialsHandler)();
 class ClaimingHandlerClass {
 public:
   ClaimingHandlerClass();
-  bool begin(SecureElement &secureElement, String &uhwid, ClearStoredCredentialsHandler clearStoredCredentials);
+  bool begin(SecureElementClass &secureElement, String &uhwid, ClearStoredCredentialsHandler clearStoredCredentials);
   void end();
   void poll();
 private:
@@ -35,7 +35,7 @@ private:
   AgentsManagerClass &_agentManager;
   LEDFeedbackClass &_ledFeedback;
   static inline uint64_t _ts;
-  SecureElement *_secureElement;
+  SecureElementClass  *_secureElement;
   String generateToken();
 
   bool sendStatus(StatusMessage msg);
