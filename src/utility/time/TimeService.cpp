@@ -104,6 +104,17 @@ static inline unsigned long _getRTC() {
   return time(NULL);
 }
   #endif
+  #if defined(ARDUINO_ARCH_ZEPHYR)
+static inline void _setRTC(unsigned long time) {
+  struct timespec tspec = {(time_t)time, 0};
+	sys_clock_settime(SYS_CLOCK_REALTIME, &tspec);
+}
+static inline void _initRTC() {
+}
+static inline unsigned long _getRTC() {
+  return time(NULL);
+}
+  #endif
 #else /* !BOARD_HAS_HW_RTC */
   #pragma message "No hardware RTC implementation found, using soft RTC"
 static inline void _initRTC() {

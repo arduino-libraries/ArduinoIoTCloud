@@ -21,9 +21,11 @@ namespace arduino { namespace math {
          * or if those two IEEE754 values are numbers or zero(which is handled on its own) exceed
          * a certain threshold
          */
+
+        using namespace std;
         return memcmp((uint8_t*)&a, (uint8_t*)&b, sizeof(b)) != 0 && (
-            (std::fpclassify(a) != FP_NORMAL && std::fpclassify(a) != FP_ZERO) ||
-            (std::fpclassify(b) != FP_NORMAL && std::fpclassify(b) != FP_ZERO) ||
+            (fpclassify(a) != FP_NORMAL && fpclassify(a) != FP_ZERO) ||
+            (fpclassify(b) != FP_NORMAL && fpclassify(b) != FP_ZERO) ||
             fabs(a - b) >= delta
         );
     }
