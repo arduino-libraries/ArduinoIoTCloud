@@ -37,7 +37,6 @@ enum class DeviceState {
   };
 
 DeviceState _state = DeviceState::HARDWARE_CHECK;
-SecureElement secureElement;
 
 String uhwid = "";
 bool resetEvent = false;
@@ -48,8 +47,8 @@ ClaimingHandlerClass ClaimingHandler;
 bool clearStoredCredentials() {
   const uint8_t empty[4] = {0x00,0x00,0x00,0x00};
   if(!NetworkConfigurator.resetStoredConfiguration() || \
-    !secureElement.writeSlot(static_cast<int>(SElementArduinoCloudSlot::DeviceId), (byte*)empty, sizeof(empty)) || \
-    !secureElement.writeSlot(static_cast<int>(SElementArduinoCloudSlot::CompressedCertificate), (byte*)empty, sizeof(empty))) {
+    !SecureElement.writeSlot(static_cast<int>(SElementArduinoCloudSlot::DeviceId), (byte*)empty, sizeof(empty)) || \
+    !SecureElement.writeSlot(static_cast<int>(SElementArduinoCloudSlot::CompressedCertificate), (byte*)empty, sizeof(empty))) {
     return false;
   }
 
@@ -121,22 +120,22 @@ DeviceState handleOptaTest() {
 
 DeviceState handleHardwareCheck() {
   // Init the secure element
-  if(!secureElement.begin()) {
+  if(!SecureElement.begin()) {
     DEBUG_ERROR("Sketch: Error during secureElement begin!");
     LEDFeedbackClass::getInstance().setMode(LEDFeedbackClass::LEDFeedbackMode::ERROR);
     sendStatus(StatusMessage::HW_ERROR_SE_BEGIN);
     return DeviceState::ERROR;
   }
 
-  if (!secureElement.locked()) {
-    if (!secureElement.writeConfiguration()) {
+  if (!SecureElement.locked()) {
+    if (!SecureElement.writeConfiguration()) {
       DEBUG_ERROR("Sketch: Writing secureElement configuration failed!");
       LEDFeedbackClass::getInstance().setMode(LEDFeedbackClass::LEDFeedbackMode::ERROR);
       sendStatus(StatusMessage::HW_ERROR_SE_CONFIG);
       return DeviceState::ERROR;
     }
 
-    if (!secureElement.lock()) {
+    if (!SecureElement.lock()) {
       DEBUG_ERROR("Sketch: Locking secureElement configuration failed!");
       LEDFeedbackClass::getInstance().setMode(LEDFeedbackClass::LEDFeedbackMode::ERROR);
       sendStatus(StatusMessage::HW_ERROR_SE_LOCK);
@@ -168,7 +167,7 @@ DeviceState handleBegin() {
   // Scan the network options
   NetworkConfigurator.scanNetworkOptions();
   NetworkConfigurator.begin();
-  ClaimingHandler.begin(secureElement, uhwid, clearStoredCredentials);
+  ClaimingHandler.begin(SecureElement, uhwid, clearStoredCredentials);
   DEBUG_INFO("BLE Available");
   return DeviceState::NETWORK_CONFIG;
 }
@@ -183,10 +182,10 @@ DeviceState handleNetworkConfig() {
   DeviceState nextState = _state;
   if (s == NetworkConfiguratorStates::CONFIGURED) {
     String deviceId = "";
-    SElementArduinoCloudDeviceId::read(secureElement, deviceId, SElementArduinoCloudSlot::DeviceId);
+    SElementArduinoCloudDeviceId::read(SecureElement, deviceId, SElementArduinoCloudSlot::DeviceId);
 
     if (deviceId == "") {
-      CSRHandler.begin(ArduinoIoTPreferredConnection, secureElement, uhwid);
+      CSRHandler.begin(ArduinoIoTPreferredConnection, SecureElement, uhwid);
       nextState = DeviceState::CSR;
     } else {
       nextState = DeviceState::BEGIN_CLOUD;
