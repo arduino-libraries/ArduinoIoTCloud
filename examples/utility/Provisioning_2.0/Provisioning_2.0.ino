@@ -21,7 +21,7 @@
 #define TEST_LED_BLINKING_INTERVAL_MS 250
 #endif
 
-const char *SKETCH_VERSION = "0.6.3";
+const char *SKETCH_VERSION = "0.6.4";
 
 enum class DeviceState {
   #if defined(ARDUINO_OPTA)
