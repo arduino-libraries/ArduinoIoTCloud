@@ -25,11 +25,11 @@ jobs:
         - source-url: https://github.com/pennam/Arduino_ConnectionHandler.git
           version: 0f0f4a4ce718fcf2066a092a92cc2fdcd4d8bedd
         - name: Arduino_SecureElement
-          version: 0.4.0
+          version: 1.0.1
         - name: Arduino_CloudUtils
           version: 1.2.1
         - source-url: https://github.com/arduino-libraries/Arduino_UniqueHWId.git
-          version: 7e1bfeb586cac00f043c39997a1e9937ed8152b0
+          version: 7a89de832fb7a810e2ba958b71a677637a2d2a9a
         - name: Arduino_NetworkConfigurator
           version: 0.5.1
       # sketch paths to compile (recursive) for all boards
@@ -82,11 +82,11 @@ jobs:
               - name: RTCZero
                 version: 1.6.0
               - name: ArduinoECCX08
-                version: 1.3.9
+                version: 1.4.1
               - name: Adafruit SleepyDog Library
                 version: 1.6.5
               - name: ArduinoBearSSL
-                version: 1.7.6
+                version: 1.8.0
               - name: WiFiNINA
                 version: 2.0.1
               - name: Arduino_SpiNINA
@@ -104,13 +104,13 @@ jobs:
               - source-url: https://github.com/pennam/Arduino_Cellular.git
                 version: bfbd25791d200b113d640e16eed43ce547ab0b0c
               - name: ArduinoECCX08
-                version: 1.3.9
+                version: 1.4.1
               - name: StreamDebugger
                 version: 1.0.1
               - name: TinyGsm
                 version: 0.12.0
               - name: ArduinoBearSSL
-                version: 1.7.6
+                version: 1.8.0
               - name: ArduinoBLE
                 version: 1.4.0
           # Nicla Vision
@@ -134,9 +134,9 @@ jobs:
                 version: 4.6.0
             libraries: |
               - name: ArduinoECCX08
-                version: 1.3.9
+                version: 1.4.1
               - name: ArduinoBearSSL
-                version: 1.7.6
+                version: 1.8.0
               - name: ArduinoBLE
                 version: 1.4.0
           # GIGA
@@ -148,9 +148,9 @@ jobs:
                 version: 4.3.1
             libraries: |
               - name: ArduinoECCX08
-                version: 1.3.9
+                version: 1.4.1
               - name: ArduinoBearSSL
-                version: 1.7.6
+                version: 1.8.0
               - name: ArduinoBLE
                 version: 1.4.0
           # UNO R4 WiFi

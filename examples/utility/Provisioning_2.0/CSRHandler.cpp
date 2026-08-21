@@ -38,7 +38,6 @@ CSRHandlerClass::CSRHandlerClass() :
   _uhwid{nullptr},
   _certForCSR{nullptr},
   _connectionHandler{nullptr},
-  _secureElement{nullptr},
   _tlsClient{nullptr},
   _client{nullptr},
   _fw_version{""},
@@ -68,7 +67,7 @@ CSRHandlerClass::~CSRHandlerClass() {
   }
 }
 
-bool CSRHandlerClass::begin(ConnectionHandler &connectionHandler, SecureElement &secureElement, String &uhwid) {
+bool CSRHandlerClass::begin(ConnectionHandler &connectionHandler, String &uhwid) {
   if(_state != CSRHandlerStates::END) {
     return true;
   }
@@ -78,7 +77,6 @@ bool CSRHandlerClass::begin(ConnectionHandler &connectionHandler, SecureElement 
   }
 
   _connectionHandler = &connectionHandler;
-  _secureElement = &secureElement;
   _uhwid = &uhwid;
 
 #ifdef BOARD_HAS_WIFI
@@ -95,6 +93,7 @@ bool CSRHandlerClass::begin(ConnectionHandler &connectionHandler, SecureElement 
   _nextRequestAt = 0;
   _startWaitingResponse = 0;
   _state = CSRHandlerStates::BUILD_CSR;
+  return true;
 }
 
 void CSRHandlerClass::end() {
@@ -162,7 +161,7 @@ bool CSRHandlerClass::postRequest(const char *url, String &postData) {
     return false;
   }
 
-  String token = getAIoTCloudJWT(*_secureElement, *_uhwid, ts, 1);
+  String token = getAIoTCloudJWT(SecureElement, *_uhwid, ts, 1);
 
   _requestAttempt++;
   _client->beginRequest();
@@ -237,7 +236,7 @@ CSRHandlerClass::CSRHandlerStates CSRHandlerClass::handleBuildCSR() {
 
   _certForCSR->setSubjectCommonName(*_uhwid);
 
-  if (!SElementCSR::build(*_secureElement, *_certForCSR, static_cast<int>(SElementArduinoCloudSlot::Key), true)) {
+  if (!SElementCSR::build(SecureElement, *_certForCSR, static_cast<int>(SElementArduinoCloudSlot::Key), true)) {
     DEBUG_ERROR("CSRH::%s Error generating CSR!", __FUNCTION__);
     _ledFeedback.setMode(LEDFeedbackClass::LEDFeedbackMode::ERROR);
     return CSRHandlerStates::ERROR;
@@ -350,7 +349,7 @@ CSRHandlerClass::CSRHandlerStates CSRHandlerClass::handleParseResponse() {
 CSRHandlerClass::CSRHandlerStates CSRHandlerClass::handleBuildCertificate() {
   int expireYears = 31;
 
-  if (!SElementArduinoCloudDeviceId::write(*_secureElement, _deviceId, SElementArduinoCloudSlot::DeviceId)) {
+  if (!SElementArduinoCloudDeviceId::write(SecureElement, _deviceId, SElementArduinoCloudSlot::DeviceId)) {
     DEBUG_ERROR("CSRH::%s Error storing device id!", __FUNCTION__);
     _ledFeedback.setMode(LEDFeedbackClass::LEDFeedbackMode::ERROR);
     return CSRHandlerStates::ERROR;
@@ -373,13 +372,13 @@ CSRHandlerClass::CSRHandlerStates CSRHandlerClass::handleBuildCertificate() {
   cert.setIssueHour(_issueHour);
   cert.setExpireYears(expireYears);
 
-  if (!SElementArduinoCloudCertificate::build(*_secureElement, cert, static_cast<int>(SElementArduinoCloudSlot::Key))) {
+  if (!SElementArduinoCloudCertificate::build(SecureElement, cert, static_cast<int>(SElementArduinoCloudSlot::Key))) {
     DEBUG_ERROR("CSRH::%s Error building secureElement compressed cert!", __FUNCTION__);
     _ledFeedback.setMode(LEDFeedbackClass::LEDFeedbackMode::ERROR);
     return CSRHandlerStates::ERROR;
   }
 
-  if (!SElementArduinoCloudCertificate::write(*_secureElement, cert, SElementArduinoCloudSlot::CompressedCertificate)) {
+  if (!SElementArduinoCloudCertificate::write(SecureElement, cert, SElementArduinoCloudSlot::CompressedCertificate)) {
     DEBUG_ERROR("CSRH::%s Error storing cert!" , __FUNCTION__);
     _ledFeedback.setMode(LEDFeedbackClass::LEDFeedbackMode::ERROR);
     return CSRHandlerStates::ERROR;
