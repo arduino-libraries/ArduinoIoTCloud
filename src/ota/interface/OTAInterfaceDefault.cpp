@@ -31,14 +31,21 @@ OTACloudProcessInterface::State OTADefaultCloudProcessInterface::startOTA() {
   assert(OTACloudProcessInterface::context != nullptr);
   assert(context == nullptr);
 
-  context = new Context(
-    OTACloudProcessInterface::context->url,
-    [this](uint8_t c) {
-        if (this->writeFlash(&c, 1) != 1) {
-          this->context->writeError = true;
-        }
-    }
-  );
+  if (getOtaPolicy(SaveCompressed)) {
+    context = new Context(
+      OTACloudProcessInterface::context->url,
+      nullptr
+    );
+  } else {
+    context = new Context(
+      OTACloudProcessInterface::context->url,
+      [this](uint8_t c) {
+          if (this->writeFlash(&c, 1) != 1) {
+            this->context->writeError = true;
+          }
+      }
+    );
+  }
 
   // check url
   if(strcmp(context->parsed_url.schema(), "https") == 0) {
@@ -225,13 +232,22 @@ void OTADefaultCloudProcessInterface::parseOta(uint8_t* buffer, size_t bufLen) {
           return;
         }
         context->downloadedSize += sizeof(context->header.buf);
+
+        if (getOtaPolicy(StoreOtaHeader)) {
+          writeFlash(context->header.buf, sizeof(context->header.buf));
+        }
       }
 
       break;
     }
     case OtaDownloadFile: {
       const uint32_t dataLeft = bufLen - (cursor-buffer);
-      context->decoder.decompress(cursor, dataLeft); // TODO verify return value
+
+      if (getOtaPolicy(SaveCompressed)) {
+        writeFlash(cursor, dataLeft);
+      } else {
+        context->decoder.decompress(cursor, dataLeft); // TODO verify return value
+      }
 
       context->calculatedCrc32 = arduino::crc32::update(
           context->calculatedCrc32,
