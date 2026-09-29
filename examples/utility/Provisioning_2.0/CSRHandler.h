@@ -9,9 +9,9 @@
 #pragma once
 #include <Arduino.h>
 #include <Arduino_ConnectionHandler.h>
-#include <Arduino_SecureElement.h>
 #include <tls/utility/TLSClientMqtt.h>
 #include <ArduinoHttpClient.h>
+#include <Arduino_SecureElement.h>
 #include "utility/LEDFeedback.h"
 #define JITTER_BASE 0
 #define JITTER_MAX 1000
@@ -32,7 +32,7 @@ public:
     ERROR,
     END
   };
-  bool begin(ConnectionHandler &connectionHandler, SecureElement &secureElement, String &uhwid);
+  bool begin(ConnectionHandler &connectionHandler, String &uhwid);
   void end();
   CSRHandlerStates poll();
 private:
@@ -54,7 +54,6 @@ private:
 
   ECP256Certificate *_certForCSR;
   ConnectionHandler *_connectionHandler;
-  SecureElement *_secureElement;
   TLSClientMqtt *_tlsClient;
   HttpClient *_client;
   LEDFeedbackClass &_ledFeedback;
