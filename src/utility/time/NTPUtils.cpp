@@ -18,8 +18,8 @@
 #include "NTPUtils.h"
 
 #include <Arduino.h>
-#ifdef BOARD_HAS_ECCX08
-  #include <ArduinoECCX08.h>
+#ifdef BOARD_HAS_SECURE_ELEMENT
+  #include <Arduino_SecureElement.h>
 #endif
 
 /******************************************************************************
@@ -91,8 +91,8 @@ void NTPUtils::sendNTPpacket(UDP & udp)
 
 int NTPUtils::getRandomPort(int const min_port, int const max_port)
 {
-#if defined (BOARD_HAS_ECCX08)
-  return ECCX08.random(min_port, max_port);
+#if defined (BOARD_HAS_SECURE_ELEMENT)
+  return SecureElement.random(min_port, max_port);
 #elif defined (ARDUINO_ARCH_ESP8266) || (ARDUINO_ARCH_ESP32)
   /* Uses HW Random Number Generator */
   return random(min_port, max_port);
