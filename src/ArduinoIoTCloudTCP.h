@@ -118,6 +118,10 @@ class ArduinoIoTCloudTCP: public ArduinoIoTCloudClass
     }
 #endif
 
+#if OTA_ENABLED
+    inline OTACloudProcessInterface::State getOtaState() { return _ota.getState(); }
+#endif /* OTA_ENABLED */
+
   private:
     static const int MQTT_TRANSMIT_BUFFER_SIZE = 256;
 
