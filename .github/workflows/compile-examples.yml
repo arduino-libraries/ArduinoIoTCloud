@@ -347,10 +347,14 @@ jobs:
               - name: ArduinoBearSSL
               - name: ArduinoECCX08
               - name: Arduino_SE05X
+              - name: Arduino_KVStore
+              - name: Arduino_NetworkConfigurator
             sketch-paths: |
               - examples/ArduinoIoTCloud-Advanced
               - examples/ArduinoIoTCloud-Basic
               - examples/ArduinoIoTCloud-Callbacks
+              - examples/utility/Provisioning
+              - examples/utility/Provisioning_2.0
 
     steps:
       - name: Checkout
