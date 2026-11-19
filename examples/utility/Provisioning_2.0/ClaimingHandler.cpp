@@ -154,7 +154,7 @@ void ClaimingHandlerClass::getBLEMacAddressReqHandler() {
    */
   uint8_t mac[6] = { 0xff, 0xff, 0xff, 0xff, 0xff, 0xff };
 
-#ifdef ARDUINO_OPTA
+#if defined(ARDUINO_OPTA) && defined(ARDUINO_ARCH_MBED)
   if(_getPid_() == OPTA_WIFI_PID) {
 #endif
   bool activated = false;
@@ -175,7 +175,7 @@ void ClaimingHandlerClass::getBLEMacAddressReqHandler() {
   if (activated) {
     BLE.end();
   }
-#ifdef ARDUINO_OPTA
+#if defined(ARDUINO_OPTA) && defined(ARDUINO_ARCH_MBED)
   }
 #endif
   ProvisioningOutputMessage outputMsg;

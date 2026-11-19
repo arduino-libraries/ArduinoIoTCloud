@@ -15,7 +15,7 @@
 #include <utility/SElementArduinoCloudCertificate.h>
 #include "utility/LEDFeedback.h"
 #include "FactoryTester.h"
-#if defined(ARDUINO_OPTA)
+#if defined(ARDUINO_OPTA) && defined(ARDUINO_ARCH_MBED)
 #include "OptaFactoryTest.h"
 #define TIMEOUT_FOR_START_TEST_INPUT 500
 #define TEST_LED_BLINKING_INTERVAL_MS 250
@@ -24,7 +24,7 @@
 const char *SKETCH_VERSION = "0.6.4";
 
 enum class DeviceState {
-  #if defined(ARDUINO_OPTA)
+  #if defined(ARDUINO_OPTA)  && defined(ARDUINO_ARCH_MBED)
     OPTA_TEST,
   #endif
     HARDWARE_CHECK,
@@ -70,7 +70,7 @@ void setup() {
   LedFactoryTest();
   #endif
 
-  #if defined(ARDUINO_OPTA)
+  #if defined(ARDUINO_OPTA) && defined(ARDUINO_ARCH_MBED)
   OptaFactoryTest.begin();
   OptaFactoryTest.optaIDTest();
   uint32_t start = millis();
@@ -98,7 +98,7 @@ void sendStatus(StatusMessage msg) {
   AgentsManagerClass::getInstance().sendMsg(outMsg);
 }
 
-#if defined(ARDUINO_OPTA)
+#if defined(ARDUINO_OPTA) && defined(ARDUINO_ARCH_MBED)
 uint32_t lastLedStatusChanged = 0;
 bool ledactive = false;
 DeviceState handleOptaTest() {
@@ -267,7 +267,7 @@ DeviceState handleError() {
 
 void loop() {
   switch (_state) {
-    #if defined(ARDUINO_OPTA)
+    #if defined(ARDUINO_OPTA) && defined(ARDUINO_ARCH_MBED)
     case DeviceState::OPTA_TEST:        _state = handleOptaTest     (); break;
     #endif
     case DeviceState::HARDWARE_CHECK:  _state = handleHardwareCheck(); break;
@@ -280,7 +280,7 @@ void loop() {
     default:                                                           break;
   }
 
-  #if defined(ARDUINO_OPTA)
+  #if defined(ARDUINO_OPTA) && defined(ARDUINO_ARCH_MBED)
   if(_state == DeviceState::NETWORK_CONFIG || _state == DeviceState::RUN){
     OptaFactoryTest.poll();
   }
