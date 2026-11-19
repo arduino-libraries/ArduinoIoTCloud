@@ -6,7 +6,7 @@
   file, You can obtain one at http://mozilla.org/MPL/2.0/.
 */
 
-#ifdef ARDUINO_OPTA
+#if defined(ARDUINO_OPTA) && defined(ARDUINO_ARCH_MBED)
 #include "OptaFactoryTest.h"
 #include "utility/ResetInput.h"
 
