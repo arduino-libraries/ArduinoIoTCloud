@@ -27,6 +27,11 @@
 #include "utility/watchdog/Watchdog.h"
 #include <typeinfo>
 
+#if defined(MBED_ZEPHYR_MIGRATION)
+
+#include <Arduino_FlashFormatter.h>
+#endif
+
 /******************************************************************************
   LOCAL MODULE FUNCTIONS
  ******************************************************************************/
@@ -134,6 +139,17 @@ int ArduinoIoTCloudTCP::begin(ConnectionHandler & connection, bool const enable_
 
 int ArduinoIoTCloudTCP::begin(bool const enable_watchdog, String brokerAddress, uint16_t brokerPort, bool auto_reconnect)
 {
+#if defined(MBED_ZEPHYR_MIGRATION)
+
+  FlashFormatterZephyrMigrate flashFormatter;
+  if(!flashFormatter.checkAndFormatPartition()) {
+    DEBUG_ERROR("Failed to check / format flash");
+    return false;
+  } else {
+    DEBUG_VERBOSE("Flash checked / formatted successfully");
+  }
+#endif
+
   _enable_watchdog = enable_watchdog;
   _brokerAddress = brokerAddress;
   _brokerPort = brokerPort;
